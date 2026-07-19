@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCINTILLA · ALLOCATION</title>
+<style>
+  :root{
+    --bg:#0a0a0f; --panel:#101018; --line:#1c1c28; --txt:#e8e8f0; --dim:#8a8aa0;
+    --cyan:#00d4ff; --orange:#ff8c42; --green:#38e07b; --red:#ff5470; --gold:#ffd166;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--txt); font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:13px; padding:26px 30px 60px;}
+  h1{font-size:19px; letter-spacing:.28em; font-weight:600;}
+  h1 .dot{color:var(--cyan);}
+  .sub{color:var(--dim); margin-top:4px; font-size:11px; letter-spacing:.08em;}
+  .grid{display:grid; grid-template-columns:1.05fr .95fr; gap:18px; margin-top:22px; align-items:start;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px;}
+  .panel h2{font-size:11px; letter-spacing:.22em; color:var(--cyan); margin-bottom:4px; font-weight:600;}
+  .panel .note{color:var(--dim); font-size:11px; line-height:1.5; margin-bottom:12px;}
+  .full{grid-column:1 / -1;}
+  /* gauge rows */
+  .gauge{display:grid; grid-template-columns:110px 1fr 64px 86px; gap:10px; align-items:center; padding:5px 0; border-bottom:1px solid #14141e;}
+  .gauge:last-child{border-bottom:none;}
+  .gname{color:var(--txt); font-size:12px;}
+  .gname small{color:var(--dim); display:block; font-size:9px; letter-spacing:.05em;}
+  .barwrap{position:relative; height:14px; background:#0d0d15; border-radius:3px; overflow:hidden;}
+  .barwrap .mid{position:absolute; left:50%; top:0; bottom:0; width:1px; background:#2a2a3a;}
+  .bar{position:absolute; top:2px; bottom:2px; border-radius:2px;}
+  .gval{text-align:right; font-size:12px;}
+  .wt{display:flex; align-items:center; gap:6px;}
+  .wt input[type=range]{width:52px;}
+  .wt span{color:var(--dim); font-size:10px; width:24px;}
+  /* sliders */
+  input[type=range]{-webkit-appearance:none; height:3px; background:#22222f; border-radius:2px; outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:var(--cyan); cursor:pointer; box-shadow:0 0 8px rgba(0,212,255,.5);}
+  .ctl{display:grid; grid-template-columns:170px 1fr 64px; gap:12px; align-items:center; padding:6px 0;}
+  .ctl label{color:var(--txt); font-size:12px;}
+  .ctl label small{color:var(--dim); display:block; font-size:9px;}
+  .ctl input[type=range]{width:100%;}
+  .ctl .v{text-align:right; color:var(--cyan);}
+  /* heat headline */
+  .heatline{display:flex; align-items:center; gap:18px; margin:6px 0 10px;}
+  .heatnum{font-size:34px; font-weight:700;}
+  .heatlabel{font-size:15px; letter-spacing:.18em; font-weight:600;}
+  .axis{display:flex; justify-content:space-between; color:var(--dim); font-size:9px; letter-spacing:.12em; margin-top:2px;}
+  canvas{width:100%; height:190px; display:block; margin-top:8px;}
+  /* moves */
+  .move{display:grid; grid-template-columns:110px 1fr; gap:12px; padding:10px 0; border-bottom:1px solid #14141e; align-items:center;}
+  .move:last-child{border-bottom:none;}
+  .mname{color:var(--dim); font-size:11px; letter-spacing:.15em;}
+  .mval{font-size:16px; font-weight:600;}
+  .mval small{color:var(--dim); font-size:11px; font-weight:400; margin-left:8px;}
+  .add{color:var(--cyan);} .trim{color:var(--orange);} .flat{color:var(--dim);}
+  /* cohort */
+  table{width:100%; border-collapse:collapse; font-size:12px;}
+  th{color:var(--dim); text-align:left; font-weight:400; font-size:10px; letter-spacing:.14em; padding:4px 6px; border-bottom:1px solid var(--line); cursor:default;}
+  td{padding:4px 6px; border-bottom:1px solid #12121a;}
+  td.r, th.r{text-align:right;}
+  .tag{font-size:9px; letter-spacing:.08em; padding:1px 6px; border-radius:3px; margin-left:6px;}
+  .tag.add{background:rgba(0,212,255,.12); color:var(--cyan); border:1px solid rgba(0,212,255,.35);}
+  .tag.trim{background:rgba(255,140,66,.12); color:var(--orange); border:1px solid rgba(255,140,66,.35);}
+  .cls{color:var(--dim); font-size:10px;}
+  .mini{position:relative; height:10px; width:110px; background:#0d0d15; border-radius:2px; display:inline-block; vertical-align:middle;}
+  .mini .mid{position:absolute; left:50%; top:0; bottom:0; width:1px; background:#2a2a3a;}
+  .mini .b{position:absolute; top:1px; bottom:1px; border-radius:2px;}
+  .status{color:var(--dim); font-size:10px; letter-spacing:.06em; margin-top:6px;}
+  .btn{background:#14141f; color:var(--cyan); border:1px solid var(--line); border-radius:6px; padding:5px 14px; font-family:inherit; font-size:11px; letter-spacing:.1em; cursor:pointer;}
+  .btn:hover{border-color:var(--cyan);}
+  details{margin-top:10px;}
+  summary{color:var(--dim); font-size:10px; letter-spacing:.15em; cursor:pointer;}
+  .updated{color:var(--dim); font-size:10px;}
+  #loading{position:fixed; inset:0; background:rgba(10,10,15,.92); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; z-index:9;}
+  .spin{width:34px; height:34px; border:3px solid #1c1c28; border-top-color:var(--cyan); border-radius:50%; animation:sp 1s linear infinite;}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spin"></div><div id="loadmsg" class="status">pulling market feeds…</div></div>
+
+<h1>SCINTILLA <span class="dot">·</span> ALLOCATION</h1>
+<div class="sub" id="stamp">—</div>
+
+<div class="grid">
+
+  <!-- 1 MACRO HEAT -->
+  <div class="panel">
+    <h2>1 · MACRO HEAT — the voters</h2>
+    <div class="note">Every voter on one scale: −1 washed-out (cold) → +1 stretched (hot). Geigers enter straight; VIX &amp; 10Y are inverted. Drag a weight to change who counts — the score recomputes live.</div>
+    <div id="gauges"></div>
+    <div class="heatline">
+      <div class="heatnum" id="heatnum">—</div>
+      <div style="flex:1">
+        <div class="barwrap" style="height:20px"><div class="mid"></div><div class="bar" id="heatbar"></div></div>
+        <div class="axis"><span>−1 WASHED OUT</span><span>0</span><span>+1 STRETCHED</span></div>
+      </div>
+      <div class="heatlabel" id="heatlabel">—</div>
+    </div>
+    <details>
+      <summary>GEIGER DIALS (approved — touch only if you mean it)</summary>
+      <div class="ctl"><label>Trend / Momentum<small>inside each geiger</small></label><input type="range" id="dTrend" min="0" max="1" step="0.05"><div class="v" id="dTrendV"></div></div>
+      <div class="ctl"><label>RSI / W%R<small>momentum blend</small></label><input type="range" id="dRsi" min="0" max="1" step="0.05"><div class="v" id="dRsiV"></div></div>
+      <div class="ctl"><label>1D / 1W<small>equalizer TF blend (3.1785 / 0.9875 ≈ this)</small></label><input type="range" id="dTf" min="0" max="1" step="0.01"><div class="v" id="dTfV"></div></div>
+      <div class="ctl"><label>VIX cold ↔ hot<small>−1 at high, +1 at low</small></label><input type="range" id="vixCold" min="20" max="50" step="1"><div class="v" id="vixColdV"></div></div>
+      <div class="ctl"><label>10Y cold end %<small>−1 at this yield</small></label><input type="range" id="tenCold" min="4" max="6" step="0.1"><div class="v" id="tenColdV"></div></div>
+    </details>
+  </div>
+
+  <!-- 2 METHODOLOGY -->
+  <div class="panel">
+    <h2>2 · METHODOLOGY — heat sets the balance</h2>
+    <div class="note">This chart is NOT an image — it is the allocation formula drawn live (full derivation in panel 6). Cyan line = % invested at every possible heat. Gold dashed = large-cap share of invested. The white dot = where the market is RIGHT NOW, so the y-value under the dot is today's target. Move a slider and the curve redraws.</div>
+    <canvas id="curve" width="640" height="380"></canvas>
+    <div class="axis"><span>−1 COLD → deploy</span><span>HEAT</span><span>+1 HOT → defend</span></div>
+    <div class="ctl"><label>Invested at max COLD</label><input type="range" id="maxInv" min="0" max="100" step="5"><div class="v" id="maxInvV"></div></div>
+    <div class="ctl"><label>Invested at max HOT</label><input type="range" id="minInv" min="0" max="100" step="5"><div class="v" id="minInvV"></div></div>
+    <div class="ctl"><label>Aggressiveness<small>1 = linear · higher = hold back until truly cold</small></label><input type="range" id="gamma" min="0.4" max="3" step="0.1"><div class="v" id="gammaV"></div></div>
+    <div class="ctl"><label>LC share when HOT<small>defense leans large</small></label><input type="range" id="lcHot" min="0" max="100" step="5"><div class="v" id="lcHotV"></div></div>
+    <div class="ctl"><label>LC share when COLD<small>deployment leans small</small></label><input type="range" id="lcCold" min="0" max="100" step="5"><div class="v" id="lcColdV"></div></div>
+    <div class="ctl"><label>Positions LC / SC</label><div style="display:flex;gap:14px;align-items:center"><input type="range" id="nLC" min="1" max="10" step="1" style="flex:1"><input type="range" id="nSC" min="1" max="10" step="1" style="flex:1"></div><div class="v" id="nV"></div></div>
+  </div>
+
+  <!-- 3 STATE + MOVES -->
+  <div class="panel">
+    <h2>3 · YOUR STATE → THE MOVES</h2>
+    <div class="note" id="ibkrnote">YOUR STATE comes from your Interactive Brokers account (read-only connector pull at build time): currently 100% cash, zero open positions — that is why both sliders start at 0. Slide to match reality whenever it changes — never type, never dollars. (Live IBKR sync is a future integration.)</div>
+    <div class="ctl"><label>Current % invested</label><input type="range" id="curInv" min="0" max="100" step="1"><div class="v" id="curInvV"></div></div>
+    <div class="ctl"><label>…of which Large Cap<small>% of equity in LC</small></label><input type="range" id="curLC" min="0" max="100" step="1"><div class="v" id="curLCV"></div></div>
+    <div style="margin-top:12px" id="moves"></div>
+  </div>
+
+  <!-- 4 TARGETS readout -->
+  <div class="panel">
+    <h2>4 · TARGET READOUT</h2>
+    <div class="note">What the methodology says at the current heat — the numbers the moves are measured against.</div>
+    <div id="targets"></div>
+  </div>
+
+  <!-- 5 COHORT -->
+  <div class="panel full">
+    <h2>5 · MOVE OPTIONS — ★FAV cohort by geiger</h2>
+    <div class="note">Your favorites, each with its own approved geiger (same dials as above). CANDIDATE RULE, exactly: if the LC or SC move is an ADD, the 3 coldest (lowest geiger) favorites in that class get tagged ADD CANDIDATE; if it is a TRIM, the 3 hottest get tagged TRIM CANDIDATE. Nothing else decides it — geiger rank only, volume conviction comes later. Sorted cold → hot.</div>
+    <table id="cohort"></table>
+    <div class="status"><button class="btn" id="refresh">↻ REFRESH FEEDS</button> <span class="updated" id="cohstamp"></span></div>
+  </div>
+
+  <!-- 6 MATH TRACE -->
+  <div class="panel full">
+    <h2>6 · MATH TRACE — input to output, live numbers</h2>
+    <div class="note">The entire chain, recomputed on every slider move. Read top to bottom: raw primitives → geigers → heat → curve → targets → your state → moves → candidates. This is exactly what the code does, shown with today's numbers.</div>
+    <pre id="trace" style="font-size:11.5px; line-height:1.75; color:var(--txt); white-space:pre-wrap;"></pre>
+  </div>
+
+</div>
+
+<script>
+const SB = 'https://wadinxqplrggagkvrdag.supabase.co/functions/v1';
+const CLASSES = {ANET:'LC',AMD:'LC',SPY:'IDX',CRDO:'SC',PSTG:'SC',ALAB:'SC',NVDA:'LC',QQQ:'IDX',SNDK:'SC',AMAT:'LC',AVGO:'LC',ASML:'LC',AMZN:'LC',LRCX:'LC',MU:'LC',TSM:'LC',GOOGL:'LC',NBIS:'SC',ARM:'LC',CIFR:'SC',DRAM:'IDX',MRVL:'LC',TSLA:'LC',USO:'ETF',CLUSD:'CMD',MSFT:'LC',WULF:'SC',BTCUSD:'CRY',PLTR:'LC',CRWV:'SC',RKLB:'SC',APLD:'SC',USAR:'SC',IREN:'SC',SLV:'ETF',ASTS:'SC',OKLO:'SC',GCUSD:'CMD',SIUSD:'CMD',MSTR:'SC',IWM:'IDX',SMH:'IDX'};
+const CLASSNAME = {LC:'Large Cap',SC:'Small Cap',IDX:'Index',ETF:'ETF',CMD:'Commodity',CRY:'Crypto'};
+// internals direction & weight (mirrors the sheet's Feed map)
+const INTERNALS = {'RSP/SPY':[1,1],'IWM/SPY':[1,1],'QQQ/SPY':[1,1],'XLY/XLP':[1,1],'HYG/LQD':[1,1],'SMH/SPY':[1,1],'XLU/SPY':[-1,1],'BTC-USD':[1,1],'VIX':[-1,1],'VIX3M':[-1,0],'MOVE':[-1,1],'SKEW':[-1,1],'VVIX':[-1,1],'US10Y':[-1,1],'US5Y':[-1,0],'US3M':[-1,0],'US30Y':[-1,0],'CYC_DEF':[1,1]};
+
+const DEFAULTS = {
+  dTrend:0.5, dRsi:0.6, dTf:0.763,          // approved geiger + equalizer 3.1785/0.9875
+  vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
+  maxInv:100, minInv:15, gamma:1.0, lcHot:60, lcCold:20, nLC:4, nSC:2,
+  curInv:0, curLC:0,
+  wts:{SPY:1, QQQ:1, IWM:0, SMH:0, VIX:0, US10Y:0, MA:0, INTERNALS:1}
+};
+let S = JSON.parse(localStorage.getItem('alloc-module-v1') || 'null') || structuredClone(DEFAULTS);
+S.wts = Object.assign(structuredClone(DEFAULTS.wts), S.wts || {});
+function save(){ localStorage.setItem('alloc-module-v1', JSON.stringify(S)); }
+
+let COHORT = {};   // sym -> {price,day,td,rd,gd,tw,rw,gw,ma,maN}
+let MACRO = {};    // name -> {value,trend,rsi,range}
+let STAMPS = {cohort:'', macro:''};
+
+function parseCSV(text){
+  const lines = text.trim().split('\n'); const head = lines[0].split(',');
+  return lines.slice(1).map(l => { const c = l.split(','); const o = {}; head.forEach((h,i)=>o[h]=c[i]); return o; });
+}
+function ingest(mr, cr){
+  for (const r of parseCSV(mr)) {
+    MACRO[r.name] = {value:+r.value, trend:r.trend===''?null:+r.trend, rsi:r.rsi_s===''?null:+r.rsi_s, range:r.range_s===''?null:+r.range_s};
+    STAMPS.macro = r.updated_utc;
+  }
+  for (const r of parseCSV(cr)) {
+    if (r.price === '') continue;
+    const [ma, maN] = (r.ma10||'0/10').split('/').map(Number);
+    COHORT[r.sym] = {price:+r.price, day:+r.day_pct, td:+r.trend_d, rd:+r.rsis_d, gd:+r.range_d, tw:+r.trend_w, rw:+r.rsis_w, gw:+r.range_w, ma, maN};
+    STAMPS.cohort = r.updated_utc;
+  }
+}
+async function loadFeeds(){
+  // instant paint from last data, refresh in background (server also caches geigers 5 min)
+  const cached = JSON.parse(localStorage.getItem('alloc-data-v1') || 'null');
+  const haveCache = cached && cached.mr && cached.cr;
+  if (haveCache) { ingest(cached.mr, cached.cr); document.getElementById('loading').style.display='none'; render(); }
+  else document.getElementById('loading').style.display='flex';
+  document.getElementById('loadmsg').textContent = 'pulling macro internals + per-ticker geigers…';
+  document.getElementById('refresh').textContent = '↻ REFRESHING…';
+  try {
+    const [mr, cr] = await Promise.all([
+      fetch(SB + '/macro-feed?v=5').then(r=>r.text()),
+      fetch(SB + '/cohort-feed').then(r=>r.text())
+    ]);
+    localStorage.setItem('alloc-data-v1', JSON.stringify({mr, cr}));
+    ingest(mr, cr);
+  } catch(e) { /* keep cached view */ }
+  document.getElementById('loading').style.display='none';
+  document.getElementById('refresh').textContent = '↻ REFRESH FEEDS';
+  render();
+}
+
+// ---- math (approved geiger, client dials) ----
+const clamp = x => Math.max(-1, Math.min(1, x));
+function geiger(c){
+  const mD = c.rd * S.dRsi + c.gd * (1 - S.dRsi);
+  const mW = c.rw * S.dRsi + c.gw * (1 - S.dRsi);
+  const gD = c.td * S.dTrend + mD * (1 - S.dTrend);
+  const gW = c.tw * S.dTrend + mW * (1 - S.dTrend);
+  return clamp(gD * S.dTf + gW * (1 - S.dTf));
+}
+function rowGeiger(m){ // macro-feed row with primitives (daily-only series)
+  if (m.trend == null) return null;
+  return clamp(m.trend * S.dTrend + (m.rsi * S.dRsi + m.range * (1 - S.dRsi)) * (1 - S.dTrend));
+}
+function internalsScore(){
+  let num = 0, den = 0;
+  for (const [name, [dir, w]] of Object.entries(INTERNALS)) {
+    const m = MACRO[name]; if (!m || !w) continue;
+    const g = rowGeiger(m); if (g == null) continue;
+    num += dir * g * w; den += w;
+  }
+  const sect = MACRO['SECT_PCT_ABOVE_200D'];
+  if (sect && isFinite(sect.value)) { num += (sect.value * 2 - 1); den += 1; }
+  return den ? num / den : 0;
+}
+function voters(){
+  const v = [];
+  const idx = sym => COHORT[sym] ? geiger(COHORT[sym]) : null;
+  v.push({key:'SPY', name:'SPY GEIGER', sub:'approved · 1d+1w', val:idx('SPY')});
+  v.push({key:'QQQ', name:'QQQ GEIGER', sub:'approved · 1d+1w', val:idx('QQQ')});
+  v.push({key:'IWM', name:'IWM GEIGER', sub:'small caps', val:idx('IWM')});
+  v.push({key:'SMH', name:'SMH GEIGER', sub:'semis', val:idx('SMH')});
+  const vix = MACRO['VIX'] ? MACRO['VIX'].value : null;
+  v.push({key:'VIX', name:'VIX (inv)', sub: vix!=null ? vix.toFixed(1) : '—', val: vix!=null ? clamp(((S.vixCold+12)/2 - vix) / ((S.vixCold-12)/2)) : null});
+  const ten = MACRO['US10Y'] ? MACRO['US10Y'].value : null;
+  v.push({key:'US10Y', name:'US 10Y (inv)', sub: ten!=null ? ten.toFixed(2)+'%' : '—', val: ten!=null ? clamp(((+S.tenCold+3.5)/2 - ten) / ((+S.tenCold-3.5)/2)) : null});
+  const spy = COHORT['SPY'];
+  v.push({key:'MA', name:'MA STACK', sub: spy ? spy.ma+' of '+spy.maN+' above' : '—', val: spy ? clamp(spy.ma/spy.maN*2 - 1) : null});
+  v.push({key:'INTERNALS', name:'INTERNALS', sub:'~18 voters, feed', val: internalsScore()});
+  return v;
+}
+function heat(){
+  let num = 0, den = 0;
+  for (const v of voters()) { if (v.val == null) continue; const w = S.wts[v.key] ?? 0; num += v.val * w; den += w; }
+  return den ? num / den : 0;
+}
+function investedAt(h){ const x = Math.pow((1 - h) / 2, S.gamma); return (S.minInv + (S.maxInv - S.minInv) * x) / 100; }
+function lcShareAt(h){ return (S.lcHot + (S.lcCold - S.lcHot) * (1 - h) / 2) / 100; }
+function heatLabel(h){
+  if (h >= .5) return ['DEEP OVERBOUGHT', 'var(--red)'];
+  if (h >= .2) return ['OVERBOUGHT', 'var(--orange)'];
+  if (h <= -.5) return ['DEEP OVERSOLD', 'var(--green)'];
+  if (h <= -.2) return ['OVERSOLD', 'var(--cyan)'];
+  return ['NEUTRAL', 'var(--dim)'];
+}
+const pct = (x, d=1) => (x*100).toFixed(d) + '%';
+const spct = (x, d=1) => (x>=0?'+':'') + (x*100).toFixed(d) + '%';
+
+// ---- render ----
+function barCSS(el, val, scale=50){
+  const w = Math.min(50, Math.abs(val) * scale);
+  el.style.left = val < 0 ? (50 - w) + '%' : '50%';
+  el.style.width = w + '%';
+  el.style.background = val >= 0 ? 'var(--cyan)' : 'var(--orange)';
+}
+function render(){
+  // gauges
+  const gd = document.getElementById('gauges'); gd.innerHTML = '';
+  for (const v of voters()) {
+    const row = document.createElement('div'); row.className = 'gauge';
+    const val = v.val == null ? 0 : v.val;
+    row.innerHTML = `<div class="gname">${v.name}<small>${v.sub}</small></div>
+      <div class="barwrap"><div class="mid"></div><div class="bar"></div></div>
+      <div class="gval">${v.val==null?'—':(val>=0?'+':'')+val.toFixed(2)}</div>
+      <div class="wt"><input type="range" min="0" max="1" step="0.25" value="${S.wts[v.key]??0}"><span>w ${S.wts[v.key]??0}</span></div>`;
+    barCSS(row.querySelector('.bar'), val);
+    row.querySelector('input').oninput = e => { S.wts[v.key] = +e.target.value; save(); render(); };
+    gd.appendChild(row);
+  }
+  const h = heat(), [lbl, color] = heatLabel(h);
+  document.getElementById('heatnum').textContent = (h>=0?'+':'') + h.toFixed(2);
+  document.getElementById('heatnum').style.color = color;
+  const hb = document.getElementById('heatbar'); barCSS(hb, h);
+  const hl = document.getElementById('heatlabel'); hl.textContent = lbl; hl.style.color = color;
+
+  // dials display
+  const set = (id, v, fmt) => { const e = document.getElementById(id); e.value = v; document.getElementById(id+'V').textContent = fmt; };
+  set('dTrend', S.dTrend, S.dTrend.toFixed(2)+' / '+(1-S.dTrend).toFixed(2));
+  set('dRsi', S.dRsi, S.dRsi.toFixed(2)+' / '+(1-S.dRsi).toFixed(2));
+  set('dTf', S.dTf, Math.round(S.dTf*100)+' / '+Math.round((1-S.dTf)*100));
+  set('vixCold', S.vixCold, '−1 @ '+S.vixCold+' · +1 @ 12');
+  set('tenCold', S.tenCold, '−1 @ '+(+S.tenCold).toFixed(1)+'% · +1 @ 3.5%');
+  set('maxInv', S.maxInv, S.maxInv+'%');
+  set('minInv', S.minInv, S.minInv+'%');
+  set('gamma', S.gamma, 'γ '+(+S.gamma).toFixed(1));
+  set('lcHot', S.lcHot, S.lcHot+'%');
+  set('lcCold', S.lcCold, S.lcCold+'%');
+  document.getElementById('nLC').value = S.nLC; document.getElementById('nSC').value = S.nSC;
+  document.getElementById('nV').textContent = S.nLC+' / '+S.nSC;
+  set('curInv', S.curInv, S.curInv+'%');
+  set('curLC', S.curLC, S.curLC+'%');
+  document.getElementById('curLC').max = S.curInv;
+  if (S.curLC > S.curInv) S.curLC = S.curInv;
+
+  drawCurve(h);
+
+  // targets
+  const inv = investedAt(h), lc = lcShareAt(h), sc = 1 - lc;
+  const lcEq = inv*lc, scEq = inv*sc;
+  const perLC = lcEq / S.nLC, perSC = scEq / S.nSC;
+  document.getElementById('targets').innerHTML = `
+    <div class="move"><div class="mname">INVESTED</div><div class="mval">${pct(inv)}<small>cash ${pct(1-inv)}</small></div></div>
+    <div class="move"><div class="mname">LARGE CAP</div><div class="mval">${pct(lcEq)} <small>of equity · ${pct(lc,0)} of invested · ${S.nLC} positions × ${pct(perLC)}</small></div></div>
+    <div class="move"><div class="mname">SMALL CAP</div><div class="mval">${pct(scEq)} <small>of equity · ${pct(sc,0)} of invested · ${S.nSC} positions × ${pct(perSC)}</small></div></div>`;
+
+  // moves
+  const cInv = S.curInv/100, cLC = S.curLC/100, cSC = cInv - cLC;
+  const dTot = inv - cInv, dLC = lcEq - cLC, dSC = scEq - cSC;
+  const cls = x => Math.abs(x) < .005 ? 'flat' : (x > 0 ? 'add' : 'trim');
+  const word = x => Math.abs(x) < .005 ? 'HOLD' : (x > 0 ? 'ADD' : 'TRIM');
+  document.getElementById('moves').innerHTML = `
+    <div class="move"><div class="mname">TOTAL</div><div class="mval ${cls(dTot)}">${word(dTot)} ${spct(dTot)}<small>of equity</small></div></div>
+    <div class="move"><div class="mname">LARGE CAP</div><div class="mval ${cls(dLC)}">${word(dLC)} ${spct(dLC)}<small>of equity · ${lcEq>0?spct(dLC/lcEq,0)+' of class':''} · ${perLC>0?spct(dLC/perLC,0)+' of a position':''}</small></div></div>
+    <div class="move"><div class="mname">SMALL CAP</div><div class="mval ${cls(dSC)}">${word(dSC)} ${spct(dSC)}<small>of equity · ${scEq>0?spct(dSC/scEq,0)+' of class':''} · ${perSC>0?spct(dSC/perSC,0)+' of a position':''}</small></div></div>`;
+
+  renderCohort(dLC, dSC);
+  renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot, dLC, dSC);
+  document.getElementById('stamp').textContent = 'MACRO HEAT MODULE · internals ' + (STAMPS.macro||'—').slice(0,16).replace('T',' ') + 'Z · geigers ' + (STAMPS.cohort||'—').slice(0,16).replace('T',' ') + 'Z · % only, never dollars';
+  document.getElementById('cohstamp').textContent = 'feeds: macro-feed (hourly-safe) + cohort-feed (on refresh) · ' + (STAMPS.cohort||'').slice(11,19) + 'Z';
+  save();
+}
+function drawCurve(h){
+  const cv = document.getElementById('curve'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height, L = 40, R = 12, T = 12, B = 26;
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle = '#1c1c28'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) { const y = T + (H-T-B)*i/4; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(W-R,y); ctx.stroke();
+    ctx.fillStyle = '#8a8aa0'; ctx.font = '10px monospace'; ctx.fillText((100 - i*25)+'%', 6, y+3); }
+  const X = x => L + (x + 1) / 2 * (W - L - R);
+  const Y = y => T + (1 - y) * (H - T - B);
+  // invested curve
+  ctx.strokeStyle = '#00d4ff'; ctx.lineWidth = 2.5; ctx.beginPath();
+  for (let i = 0; i <= 100; i++) { const hx = -1 + i/50; const p = investedAt(hx); i ? ctx.lineTo(X(hx), Y(p)) : ctx.moveTo(X(hx), Y(p)); }
+  ctx.stroke();
+  // LC share curve
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.5; ctx.setLineDash([5,4]); ctx.beginPath();
+  for (let i = 0; i <= 100; i++) { const hx = -1 + i/50; const p = lcShareAt(hx); i ? ctx.lineTo(X(hx), Y(p)) : ctx.moveTo(X(hx), Y(p)); }
+  ctx.stroke(); ctx.setLineDash([]);
+  // now marker
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(X(h), T); ctx.lineTo(X(h), H-B); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(X(h), Y(investedAt(h)), 4, 0, 7); ctx.fill();
+  ctx.fillStyle = '#8a8aa0'; ctx.font = '10px monospace';
+  ctx.fillText('── invested %', L+8, T+12); ctx.fillStyle = '#ffd166'; ctx.fillText('╌╌ LC share of invested', L+110, T+12);
+}
+function renderCohort(dLC, dSC){
+  const rows = Object.keys(COHORT).filter(s => !['IWM','SMH'].includes(s))
+    .map(s => ({sym:s, cls:CLASSES[s]||'?', g:geiger(COHORT[s]), c:COHORT[s]}))
+    .sort((a,b) => a.g - b.g);
+  const t = document.getElementById('cohort');
+  let html = '<tr><th>TICKER</th><th>CLASS</th><th class="r">PRICE</th><th class="r">DAY</th><th>GEIGER</th><th class="r">SCORE</th><th class="r">MA</th><th>SIGNAL</th></tr>';
+  const addN = {LC: dLC > .005 ? 3 : 0, SC: dSC > .005 ? 3 : 0};
+  const trimN = {LC: dLC < -.005 ? 3 : 0, SC: dSC < -.005 ? 3 : 0};
+  const coldest = {}, hottest = {};
+  for (const cl of ['LC','SC']) {
+    const inCl = rows.filter(r => r.cls === cl);
+    coldest[cl] = new Set(inCl.slice(0, addN[cl]).map(r => r.sym));
+    hottest[cl] = new Set(inCl.slice(-trimN[cl] || inCl.length).slice(-trimN[cl]).map(r => r.sym));
+  }
+  for (const r of rows) {
+    let tag = '';
+    if (coldest[r.cls]?.has(r.sym)) tag = '<span class="tag add">ADD CANDIDATE</span>';
+    else if (trimN[r.cls] && hottest[r.cls]?.has(r.sym)) tag = '<span class="tag trim">TRIM CANDIDATE</span>';
+    const w = Math.min(50, Math.abs(r.g) * 50);
+    html += `<tr><td><b>${r.sym}</b></td><td class="cls">${CLASSNAME[r.cls]||r.cls}</td>
+      <td class="r">${r.c.price.toLocaleString()}</td>
+      <td class="r" style="color:${r.c.day>=0?'var(--green)':'var(--red)'}">${spct(r.c.day,2)}</td>
+      <td><span class="mini"><span class="mid"></span><span class="b" style="left:${r.g<0?50-w:50}%;width:${w}%;background:${r.g>=0?'var(--cyan)':'var(--orange)'}"></span></span></td>
+      <td class="r">${(r.g>=0?'+':'')+r.g.toFixed(2)}</td>
+      <td class="r cls">${r.c.ma}/${r.c.maN}</td><td>${tag}</td></tr>`;
+  }
+  t.innerHTML = html;
+}
+function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot, dLC, dSC){
+  const f2 = x => (x==null||!isFinite(x)) ? '—' : (x>=0?'+':'')+x.toFixed(2);
+  const cy = s => `%c${s}%c`;
+  const L = [];
+  const gTrace = sym => {
+    const c = COHORT[sym]; if (!c) return sym+': no data';
+    const mD = c.rd*S.dRsi + c.gd*(1-S.dRsi), mW = c.rw*S.dRsi + c.gw*(1-S.dRsi);
+    const gD = c.td*S.dTrend + mD*(1-S.dTrend), gW = c.tw*S.dTrend + mW*(1-S.dTrend);
+    return `${sym}  DAILY[ ribbon ${f2(c.td)} · RSIs ${f2(c.rd)} · W%Rs ${f2(c.gd)} → mom = ${S.dRsi}×${f2(c.rd)} + ${(1-S.dRsi).toFixed(1)}×${f2(c.gd)} = ${f2(mD)} → ${S.dTrend}×trend + ${(1-S.dTrend).toFixed(1)}×mom = ${f2(gD)} ]  WEEKLY[ same math = ${f2(gW)} ]  →  GEIGER = ${Math.round(S.dTf*100)}%×${f2(gD)} + ${Math.round((1-S.dTf)*100)}%×${f2(gW)} = ${f2(geiger(c))}`;
+  };
+  L.push('STEP A · GEIGER VOTERS (approved primitives from cohort-feed, your dials applied here)');
+  for (const s of ['SPY','QQQ','IWM','SMH']) L.push('  ' + gTrace(s));
+  const vix = MACRO['VIX']?.value, ten = MACRO['US10Y']?.value, spy = COHORT['SPY'];
+  const vv = voters();
+  L.push('STEP B · INVERTED MEASURES (hostile things flip so hot always means hot)');
+  L.push(`  VIX ${vix?.toFixed(1)}: heat = clamp( (midpoint ${( (S.vixCold+12)/2 ).toFixed(1)} − ${vix?.toFixed(1)}) / half-range ${((S.vixCold-12)/2).toFixed(1)} ) = ${f2(vv[4].val)}   [−1 @ ${S.vixCold} · +1 @ 12]`);
+  L.push(`  US10Y ${ten?.toFixed(2)}%: same shape between ${(+S.tenCold).toFixed(1)}% (cold) and 3.5% (hot) = ${f2(vv[5].val)}`);
+  L.push(`  MA STACK: SPY above ${spy?spy.ma:'—'} of ${spy?spy.maN:'—'} MAs → ${spy?spy.ma:'—'}/${spy?spy.maN:'—'}×2−1 = ${f2(vv[6].val)}`);
+  L.push(`  INTERNALS: ${Object.entries(INTERNALS).filter(([k,[,w]])=>w&&MACRO[k]).length}+1 feed voters (ratios, credit, vol complex, breadth), each geigered ±dir, averaged = ${f2(vv[7].val)}`);
+  const used = vv.filter(v => v.val != null && (S.wts[v.key]??0) > 0);
+  L.push('STEP C · MACRO HEAT (weighted average of the voters you turned on)');
+  L.push('  heat = ( ' + used.map(v => `${S.wts[v.key]}×${f2(v.val)}`).join(' + ') + ' ) / ' + used.reduce((t,v)=>t+(S.wts[v.key]??0),0) + ' = ' + f2(h));
+  L.push('STEP D · THE CURVE (methodology, not a table)');
+  L.push(`  invested = ${S.minInv}% + (${S.maxInv}% − ${S.minInv}%) × ((1 − ${f2(h)})/2)^γ${(+S.gamma).toFixed(1)} = ${S.minInv}% + ${S.maxInv-S.minInv}% × ${Math.pow((1-h)/2,S.gamma).toFixed(3)} = ${pct(inv)}`);
+  L.push(`  LC share = ${S.lcHot}% + (${S.lcCold}% − ${S.lcHot}%) × (1 − ${f2(h)})/2 = ${pct(lc,0)} of invested  →  LC ${pct(lcEq)} of equity · SC ${pct(scEq)} of equity`);
+  L.push(`  per position: LC ${pct(lcEq)} / ${S.nLC} = ${pct(perLC)} · SC ${pct(scEq)} / ${S.nSC} = ${pct(perSC)}`);
+  L.push('STEP E · YOUR STATE (from IBKR, adjusted by your sliders) → MOVES');
+  L.push(`  current: invested ${pct(cInv,0)} · LC ${pct(cLC,0)} · SC ${pct(cSC,0)}`);
+  L.push(`  TOTAL: ${pct(inv)} − ${pct(cInv,0)} = ${spct(dTot)} of equity`);
+  L.push(`  LARGE CAP: ${pct(lcEq)} − ${pct(cLC,0)} = ${spct(dLC)} of equity` + (lcEq>0?` = ${spct(dLC/lcEq,0)} of the LC sleeve = ${spct(dLC/perLC,0)} of one position`:''));
+  L.push(`  SMALL CAP: ${pct(scEq)} − ${pct(cSC,0)} = ${spct(dSC)} of equity` + (scEq>0?` = ${spct(dSC/scEq,0)} of the SC sleeve = ${spct(dSC/perSC,0)} of one position`:''));
+  L.push('STEP F · CANDIDATES (geiger rank only)');
+  L.push(`  LC move ${spct(dLC)} → ${dLC>.005?'ADD: 3 coldest LC favorites':dLC<-.005?'TRIM: 3 hottest LC favorites':'HOLD: no candidates'} · SC move ${spct(dSC)} → ${dSC>.005?'ADD: 3 coldest SC favorites':dSC<-.005?'TRIM: 3 hottest SC favorites':'HOLD: no candidates'}`);
+  document.getElementById('trace').textContent = L.join('\n');
+}
+// slider wiring
+for (const id of ['dTrend','dRsi','dTf','vixCold','tenCold','maxInv','minInv','gamma','lcHot','lcCold','nLC','nSC','curInv','curLC']) {
+  document.getElementById(id).oninput = e => { S[id] = +e.target.value; save(); render(); };
+}
+document.getElementById('refresh').onclick = loadFeeds;
+loadFeeds();
+</script>
+</body>
+</html>
