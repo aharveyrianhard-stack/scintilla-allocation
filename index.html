@@ -29,6 +29,13 @@
   .bar{position:absolute; top:2px; bottom:2px; border-radius:2px;}
   .gval{text-align:right; font-size:12px;}
   .vdesc{color:var(--dim); font-size:10px; line-height:1.55; padding:1px 0 7px; border-bottom:1px solid #14141e;}
+  .veffect{color:var(--cyan); font-size:10px; display:block; margin-top:2px;}
+  .stack{display:flex; height:36px; border-radius:6px; overflow:hidden; margin:4px 0 2px; border:1px solid var(--line);}
+  .seg{display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#0a0a0f; white-space:nowrap; overflow:hidden;}
+  .stacklbl{color:var(--dim); font-size:10px; letter-spacing:.15em; margin-top:10px;}
+  .imap td{font-size:11px; vertical-align:top; line-height:1.5;}
+  .imap td.n{color:var(--txt); white-space:nowrap;}
+  .imap td.k{color:var(--gold); white-space:nowrap;}
   .wt{display:flex; align-items:center; gap:6px;}
   .wt input[type=range]{width:52px;}
   .wt span{color:var(--dim); font-size:10px; width:24px;}
@@ -125,8 +132,11 @@
   <div class="panel">
     <h2>2 · METHODOLOGY — heat sets the balance</h2>
     <div class="note"><b style="color:var(--txt)">HOW TO READ THE CHART</b> (it is the formula drawn, not a picture): the horizontal axis is market heat, cold on the left, hot on the right. Find the white dotted vertical line — that is where the market sits right now. Where the cyan line crosses it = today's % invested target (left axis). The cyan line slopes down because the hotter the market, the less invested you are — buy weakness, sell strength, drawn as a line. The flat gold dashed line = the large-cap share of whatever is invested, and it is set by the DATA (below), not by you.</div>
-    <canvas id="curve" width="640" height="380"></canvas>
-    <div class="axis"><span>−1 COLD → deploy</span><span>HEAT</span><span>+1 HOT → defend</span></div>
+    <details>
+      <summary>THE CURVE — the rule drawn as a picture (optional, skip if it doesn't click)</summary>
+      <canvas id="curve" width="640" height="380"></canvas>
+      <div class="axis"><span>−1 COLD → deploy</span><span>HEAT</span><span>+1 HOT → defend</span></div>
+    </details>
     <div class="ctl"><label>Invested at max COLD<small>policy: your all-in level when everything is washed out</small></label><input type="range" id="maxInv" min="0" max="100" step="5"><div class="v" id="maxInvV"></div></div>
     <div class="ctl"><label>Invested at max HOT<small>policy: your floor when everything is stretched</small></label><input type="range" id="minInv" min="0" max="100" step="5"><div class="v" id="minInvV"></div></div>
     <div class="ctl"><label>Positions LC / SC<small>how many names each sleeve is split across</small></label><div style="display:flex;gap:14px;align-items:center"><input type="range" id="nLC" min="1" max="10" step="1" style="flex:1"><input type="range" id="nSC" min="1" max="10" step="1" style="flex:1"></div><div class="v" id="nV"></div></div>
@@ -158,8 +168,8 @@
   <!-- 4 TARGETS readout -->
   <div class="panel">
     <h2>4 · TARGET READOUT</h2>
-    <div class="note">What the methodology says at the current heat — the numbers the moves are measured against. The two rings: left = where the model wants you, right = where you are. The moves in panel 3 are simply the difference between the rings.</div>
-    <canvas id="mix" width="640" height="230"></canvas>
+    <div class="note">Two bars: where you ARE, then where the model wants you. The moves in panel 3 are exactly the difference between them.</div>
+    <div id="mix"></div>
     <div id="targets"></div>
   </div>
 
@@ -171,9 +181,16 @@
     <div class="status"><button class="btn" id="refresh">↻ REFRESH FEEDS</button> <span class="updated" id="cohstamp"></span></div>
   </div>
 
-  <!-- 6 MATH TRACE -->
+  <!-- 6 INPUT MAP -->
   <div class="panel full">
-    <h2>6 · MATH TRACE — input to output, live numbers</h2>
+    <h2>6 · INPUT MAP — every dial in the system, in one place</h2>
+    <div class="note">The complete list of what you can touch, what kind of input it is, its current value, and its exact mathematical effect. If it is not on this list, it is not an input — the data decides it.</div>
+    <table class="imap" id="imap"></table>
+  </div>
+
+  <!-- 7 MATH TRACE -->
+  <div class="panel full">
+    <h2>7 · MATH TRACE — input to output, live numbers</h2>
     <div class="note">The entire chain, recomputed on every slider move. Read top to bottom: raw primitives → geigers → heat → curve → targets → your state → moves → candidates. This is exactly what the code does, shown with today's numbers.</div>
     <pre id="trace" style="font-size:11.5px; line-height:1.75; color:var(--txt); white-space:pre-wrap;"></pre>
   </div>
@@ -190,7 +207,7 @@ const INTERNALS = {'RSP/SPY':[1,1],'IWM/SPY':[1,1],'QQQ/SPY':[1,1],'XLY/XLP':[1,
 const DEFAULTS = {
   dTrend:0.5, dRsi:0.6, dTf:0.763,          // approved geiger + equalizer 3.1785/0.9875
   vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
-  maxInv:100, minInv:15, nLC:4, nSC:2, lcTilt:0.10,
+  maxInv:100, minInv:15, nLC:4, nSC:2, lcTilt:0,
   curInv:0, curLC:0,
   wts:{SPY:1, QQQ:1, IWM:0, SMH:0, VIX:0, US10Y:0, MA:0, INTERNALS:1}
 };
@@ -206,6 +223,7 @@ const VOTER_DESC = {
 };
 let S = JSON.parse(localStorage.getItem('alloc-module-v1') || 'null') || structuredClone(DEFAULTS);
 S.wts = Object.assign(structuredClone(DEFAULTS.wts), S.wts || {});
+if (!S._v4) { S.lcTilt = 0; S._v4 = 1; }   // v4: tilt ships OFF — data decides unless you turn it on
 function save(){ localStorage.setItem('alloc-module-v1', JSON.stringify(S)); }
 
 let COHORT = {};   // sym -> {price,day,td,rd,gd,tw,rw,gw,ma,maN}
@@ -294,6 +312,11 @@ function heat(){
   for (const v of voters()) { if (v.val == null) continue; const w = S.wts[v.key] ?? 0; num += v.val * w; den += w; }
   return den ? num / den : 0;
 }
+function heatWith(vlist, key, w){ // counterfactual: heat if this one voter's weight were w
+  let num = 0, den = 0;
+  for (const v of vlist) { if (v.val == null) continue; const wt = v.key === key ? w : (S.wts[v.key] ?? 0); num += v.val * wt; den += wt; }
+  return den ? num / den : 0;
+}
 function investedAt(h){ const x = (1 - h) / 2; return (S.minInv + (S.maxInv - S.minInv) * x) / 100; }
 // LC/SC split: DATA-DRIVEN. Colder class gets the bigger sleeve, sized by the geiger spread.
 // Optional sub-dial: heat tilt — when overall heat is high, lean extra toward large caps (better holds when stretched).
@@ -332,7 +355,17 @@ function render(){
     barCSS(row.querySelector('.bar'), val);
     row.querySelector('input').oninput = e => { S.wts[v.key] = +e.target.value; save(); render(); };
     gd.appendChild(row);
-    if (VOTER_DESC[v.key]) { const d = document.createElement('div'); d.className = 'vdesc'; d.textContent = VOTER_DESC[v.key]; gd.appendChild(d); }
+    if (VOTER_DESC[v.key]) {
+      const d = document.createElement('div'); d.className = 'vdesc';
+      const allV = voters(), hNow = (() => { let n=0,dd=0; for (const x of allV){ if(x.val==null) continue; const w=S.wts[x.key]??0; n+=x.val*w; dd+=w; } return dd?n/dd:0; })();
+      const cur = S.wts[v.key] ?? 0;
+      const alt = cur > 0 ? 0 : 1;
+      const hAlt = heatWith(allV, v.key, alt);
+      const fmt2 = x => (x>=0?'+':'')+x.toFixed(2);
+      d.innerHTML = VOTER_DESC[v.key] + (v.val==null ? '' :
+        `<span class="veffect">EFFECT NOW: at weight ${cur} it ${cur>0?'is pulling':'would pull'} the score toward its ${fmt2(v.val)}. If you set weight ${alt}: MACRO HEAT ${fmt2(hNow)} → ${fmt2(hAlt)} (Δ ${fmt2(hAlt-hNow)}).</span>`);
+      gd.appendChild(d);
+    }
   }
   const h = heat(), [lbl, color] = heatLabel(h);
   document.getElementById('heatnum').textContent = (h>=0?'+':'') + h.toFixed(2);
@@ -401,6 +434,7 @@ function render(){
     <div class="move"><div class="mname">SMALL CAP</div><div class="mval ${cls(dSC)}">${word(dSC)} ${spct(dSC)}<small>of equity · ${scEq>0?spct(dSC/scEq,0)+' of class':''} · ${perSC>0?spct(dSC/perSC,0)+' of a position':''}</small></div></div>`;
 
   drawMix(lcEq, scEq, 1-inv, cLC, cSC, 1-cInv);
+  renderInputMap(h);
   renderCohort(dLC, dSC);
   renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot, dLC, dSC);
   document.getElementById('stamp').textContent = 'MACRO HEAT MODULE · internals ' + (STAMPS.macro||'—').slice(0,16).replace('T',' ') + 'Z · geigers ' + (STAMPS.cohort||'—').slice(0,16).replace('T',' ') + 'Z · % only, never dollars';
@@ -440,30 +474,36 @@ function drawCurve(h){
   ctx.fillText('── invested % target', L+8, T+12); ctx.fillStyle = '#ffd166'; ctx.fillText('╌╌ LC share of invested', L+150, T+12);
 }
 function drawMix(tLC, tSC, tCash, cLC2, cSC2, cCash){
-  const cv = document.getElementById('mix'); if (!cv) return;
-  const ctx = cv.getContext('2d');
-  ctx.clearRect(0, 0, cv.width, cv.height);
-  const COLORS = {LC: '#ffd166', SC: '#00d4ff', CASH: '#2e2e40'};
-  function donut(cx, cy, r, parts, title){
-    let a = -Math.PI/2;
-    for (const [key, val] of parts) {
-      if (val <= 0) continue;
-      const a2 = a + val * 2 * Math.PI;
-      ctx.beginPath(); ctx.arc(cx, cy, r, a, a2); ctx.arc(cx, cy, r*0.58, a2, a, true); ctx.closePath();
-      ctx.fillStyle = COLORS[key]; ctx.fill();
-      const mid = (a + a2) / 2, lr = r * 1.22;
-      if (val > 0.04) {
-        ctx.fillStyle = '#e8e8f0'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(key + ' ' + Math.round(val*100) + '%', cx + Math.cos(mid)*lr, cy + Math.sin(mid)*lr + 3);
-      }
-      a = a2;
-    }
-    ctx.fillStyle = '#8a8aa0'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
-    ctx.fillText(title, cx, cy + 4);
-  }
-  donut(160, 118, 74, [['LC', tLC], ['SC', tSC], ['CASH', tCash]], 'TARGET');
-  donut(480, 118, 74, [['LC', cLC2], ['SC', cSC2], ['CASH', cCash]], 'YOU NOW');
-  ctx.textAlign = 'left';
+  const el = document.getElementById('mix'); if (!el) return;
+  const COLORS = {LC: 'var(--gold)', SC: 'var(--cyan)', CASH: '#23233a'};
+  const bar = parts => '<div class="stack">' + parts.map(([k, v]) => {
+    if (v <= 0.001) return '';
+    const lbl = v > 0.09 ? `${k} ${Math.round(v*100)}%` : (v > 0.045 ? Math.round(v*100)+'%' : '');
+    const txtColor = k === 'CASH' ? 'style="color:#8a8aa0;"' : '';
+    return `<div class="seg" ${txtColor} style="width:${v*100}%;background:${COLORS[k]};${k==='CASH'?'color:#8a8aa0;':''}">${lbl}</div>`;
+  }).join('') + '</div>';
+  el.innerHTML =
+    '<div class="stacklbl">YOU NOW</div>' + bar([['LC', cLC2], ['SC', cSC2], ['CASH', cCash]]) +
+    '<div class="stacklbl">TARGET (model)</div>' + bar([['LC', tLC], ['SC', tSC], ['CASH', tCash]]);
+}
+function renderInputMap(h){
+  const t = document.getElementById('imap'); if (!t) return;
+  const P = 'MAIN', SUB = 'SUB-DIAL', RAIL = 'RAIL (constant)', APPR = 'APPROVED (don’t touch)';
+  const rows = [
+    ['Voter weights ×8', P, Object.entries(S.wts).map(([k,v])=>k+' '+v).join(' · '), 'Each voter enters MACRO HEAT as value × weight ÷ total weight. Weight 0 = displayed, silent. The EFFECT line under each voter shows the exact Δ of flipping it today.'],
+    ['Invested at max COLD', P, S.maxInv+'%', 'The left end of the invested line: at heat −1 you hold this. Raising it by 10% raises today’s target by 10% × how-cold ('+(((1-h)/2)*100).toFixed(0)+'% today).'],
+    ['Invested at max HOT', P, S.minInv+'%', 'The right end: at heat +1 you hold this floor. Raising it lifts the whole hot side of the line.'],
+    ['Positions LC / SC', P, S.nLC+' / '+S.nSC, 'Divides each sleeve into per-position units — changes nothing about totals, only the size of "one position" that moves are quoted in.'],
+    ['Current % invested + LC%', P, S.curInv+'% / '+S.curLC+'%', 'Your reality (IBKR-seeded). Moves = target − this. No effect on targets.'],
+    ['Heat tilt → LC', SUB, (S.lcTilt||0)===0?'OFF':'+'+((S.lcTilt)*100).toFixed(0)+'% per unit of heat', 'Adds lcTilt × heat to the LC share on top of the data split. At 0.10 and heat +0.50: +5% LC. OFF = pure data.'],
+    ['VIX endpoints', SUB, '−1 @ '+S.vixCold+' · +1 @ 12', 'Moves where the VIX voter reads −1/+1. Widening the cold end makes the voter slower to call fear "cold".'],
+    ['10Y endpoints', SUB, '−1 @ '+(+S.tenCold).toFixed(1)+'% · +1 @ 3.5%', 'Same shape for the yield voter.'],
+    ['LC share rails', RAIL, '20% – 80%', 'Clamp on the data split so one hot print can’t zero a class. Constant, not a dial — stays internal as classes are added.'],
+    ['Momentum clamp anchors', APPR, 'RSI 23 / 77', 'Your geiger levels — where RSI reads fully washed-out / fully stretched.'],
+    ['Trend/Momentum · RSI/W%R · 1d/1w', APPR, S.dTrend.toFixed(2)+'/'+(1-S.dTrend).toFixed(2)+' · '+S.dRsi.toFixed(2)+'/'+(1-S.dRsi).toFixed(2)+' · '+Math.round(S.dTf*100)+'/'+Math.round((1-S.dTf)*100), 'The approved geiger blends + your equalizer TF weights. Exposed for completeness; changing them changes every geiger in the system at once.'],
+  ];
+  t.innerHTML = '<tr><th>INPUT</th><th>KIND</th><th>NOW</th><th>WHAT IT DOES, MATHEMATICALLY</th></tr>' +
+    rows.map(r => `<tr><td class="n">${r[0]}</td><td class="k">${r[1]}</td><td class="r" style="white-space:nowrap">${r[2]}</td><td class="cls">${r[3]}</td></tr>`).join('');
 }
 function renderCohort(dLC, dSC){
   const rows = Object.keys(COHORT).filter(s => !['IWM','SMH'].includes(s))
