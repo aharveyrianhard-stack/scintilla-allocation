@@ -104,26 +104,47 @@
       <div class="ctl"><label>VIX cold ↔ hot<small>−1 at high, +1 at low</small></label><input type="range" id="vixCold" min="20" max="50" step="1"><div class="v" id="vixColdV"></div></div>
       <div class="ctl"><label>10Y cold end %<small>−1 at this yield</small></label><input type="range" id="tenCold" min="4" max="6" step="0.1"><div class="v" id="tenColdV"></div></div>
     </details>
+    <details>
+      <summary>WHAT EACH VOTER IS — human detail</summary>
+      <div class="note" style="margin-top:8px; line-height:1.7">
+      <b style="color:var(--txt)">SPY / QQQ GEIGER</b> — your approved geiger on the index itself: MA-ribbon order (are the 9 averages stacked bullish or broken?) blended 50/50 with momentum (RSI on the 23/77 map, 60%, + Williams range position, 40%), computed on daily AND weekly bars, mixed by your equalizer (~76/24). One number: how stretched the index is.<br><br>
+      <b style="color:var(--txt)">IWM GEIGER</b> — same math on small caps. Turning its weight up does one thing here: small caps get a direct vote in the overall heat (breadth — a rally without small caps is thinner than it looks). Separately, IWM-vs-SPY relative heat now drives the LC/SC split in panel 2 automatically, whether or not this weight is on.<br><br>
+      <b style="color:var(--txt)">SMH GEIGER</b> — semis, current leadership. Weight it if you want leadership stretch to count in the macro number.<br><br>
+      <b style="color:var(--txt)">VIX (inv)</b> — the actual VIX LEVEL, not a geiger. Straight line between your two endpoints: at 30 it votes −1 (fear = cold), at 12 it votes +1 (complacency = hot), clamped beyond both. VIX 45 still reads −1.<br><br>
+      <b style="color:var(--txt)">US 10Y (inv)</b> — the actual 10-year YIELD level, same straight-line treatment: 4.8% = −1 (hostile), 3.5% = +1 (fuel). Not a geiger today; a geiger on the yield TREND is a possible future voter, say the word.<br><br>
+      <b style="color:var(--txt)">MA STACK</b> — how many of SPY's 10 moving averages (EMA 5/8/13/21/34, SMA 50/100/150/200 daily + 200-week) price sits ABOVE. 10/10 = +1 fully extended. You're right that ribbon ORDER already lives inside the geiger — this one measures price POSITION vs the fan instead, a related but different lens. That overlap is exactly why its default weight is 0: it's a reading, not a voter, until you decide otherwise.<br><br>
+      <b style="color:var(--txt)">INTERNALS</b> — one number summarizing ~18 market internals from the feed: risk-appetite ratios (RSP/SPY, IWM/SPY, QQQ/SPY, XLY/XLP, SMH/SPY, XLU/SPY inverted), credit (HYG/LQD), BTC, the volatility complex (VIX, MOVE, SKEW, VVIX — all inverted), the 10Y, cyclicals-vs-defensives, and sector breadth. Each one is geigered on the standard scale, flipped if hostile, then averaged. Expand below to see every row.
+      </div>
+      <div id="intbreak"></div>
+    </details>
+    <div class="note" style="margin-top:10px">MACRO HEAT = the weighted average of the voters above — each voter × its weight, divided by total weight. That is the whole combination step; the exact arithmetic with today's numbers is in panel 6.</div>
   </div>
 
   <!-- 2 METHODOLOGY -->
   <div class="panel">
     <h2>2 · METHODOLOGY — heat sets the balance</h2>
-    <div class="note">This chart is NOT an image — it is the allocation formula drawn live (full derivation in panel 6). Cyan line = % invested at every possible heat. Gold dashed = large-cap share of invested. The white dot = where the market is RIGHT NOW, so the y-value under the dot is today's target. Move a slider and the curve redraws.</div>
+    <div class="note"><b style="color:var(--txt)">HOW TO READ THE CHART</b> (it is the formula drawn, not a picture): the horizontal axis is market heat, cold on the left, hot on the right. Find the white dotted vertical line — that is where the market sits right now. Where the cyan line crosses it = today's % invested target (left axis). The cyan line slopes down because the hotter the market, the less invested you are — buy weakness, sell strength, drawn as a line. The flat gold dashed line = the large-cap share of whatever is invested, and it is set by the DATA (below), not by you.</div>
     <canvas id="curve" width="640" height="380"></canvas>
     <div class="axis"><span>−1 COLD → deploy</span><span>HEAT</span><span>+1 HOT → defend</span></div>
-    <div class="ctl"><label>Invested at max COLD</label><input type="range" id="maxInv" min="0" max="100" step="5"><div class="v" id="maxInvV"></div></div>
-    <div class="ctl"><label>Invested at max HOT</label><input type="range" id="minInv" min="0" max="100" step="5"><div class="v" id="minInvV"></div></div>
-    <div class="ctl"><label>Aggressiveness<small>1 = linear · higher = hold back until truly cold</small></label><input type="range" id="gamma" min="0.4" max="3" step="0.1"><div class="v" id="gammaV"></div></div>
-    <div class="ctl"><label>LC share when HOT<small>defense leans large</small></label><input type="range" id="lcHot" min="0" max="100" step="5"><div class="v" id="lcHotV"></div></div>
-    <div class="ctl"><label>LC share when COLD<small>deployment leans small</small></label><input type="range" id="lcCold" min="0" max="100" step="5"><div class="v" id="lcColdV"></div></div>
-    <div class="ctl"><label>Positions LC / SC</label><div style="display:flex;gap:14px;align-items:center"><input type="range" id="nLC" min="1" max="10" step="1" style="flex:1"><input type="range" id="nSC" min="1" max="10" step="1" style="flex:1"></div><div class="v" id="nV"></div></div>
+    <div class="ctl"><label>Invested at max COLD<small>policy: your all-in level when everything is washed out</small></label><input type="range" id="maxInv" min="0" max="100" step="5"><div class="v" id="maxInvV"></div></div>
+    <div class="ctl"><label>Invested at max HOT<small>policy: your floor when everything is stretched</small></label><input type="range" id="minInv" min="0" max="100" step="5"><div class="v" id="minInvV"></div></div>
+    <div class="ctl"><label>Positions LC / SC<small>how many names each sleeve is split across</small></label><div style="display:flex;gap:14px;align-items:center"><input type="range" id="nLC" min="1" max="10" step="1" style="flex:1"><input type="range" id="nSC" min="1" max="10" step="1" style="flex:1"></div><div class="v" id="nV"></div></div>
+    <div class="note" style="margin-top:10px" id="autosplit"></div>
+    <details>
+      <summary>THE MATH OF THIS PANEL — human words</summary>
+      <div class="note" style="margin-top:8px; line-height:1.7">
+      <b style="color:var(--txt)">% INVESTED</b> — a straight line between your two policy endpoints. At heat −1 (maximum washed-out) you hold your max; at +1 (maximum stretched) you hold your floor; in between it is proportional. In words: invested = floor + (max − floor) × how-cold-the-market-is. Those two endpoints are the ONLY dials here, because how much you're willing to hold at the extremes is genuinely your call — everything else the data decides.<br><br>
+      <b style="color:var(--txt)">LC / SC SPLIT — decided by the data, zero dials.</b> The mechanic: compare the large-cap geiger (SPY) with the small-cap geiger (IWM). The COLDER class gets the BIGGER sleeve, sized by how far apart they are. Formula: LC share = 50% + (IWM geiger − SPY geiger) × 50%, capped between 20% and 80%. If small caps are hotter than large caps, money leans large; if small caps are colder (more washed out), money leans small — the same buy-weakness doctrine, applied BETWEEN classes, no opinion required. The live derivation with today's two geigers is printed above and in panel 6. (The old "LC when hot / SC when cold" sliders are gone — you were right, that was you doing the model's job.)<br><br>
+      <b style="color:var(--txt)">AGGRESSIVENESS — removed.</b> The curve is fixed linear. If we ever want the model to hold back until things are truly cold, that bend should also come from data (e.g. vol regime), not a hand dial.<br><br>
+      <b style="color:var(--txt)">PER-POSITION SIZE</b> — each sleeve divided by its position count: that is the unit "one position" that the MOVES panel speaks in.
+      </div>
+    </details>
   </div>
 
   <!-- 3 STATE + MOVES -->
   <div class="panel">
     <h2>3 · YOUR STATE → THE MOVES</h2>
-    <div class="note" id="ibkrnote">YOUR STATE comes from your Interactive Brokers account (read-only connector pull at build time): currently 100% cash, zero open positions — that is why both sliders start at 0. Slide to match reality whenever it changes — never type, never dollars. (Live IBKR sync is a future integration.)</div>
+    <div class="note" id="ibkrnote">YES — connected to your Interactive Brokers account (read-only, via your IBKR connector). Last pull: <b style="color:var(--txt)">100% cash, zero open positions</b> — that is why both sliders start at 0. The pull is a snapshot taken when this page was built; live auto-sync on every open is the next integration. Until then, slide to match reality — never type, never dollars.</div>
     <div class="ctl"><label>Current % invested</label><input type="range" id="curInv" min="0" max="100" step="1"><div class="v" id="curInvV"></div></div>
     <div class="ctl"><label>…of which Large Cap<small>% of equity in LC</small></label><input type="range" id="curLC" min="0" max="100" step="1"><div class="v" id="curLCV"></div></div>
     <div style="margin-top:12px" id="moves"></div>
@@ -257,8 +278,13 @@ function heat(){
   for (const v of voters()) { if (v.val == null) continue; const w = S.wts[v.key] ?? 0; num += v.val * w; den += w; }
   return den ? num / den : 0;
 }
-function investedAt(h){ const x = Math.pow((1 - h) / 2, S.gamma); return (S.minInv + (S.maxInv - S.minInv) * x) / 100; }
-function lcShareAt(h){ return (S.lcHot + (S.lcCold - S.lcHot) * (1 - h) / 2) / 100; }
+function investedAt(h){ const x = (1 - h) / 2; return (S.minInv + (S.maxInv - S.minInv) * x) / 100; }
+// LC/SC split: DATA-DRIVEN. Colder class gets the bigger sleeve, sized by the geiger spread. No dials.
+function lcShareAuto(){
+  const s = COHORT['SPY'], i = COHORT['IWM'];
+  if (!s || !i) return 0.5;
+  return Math.min(.8, Math.max(.2, 0.5 + (geiger(i) - geiger(s)) * 0.5));
+}
 function heatLabel(h){
   if (h >= .5) return ['DEEP OVERBOUGHT', 'var(--red)'];
   if (h >= .2) return ['OVERBOUGHT', 'var(--orange)'];
@@ -305,9 +331,6 @@ function render(){
   set('tenCold', S.tenCold, '−1 @ '+(+S.tenCold).toFixed(1)+'% · +1 @ 3.5%');
   set('maxInv', S.maxInv, S.maxInv+'%');
   set('minInv', S.minInv, S.minInv+'%');
-  set('gamma', S.gamma, 'γ '+(+S.gamma).toFixed(1));
-  set('lcHot', S.lcHot, S.lcHot+'%');
-  set('lcCold', S.lcCold, S.lcCold+'%');
   document.getElementById('nLC').value = S.nLC; document.getElementById('nSC').value = S.nSC;
   document.getElementById('nV').textContent = S.nLC+' / '+S.nSC;
   set('curInv', S.curInv, S.curInv+'%');
@@ -317,8 +340,29 @@ function render(){
 
   drawCurve(h);
 
+  // data-driven split readout
+  const gS = COHORT['SPY'] ? geiger(COHORT['SPY']) : null, gI = COHORT['IWM'] ? geiger(COHORT['IWM']) : null;
+  if (gS != null && gI != null) {
+    const lcs = lcShareAuto();
+    document.getElementById('autosplit').innerHTML = `<b style="color:var(--gold)">LC/SC SPLIT — set by the data:</b> SPY geiger ${(gS>=0?'+':'')+gS.toFixed(2)} vs IWM geiger ${(gI>=0?'+':'')+gI.toFixed(2)} → LC share = 50% + (${(gI>=0?'+':'')+gI.toFixed(2)} − ${(gS>=0?'+':'')+gS.toFixed(2)})×50% = <b style="color:var(--txt)">${pct(lcs,0)} LC / ${pct(1-lcs,0)} SC</b> — the ${gI<gS?'small caps are colder, so they earn the bigger lean':'large caps are colder, so they earn the bigger lean'}${Math.abs(gI-gS)<0.06?' (near-even: the two classes read almost the same heat)':''}.`;
+  }
+  // internals breakdown
+  const ib = document.getElementById('intbreak');
+  if (ib) {
+    let rows2 = '<table style="margin-top:6px"><tr><th>INTERNAL</th><th class="r">VALUE</th><th class="r">DIR</th><th class="r">SCORE</th></tr>';
+    for (const [name, [dir, w]] of Object.entries(INTERNALS)) {
+      const m = MACRO[name]; if (!m || !w) continue;
+      const g = rowGeiger(m); if (g == null) continue;
+      const sc2 = dir * g;
+      rows2 += `<tr><td>${name}</td><td class="r cls">${(+m.value).toFixed(name.includes('/')?4:2)}</td><td class="r cls">${dir>0?'+':'−'}</td><td class="r" style="color:${sc2>=0?'var(--cyan)':'var(--orange)'}">${(sc2>=0?'+':'')+sc2.toFixed(2)}</td></tr>`;
+    }
+    const sect2 = MACRO['SECT_PCT_ABOVE_200D'];
+    if (sect2) rows2 += `<tr><td>SECTOR BREADTH</td><td class="r cls">${(sect2.value*100).toFixed(0)}% above 200d</td><td class="r cls">+</td><td class="r" style="color:${(sect2.value*2-1)>=0?'var(--cyan)':'var(--orange)'}">${((sect2.value*2-1)>=0?'+':'')+(sect2.value*2-1).toFixed(2)}</td></tr>`;
+    ib.innerHTML = rows2 + '</table>';
+  }
+
   // targets
-  const inv = investedAt(h), lc = lcShareAt(h), sc = 1 - lc;
+  const inv = investedAt(h), lc = lcShareAuto(), sc = 1 - lc;
   const lcEq = inv*lc, scEq = inv*sc;
   const perLC = lcEq / S.nLC, perSC = scEq / S.nSC;
   document.getElementById('targets').innerHTML = `
@@ -355,16 +399,24 @@ function drawCurve(h){
   ctx.strokeStyle = '#00d4ff'; ctx.lineWidth = 2.5; ctx.beginPath();
   for (let i = 0; i <= 100; i++) { const hx = -1 + i/50; const p = investedAt(hx); i ? ctx.lineTo(X(hx), Y(p)) : ctx.moveTo(X(hx), Y(p)); }
   ctx.stroke();
-  // LC share curve
+  // LC share line (flat: data-driven, does not depend on heat)
+  const lcs = lcShareAuto();
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.5; ctx.setLineDash([5,4]); ctx.beginPath();
-  for (let i = 0; i <= 100; i++) { const hx = -1 + i/50; const p = lcShareAt(hx); i ? ctx.lineTo(X(hx), Y(p)) : ctx.moveTo(X(hx), Y(p)); }
+  ctx.moveTo(X(-1), Y(lcs)); ctx.lineTo(X(1), Y(lcs));
   ctx.stroke(); ctx.setLineDash([]);
   // now marker
   ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
   ctx.beginPath(); ctx.moveTo(X(h), T); ctx.lineTo(X(h), H-B); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(X(h), Y(investedAt(h)), 4, 0, 7); ctx.fill();
+  const iv = investedAt(h);
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(X(h), Y(iv), 4, 0, 7); ctx.fill();
+  ctx.font = 'bold 11px monospace'; ctx.fillStyle = '#ffffff';
+  const lbl = 'TODAY: ' + (iv*100).toFixed(1) + '% invested';
+  const lx = Math.min(W - R - 150, Math.max(L + 4, X(h) + 8));
+  ctx.fillText(lbl, lx, Y(iv) - 10);
+  ctx.font = '10px monospace'; ctx.fillStyle = '#ffd166';
+  ctx.fillText('LC share ' + (lcs*100).toFixed(0) + '% (data-set)', lx, Y(lcs) - 6);
   ctx.fillStyle = '#8a8aa0'; ctx.font = '10px monospace';
-  ctx.fillText('── invested %', L+8, T+12); ctx.fillStyle = '#ffd166'; ctx.fillText('╌╌ LC share of invested', L+110, T+12);
+  ctx.fillText('── invested % target', L+8, T+12); ctx.fillStyle = '#ffd166'; ctx.fillText('╌╌ LC share of invested', L+150, T+12);
 }
 function renderCohort(dLC, dSC){
   const rows = Object.keys(COHORT).filter(s => !['IWM','SMH'].includes(s))
@@ -374,16 +426,16 @@ function renderCohort(dLC, dSC){
   let html = '<tr><th>TICKER</th><th>CLASS</th><th class="r">PRICE</th><th class="r">DAY</th><th>GEIGER</th><th class="r">SCORE</th><th class="r">MA</th><th>SIGNAL</th></tr>';
   const addN = {LC: dLC > .005 ? 3 : 0, SC: dSC > .005 ? 3 : 0};
   const trimN = {LC: dLC < -.005 ? 3 : 0, SC: dSC < -.005 ? 3 : 0};
-  const coldest = {}, hottest = {};
+  const coldRank = {}, hotRank = {};
   for (const cl of ['LC','SC']) {
     const inCl = rows.filter(r => r.cls === cl);
-    coldest[cl] = new Set(inCl.slice(0, addN[cl]).map(r => r.sym));
-    hottest[cl] = new Set(inCl.slice(-trimN[cl] || inCl.length).slice(-trimN[cl]).map(r => r.sym));
+    inCl.slice(0, addN[cl]).forEach((r, i) => coldRank[r.sym] = i + 1);
+    if (trimN[cl]) inCl.slice(-trimN[cl]).reverse().forEach((r, i) => hotRank[r.sym] = i + 1);
   }
   for (const r of rows) {
     let tag = '';
-    if (coldest[r.cls]?.has(r.sym)) tag = '<span class="tag add">ADD CANDIDATE</span>';
-    else if (trimN[r.cls] && hottest[r.cls]?.has(r.sym)) tag = '<span class="tag trim">TRIM CANDIDATE</span>';
+    if (coldRank[r.sym]) tag = `<span class="tag add">ADD · #${coldRank[r.sym]} coldest ${r.cls}</span>`;
+    else if (hotRank[r.sym]) tag = `<span class="tag trim">TRIM · #${hotRank[r.sym]} hottest ${r.cls}</span>`;
     const w = Math.min(50, Math.abs(r.g) * 50);
     html += `<tr><td><b>${r.sym}</b></td><td class="cls">${CLASSNAME[r.cls]||r.cls}</td>
       <td class="r">${r.c.price.toLocaleString()}</td>
@@ -417,8 +469,9 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   L.push('STEP C · MACRO HEAT (weighted average of the voters you turned on)');
   L.push('  heat = ( ' + used.map(v => `${S.wts[v.key]}×${f2(v.val)}`).join(' + ') + ' ) / ' + used.reduce((t,v)=>t+(S.wts[v.key]??0),0) + ' = ' + f2(h));
   L.push('STEP D · THE CURVE (methodology, not a table)');
-  L.push(`  invested = ${S.minInv}% + (${S.maxInv}% − ${S.minInv}%) × ((1 − ${f2(h)})/2)^γ${(+S.gamma).toFixed(1)} = ${S.minInv}% + ${S.maxInv-S.minInv}% × ${Math.pow((1-h)/2,S.gamma).toFixed(3)} = ${pct(inv)}`);
-  L.push(`  LC share = ${S.lcHot}% + (${S.lcCold}% − ${S.lcHot}%) × (1 − ${f2(h)})/2 = ${pct(lc,0)} of invested  →  LC ${pct(lcEq)} of equity · SC ${pct(scEq)} of equity`);
+  L.push(`  invested = ${S.minInv}% + (${S.maxInv}% − ${S.minInv}%) × (1 − ${f2(h)})/2 = ${S.minInv}% + ${S.maxInv-S.minInv}% × ${((1-h)/2).toFixed(3)} = ${pct(inv)}   [linear, no aggressiveness dial]`);
+  const gS2 = COHORT['SPY'] ? geiger(COHORT['SPY']) : 0, gI2 = COHORT['IWM'] ? geiger(COHORT['IWM']) : 0;
+  L.push(`  LC share (DATA-SET) = 50% + (IWM ${f2(gI2)} − SPY ${f2(gS2)})×50% = ${pct(lc,0)} of invested, capped 20–80%  →  LC ${pct(lcEq)} of equity · SC ${pct(scEq)} of equity`);
   L.push(`  per position: LC ${pct(lcEq)} / ${S.nLC} = ${pct(perLC)} · SC ${pct(scEq)} / ${S.nSC} = ${pct(perSC)}`);
   L.push('STEP E · YOUR STATE (from IBKR, adjusted by your sliders) → MOVES');
   L.push(`  current: invested ${pct(cInv,0)} · LC ${pct(cLC,0)} · SC ${pct(cSC,0)}`);
@@ -430,7 +483,7 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   document.getElementById('trace').textContent = L.join('\n');
 }
 // slider wiring
-for (const id of ['dTrend','dRsi','dTf','vixCold','tenCold','maxInv','minInv','gamma','lcHot','lcCold','nLC','nSC','curInv','curLC']) {
+for (const id of ['dTrend','dRsi','dTf','vixCold','tenCold','maxInv','minInv','nLC','nSC','curInv','curLC']) {
   document.getElementById(id).oninput = e => { S[id] = +e.target.value; save(); render(); };
 }
 document.getElementById('refresh').onclick = loadFeeds;
