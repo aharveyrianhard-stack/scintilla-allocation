@@ -14,7 +14,7 @@
   h1{font-size:19px; letter-spacing:.28em; font-weight:600;}
   h1 .dot{color:var(--cyan);}
   .sub{color:var(--dim); margin-top:4px; font-size:11px; letter-spacing:.08em;}
-  .grid{display:grid; grid-template-columns:1.05fr .95fr; gap:18px; margin-top:22px; align-items:start;}
+  .grid{display:grid; grid-template-columns:1fr; gap:18px; margin-top:22px; align-items:start; max-width:980px;}
   .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px;}
   .panel h2{font-size:11px; letter-spacing:.22em; color:var(--cyan); margin-bottom:4px; font-weight:600;}
   .panel .note{color:var(--dim); font-size:11px; line-height:1.5; margin-bottom:12px;}
@@ -112,24 +112,11 @@
       <summary>GEIGER DIALS (approved — touch only if you mean it)</summary>
       <div class="ctl"><label>Trend / Momentum<small>inside each geiger</small></label><input type="range" id="dTrend" min="0" max="1" step="0.05"><div class="v" id="dTrendV"></div></div>
       <div class="ctl"><label>RSI / W%R<small>momentum blend</small></label><input type="range" id="dRsi" min="0" max="1" step="0.05"><div class="v" id="dRsiV"></div></div>
-      <div class="ctl"><label>1D / 1W<small>equalizer TF blend (3.1785 / 0.9875 ≈ this)</small></label><input type="range" id="dTf" min="0" max="1" step="0.01"><div class="v" id="dTfV"></div></div>
+      <div class="note" style="margin:6px 0">TIMEFRAME WEIGHTS — locked to your live hub equalizer (reviewed off the hub, logo menu → Weight Equalizer): 2h 1.2 · 3h 3.6 · 4h 6.7 · 6h 9.3 · 12h 9.3 · 1d 9.3 · 3d 7.6 · 1w 2.9. Families TRND 50 / MOM 50. Change them in the hub and hit SAVE — once operator_weights carries rows, this page reads them live.</div>
       <div class="ctl"><label>VIX cold ↔ hot<small>−1 at high, +1 at low</small></label><input type="range" id="vixCold" min="20" max="50" step="1"><div class="v" id="vixColdV"></div></div>
       <div class="ctl"><label>10Y cold end %<small>−1 at this yield</small></label><input type="range" id="tenCold" min="4" max="6" step="0.1"><div class="v" id="tenColdV"></div></div>
     </details>
-    <details>
-      <summary>WHAT EACH VOTER IS — human detail</summary>
-      <div class="note" style="margin-top:8px; line-height:1.7">
-      <b style="color:var(--txt)">SPY / QQQ GEIGER</b> — your approved geiger on the index itself: MA-ribbon order (are the 9 averages stacked bullish or broken?) blended 50/50 with momentum (RSI on the 23/77 map, 60%, + Williams range position, 40%), computed on daily AND weekly bars, mixed by your equalizer (~76/24). One number: how stretched the index is.<br><br>
-      <b style="color:var(--txt)">IWM GEIGER</b> — same math on small caps. Turning its weight up does one thing here: small caps get a direct vote in the overall heat (breadth — a rally without small caps is thinner than it looks). Separately, IWM-vs-SPY relative heat now drives the LC/SC split in panel 2 automatically, whether or not this weight is on.<br><br>
-      <b style="color:var(--txt)">SMH GEIGER</b> — semis, current leadership. Weight it if you want leadership stretch to count in the macro number.<br><br>
-      <b style="color:var(--txt)">VIX (inv)</b> — the actual VIX LEVEL, not a geiger. Straight line between your two endpoints: at 30 it votes −1 (fear = cold), at 12 it votes +1 (complacency = hot), clamped beyond both. VIX 45 still reads −1.<br><br>
-      <b style="color:var(--txt)">US 10Y (inv)</b> — the actual 10-year YIELD level, same straight-line treatment: 4.8% = −1 (hostile), 3.5% = +1 (fuel). Not a geiger today; a geiger on the yield TREND is a possible future voter, say the word.<br><br>
-      <b style="color:var(--txt)">MA STACK</b> — how many of SPY's 10 moving averages (EMA 5/8/13/21/34, SMA 50/100/150/200 daily + 200-week) price sits ABOVE. 10/10 = +1 fully extended. You're right that ribbon ORDER already lives inside the geiger — this one measures price POSITION vs the fan instead, a related but different lens. That overlap is exactly why its default weight is 0: it's a reading, not a voter, until you decide otherwise.<br><br>
-      <b style="color:var(--txt)">INTERNALS</b> — one number summarizing ~18 market internals from the feed: risk-appetite ratios (RSP/SPY, IWM/SPY, QQQ/SPY, XLY/XLP, SMH/SPY, XLU/SPY inverted), credit (HYG/LQD), BTC, the volatility complex (VIX, MOVE, SKEW, VVIX — all inverted), the 10Y, cyclicals-vs-defensives, and sector breadth. Each one is geigered on the standard scale, flipped if hostile, then averaged. Expand below to see every row.
-      </div>
-      <div id="intbreak"></div>
-    </details>
-    <div class="note" style="margin-top:10px">MACRO HEAT = the weighted average of the voters above — each voter × its weight, divided by total weight. That is the whole combination step; the exact arithmetic with today's numbers is in panel 6.</div>
+    <div class="note" style="margin-top:10px">MACRO HEAT = the weighted average of the voters above — each voter × its weight, divided by total weight. That is the whole combination step. MA STACK and INTERNALS were removed as voters on Alan's order (MA stack duplicates the ribbon already inside the geiger; internals are retired from the score — macro-feed still computes them server-side if ever wanted back).</div>
   </div>
 
   <!-- 2 METHODOLOGY -->
@@ -143,7 +130,8 @@
     </details>
     <div class="ctl"><label>Invested at max COLD<small>policy: your all-in level when everything is washed out</small></label><input type="range" id="maxInv" min="0" max="100" step="5"><div class="v" id="maxInvV"></div></div>
     <div class="ctl"><label>Invested at max HOT<small>policy: your floor when everything is stretched</small></label><input type="range" id="minInv" min="0" max="100" step="5"><div class="v" id="minInvV"></div></div>
-    <div class="ctl"><label>Positions LC / SC<small>how many names each sleeve is split across</small></label><div style="display:flex;gap:14px;align-items:center"><input type="range" id="nLC" min="1" max="10" step="1" style="flex:1"><input type="range" id="nSC" min="1" max="10" step="1" style="flex:1"></div><div class="v" id="nV"></div></div>
+    <div class="ctl"><label>Positions — Large Cap<small>how many names the LC sleeve splits across</small></label><input type="range" id="nLC" min="1" max="10" step="1"><div class="v" id="nLCV"></div></div>
+    <div class="ctl"><label>Positions — Small Cap<small>how many names the SC sleeve splits across</small></label><input type="range" id="nSC" min="1" max="10" step="1"><div class="v" id="nSCV"></div></div>
     <div class="note" style="margin-top:10px" id="autosplit"></div>
     <details>
       <summary>SUB-DIALS — optional assumptions under the data</summary>
@@ -192,8 +180,8 @@
     <div class="note" style="line-height:1.75">
     <b style="color:var(--txt)">WHAT THIS IS.</b> The SCINTILLA allocation module: market heat → % invested → LC/SC split → moves in % of equity / class / position, with ★FAV candidates ranked by their own geigers. Percent-only, never dollars. Canonical source: GitHub aharveyrianhard-stack/scintilla-allocation (main auto-deploys here). Served at scintillahub.ai/allocation and allocation.scintillahub.ai — same page.<br><br>
     <b style="color:var(--txt)">DATA POLICY.</b> Test lane = YAHOO via Supabase functions macro-feed + cohort-feed (5-min server cache). Symbol map: BTCUSD→BTC-USD, GCUSD→GC=F, SIUSD→SI=F, CLUSD→CL=F. Proven voters graduate to the SCINTILLA database as primary with Yahoo as fallback. FMP is PROHIBITED everywhere in this module.<br><br>
-    <b style="color:var(--txt)">PROXY MENU (each independent — commodities are NOT lumped: oil, gold, silver each get their own voter/toggle).</b> LC→SPY · SC→IWM · Growth→QQQ · Value→RSP · Semis→SMH · Crypto→BTC-USD · Oil→CL=F (LIVE as a voter, inverted) · Gold→GC=F · Silver→SI=F · Defensives→XLP+XLU. Mechanics when added: SLEEVES (LC/SC, later crypto/commodity) are sized by relative coldness — colder sleeve earns more, its coldest favorites get ADD-tagged. STYLES (growth/value — cross-cap by nature) never become sleeves; they re-rank candidates INSIDE sleeves (cold QQQ pushes growth names up the ADD list in both classes). Sector geigers (already in macro-feed, all 11) will re-rank by sector the same way — integrates with the hub sectorrotation tool.<br><br>
-    <b style="color:var(--txt)">PARITY CONTRACT (Alan doctrine: no differences vs the hub geiger except Yahoo data lag).</b> Today this module computes the approved GOOGL_GEIGER_v2 primitives on 1d+1w with equalizer weights 3.1785/0.9875. The hub composite runs the FULL equalizer (2H/3H/4H/6H/12H/1D/3D/1W × TRND/MOM/STRC/VOL families) with weights saved to the database table operator_weights (table exists; currently empty = defaults). GAP TO CLOSE: extend cohort-feed to all equalizer TFs (intraday needs the database lane — Yahoo only offers 60m/90m approximations) + read operator_weights live + add the STRUCT family. Until then the module is the 1d/1w subset of the same math, not a different math.<br><br>
+    <b style="color:var(--txt)">PROXY MENU.</b> LC→SPY · SC→IWM · Growth→QQQ · Value→RSP · Semis→SMH · Crypto→BTC-USD · Oil→CL=F (LIVE as its own independent voter, inverted — per Alan; no other commodity voters unless Alan asks) · Defensives→XLP+XLU. Mechanics when added: SLEEVES are sized by relative coldness — colder sleeve earns more, its coldest favorites get ADD-tagged. STYLES (growth/value — cross-cap by nature) never become sleeves; they re-rank candidates INSIDE sleeves (cold QQQ pushes growth names up the ADD list in both classes). Sector geigers (already in macro-feed, all 11) will re-rank by sector the same way — integrates with the hub sectorrotation tool.<br><br>
+    <b style="color:var(--txt)">PARITY — EQUALIZER REVIEWED ON THE HUB 2026-07-19 (logo menu → Weight Equalizer).</b> Read-back of the live surface: TF curve 2h 1.2 · 3h 3.6 · 4h 6.7 · 6h 9.3 · 12h 9.3 · 1d 9.3 · 3d 7.6 · 1w 2.9 (1m–1h and 2w–1M at 0) · families TRND 50 / MOM 50 (only those two carry weight live) · momentum mix 60 RSI / 40 Williams · SAVE persists to operator_weights (currently 0 rows = hub running these defaults). THIS MODULE NOW RUNS THAT EXACT CURVE: cohort-feed v4 computes the primitives per TF, intraday resampled from Yahoo 60m bars (2h=2×60m, 3h=3, 4h=4, 6h=6, 12h=13 bars — test-lane approximation; database bars replace them on graduation). Remaining differences vs the hub can only come from Yahoo data lag/timestamps — by design, per Alan's doctrine. When operator_weights gains rows, read it live and drop the hardcoded curve.<br><br>
     <b style="color:var(--txt)">RSI LEVELS — verified vs GOOGL_GEIGER_v2 (GEIGER!A24):</b> momentum is "mapped straight from its range to −1…+1". 23/77 are the ends of the map, not gates — every intermediate RSI level feeds proportionally, continuously.<br><br>
     <b style="color:var(--txt)">OPEN VERIFICATIONS (next session, run before extending anything).</b> (1) Side-by-side geiger parity test vs the database on SPY/QQQ/GOOGL — Alan's theory: database saves post-market prices while Yahoo hands back Friday regular close; confirm and document the timing convention. (2) Related: Google Finance quoted SPY ~752 while Yahoo+hub both said ~743 on 2026-07-19 — resolve which timestamp each represents. (3) When operator_weights has rows, wire it in and re-run parity.<br><br>
     <b style="color:var(--txt)">YOUR STATE / IBKR.</b> Panel 3 seeds from storage file inbox/ibkr-state.json (percentages only, never dollars). It updates ONLY when Alan tells a session "sync IBKR" (scheduled auto-sync was proposed and REJECTED — do not create one). IBKR connector is read-only OAuth; never touch orders.<br><br>
@@ -224,18 +212,16 @@ const DEFAULTS = {
   vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
   maxInv:100, minInv:15, nLC:4, nSC:2, lcTilt:0,
   curInv:0, curLC:0,
-  wts:{SPY:1, QQQ:1, IWM:0, SMH:0, VIX:0, US10Y:0, OIL:0.5, MA:0, INTERNALS:1}
+  wts:{SPY:1, QQQ:1, IWM:0, SMH:0, VIX:0, US10Y:0, OIL:0.5}
 };
 const VOTER_DESC = {
-  SPY: 'Approved geiger on the S&P: ribbon order 50% + momentum 50% (RSI 60 / W%R 40). RSI is mapped STRAIGHT from 23→77 onto −1…+1 — continuous, per GOOGL_GEIGER_v2: RSI 50 feeds 0, 60 feeds +0.37, 70 feeds +0.74; 23/77 are just where it saturates at ±1, nothing waits for them. Daily+weekly blended ~76/24 by your equalizer. +1 = stretched.',
-  QQQ: 'Same approved geiger math on the Nasdaq-100. Watch it vs SPY: when it reads colder, growth is the discounted side.',
-  IWM: 'Same math on small caps. Its weight adds breadth to the heat vote; separately IWM-vs-SPY drives the LC/SC split below, always.',
-  SMH: 'Same math on semis — leadership. Weight it if leadership stretch should move the macro number.',
-  VIX: 'The VIX LEVEL, not a geiger: straight line from your cold endpoint (−1) to 12 (+1), clamped beyond. Low VIX = complacency = hot.',
-  US10Y: 'The 10-year YIELD level, same straight line: cold endpoint (−1) to 3.5% (+1). Low yields = fuel = hot. (A geiger on the yield trend is a possible future voter.)',
-  OIL: 'Crude geiger, INVERTED: oil running hot = inflation pressure = hostile, pulls the score DOWN. Oil breaking down = fuel for risk, pushes it UP. You said it matters now — it starts at half weight; dial to 0 the day it stops mattering.',
-  MA: 'How many of SPY’s 10 MAs price is above — position vs the fan. Overlaps the ribbon inside the geiger (which ranks ORDER), hence default weight 0: reading, not voter.',
-  INTERNALS: 'One number for ~15 internals: risk ratios, credit, BTC, vol complex (inverted), 10Y, cyc-vs-def, sector breadth — each geigered, hostile ones flipped, averaged. Expand below for every row.'
+  SPY: 'PROXY: SPY (Yahoo). The approved geiger on the S&P across your full equalizer curve (2h→1w): ribbon order 50% + momentum 50% (RSI 60 / W%R 40, straight 23→77 map — every level in between feeds, per GOOGL_GEIGER_v2). WHEN it reads positive the market is stretched and it pushes the score UP toward Overbought; negative = washed out, pushes DOWN toward Oversold.',
+  QQQ: 'PROXY: QQQ (Yahoo). Same geiger on the Nasdaq-100. When growth is the stretched side it pushes the score UP; when growth is the beaten-down side (like now) it pulls the score DOWN. Watch it vs SPY: the gap says which side is discounted.',
+  IWM: 'PROXY: IWM (Yahoo). Same geiger on small caps. As a voter it adds breadth: a rally without small caps reads cooler. NOTE: whether weighted or not, IWM-vs-SPY always drives the LC/SC split in panel 2.',
+  SMH: 'PROXY: SMH (Yahoo). Same geiger on semis, the current leadership. Weighted in, a stretched semi complex pushes the score UP (leadership froth) and a broken one drags it DOWN.',
+  VIX: 'PROXY: ^VIX level (Yahoo), not a geiger. HOW IT VOTES: below ~21 it votes hot (+) — calm/complacency, pushes the score UP; above ~21 it votes cold (−) — fear, pulls it DOWN; at 12 it maxes at +1, at your cold endpoint (30) it floors at −1, clamped beyond. Today 18.8 → +0.25: mildly complacent. KNOWN LIMIT: level-only is v1-simplistic — term structure (VIX vs VIX3M) and rate-of-change are roadmap upgrades.',
+  US10Y: 'PROXY: ^TNX level (Yahoo), not a geiger. HOW IT VOTES: below ~4.15% yields are fuel — pushes the score UP; above ~4.15% they are a headwind — pulls it DOWN; +1 at 3.5%, −1 at 4.8%. Today 4.54% → −0.60: rates are a drag. Same v1-simplistic caveat as VIX — a yield-trend geiger is a roadmap upgrade.',
+  OIL: 'PROXY: CL=F crude futures (Yahoo), its own independent voter — never lumped with other commodities. INVERTED geiger: oil trending hot = inflation pressure = pulls the score DOWN; oil breaking down = relief = pushes UP. Starts at half weight because it matters now; dial to 0 the day it stops.'
 };
 let S = JSON.parse(localStorage.getItem('alloc-module-v1') || 'null') || structuredClone(DEFAULTS);
 S.wts = Object.assign(structuredClone(DEFAULTS.wts), S.wts || {});
@@ -250,15 +236,20 @@ function parseCSV(text){
   const lines = text.trim().split('\n'); const head = lines[0].split(',');
   return lines.slice(1).map(l => { const c = l.split(','); const o = {}; head.forEach((h,i)=>o[h]=c[i]); return o; });
 }
+// THE EQUALIZER CURVE — read off the live hub equalizer (logo menu) on 2026-07-19. SAVE writes operator_weights; when that table has rows we read it live instead.
+const EQ_W = {'2h':1.2, '3h':3.6, '4h':6.7, '6h':9.3, '12h':9.3, '1d':9.3, '3d':7.6, '1w':2.9};
+const TFS = Object.keys(EQ_W);
 function ingest(mr, cr){
   for (const r of parseCSV(mr)) {
     MACRO[r.name] = {value:+r.value, trend:r.trend===''?null:+r.trend, rsi:r.rsi_s===''?null:+r.rsi_s, range:r.range_s===''?null:+r.range_s};
     STAMPS.macro = r.updated_utc;
   }
   for (const r of parseCSV(cr)) {
-    if (r.price === '') continue;
+    if (r.price === '' || r.t_1d === undefined) continue;
     const [ma, maN] = (r.ma10||'0/10').split('/').map(Number);
-    COHORT[r.sym] = {price:+r.price, day:+r.day_pct, td:+r.trend_d, rd:+r.rsis_d, gd:+r.range_d, tw:+r.trend_w, rw:+r.rsis_w, gw:+r.range_w, ma, maN};
+    const tf = {};
+    for (const t of TFS) tf[t] = {t: r['t_'+t]===''?null:+r['t_'+t], r: r['r_'+t]===''?null:+r['r_'+t], g: r['g_'+t]===''?null:+r['g_'+t]};
+    COHORT[r.sym] = {price:+r.price, day:+r.day_pct, tf, ma, maN};
     STAMPS.cohort = r.updated_utc;
   }
 }
@@ -294,11 +285,14 @@ async function loadFeeds(){
 // ---- math (approved geiger, client dials) ----
 const clamp = x => Math.max(-1, Math.min(1, x));
 function geiger(c){
-  const mD = c.rd * S.dRsi + c.gd * (1 - S.dRsi);
-  const mW = c.rw * S.dRsi + c.gw * (1 - S.dRsi);
-  const gD = c.td * S.dTrend + mD * (1 - S.dTrend);
-  const gW = c.tw * S.dTrend + mW * (1 - S.dTrend);
-  return clamp(gD * S.dTf + gW * (1 - S.dTf));
+  // Full equalizer: per-TF geiger = TRND 50% + MOM 50% (RSI 60 / W%R 40), weighted by the live curve.
+  let num = 0, den = 0;
+  for (const t of TFS) {
+    const p = c.tf?.[t]; if (!p || p.t == null || p.r == null || p.g == null) continue;
+    const g = p.t * S.dTrend + (p.r * S.dRsi + p.g * (1 - S.dRsi)) * (1 - S.dTrend);
+    num += g * EQ_W[t]; den += EQ_W[t];
+  }
+  return den ? clamp(num / den) : 0;
 }
 function rowGeiger(m){ // macro-feed row with primitives (daily-only series)
   if (m.trend == null) return null;
@@ -328,9 +322,6 @@ function voters(){
   v.push({key:'US10Y', name:'US 10Y (inv)', sub: ten!=null ? ten.toFixed(2)+'%' : '—', val: ten!=null ? clamp(((+S.tenCold+3.5)/2 - ten) / ((+S.tenCold-3.5)/2)) : null});
   const oil = COHORT['CLUSD'];
   v.push({key:'OIL', name:'OIL (inv)', sub: oil ? 'CL ' + oil.price.toFixed(1) : '—', val: oil ? clamp(-geiger(oil)) : null});
-  const spy = COHORT['SPY'];
-  v.push({key:'MA', name:'MA STACK', sub: spy ? spy.ma+' of '+spy.maN+' above' : '—', val: spy ? clamp(spy.ma/spy.maN*2 - 1) : null});
-  v.push({key:'INTERNALS', name:'INTERNALS', sub:'~18 voters, feed', val: internalsScore()});
   return v;
 }
 function heat(){
@@ -406,14 +397,13 @@ function render(){
   const set = (id, v, fmt) => { const e = document.getElementById(id); e.value = v; document.getElementById(id+'V').textContent = fmt; };
   set('dTrend', S.dTrend, S.dTrend.toFixed(2)+' / '+(1-S.dTrend).toFixed(2));
   set('dRsi', S.dRsi, S.dRsi.toFixed(2)+' / '+(1-S.dRsi).toFixed(2));
-  set('dTf', S.dTf, Math.round(S.dTf*100)+' / '+Math.round((1-S.dTf)*100));
   set('vixCold', S.vixCold, '−1 @ '+S.vixCold+' · +1 @ 12');
   set('tenCold', S.tenCold, '−1 @ '+(+S.tenCold).toFixed(1)+'% · +1 @ 3.5%');
   set('maxInv', S.maxInv, S.maxInv+'%');
   set('minInv', S.minInv, S.minInv+'%');
   set('lcTilt', S.lcTilt ?? 0.1, (S.lcTilt ?? 0.1) === 0 ? 'OFF' : '+'+((S.lcTilt ?? 0.1)*100).toFixed(0)+'%/heat');
-  document.getElementById('nLC').value = S.nLC; document.getElementById('nSC').value = S.nSC;
-  document.getElementById('nV').textContent = S.nLC+' / '+S.nSC;
+  set('nLC', S.nLC, String(S.nLC));
+  set('nSC', S.nSC, String(S.nSC));
   set('curInv', S.curInv, S.curInv+'%');
   set('curLC', S.curLC, S.curLC+'%');
   document.getElementById('curLC').max = S.curInv;
@@ -529,7 +519,8 @@ function renderInputMap(h){
     ['10Y endpoints', SUB, '−1 @ '+(+S.tenCold).toFixed(1)+'% · +1 @ 3.5%', 'Same shape for the yield voter.'],
     ['LC share rails', RAIL, '20% – 80%', 'Clamp on the data split so one hot print can’t zero a class. Constant, not a dial — stays internal as classes are added.'],
     ['Momentum clamp anchors', APPR, 'RSI 23 / 77', 'Your geiger levels — where RSI reads fully washed-out / fully stretched.'],
-    ['Trend/Momentum · RSI/W%R · 1d/1w', APPR, S.dTrend.toFixed(2)+'/'+(1-S.dTrend).toFixed(2)+' · '+S.dRsi.toFixed(2)+'/'+(1-S.dRsi).toFixed(2)+' · '+Math.round(S.dTf*100)+'/'+Math.round((1-S.dTf)*100), 'The approved geiger blends + your equalizer TF weights. Exposed for completeness; changing them changes every geiger in the system at once.'],
+    ['Trend/Momentum · RSI/W%R', APPR, S.dTrend.toFixed(2)+'/'+(1-S.dTrend).toFixed(2)+' · '+S.dRsi.toFixed(2)+'/'+(1-S.dRsi).toFixed(2), 'The approved geiger family blends (match the hub equalizer: TRND 50/MOM 50, RSI 60/W%R 40). Changing them changes every geiger at once.'],
+    ['Equalizer TF curve', APPR, Object.entries(EQ_W).map(([t,w])=>t+' '+w).join(' · '), 'Locked to the live hub equalizer (reviewed 2026-07-19). Change it in the hub → SAVE; once operator_weights has rows this page reads them live.'],
   ];
   t.innerHTML = '<tr><th>INPUT</th><th>KIND</th><th>NOW</th><th>WHAT IT DOES, MATHEMATICALLY</th></tr>' +
     rows.map(r => `<tr><td class="n">${r[0]}</td><td class="k">${r[1]}</td><td class="cls">${r[2]}</td><td class="cls">${r[3]}</td></tr>`).join('');
@@ -567,20 +558,22 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   const cy = s => `%c${s}%c`;
   const L = [];
   const gTrace = sym => {
-    const c = COHORT[sym]; if (!c) return sym+': no data';
-    const mD = c.rd*S.dRsi + c.gd*(1-S.dRsi), mW = c.rw*S.dRsi + c.gw*(1-S.dRsi);
-    const gD = c.td*S.dTrend + mD*(1-S.dTrend), gW = c.tw*S.dTrend + mW*(1-S.dTrend);
-    return `${sym}  DAILY[ ribbon ${f2(c.td)} · RSIs ${f2(c.rd)} · W%Rs ${f2(c.gd)} → mom = ${S.dRsi}×${f2(c.rd)} + ${(1-S.dRsi).toFixed(1)}×${f2(c.gd)} = ${f2(mD)} → ${S.dTrend}×trend + ${(1-S.dTrend).toFixed(1)}×mom = ${f2(gD)} ]  WEEKLY[ same math = ${f2(gW)} ]  →  GEIGER = ${Math.round(S.dTf*100)}%×${f2(gD)} + ${Math.round((1-S.dTf)*100)}%×${f2(gW)} = ${f2(geiger(c))}`;
+    const c = COHORT[sym]; if (!c || !c.tf) return sym+': no data';
+    const parts = TFS.filter(t => c.tf[t] && c.tf[t].t != null).map(t => {
+      const p = c.tf[t];
+      const g = p.t*S.dTrend + (p.r*S.dRsi + p.g*(1-S.dRsi))*(1-S.dTrend);
+      return `${t} ${f2(g)}×${EQ_W[t]}`;
+    });
+    return `${sym}  per-TF geiger (TRND ${S.dTrend}/MOM ${(1-S.dTrend).toFixed(1)}, RSI ${S.dRsi}/W%R ${(1-S.dRsi).toFixed(1)}): ${parts.join(' · ')}  →  equalizer-weighted = ${f2(geiger(c))}`;
   };
-  L.push('STEP A · GEIGER VOTERS (approved primitives from cohort-feed, your dials applied here)');
+  L.push('STEP A · GEIGER VOTERS (equalizer curve 2h→1w from the hub, primitives from cohort-feed)');
   for (const s of ['SPY','QQQ','IWM','SMH']) L.push('  ' + gTrace(s));
-  const vix = MACRO['VIX']?.value, ten = MACRO['US10Y']?.value, spy = COHORT['SPY'];
+  const vix = MACRO['VIX']?.value, ten = MACRO['US10Y']?.value;
   const vv = voters();
-  L.push('STEP B · INVERTED MEASURES (hostile things flip so hot always means hot)');
-  L.push(`  VIX ${vix?.toFixed(1)}: heat = clamp( (midpoint ${( (S.vixCold+12)/2 ).toFixed(1)} − ${vix?.toFixed(1)}) / half-range ${((S.vixCold-12)/2).toFixed(1)} ) = ${f2(vv[4].val)}   [−1 @ ${S.vixCold} · +1 @ 12]`);
-  L.push(`  US10Y ${ten?.toFixed(2)}%: same shape between ${(+S.tenCold).toFixed(1)}% (cold) and 3.5% (hot) = ${f2(vv[5].val)}`);
-  L.push(`  MA STACK: SPY above ${spy?spy.ma:'—'} of ${spy?spy.maN:'—'} MAs → ${spy?spy.ma:'—'}/${spy?spy.maN:'—'}×2−1 = ${f2(vv[6].val)}`);
-  L.push(`  INTERNALS: ${Object.entries(INTERNALS).filter(([k,[,w]])=>w&&MACRO[k]).length}+1 feed voters (ratios, credit, vol complex, breadth), each geigered ±dir, averaged = ${f2(vv[7].val)}`);
+  L.push('STEP B · LEVEL VOTERS (hostile things flip so hot always means hot)');
+  L.push(`  VIX ${vix?.toFixed(1)}: below ~${((S.vixCold+12)/2).toFixed(0)} votes hot(+), above votes cold(−); +1 @ 12, −1 @ ${S.vixCold} → ${f2(vv[4].val)}`);
+  L.push(`  US10Y ${ten?.toFixed(2)}%: below ~${(((+S.tenCold)+3.5)/2).toFixed(2)}% = fuel(+), above = drag(−); +1 @ 3.5%, −1 @ ${(+S.tenCold).toFixed(1)}% → ${f2(vv[5].val)}`);
+  L.push(`  OIL: crude geiger INVERTED (own independent voter) → ${f2(vv[6].val)}`);
   const used = vv.filter(v => v.val != null && (S.wts[v.key]??0) > 0);
   L.push('STEP C · MACRO HEAT (weighted average of the voters you turned on)');
   L.push('  heat = ( ' + used.map(v => `${S.wts[v.key]}×${f2(v.val)}`).join(' + ') + ' ) / ' + used.reduce((t,v)=>t+(S.wts[v.key]??0),0) + ' = ' + f2(h));
@@ -599,7 +592,7 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   document.getElementById('trace').textContent = L.join('\n');
 }
 // slider wiring
-for (const id of ['dTrend','dRsi','dTf','vixCold','tenCold','maxInv','minInv','lcTilt','nLC','nSC','curInv','curLC']) {
+for (const id of ['dTrend','dRsi','vixCold','tenCold','maxInv','minInv','lcTilt','nLC','nSC','curInv','curLC']) {
   document.getElementById(id).oninput = e => { S[id] = +e.target.value; save(); render(); };
 }
 document.getElementById('refresh').onclick = loadFeeds;
