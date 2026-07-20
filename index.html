@@ -186,9 +186,24 @@
     <table class="imap" id="imap"></table>
   </div>
 
-  <!-- 6 AUDIT TRACE -->
+  <!-- 6 STATE & ROADMAP -->
   <div class="panel full">
-    <h2>6 · AUDIT TRACE</h2>
+    <h2>6 · STATE &amp; ROADMAP — read this first if you are a new session</h2>
+    <div class="note" style="line-height:1.75">
+    <b style="color:var(--txt)">WHAT THIS IS.</b> The SCINTILLA allocation module: market heat → % invested → LC/SC split → moves in % of equity / class / position, with ★FAV candidates ranked by their own geigers. Percent-only, never dollars. Canonical source: GitHub aharveyrianhard-stack/scintilla-allocation (main auto-deploys here). Served at scintillahub.ai/allocation and allocation.scintillahub.ai — same page.<br><br>
+    <b style="color:var(--txt)">DATA POLICY.</b> Test lane = YAHOO via Supabase functions macro-feed + cohort-feed (5-min server cache). Symbol map: BTCUSD→BTC-USD, GCUSD→GC=F, SIUSD→SI=F, CLUSD→CL=F. Proven voters graduate to the SCINTILLA database as primary with Yahoo as fallback. FMP is PROHIBITED everywhere in this module.<br><br>
+    <b style="color:var(--txt)">PROXY MENU (each independent — commodities are NOT lumped: oil, gold, silver each get their own voter/toggle).</b> LC→SPY · SC→IWM · Growth→QQQ · Value→RSP · Semis→SMH · Crypto→BTC-USD · Oil→CL=F (LIVE as a voter, inverted) · Gold→GC=F · Silver→SI=F · Defensives→XLP+XLU. Mechanics when added: SLEEVES (LC/SC, later crypto/commodity) are sized by relative coldness — colder sleeve earns more, its coldest favorites get ADD-tagged. STYLES (growth/value — cross-cap by nature) never become sleeves; they re-rank candidates INSIDE sleeves (cold QQQ pushes growth names up the ADD list in both classes). Sector geigers (already in macro-feed, all 11) will re-rank by sector the same way — integrates with the hub sectorrotation tool.<br><br>
+    <b style="color:var(--txt)">PARITY CONTRACT (Alan doctrine: no differences vs the hub geiger except Yahoo data lag).</b> Today this module computes the approved GOOGL_GEIGER_v2 primitives on 1d+1w with equalizer weights 3.1785/0.9875. The hub composite runs the FULL equalizer (2H/3H/4H/6H/12H/1D/3D/1W × TRND/MOM/STRC/VOL families) with weights saved to the database table operator_weights (table exists; currently empty = defaults). GAP TO CLOSE: extend cohort-feed to all equalizer TFs (intraday needs the database lane — Yahoo only offers 60m/90m approximations) + read operator_weights live + add the STRUCT family. Until then the module is the 1d/1w subset of the same math, not a different math.<br><br>
+    <b style="color:var(--txt)">RSI LEVELS — verified vs GOOGL_GEIGER_v2 (GEIGER!A24):</b> momentum is "mapped straight from its range to −1…+1". 23/77 are the ends of the map, not gates — every intermediate RSI level feeds proportionally, continuously.<br><br>
+    <b style="color:var(--txt)">OPEN VERIFICATIONS (next session, run before extending anything).</b> (1) Side-by-side geiger parity test vs the database on SPY/QQQ/GOOGL — Alan's theory: database saves post-market prices while Yahoo hands back Friday regular close; confirm and document the timing convention. (2) Related: Google Finance quoted SPY ~752 while Yahoo+hub both said ~743 on 2026-07-19 — resolve which timestamp each represents. (3) When operator_weights has rows, wire it in and re-run parity.<br><br>
+    <b style="color:var(--txt)">YOUR STATE / IBKR.</b> Panel 3 seeds from storage file inbox/ibkr-state.json (percentages only, never dollars). It updates ONLY when Alan tells a session "sync IBKR" (scheduled auto-sync was proposed and REJECTED — do not create one). IBKR connector is read-only OAuth; never touch orders.<br><br>
+    <b style="color:var(--txt)">AWAITING ALAN'S GO:</b> multi-class sleeve engine (classes beyond LC/SC) · style re-ranking wiring · sector re-ranking wiring · database graduation of voters · volume conviction coefficient (proposal exists: RVOL time-of-day, VWAP position, volume shelves — scales loudness + gates execution, never votes direction).
+    </div>
+  </div>
+
+  <!-- 7 AUDIT TRACE -->
+  <div class="panel full">
+    <h2>7 · AUDIT TRACE</h2>
     <details>
       <summary>Full arithmetic chain with today's numbers — for Claude sessions and audits, skip freely</summary>
       <pre id="trace" style="font-size:11.5px; line-height:1.75; color:var(--txt); white-space:pre-wrap; margin-top:8px;"></pre>
@@ -212,7 +227,7 @@ const DEFAULTS = {
   wts:{SPY:1, QQQ:1, IWM:0, SMH:0, VIX:0, US10Y:0, OIL:0.5, MA:0, INTERNALS:1}
 };
 const VOTER_DESC = {
-  SPY: 'Approved geiger on the S&P: ribbon order 50% + momentum 50% (RSI 60 / W%R 40 on the 23/77 map), daily+weekly blended ~76/24 by your equalizer. +1 = stretched.',
+  SPY: 'Approved geiger on the S&P: ribbon order 50% + momentum 50% (RSI 60 / W%R 40). RSI is mapped STRAIGHT from 23→77 onto −1…+1 — continuous, per GOOGL_GEIGER_v2: RSI 50 feeds 0, 60 feeds +0.37, 70 feeds +0.74; 23/77 are just where it saturates at ±1, nothing waits for them. Daily+weekly blended ~76/24 by your equalizer. +1 = stretched.',
   QQQ: 'Same approved geiger math on the Nasdaq-100. Watch it vs SPY: when it reads colder, growth is the discounted side.',
   IWM: 'Same math on small caps. Its weight adds breadth to the heat vote; separately IWM-vs-SPY drives the LC/SC split below, always.',
   SMH: 'Same math on semis — leadership. Weight it if leadership stretch should move the macro number.',
