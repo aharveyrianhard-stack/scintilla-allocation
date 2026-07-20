@@ -183,8 +183,9 @@
     <b style="color:var(--txt)">PROXY MENU.</b> LC→SPY · SC→IWM · Growth→QQQ · Value→RSP · Semis→SMH · Crypto→BTC-USD · Oil→CL=F (LIVE as its own independent voter, inverted — per Alan; no other commodity voters unless Alan asks) · Defensives→XLP+XLU. Mechanics when added: SLEEVES are sized by relative coldness — colder sleeve earns more, its coldest favorites get ADD-tagged. STYLES (growth/value — cross-cap by nature) never become sleeves; they re-rank candidates INSIDE sleeves (cold QQQ pushes growth names up the ADD list in both classes). Sector geigers (already in macro-feed, all 11) will re-rank by sector the same way — integrates with the hub sectorrotation tool.<br><br>
     <b style="color:var(--txt)">PARITY — EQUALIZER REVIEWED ON THE HUB 2026-07-19 (logo menu → Weight Equalizer).</b> Read-back of the live surface: TF curve 2h 1.2 · 3h 3.6 · 4h 6.7 · 6h 9.3 · 12h 9.3 · 1d 9.3 · 3d 7.6 · 1w 2.9 (1m–1h and 2w–1M at 0) · families TRND 50 / MOM 50 (only those two carry weight live) · momentum mix 60 RSI / 40 Williams · SAVE persists to operator_weights (currently 0 rows = hub running these defaults). THIS MODULE NOW RUNS THAT EXACT CURVE: cohort-feed v4 computes the primitives per TF, intraday resampled from Yahoo 60m bars (2h=2×60m, 3h=3, 4h=4, 6h=6, 12h=13 bars — test-lane approximation; database bars replace them on graduation). Remaining differences vs the hub can only come from Yahoo data lag/timestamps — by design, per Alan's doctrine. When operator_weights gains rows, read it live and drop the hardcoded curve.<br><br>
     <b style="color:var(--txt)">RSI LEVELS — verified vs GOOGL_GEIGER_v2 (GEIGER!A24):</b> momentum is "mapped straight from its range to −1…+1". 23/77 are the ends of the map, not gates — every intermediate RSI level feeds proportionally, continuously.<br><br>
-    <b style="color:var(--txt)">PARITY TEST — RUN 2026-07-20, vs database table board_rsi.</b> RSI: EXACT match 3/3 to the decimal (SPY 48.42=48.42 · QQQ 42.00=42.00 · GOOGL 42.23=42.23) — same Wilder math, same close-series convention, Alan's post-market worry cleared (DB bar = Friday close; Google Finance's SPY ~752 was the outlier quote, Yahoo+hub+DB all agree). Williams %R: fixed to TRUE bar highs/lows in cohort-feed v5 (was close-only); QQQ now −85.4 vs DB −83.2. Residual gap on SPY/GOOGL (−33 vs −52 · −64 vs −82) is the LOOKBACK convention: this module uses 25 bars per the approved GOOGL_GEIGER_v2 spec; board_rsi appears to use a different period. OPEN QUESTION FOR ALAN: which W%R lookback is doctrine — the xlsx 25 (kept here) or the DB's? Also open: wire operator_weights when it gains rows.<br><br>
+    <b style="color:var(--txt)">PARITY TEST — RUN 2026-07-20, vs database table board_rsi.</b> RSI: EXACT match 3/3 to the decimal (SPY 48.42=48.42 · QQQ 42.00=42.00 · GOOGL 42.23=42.23) — same Wilder math, same close-series convention, Alan's post-market worry cleared (DB bar = Friday close; Google Finance's SPY ~752 was the outlier quote, Yahoo+hub+DB all agree). Williams %R: fixed to TRUE bar highs/lows in cohort-feed v5 (was close-only); QQQ now −85.4 vs DB −83.2. Residual gap on SPY/GOOGL (−33 vs −52 · −64 vs −82) is the LOOKBACK convention: this module uses 25 bars per the approved GOOGL_GEIGER_v2 spec; board_rsi appears to use a different period. RESOLVED BY ALAN 2026-07-20: indicators are calculated as normally calculated — Williams %R = standard 14-period on true highs/lows. With that, parity is EXACT 6/6 (RSI and W%R, SPY/QQQ/GOOGL all match the database to the decimal). Still open: wire operator_weights when it gains rows.<br><br>
     <b style="color:var(--txt)">YOUR STATE / IBKR.</b> Panel 3 seeds from storage file inbox/ibkr-state.json (percentages only, never dollars). It updates ONLY when Alan tells a session "sync IBKR" (scheduled auto-sync was proposed and REJECTED — do not create one). IBKR connector is read-only OAuth; never touch orders.<br><br>
+    <b style="color:var(--txt)">AGREED BASE (2026-07-20, starting point for testing):</b> weights SPY 1 · QQQ 1 · IWM 0.5 · SMH 0.5 · VIX 0.5 · US10Y 0.5 · OIL 0.5 · VALUE 0 (reading) · CRYPTO 0.25 · DEF 0.25. Policy: invested 100% at max cold, 15% at max hot, linear. LC/SC split data-driven (IWM vs SPY), tilt OFF. Positions 4 LC / 2 SC. All of it testable, none of it sacred.<br><br>
     <b style="color:var(--txt)">AWAITING ALAN'S GO:</b> multi-class sleeve engine (classes beyond LC/SC) · style re-ranking wiring · sector re-ranking wiring · database graduation of voters · volume conviction coefficient (proposal exists: RVOL time-of-day, VWAP position, volume shelves — scales loudness + gates execution, never votes direction).
     </div>
   </div>
@@ -212,7 +213,7 @@ const DEFAULTS = {
   vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
   maxInv:100, minInv:15, nLC:4, nSC:2, lcTilt:0,
   curInv:0, curLC:0,
-  wts:{SPY:1, QQQ:1, IWM:0, SMH:0, VIX:0, US10Y:0, OIL:0.5}
+  wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25}
 };
 const VOTER_DESC = {
   SPY: 'PROXY: SPY (Yahoo). The approved geiger on the S&P across your full equalizer curve (2h→1w): ribbon order 50% + momentum 50% (RSI 60 / W%R 40, straight 23→77 map — every level in between feeds, per GOOGL_GEIGER_v2). WHEN it reads positive the market is stretched and it pushes the score UP toward Overbought; negative = washed out, pushes DOWN toward Oversold.',
@@ -221,11 +222,15 @@ const VOTER_DESC = {
   SMH: 'PROXY: SMH (Yahoo). Same geiger on semis, the current leadership. Weighted in, a stretched semi complex pushes the score UP (leadership froth) and a broken one drags it DOWN.',
   VIX: 'PROXY: ^VIX level (Yahoo), not a geiger. HOW IT VOTES: below ~21 it votes hot (+) — calm/complacency, pushes the score UP; above ~21 it votes cold (−) — fear, pulls it DOWN; at 12 it maxes at +1, at your cold endpoint (30) it floors at −1, clamped beyond. Today 18.8 → +0.25: mildly complacent. KNOWN LIMIT: level-only is v1-simplistic — term structure (VIX vs VIX3M) and rate-of-change are roadmap upgrades.',
   US10Y: 'PROXY: ^TNX level (Yahoo), not a geiger. HOW IT VOTES: below ~4.15% yields are fuel — pushes the score UP; above ~4.15% they are a headwind — pulls it DOWN; +1 at 3.5%, −1 at 4.8%. Today 4.54% → −0.60: rates are a drag. Same v1-simplistic caveat as VIX — a yield-trend geiger is a roadmap upgrade.',
-  OIL: 'PROXY: CL=F crude futures (Yahoo), its own independent voter — never lumped with other commodities. INVERTED geiger: oil trending hot = inflation pressure = pulls the score DOWN; oil breaking down = relief = pushes UP. Starts at half weight because it matters now; dial to 0 the day it stops.'
+  OIL: 'PROXY: CL=F crude futures (Yahoo), its own independent voter — never lumped with other commodities. INVERTED geiger: oil trending hot = inflation pressure = pulls the score DOWN; oil breaking down = relief = pushes UP. Base weight 0.5 because it matters now; dial to 0 the day it stops.',
+  VALUE: 'PROXY: RSP equal-weight S&P (Yahoo). The value/breadth style. Straight geiger: a hot equal-weight tape = broad strength pushes the score UP; a cold one = narrow market, pulls DOWN. Base weight 0 — reading only for now; as a STYLE it will re-rank candidates rather than vote, per the roadmap.',
+  CRYPTO: 'PROXY: BTC-USD (Yahoo). The risk-appetite tell. Straight geiger: BTC running hot = speculative appetite = pushes the score UP; BTC breaking = risk coming off = pulls DOWN. Base weight 0.25 — a tell, not a driver.',
+  DEF: 'PROXY: XLP+XLU average (Yahoo), INVERTED. When defensives are the hot trade, money is hiding — that is risk-off, so it pulls the score DOWN; defensives cold = nobody paying up for safety = pushes UP. Base weight 0.25.'
 };
 let S = JSON.parse(localStorage.getItem('alloc-module-v1') || 'null') || structuredClone(DEFAULTS);
 S.wts = Object.assign(structuredClone(DEFAULTS.wts), S.wts || {});
 if (!S._v4) { S.lcTilt = 0; S._v4 = 1; }   // v4: tilt ships OFF — data decides unless you turn it on
+if (!S._v5) { S.wts = structuredClone(DEFAULTS.wts); S._v5 = 1; }  // v5: the agreed BASE weights (2026-07-20) applied once
 function save(){ localStorage.setItem('alloc-module-v1', JSON.stringify(S)); }
 
 let COHORT = {};   // sym -> {price,day,td,rd,gd,tw,rw,gw,ma,maN}
@@ -322,6 +327,12 @@ function voters(){
   v.push({key:'US10Y', name:'US 10Y (inv)', sub: ten!=null ? ten.toFixed(2)+'%' : '—', val: ten!=null ? clamp(((+S.tenCold+3.5)/2 - ten) / ((+S.tenCold-3.5)/2)) : null});
   const oil = COHORT['CLUSD'];
   v.push({key:'OIL', name:'OIL (inv)', sub: oil ? 'CL ' + oil.price.toFixed(1) : '—', val: oil ? clamp(-geiger(oil)) : null});
+  const rsp = COHORT['RSP'];
+  v.push({key:'VALUE', name:'VALUE (RSP)', sub:'equal-weight', val: rsp ? geiger(rsp) : null});
+  const btc = COHORT['BTCUSD'];
+  v.push({key:'CRYPTO', name:'CRYPTO (BTC)', sub:'risk appetite', val: btc ? geiger(btc) : null});
+  const xlp = COHORT['XLP'], xlu = COHORT['XLU'];
+  v.push({key:'DEF', name:'DEFENSIVES (inv)', sub:'XLP+XLU', val: (xlp && xlu) ? clamp(-(geiger(xlp)+geiger(xlu))/2) : null});
   return v;
 }
 function heat(){
@@ -574,6 +585,7 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   L.push(`  VIX ${vix?.toFixed(1)}: below ~${((S.vixCold+12)/2).toFixed(0)} votes hot(+), above votes cold(−); +1 @ 12, −1 @ ${S.vixCold} → ${f2(vv[4].val)}`);
   L.push(`  US10Y ${ten?.toFixed(2)}%: below ~${(((+S.tenCold)+3.5)/2).toFixed(2)}% = fuel(+), above = drag(−); +1 @ 3.5%, −1 @ ${(+S.tenCold).toFixed(1)}% → ${f2(vv[5].val)}`);
   L.push(`  OIL: crude geiger INVERTED (own independent voter) → ${f2(vv[6].val)}`);
+  L.push(`  VALUE(RSP) straight → ${f2(vv[7].val)} · CRYPTO(BTC) straight → ${f2(vv[8].val)} · DEFENSIVES(XLP+XLU) INVERTED → ${f2(vv[9].val)}`);
   const used = vv.filter(v => v.val != null && (S.wts[v.key]??0) > 0);
   L.push('STEP C · MACRO HEAT (weighted average of the voters you turned on)');
   L.push('  heat = ( ' + used.map(v => `${S.wts[v.key]}×${f2(v.val)}`).join(' + ') + ' ) / ' + used.reduce((t,v)=>t+(S.wts[v.key]??0),0) + ' = ' + f2(h));
