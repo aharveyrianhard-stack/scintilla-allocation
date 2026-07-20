@@ -33,9 +33,13 @@
   .stack{display:flex; height:36px; border-radius:6px; overflow:hidden; margin:4px 0 2px; border:1px solid var(--line);}
   .seg{display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#0a0a0f; white-space:nowrap; overflow:hidden;}
   .stacklbl{color:var(--dim); font-size:10px; letter-spacing:.15em; margin-top:10px;}
-  .imap td{font-size:11px; vertical-align:top; line-height:1.5;}
-  .imap td.n{color:var(--txt); white-space:nowrap;}
-  .imap td.k{color:var(--gold); white-space:nowrap;}
+  .imap{table-layout:fixed; width:100%;}
+  .imap td{font-size:11px; vertical-align:top; line-height:1.5; word-wrap:break-word;}
+  .imap th:nth-child(1), .imap td:nth-child(1){width:16%;}
+  .imap th:nth-child(2), .imap td:nth-child(2){width:11%;}
+  .imap th:nth-child(3), .imap td:nth-child(3){width:21%;}
+  .imap td.n{color:var(--txt);}
+  .imap td.k{color:var(--gold);}
   .wt{display:flex; align-items:center; gap:6px;}
   .wt input[type=range]{width:52px;}
   .wt span{color:var(--dim); font-size:10px; width:24px;}
@@ -145,6 +149,8 @@
       <summary>SUB-DIALS — optional assumptions under the data</summary>
       <div class="ctl" style="margin-top:6px"><label>Heat tilt → LC<small>your instinct: when everything is stretched, large caps are the better holds. 0 = off, data only. At 0.10 and heat +0.50 it adds +5% to the LC sleeve.</small></label><input type="range" id="lcTilt" min="0" max="0.3" step="0.05"><div class="v" id="lcTiltV"></div></div>
     </details>
+    <div id="mix" style="margin-top:14px"></div>
+    <div id="targets"></div>
     <details>
       <summary>THE MATH OF THIS PANEL — human words</summary>
       <div class="note" style="margin-top:8px; line-height:1.7">
@@ -165,34 +171,28 @@
     <div style="margin-top:12px" id="moves"></div>
   </div>
 
-  <!-- 4 TARGETS readout -->
-  <div class="panel">
-    <h2>4 · TARGET READOUT</h2>
-    <div class="note">Two bars: where you ARE, then where the model wants you. The moves in panel 3 are exactly the difference between them.</div>
-    <div id="mix"></div>
-    <div id="targets"></div>
-  </div>
-
-  <!-- 5 COHORT -->
+  <!-- 4 COHORT -->
   <div class="panel full">
-    <h2>5 · MOVE OPTIONS — ★FAV cohort by geiger</h2>
+    <h2>4 · MOVE OPTIONS — ★FAV cohort by geiger</h2>
     <div class="note">Your favorites, each with its own approved geiger (same dials as above). CANDIDATE RULE, exactly: if the LC or SC move is an ADD, the 3 coldest (lowest geiger) favorites in that class get tagged ADD CANDIDATE; if it is a TRIM, the 3 hottest get tagged TRIM CANDIDATE. Nothing else decides it — geiger rank only, volume conviction comes later. Sorted cold → hot.</div>
     <table id="cohort"></table>
     <div class="status"><button class="btn" id="refresh">↻ REFRESH FEEDS</button> <span class="updated" id="cohstamp"></span></div>
   </div>
 
-  <!-- 6 INPUT MAP -->
+  <!-- 5 INPUT MAP -->
   <div class="panel full">
-    <h2>6 · INPUT MAP — every dial in the system, in one place</h2>
+    <h2>5 · INPUT MAP — every dial in the system, in one place</h2>
     <div class="note">The complete list of what you can touch, what kind of input it is, its current value, and its exact mathematical effect. If it is not on this list, it is not an input — the data decides it.</div>
     <table class="imap" id="imap"></table>
   </div>
 
-  <!-- 7 MATH TRACE -->
+  <!-- 6 AUDIT TRACE -->
   <div class="panel full">
-    <h2>7 · MATH TRACE — input to output, live numbers</h2>
-    <div class="note">The entire chain, recomputed on every slider move. Read top to bottom: raw primitives → geigers → heat → curve → targets → your state → moves → candidates. This is exactly what the code does, shown with today's numbers.</div>
-    <pre id="trace" style="font-size:11.5px; line-height:1.75; color:var(--txt); white-space:pre-wrap;"></pre>
+    <h2>6 · AUDIT TRACE</h2>
+    <details>
+      <summary>Full arithmetic chain with today's numbers — for Claude sessions and audits, skip freely</summary>
+      <pre id="trace" style="font-size:11.5px; line-height:1.75; color:var(--txt); white-space:pre-wrap; margin-top:8px;"></pre>
+    </details>
   </div>
 
 </div>
@@ -209,7 +209,7 @@ const DEFAULTS = {
   vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
   maxInv:100, minInv:15, nLC:4, nSC:2, lcTilt:0,
   curInv:0, curLC:0,
-  wts:{SPY:1, QQQ:1, IWM:0, SMH:0, VIX:0, US10Y:0, MA:0, INTERNALS:1}
+  wts:{SPY:1, QQQ:1, IWM:0, SMH:0, VIX:0, US10Y:0, OIL:0.5, MA:0, INTERNALS:1}
 };
 const VOTER_DESC = {
   SPY: 'Approved geiger on the S&P: ribbon order 50% + momentum 50% (RSI 60 / W%R 40 on the 23/77 map), daily+weekly blended ~76/24 by your equalizer. +1 = stretched.',
@@ -218,6 +218,7 @@ const VOTER_DESC = {
   SMH: 'Same math on semis — leadership. Weight it if leadership stretch should move the macro number.',
   VIX: 'The VIX LEVEL, not a geiger: straight line from your cold endpoint (−1) to 12 (+1), clamped beyond. Low VIX = complacency = hot.',
   US10Y: 'The 10-year YIELD level, same straight line: cold endpoint (−1) to 3.5% (+1). Low yields = fuel = hot. (A geiger on the yield trend is a possible future voter.)',
+  OIL: 'Crude geiger, INVERTED: oil running hot = inflation pressure = hostile, pulls the score DOWN. Oil breaking down = fuel for risk, pushes it UP. You said it matters now — it starts at half weight; dial to 0 the day it stops mattering.',
   MA: 'How many of SPY’s 10 MAs price is above — position vs the fan. Overlaps the ribbon inside the geiger (which ranks ORDER), hence default weight 0: reading, not voter.',
   INTERNALS: 'One number for ~15 internals: risk ratios, credit, BTC, vol complex (inverted), 10Y, cyc-vs-def, sector breadth — each geigered, hostile ones flipped, averaged. Expand below for every row.'
 };
@@ -262,6 +263,14 @@ async function loadFeeds(){
     localStorage.setItem('alloc-data-v1', JSON.stringify({mr, cr}));
     ingest(mr, cr);
   } catch(e) { /* keep cached view */ }
+  // IBKR state handoff: a Claude session syncs percentages (never dollars) to this file on schedule.
+  try {
+    const ib = await fetch('https://wadinxqplrggagkvrdag.supabase.co/storage/v1/object/public/inbox/ibkr-state.json', {cache:'no-store'}).then(r => r.ok ? r.json() : null);
+    if (ib && ib.ts && ib.ts !== S.ibkrTs) {
+      S.curInv = Math.round(ib.invested_pct); S.curLC = Math.round(ib.lc_pct); S.ibkrTs = ib.ts; save();
+    }
+    if (ib && ib.ts) document.getElementById('ibkrnote').innerHTML = `YES — connected to your Interactive Brokers account (read-only, via your IBKR connector). <b style="color:var(--txt)">Last sync: ${ib.ts.slice(0,16).replace('T',' ')}Z · ${Math.round(ib.invested_pct)}% invested</b>. A Claude session refreshes this file on schedule (percentages only, never dollars). The sliders seed from it; slide to override any time.`;
+  } catch(e) { /* note keeps its default text */ }
   document.getElementById('loading').style.display='none';
   document.getElementById('refresh').textContent = '↻ REFRESH FEEDS';
   render();
@@ -302,6 +311,8 @@ function voters(){
   v.push({key:'VIX', name:'VIX (inv)', sub: vix!=null ? vix.toFixed(1) : '—', val: vix!=null ? clamp(((S.vixCold+12)/2 - vix) / ((S.vixCold-12)/2)) : null});
   const ten = MACRO['US10Y'] ? MACRO['US10Y'].value : null;
   v.push({key:'US10Y', name:'US 10Y (inv)', sub: ten!=null ? ten.toFixed(2)+'%' : '—', val: ten!=null ? clamp(((+S.tenCold+3.5)/2 - ten) / ((+S.tenCold-3.5)/2)) : null});
+  const oil = COHORT['CLUSD'];
+  v.push({key:'OIL', name:'OIL (inv)', sub: oil ? 'CL ' + oil.price.toFixed(1) : '—', val: oil ? clamp(-geiger(oil)) : null});
   const spy = COHORT['SPY'];
   v.push({key:'MA', name:'MA STACK', sub: spy ? spy.ma+' of '+spy.maN+' above' : '—', val: spy ? clamp(spy.ma/spy.maN*2 - 1) : null});
   v.push({key:'INTERNALS', name:'INTERNALS', sub:'~18 voters, feed', val: internalsScore()});
@@ -362,8 +373,11 @@ function render(){
       const alt = cur > 0 ? 0 : 1;
       const hAlt = heatWith(allV, v.key, alt);
       const fmt2 = x => (x>=0?'+':'')+x.toFixed(2);
+      const dEff = hAlt - hNow, mag = Math.abs(dEff);
+      const dir = dEff > 0.005 ? 'UP ⬆' : dEff < -0.005 ? 'DOWN ⬇' : 'nowhere —';
+      const strength = mag < 0.005 ? '' : mag < 0.02 ? 'barely' : mag < 0.06 ? 'a little' : mag < 0.12 ? 'noticeably' : 'a LOT';
       d.innerHTML = VOTER_DESC[v.key] + (v.val==null ? '' :
-        `<span class="veffect">EFFECT NOW: at weight ${cur} it ${cur>0?'is pulling':'would pull'} the score toward its ${fmt2(v.val)}. If you set weight ${alt}: MACRO HEAT ${fmt2(hNow)} → ${fmt2(hAlt)} (Δ ${fmt2(hAlt-hNow)}).</span>`);
+        `<span class="veffect">${cur>0 ? `ON. Mute it and the score goes ${dir} ${strength} (${fmt2(hNow)} → ${fmt2(hAlt)}).` : `OFF. Turn it on and the score goes ${dir} ${strength} (${fmt2(hNow)} → ${fmt2(hAlt)}).`}</span>`);
       gd.appendChild(d);
     }
   }
@@ -503,7 +517,7 @@ function renderInputMap(h){
     ['Trend/Momentum · RSI/W%R · 1d/1w', APPR, S.dTrend.toFixed(2)+'/'+(1-S.dTrend).toFixed(2)+' · '+S.dRsi.toFixed(2)+'/'+(1-S.dRsi).toFixed(2)+' · '+Math.round(S.dTf*100)+'/'+Math.round((1-S.dTf)*100), 'The approved geiger blends + your equalizer TF weights. Exposed for completeness; changing them changes every geiger in the system at once.'],
   ];
   t.innerHTML = '<tr><th>INPUT</th><th>KIND</th><th>NOW</th><th>WHAT IT DOES, MATHEMATICALLY</th></tr>' +
-    rows.map(r => `<tr><td class="n">${r[0]}</td><td class="k">${r[1]}</td><td class="r" style="white-space:nowrap">${r[2]}</td><td class="cls">${r[3]}</td></tr>`).join('');
+    rows.map(r => `<tr><td class="n">${r[0]}</td><td class="k">${r[1]}</td><td class="cls">${r[2]}</td><td class="cls">${r[3]}</td></tr>`).join('');
 }
 function renderCohort(dLC, dSC){
   const rows = Object.keys(COHORT).filter(s => !['IWM','SMH'].includes(s))
