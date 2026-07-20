@@ -95,6 +95,12 @@
 
 <div class="grid">
 
+  <!-- THE BRIEF -->
+  <div class="panel">
+    <h2>THE BRIEF — desk read, written by the model from the live numbers</h2>
+    <div id="brief" style="color:var(--txt); font-size:12.5px; line-height:1.8;"></div>
+  </div>
+
   <!-- 1 MACRO HEAT -->
   <div class="panel">
     <h2>1 · MACRO HEAT — the voters</h2>
@@ -185,7 +191,7 @@
     <b style="color:var(--txt)">RSI LEVELS — verified vs GOOGL_GEIGER_v2 (GEIGER!A24):</b> momentum is "mapped straight from its range to −1…+1". 23/77 are the ends of the map, not gates — every intermediate RSI level feeds proportionally, continuously.<br><br>
     <b style="color:var(--txt)">PARITY TEST — RUN 2026-07-20, vs database table board_rsi.</b> RSI: EXACT match 3/3 to the decimal (SPY 48.42=48.42 · QQQ 42.00=42.00 · GOOGL 42.23=42.23) — same Wilder math, same close-series convention, Alan's post-market worry cleared (DB bar = Friday close; Google Finance's SPY ~752 was the outlier quote, Yahoo+hub+DB all agree). Williams %R: fixed to TRUE bar highs/lows in cohort-feed v5 (was close-only); QQQ now −85.4 vs DB −83.2. Residual gap on SPY/GOOGL (−33 vs −52 · −64 vs −82) is the LOOKBACK convention: this module uses 25 bars per the approved GOOGL_GEIGER_v2 spec; board_rsi appears to use a different period. RESOLVED BY ALAN 2026-07-20: indicators are calculated as normally calculated — Williams %R = standard 14-period on true highs/lows. With that, parity is EXACT 6/6 (RSI and W%R, SPY/QQQ/GOOGL all match the database to the decimal). Still open: wire operator_weights when it gains rows.<br><br>
     <b style="color:var(--txt)">YOUR STATE / IBKR.</b> Panel 3 seeds from storage file inbox/ibkr-state.json (percentages only, never dollars). It updates ONLY when Alan tells a session "sync IBKR" (scheduled auto-sync was proposed and REJECTED — do not create one). IBKR connector is read-only OAuth; never touch orders.<br><br>
-    <b style="color:var(--txt)">AGREED BASE (2026-07-20, starting point for testing):</b> weights SPY 1 · QQQ 1 · IWM 0.5 · SMH 0.5 · VIX 0.5 · US10Y 0.5 · OIL 0.5 · VALUE 0 (reading) · CRYPTO 0.25 · DEF 0.25. Policy: invested 100% at max cold, 15% at max hot, linear. LC/SC split data-driven (IWM vs SPY), tilt OFF. Positions 4 LC / 2 SC. All of it testable, none of it sacred.<br><br>
+    <b style="color:var(--txt)">STYLE LAYER — LIVE (2026-07-20): style proxies vs SPY (GROWTH=QQQ, SEMIS=SMH, VALUE=RSP, CRYPTO=BTC, DEFENSIVE=XLP+XLU) produce STYLE TILTS in the MOVES panel (lean into / avoid on adds) and re-rank the candidate list by style-adjusted coldness (geiger + 0.5 × avg style spread). Styles tilt WITHIN sleeves; sleeves remain LC/SC. Cold QQQ literally pushes growth names up the ADD list. THE BRIEF panel at the top is generated from the same numbers.</b><br><br>\n    <b style="color:var(--txt)">AGREED BASE (2026-07-20, starting point for testing):</b> weights SPY 1 · QQQ 1 · IWM 0.5 · SMH 0.5 · VIX 0.5 · US10Y 0.5 · OIL 0.5 · VALUE 0 (reading) · CRYPTO 0.25 · DEF 0.25. Policy: invested 100% at max cold, 15% at max hot, linear. LC/SC split data-driven (IWM vs SPY), tilt OFF. Positions 4 LC / 2 SC. All of it testable, none of it sacred.<br><br>
     <b style="color:var(--txt)">AWAITING ALAN'S GO:</b> multi-class sleeve engine (classes beyond LC/SC) · style re-ranking wiring · sector re-ranking wiring · database graduation of voters · volume conviction coefficient (proposal exists: RVOL time-of-day, VWAP position, volume shelves — scales loudness + gates execution, never votes direction).
     </div>
   </div>
@@ -205,6 +211,24 @@
 const SB = 'https://wadinxqplrggagkvrdag.supabase.co/functions/v1';
 const CLASSES = {ANET:'LC',AMD:'LC',SPY:'IDX',CRDO:'SC',PSTG:'SC',ALAB:'SC',NVDA:'LC',QQQ:'IDX',SNDK:'SC',AMAT:'LC',AVGO:'LC',ASML:'LC',AMZN:'LC',LRCX:'LC',MU:'LC',TSM:'LC',GOOGL:'LC',NBIS:'SC',ARM:'LC',CIFR:'SC',DRAM:'IDX',MRVL:'LC',TSLA:'LC',USO:'ETF',CLUSD:'CMD',MSFT:'LC',WULF:'SC',BTCUSD:'CRY',PLTR:'LC',CRWV:'SC',RKLB:'SC',APLD:'SC',USAR:'SC',IREN:'SC',SLV:'ETF',ASTS:'SC',OKLO:'SC',GCUSD:'CMD',SIUSD:'CMD',MSTR:'SC',IWM:'IDX',SMH:'IDX'};
 const CLASSNAME = {LC:'Large Cap',SC:'Small Cap',IDX:'Index',ETF:'ETF',CMD:'Commodity',CRY:'Crypto'};
+// STYLE LAYER: proxies vs SPY decide which styles are discounted; styles never become sleeves — they tilt MOVES and re-rank candidates.
+const TICKER_STYLES = {NVDA:['GROWTH','SEMIS'],AMD:['GROWTH','SEMIS'],AVGO:['SEMIS'],ASML:['SEMIS'],AMAT:['SEMIS'],LRCX:['SEMIS'],MU:['SEMIS'],TSM:['SEMIS'],MRVL:['SEMIS'],SNDK:['SEMIS'],CRDO:['SEMIS'],ALAB:['SEMIS'],ANET:['GROWTH'],ARM:['GROWTH','SEMIS'],TSLA:['GROWTH'],PLTR:['GROWTH'],AMZN:['GROWTH'],GOOGL:['GROWTH'],MSFT:['GROWTH'],NBIS:['GROWTH'],CRWV:['GROWTH'],PSTG:['GROWTH'],ASTS:['GROWTH'],OKLO:['GROWTH'],RKLB:['GROWTH'],APLD:['CRYPTO'],IREN:['CRYPTO'],CIFR:['CRYPTO'],WULF:['CRYPTO'],MSTR:['CRYPTO'],BTCUSD:['CRYPTO'],USO:['CMDTY'],SLV:['CMDTY'],CLUSD:['CMDTY'],GCUSD:['CMDTY'],SIUSD:['CMDTY']};
+function styleSpreads(){
+  const gS = COHORT['SPY'] ? geiger(COHORT['SPY']) : null;
+  if (gS == null) return {};
+  const sp = {};
+  const pair = (name, sym) => { if (COHORT[sym]) sp[name] = geiger(COHORT[sym]) - gS; };
+  pair('GROWTH','QQQ'); pair('SEMIS','SMH'); pair('VALUE','RSP'); pair('CRYPTO','BTCUSD');
+  if (COHORT['XLP'] && COHORT['XLU']) sp['DEFENSIVE'] = (geiger(COHORT['XLP'])+geiger(COHORT['XLU']))/2 - gS;
+  return sp;
+}
+function styleAdj(sym, spreads){
+  const tags = TICKER_STYLES[sym] || [];
+  if (!tags.length) return 0;
+  let t = 0, n = 0;
+  for (const tg of tags) if (spreads[tg] != null) { t += spreads[tg]; n++; }
+  return n ? 0.5 * t / n : 0;
+}
 // internals direction & weight (mirrors the sheet's Feed map)
 const INTERNALS = {'RSP/SPY':[1,1],'IWM/SPY':[1,1],'QQQ/SPY':[1,1],'XLY/XLP':[1,1],'HYG/LQD':[1,1],'SMH/SPY':[1,1],'XLU/SPY':[-1,1],'BTC-USD':[1,1],'VIX':[-1,1],'VIX3M':[-1,0],'MOVE':[-1,1],'SKEW':[-1,1],'VVIX':[-1,1],'US10Y':[-1,1],'US5Y':[-1,0],'US3M':[-1,0],'US30Y':[-1,0],'CYC_DEF':[1,1]};
 
@@ -458,12 +482,26 @@ function render(){
   const dTot = inv - cInv, dLC = lcEq - cLC, dSC = scEq - cSC;
   const cls = x => Math.abs(x) < .005 ? 'flat' : (x > 0 ? 'add' : 'trim');
   const word = x => Math.abs(x) < .005 ? 'HOLD' : (x > 0 ? 'ADD' : 'TRIM');
+  const SPR = styleSpreads();
+  const tiltLine = Object.entries(SPR).map(([k,v]) => {
+    const verdict = v < -0.15 ? 'LEAN INTO on adds' : v > 0.15 ? 'AVOID on adds / trim first' : 'neutral';
+    const col = v < -0.15 ? 'var(--cyan)' : v > 0.15 ? 'var(--orange)' : 'var(--dim)';
+    return `<span style="color:${col}">${k} ${(v>=0?'+':'')+v.toFixed(2)} — ${verdict}</span>`;
+  }).join(' &nbsp;·&nbsp; ');
+  const vixVote = voters().find(x=>x.key==='VIX');
+  const complacent = vixVote && vixVote.val != null && vixVote.val > 0.1;
+  const sched = (dTot > .005) ? (complacent
+    ? `Tape is complacent (VIX vote ${(vixVote.val>=0?'+':'')+vixVote.val.toFixed(2)}, no fear washout) — stage the add in thirds: ⅓ now, ⅓ on a −3% pullback, ⅓ if vol finally spikes (VIX > ${S.vixCold}). Cheap without fear tends to get cheaper.`
+    : `Fear present — adds can go faster: ½ now, ½ on confirmation.`) : (dTot < -.005 ? 'Trims execute immediately — de-risking does not wait.' : '');
   document.getElementById('moves').innerHTML = `
     <div class="move"><div class="mname">TOTAL</div><div class="mval ${cls(dTot)}">${word(dTot)} ${spct(dTot)}<small>of equity</small></div></div>
     <div class="move"><div class="mname">LARGE CAP</div><div class="mval ${cls(dLC)}">${word(dLC)} ${spct(dLC)}<small>of equity · ${lcEq>0?spct(dLC/lcEq,0)+' of class':''} · ${perLC>0?spct(dLC/perLC,0)+' of a position':''}</small></div></div>
-    <div class="move"><div class="mname">SMALL CAP</div><div class="mval ${cls(dSC)}">${word(dSC)} ${spct(dSC)}<small>of equity · ${scEq>0?spct(dSC/scEq,0)+' of class':''} · ${perSC>0?spct(dSC/perSC,0)+' of a position':''}</small></div></div>`;
+    <div class="move"><div class="mname">SMALL CAP</div><div class="mval ${cls(dSC)}">${word(dSC)} ${spct(dSC)}<small>of equity · ${scEq>0?spct(dSC/scEq,0)+' of class':''} · ${perSC>0?spct(dSC/perSC,0)+' of a position':''}</small></div></div>
+    <div class="move"><div class="mname">STYLE TILTS</div><div style="font-size:11px; line-height:1.8">${tiltLine || '—'}<br><span class="cls">Style proxies vs SPY: negative = that style is the discounted side — its names rank higher on the ADD list below. Styles tilt WITHIN sleeves; they are not sleeves.</span></div></div>
+    ${sched ? `<div class="move"><div class="mname">SCHEDULE</div><div style="font-size:11px; line-height:1.7; color:var(--txt)">${sched}</div></div>` : ''}`;
 
   drawMix(lcEq, scEq, 1-inv, cLC, cSC, 1-cInv);
+  renderBrief(h, inv, lc, dTot, dLC, dSC);
   renderInputMap(h);
   renderCohort(dLC, dSC);
   renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot, dLC, dSC);
@@ -516,6 +554,24 @@ function drawMix(tLC, tSC, tCash, cLC2, cSC2, cCash){
     '<div class="stacklbl">YOU NOW</div>' + bar([['LC', cLC2], ['SC', cSC2], ['CASH', cCash]]) +
     '<div class="stacklbl">TARGET (model)</div>' + bar([['LC', tLC], ['SC', tSC], ['CASH', tCash]]);
 }
+function renderBrief(h, inv, lc, dTot, dLC, dSC){
+  const el = document.getElementById('brief'); if (!el) return;
+  const g = sym => COHORT[sym] ? geiger(COHORT[sym]) : null;
+  const gS = g('SPY'), gQ = g('QQQ'), gI = g('IWM'), gR = g('RSP');
+  const vix = MACRO['VIX']?.value, ten = MACRO['US10Y']?.value;
+  const SPR = styleSpreads();
+  const f = x => x==null?'—':(x>=0?'+':'')+x.toFixed(2);
+  const lbl = heatLabel(h)[0];
+  const breadthOK = (gI!=null && gI > -0.1) && (gR!=null && gR > -0.1);
+  const growthDisc = SPR.GROWTH != null && SPR.GROWTH < -0.15;
+  const semisDisc = SPR.SEMIS != null && SPR.SEMIS < -0.15;
+  const complacent = vix != null && vix < 21;
+  const ratesDrag = ten != null && ten > 4.15;
+  const p1 = `Heat reads ${f(h)} — ${lbl.toLowerCase()}. The tape is ${gS>0.15?'holding at the index level':'soft at the index level'} (SPY ${f(gS)})${breadthOK?', and breadth is intact — small caps ('+f(gI)+') and the equal-weight tape ('+f(gR)+') are not confirming any breakdown':', with breadth softening — small caps '+f(gI)+', equal-weight '+f(gR)}. ${growthDisc?'Growth is the discounted side (QQQ '+f(gQ)+', spread '+f(SPR.GROWTH)+' vs SPY)':'Growth is not meaningfully discounted vs the index'}${semisDisc?'; semis likewise ('+f(SPR.SEMIS)+')':''}. ${ratesDrag?'Rates are a headwind at '+ten.toFixed(2)+'%':'Rates are supportive'}${vix!=null?(complacent?', and volatility says complacency (VIX '+vix.toFixed(1)+') — no washout has happened':', and fear is on the tape (VIX '+vix.toFixed(1)+')'):''}.`;
+  const p2 = `The model wants ${pct(inv)} invested, ${pct(lc,0)}/${pct(1-lc,0)} large-to-small — ${Math.abs(dTot)<.005?'and you are on target.':dTot>0?'you are under-invested by '+spct(dTot)+' of equity.':'you are over-invested by '+spct(-dTot)+' of equity.'}`;
+  const p3 = dTot>.005 ? (complacent?'Discipline: cheapness without fear tends to get cheaper — stage the adds in thirds, favor the style-discounted names the list ranks on top, and let a vol spike buy the last tranche at better prices.':'Fear is present — adds can be executed faster, front-half now.') : dTot<-.005 ? 'Trims execute now; de-risking is never staged.' : 'No action required — re-read when the score crosses a band.';
+  el.innerHTML = p1 + '<br><br>' + p2 + ' ' + p3;
+}
 function renderInputMap(h){
   const t = document.getElementById('imap'); if (!t) return;
   const P = 'MAIN', SUB = 'SUB-DIAL', RAIL = 'RAIL (constant)', APPR = 'APPROVED (don’t touch)';
@@ -537,9 +593,10 @@ function renderInputMap(h){
     rows.map(r => `<tr><td class="n">${r[0]}</td><td class="k">${r[1]}</td><td class="cls">${r[2]}</td><td class="cls">${r[3]}</td></tr>`).join('');
 }
 function renderCohort(dLC, dSC){
-  const rows = Object.keys(COHORT).filter(s => !['IWM','SMH'].includes(s))
-    .map(s => ({sym:s, cls:CLASSES[s]||'?', g:geiger(COHORT[s]), c:COHORT[s]}))
-    .sort((a,b) => a.g - b.g);
+  const SPR2 = styleSpreads();
+  const rows = Object.keys(COHORT).filter(s => !['IWM','SMH','RSP','XLP','XLU'].includes(s))
+    .map(s => { const g = geiger(COHORT[s]); const adj = g + styleAdj(s, SPR2); return {sym:s, cls:CLASSES[s]||'?', g, adj, tags:(TICKER_STYLES[s]||[]), c:COHORT[s]}; })
+    .sort((a,b) => a.adj - b.adj);
   const t = document.getElementById('cohort');
   let html = '<tr><th>TICKER</th><th>CLASS</th><th class="r">PRICE</th><th class="r">DAY</th><th>GEIGER</th><th class="r">SCORE</th><th class="r">MA</th><th>SIGNAL</th></tr>';
   const addN = {LC: dLC > .005 ? 3 : 0, SC: dSC > .005 ? 3 : 0};
@@ -552,8 +609,9 @@ function renderCohort(dLC, dSC){
   }
   for (const r of rows) {
     let tag = '';
-    if (coldRank[r.sym]) tag = `<span class="tag add">ADD · #${coldRank[r.sym]} coldest ${r.cls}</span>`;
-    else if (hotRank[r.sym]) tag = `<span class="tag trim">TRIM · #${hotRank[r.sym]} hottest ${r.cls}</span>`;
+    const tagNames = r.tags.length ? ' · ' + r.tags.join('/').toLowerCase() : '';
+    if (coldRank[r.sym]) tag = `<span class="tag add">ADD · #${coldRank[r.sym]} ${r.cls}${tagNames}</span>`;
+    else if (hotRank[r.sym]) tag = `<span class="tag trim">TRIM · #${hotRank[r.sym]} ${r.cls}${tagNames}</span>`;
     const w = Math.min(50, Math.abs(r.g) * 50);
     html += `<tr><td><b>${r.sym}</b></td><td class="cls">${CLASSNAME[r.cls]||r.cls}</td>
       <td class="r">${r.c.price.toLocaleString()}</td>
