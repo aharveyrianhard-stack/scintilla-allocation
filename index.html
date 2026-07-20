@@ -191,6 +191,7 @@
     <b style="color:var(--txt)">RSI LEVELS — verified vs GOOGL_GEIGER_v2 (GEIGER!A24):</b> momentum is "mapped straight from its range to −1…+1". 23/77 are the ends of the map, not gates — every intermediate RSI level feeds proportionally, continuously.<br><br>
     <b style="color:var(--txt)">PARITY TEST — RUN 2026-07-20, vs database table board_rsi.</b> RSI: EXACT match 3/3 to the decimal (SPY 48.42=48.42 · QQQ 42.00=42.00 · GOOGL 42.23=42.23) — same Wilder math, same close-series convention, Alan's post-market worry cleared (DB bar = Friday close; Google Finance's SPY ~752 was the outlier quote, Yahoo+hub+DB all agree). Williams %R: fixed to TRUE bar highs/lows in cohort-feed v5 (was close-only); QQQ now −85.4 vs DB −83.2. Residual gap on SPY/GOOGL (−33 vs −52 · −64 vs −82) is the LOOKBACK convention: this module uses 25 bars per the approved GOOGL_GEIGER_v2 spec; board_rsi appears to use a different period. RESOLVED BY ALAN 2026-07-20: indicators are calculated as normally calculated — Williams %R = standard 14-period on true highs/lows. With that, parity is EXACT 6/6 (RSI and W%R, SPY/QQQ/GOOGL all match the database to the decimal). Still open: wire operator_weights when it gains rows.<br><br>
     <b style="color:var(--txt)">YOUR STATE / IBKR.</b> Panel 3 seeds from storage file inbox/ibkr-state.json (percentages only, never dollars). It updates ONLY when Alan tells a session "sync IBKR" (scheduled auto-sync was proposed and REJECTED — do not create one). IBKR connector is read-only OAuth; never touch orders.<br><br>
+    <b style="color:var(--txt)">ARCHITECTURE (v11, Alan doctrine): SCORE = HOW MUCH (total risk from heat); SLEEVES = WHERE (GROWTH/SMALL/BROAD/SEMIS/CRYPTO/CMDTY, shares proportional to coldness, capped 5-35%). Every proxy does real work in WHERE regardless of its score weight. Tickers can live in several sleeves. LC/SC survives as a lens readout only. Per-sleeve CURRENT arrives with IBKR position sync (all-cash today, so every sleeve reads BUILD). Schedule is multi-factor (vol + heat + breadth + style discounts), not VIX-only. Open on Alan word: breadth voters as RATIO geigers (IWM/SPY, RSP/SPY from macro-feed) instead of straight geigers.</b><br><br>
     <b style="color:var(--txt)">STYLE LAYER — LIVE (2026-07-20): style proxies vs SPY (GROWTH=QQQ, SEMIS=SMH, VALUE=RSP, CRYPTO=BTC, DEFENSIVE=XLP+XLU) produce STYLE TILTS in the MOVES panel (lean into / avoid on adds) and re-rank the candidate list by style-adjusted coldness (geiger + 0.5 × avg style spread). Styles tilt WITHIN sleeves; sleeves remain LC/SC. Cold QQQ literally pushes growth names up the ADD list. THE BRIEF panel at the top is generated from the same numbers.</b><br><br>\n    <b style="color:var(--txt)">AGREED BASE (2026-07-20, starting point for testing):</b> weights SPY 1 · QQQ 1 · IWM 0.5 · SMH 0.5 · VIX 0.5 · US10Y 0.5 · OIL 0.5 · VALUE 0 (reading) · CRYPTO 0.25 · DEF 0.25. Policy: invested 100% at max cold, 15% at max hot, linear. LC/SC split data-driven (IWM vs SPY), tilt OFF. Positions 4 LC / 2 SC. All of it testable, none of it sacred.<br><br>
     <b style="color:var(--txt)">AWAITING ALAN'S GO:</b> multi-class sleeve engine (classes beyond LC/SC) · style re-ranking wiring · sector re-ranking wiring · database graduation of voters · volume conviction coefficient (proposal exists: RVOL time-of-day, VWAP position, volume shelves — scales loudness + gates execution, never votes direction).
     </div>
@@ -228,6 +229,34 @@ function styleAdj(sym, spreads){
   let t = 0, n = 0;
   for (const tg of tags) if (spreads[tg] != null) { t += spreads[tg]; n++; }
   return n ? 0.5 * t / n : 0;
+}
+// SLEEVE ENGINE — the WHERE. Sleeves are themes (a ticker can live in several). Each sleeve has a proxy geiger;
+// the COLDER the sleeve, the BIGGER its share of invested. Shares capped 5-35% and renormalized. Score = HOW MUCH; sleeves = WHERE.
+const SLEEVES = {GROWTH:['QQQ'], SMALL:['IWM'], BROAD:['RSP'], SEMIS:['SMH'], CRYPTO:['BTCUSD'], CMDTY:['GCUSD','SIUSD','CLUSD']};
+const SLEEVE_COLOR = {GROWTH:'#00d4ff', SMALL:'#7dd3fc', BROAD:'#ffd166', SEMIS:'#a78bfa', CRYPTO:'#ff8c42', CMDTY:'#38e07b', CASH:'#23233a'};
+function sleeveG(name){
+  const syms = SLEEVES[name].filter(x => COHORT[x]);
+  if (!syms.length) return null;
+  return syms.reduce((t,x) => t + geiger(COHORT[x]), 0) / syms.length;
+}
+function sleeveShares(){
+  const raw = {};
+  let tot = 0;
+  for (const k of Object.keys(SLEEVES)) { const g = sleeveG(k); if (g == null) continue; raw[k] = Math.max(0.05, 1 - g); tot += raw[k]; }
+  if (!tot) return {};
+  for (const k of Object.keys(raw)) raw[k] = raw[k] / tot;
+  let capTot = 0;
+  for (const k of Object.keys(raw)) { raw[k] = Math.min(0.35, Math.max(0.05, raw[k])); capTot += raw[k]; }
+  for (const k of Object.keys(raw)) raw[k] = raw[k] / capTot;
+  return raw;
+}
+function tickerSleeves(sym){
+  const tags = TICKER_STYLES[sym] || [];
+  const out = new Set(tags.filter(t => SLEEVES[t]));
+  const cls = CLASSES[sym];
+  if (cls === 'SC') out.add('SMALL');
+  if (!out.size && cls === 'LC') out.add('BROAD');
+  return [...out];
 }
 // internals direction & weight (mirrors the sheet's Feed map)
 const INTERNALS = {'RSP/SPY':[1,1],'IWM/SPY':[1,1],'QQQ/SPY':[1,1],'XLY/XLP':[1,1],'HYG/LQD':[1,1],'SMH/SPY':[1,1],'XLU/SPY':[-1,1],'BTC-USD':[1,1],'VIX':[-1,1],'VIX3M':[-1,0],'MOVE':[-1,1],'SKEW':[-1,1],'VVIX':[-1,1],'US10Y':[-1,1],'US5Y':[-1,0],'US3M':[-1,0],'US30Y':[-1,0],'CYC_DEF':[1,1]};
@@ -472,10 +501,15 @@ function render(){
   const inv = investedAt(h), lc = lcShareAuto(h), sc = 1 - lc;
   const lcEq = inv*lc, scEq = inv*sc;
   const perLC = lcEq / S.nLC, perSC = scEq / S.nSC;
+  const SH = sleeveShares();
+  const sleeveRows = Object.entries(SH).sort((a,b)=>b[1]-a[1]).map(([k,sh]) => {
+    const gk = sleeveG(k), eq = sh * inv;
+    return `<div class="move"><div class="mname" style="color:${SLEEVE_COLOR[k]}">${k}</div><div class="mval">${pct(eq)}<small>of equity · ${pct(sh,0)} of invested · geiger ${(gk>=0?'+':'')+gk.toFixed(2)} (${gk<0?'cold — earns more':'warm — earns less'}) · 2 positions × ${pct(eq/2)}</small></div></div>`;
+  }).join('');
   document.getElementById('targets').innerHTML = `
-    <div class="move"><div class="mname">INVESTED</div><div class="mval">${pct(inv)}<small>cash ${pct(1-inv)}</small></div></div>
-    <div class="move"><div class="mname">LARGE CAP</div><div class="mval">${pct(lcEq)} <small>of equity · ${pct(lc,0)} of invested · ${S.nLC} positions × ${pct(perLC)}</small></div></div>
-    <div class="move"><div class="mname">SMALL CAP</div><div class="mval">${pct(scEq)} <small>of equity · ${pct(sc,0)} of invested · ${S.nSC} positions × ${pct(perSC)}</small></div></div>`;
+    <div class="move"><div class="mname">INVESTED</div><div class="mval">${pct(inv)}<small>cash ${pct(1-inv)} — HOW MUCH comes from the heat score; WHERE comes from the sleeves below</small></div></div>
+    ${sleeveRows}
+    <div class="move"><div class="mname">LC/SC LENS</div><div class="mval" style="font-size:12px">${pct(lc,0)} / ${pct(1-lc,0)}<small>the same book read as large-vs-small (IWM vs SPY) — a lens, not the mix</small></div></div>`;
 
   // moves
   const cInv = S.curInv/100, cLC = S.curLC/100, cSC = cInv - cLC;
@@ -483,24 +517,31 @@ function render(){
   const cls = x => Math.abs(x) < .005 ? 'flat' : (x > 0 ? 'add' : 'trim');
   const word = x => Math.abs(x) < .005 ? 'HOLD' : (x > 0 ? 'ADD' : 'TRIM');
   const SPR = styleSpreads();
-  const tiltLine = Object.entries(SPR).map(([k,v]) => {
-    const verdict = v < -0.15 ? 'LEAN INTO on adds' : v > 0.15 ? 'AVOID on adds / trim first' : 'neutral';
-    const col = v < -0.15 ? 'var(--cyan)' : v > 0.15 ? 'var(--orange)' : 'var(--dim)';
-    return `<span style="color:${col}">${k} ${(v>=0?'+':'')+v.toFixed(2)} — ${verdict}</span>`;
-  }).join(' &nbsp;·&nbsp; ');
+  const SH2 = sleeveShares();
   const vixVote = voters().find(x=>x.key==='VIX');
-  const complacent = vixVote && vixVote.val != null && vixVote.val > 0.1;
-  const sched = (dTot > .005) ? (complacent
-    ? `Tape is complacent (VIX vote ${(vixVote.val>=0?'+':'')+vixVote.val.toFixed(2)}, no fear washout) — stage the add in thirds: ⅓ now, ⅓ on a −3% pullback, ⅓ if vol finally spikes (VIX > ${S.vixCold}). Cheap without fear tends to get cheaper.`
-    : `Fear present — adds can go faster: ½ now, ½ on confirmation.`) : (dTot < -.005 ? 'Trims execute immediately — de-risking does not wait.' : '');
+  const gI2b = COHORT['IWM'] ? geiger(COHORT['IWM']) : null, gR2b = COHORT['RSP'] ? geiger(COHORT['RSP']) : null;
+  const breadthAvg = (gI2b!=null && gR2b!=null) ? (gI2b+gR2b)/2 : null;
+  let urgency = 0, factors = [];
+  if (vixVote && vixVote.val != null) { urgency += (vixVote.val < 0 ? 1 : -1); factors.push('vol ' + (vixVote.val<0?'fear (faster)':'complacent (slower)')); }
+  urgency += (h < -0.15 ? 1 : h > 0.15 ? -1 : 0); factors.push('heat ' + (h<-0.15?'cold (faster)':h>0.15?'hot (slower)':'neutral'));
+  if (breadthAvg != null) { urgency += (breadthAvg < -0.15 ? 1 : 0); factors.push('breadth ' + (breadthAvg<-0.15?'washed (faster)':'intact (neutral)')); }
+  const deepDisc = Object.values(SPR).some(v => v < -0.35); if (deepDisc) { urgency += 1; factors.push('deep style discount (faster)'); }
+  const sched = dTot > .005
+    ? (urgency >= 2 ? `URGENT tape: front-load — ½ now, ½ on confirmation. [${factors.join(' · ')}]`
+      : urgency >= 0 ? `Balanced tape: halves — ½ now, ½ on a −3% pullback or vol spike. [${factors.join(' · ')}]`
+      : `Patient tape: thirds — ⅓ now, ⅓ on a −3% pullback, ⅓ on a vol spike (VIX > ${S.vixCold}). Cheap without fear tends to get cheaper. [${factors.join(' · ')}]`)
+    : dTot < -.005 ? 'Trims execute immediately — de-risking does not wait.' : '';
+  const sleeveMoves = Object.entries(SH2).sort((a,b)=>b[1]-a[1]).map(([k,sh]) => {
+    const tgt = sh * inv;
+    const d = tgt - 0; // per-sleeve current arrives with IBKR position sync; all-cash today
+    return `<div class="move"><div class="mname" style="color:${SLEEVE_COLOR[k]}">${k}</div><div class="mval ${d>0.005?'add':'flat'}">${d>0.005?'BUILD':'HOLD'} ${spct(d)}<small>of equity → candidates tagged ${k} below</small></div></div>`;
+  }).join('');
   document.getElementById('moves').innerHTML = `
     <div class="move"><div class="mname">TOTAL</div><div class="mval ${cls(dTot)}">${word(dTot)} ${spct(dTot)}<small>of equity</small></div></div>
-    <div class="move"><div class="mname">LARGE CAP</div><div class="mval ${cls(dLC)}">${word(dLC)} ${spct(dLC)}<small>of equity · ${lcEq>0?spct(dLC/lcEq,0)+' of class':''} · ${perLC>0?spct(dLC/perLC,0)+' of a position':''}</small></div></div>
-    <div class="move"><div class="mname">SMALL CAP</div><div class="mval ${cls(dSC)}">${word(dSC)} ${spct(dSC)}<small>of equity · ${scEq>0?spct(dSC/scEq,0)+' of class':''} · ${perSC>0?spct(dSC/perSC,0)+' of a position':''}</small></div></div>
-    <div class="move"><div class="mname">STYLE TILTS</div><div style="font-size:11px; line-height:1.8">${tiltLine || '—'}<br><span class="cls">Style proxies vs SPY: negative = that style is the discounted side — its names rank higher on the ADD list below. Styles tilt WITHIN sleeves; they are not sleeves.</span></div></div>
-    ${sched ? `<div class="move"><div class="mname">SCHEDULE</div><div style="font-size:11px; line-height:1.7; color:var(--txt)">${sched}</div></div>` : ''}`;
+    ${sleeveMoves}
+    <div class="move"><div class="mname">SCHEDULE</div><div style="font-size:11px; line-height:1.7; color:var(--txt)">${sched || '—'}</div></div>`;
 
-  drawMix(lcEq, scEq, 1-inv, cLC, cSC, 1-cInv);
+  drawMixSleeves(sleeveShares(), inv, cInv);
   renderBrief(h, inv, lc, dTot, dLC, dSC);
   renderInputMap(h);
   renderCohort(dLC, dSC);
@@ -541,6 +582,19 @@ function drawCurve(h){
   ctx.fillStyle = '#8a8aa0'; ctx.font = '10px monospace';
   ctx.fillText('── invested % target', L+8, T+12); ctx.fillStyle = '#ffd166'; ctx.fillText('╌╌ LC share of invested', L+150, T+12);
 }
+function drawMixSleeves(shares, inv, cInv){
+  const el = document.getElementById('mix'); if (!el) return;
+  const segs = Object.entries(shares).sort((a,b)=>b[1]-a[1]).map(([k,sh]) => [k, sh*inv]);
+  segs.push(['CASH', 1-inv]);
+  const bar = parts => '<div class="stack">' + parts.map(([k, v]) => {
+    if (v <= 0.001) return '';
+    const lbl = v > 0.08 ? `${k} ${Math.round(v*100)}%` : (v > 0.045 ? Math.round(v*100)+'%' : '');
+    return `<div class="seg" style="width:${v*100}%;background:${SLEEVE_COLOR[k]||'#444'};${k==='CASH'?'color:#8a8aa0;':''}">${lbl}</div>`;
+  }).join('') + '</div>';
+  el.innerHTML =
+    '<div class="stacklbl">YOU NOW (IBKR: all cash)</div>' + bar([['CASH', 1]]) +
+    '<div class="stacklbl">TARGET MIX — sleeves sized by coldness</div>' + bar(segs);
+}
 function drawMix(tLC, tSC, tCash, cLC2, cSC2, cCash){
   const el = document.getElementById('mix'); if (!el) return;
   const COLORS = {LC: 'var(--gold)', SC: 'var(--cyan)', CASH: '#23233a'};
@@ -568,7 +622,9 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const complacent = vix != null && vix < 21;
   const ratesDrag = ten != null && ten > 4.15;
   const p1 = `Heat reads ${f(h)} — ${lbl.toLowerCase()}. The tape is ${gS>0.15?'holding at the index level':'soft at the index level'} (SPY ${f(gS)})${breadthOK?', and breadth is intact — small caps ('+f(gI)+') and the equal-weight tape ('+f(gR)+') are not confirming any breakdown':', with breadth softening — small caps '+f(gI)+', equal-weight '+f(gR)}. ${growthDisc?'Growth is the discounted side (QQQ '+f(gQ)+', spread '+f(SPR.GROWTH)+' vs SPY)':'Growth is not meaningfully discounted vs the index'}${semisDisc?'; semis likewise ('+f(SPR.SEMIS)+')':''}. ${ratesDrag?'Rates are a headwind at '+ten.toFixed(2)+'%':'Rates are supportive'}${vix!=null?(complacent?', and volatility says complacency (VIX '+vix.toFixed(1)+') — no washout has happened':', and fear is on the tape (VIX '+vix.toFixed(1)+')'):''}.`;
-  const p2 = `The model wants ${pct(inv)} invested, ${pct(lc,0)}/${pct(1-lc,0)} large-to-small — ${Math.abs(dTot)<.005?'and you are on target.':dTot>0?'you are under-invested by '+spct(dTot)+' of equity.':'you are over-invested by '+spct(-dTot)+' of equity.'}`;
+  const SHB = sleeveShares();
+  const topSleeves = Object.entries(SHB).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,sh])=>k+' '+Math.round(sh*inv*100)+'%').join(', ');
+  const p2 = `The model wants ${pct(inv)} invested — biggest sleeves by coldness: ${topSleeves} of equity — ${Math.abs(dTot)<.005?'and you are on target.':dTot>0?'you are under-invested by '+spct(dTot)+' of equity.':'you are over-invested by '+spct(-dTot)+' of equity.'}`;
   const p3 = dTot>.005 ? (complacent?'Discipline: cheapness without fear tends to get cheaper — stage the adds in thirds, favor the style-discounted names the list ranks on top, and let a vol spike buy the last tranche at better prices.':'Fear is present — adds can be executed faster, front-half now.') : dTot<-.005 ? 'Trims execute now; de-risking is never staged.' : 'No action required — re-read when the score crosses a band.';
   el.innerHTML = p1 + '<br><br>' + p2 + ' ' + p3;
 }
@@ -594,9 +650,13 @@ function renderInputMap(h){
 }
 function renderCohort(dLC, dSC){
   const SPR2 = styleSpreads();
-  const rows = Object.keys(COHORT).filter(s => !['IWM','SMH','RSP','XLP','XLU'].includes(s))
-    .map(s => { const g = geiger(COHORT[s]); const adj = g + styleAdj(s, SPR2); return {sym:s, cls:CLASSES[s]||'?', g, adj, tags:(TICKER_STYLES[s]||[]), c:COHORT[s]}; })
+  const rows = Object.keys(COHORT).filter(s => !['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
+    .map(s => { const g = geiger(COHORT[s]); const adj = g + styleAdj(s, SPR2); return {sym:s, cls:CLASSES[s]||'?', g, adj, sleeves:tickerSleeves(s), c:COHORT[s]}; })
     .sort((a,b) => a.adj - b.adj);
+  const sleeveRank = {};
+  for (const sl of Object.keys(SLEEVES)) {
+    rows.filter(r => r.sleeves.includes(sl)).slice(0,3).forEach((r,i) => { (sleeveRank[r.sym] = sleeveRank[r.sym] || []).push(sl + ' #' + (i+1)); });
+  }
   const t = document.getElementById('cohort');
   let html = '<tr><th>TICKER</th><th>CLASS</th><th class="r">PRICE</th><th class="r">DAY</th><th>GEIGER</th><th class="r">SCORE</th><th class="r">MA</th><th>SIGNAL</th></tr>';
   const addN = {LC: dLC > .005 ? 3 : 0, SC: dSC > .005 ? 3 : 0};
@@ -609,11 +669,10 @@ function renderCohort(dLC, dSC){
   }
   for (const r of rows) {
     let tag = '';
-    const tagNames = r.tags.length ? ' · ' + r.tags.join('/').toLowerCase() : '';
-    if (coldRank[r.sym]) tag = `<span class="tag add">ADD · #${coldRank[r.sym]} ${r.cls}${tagNames}</span>`;
-    else if (hotRank[r.sym]) tag = `<span class="tag trim">TRIM · #${hotRank[r.sym]} ${r.cls}${tagNames}</span>`;
+    if (sleeveRank[r.sym]) tag = `<span class="tag add">ADD · ${sleeveRank[r.sym].join(' · ')}</span>`;
+    else if (hotRank[r.sym]) tag = `<span class="tag trim">TRIM · #${hotRank[r.sym]} ${r.cls}</span>`;
     const w = Math.min(50, Math.abs(r.g) * 50);
-    html += `<tr><td><b>${r.sym}</b></td><td class="cls">${CLASSNAME[r.cls]||r.cls}</td>
+    html += `<tr><td><b>${r.sym}</b></td><td class="cls">${r.sleeves.join("/")||CLASSNAME[r.cls]||r.cls}</td>
       <td class="r">${r.c.price.toLocaleString()}</td>
       <td class="r" style="color:${r.c.day>=0?'var(--green)':'var(--red)'}">${spct(r.c.day,2)}</td>
       <td><span class="mini"><span class="mid"></span><span class="b" style="left:${r.g<0?50-w:50}%;width:${w}%;background:${r.g>=0?'var(--cyan)':'var(--orange)'}"></span></span></td>
