@@ -125,59 +125,61 @@
     <div class="note" style="margin-top:10px">MACRO HEAT = the weighted average of the voters above — each voter × its weight, divided by total weight. That is the whole combination step. MA STACK and INTERNALS were removed as voters on Alan's order (MA stack duplicates the ribbon already inside the geiger; internals are retired from the score — macro-feed still computes them server-side if ever wanted back).</div>
   </div>
 
-  <!-- 2 METHODOLOGY -->
+  <!-- INPUTS -->
   <div class="panel">
-    <h2>2 · METHODOLOGY — heat sets the balance</h2>
-    <div class="note"><b style="color:var(--txt)">HOW TO READ THE CHART</b> (it is the formula drawn, not a picture): the horizontal axis is market heat, cold on the left, hot on the right. Find the white dotted vertical line — that is where the market sits right now. Where the cyan line crosses it = today's % invested target (left axis). The cyan line slopes down because the hotter the market, the less invested you are — buy weakness, sell strength, drawn as a line. The flat gold dashed line = the large-cap share of whatever is invested, and it is set by the DATA (below), not by you.</div>
-    <details>
-      <summary>THE CURVE — the rule drawn as a picture (optional, skip if it doesn't click)</summary>
-      <canvas id="curve" width="640" height="380"></canvas>
-      <div class="axis"><span>−1 COLD → deploy</span><span>HEAT</span><span>+1 HOT → defend</span></div>
-    </details>
-    <div class="ctl"><label>Invested at max COLD<small>policy: your all-in level when everything is washed out</small></label><input type="range" id="maxInv" min="0" max="100" step="5"><div class="v" id="maxInvV"></div></div>
-    <div class="ctl"><label>Invested at max HOT<small>policy: your floor when everything is stretched</small></label><input type="range" id="minInv" min="0" max="100" step="5"><div class="v" id="minInvV"></div></div>
-    <div class="ctl"><label>Positions — Large Cap<small>how many names the LC sleeve splits across</small></label><input type="range" id="nLC" min="1" max="10" step="1"><div class="v" id="nLCV"></div></div>
-    <div class="ctl"><label>Positions — Small Cap<small>how many names the SC sleeve splits across</small></label><input type="range" id="nSC" min="1" max="10" step="1"><div class="v" id="nSCV"></div></div>
-    <div class="note" style="margin-top:10px" id="autosplit"></div>
-    <details>
-      <summary>SUB-DIALS — optional assumptions under the data</summary>
-      <div class="ctl" style="margin-top:6px"><label>Heat tilt → LC<small>your instinct: when everything is stretched, large caps are the better holds. 0 = off, data only. At 0.10 and heat +0.50 it adds +5% to the LC sleeve.</small></label><input type="range" id="lcTilt" min="0" max="0.3" step="0.05"><div class="v" id="lcTiltV"></div></div>
-    </details>
-    <div id="mix" style="margin-top:14px"></div>
-    <div id="targets"></div>
-    <details>
-      <summary>THE MATH OF THIS PANEL — human words</summary>
-      <div class="note" style="margin-top:8px; line-height:1.7">
-      <b style="color:var(--txt)">% INVESTED</b> — a straight line between your two policy endpoints. At heat −1 (maximum washed-out) you hold your max; at +1 (maximum stretched) you hold your floor; in between it is proportional. In words: invested = floor + (max − floor) × how-cold-the-market-is. Those two endpoints are the ONLY dials here, because how much you're willing to hold at the extremes is genuinely your call — everything else the data decides.<br><br>
-      <b style="color:var(--txt)">LC / SC SPLIT — decided by the data, zero dials.</b> The mechanic: compare the large-cap geiger (SPY) with the small-cap geiger (IWM). The COLDER class gets the BIGGER sleeve, sized by how far apart they are. Formula: LC share = 50% + (IWM geiger − SPY geiger) × 50%, capped between 20% and 80%. If small caps are hotter than large caps, money leans large; if small caps are colder (more washed out), money leans small — the same buy-weakness doctrine, applied BETWEEN classes, no opinion required. The live derivation with today's two geigers is printed above and in panel 6. (The old "LC when hot / SC when cold" sliders are gone — you were right, that was you doing the model's job.)<br><br>
-      <b style="color:var(--txt)">AGGRESSIVENESS — removed.</b> The curve is fixed linear. If we ever want the model to hold back until things are truly cold, that bend should also come from data (e.g. vol regime), not a hand dial.<br><br>
-      <b style="color:var(--txt)">PER-POSITION SIZE</b> — each sleeve divided by its position count: that is the unit "one position" that the MOVES panel speaks in.
-      </div>
-    </details>
-  </div>
-
-  <!-- 3 STATE + MOVES -->
-  <div class="panel">
-    <h2>3 · YOUR STATE → THE MOVES</h2>
-    <div class="note" id="ibkrnote">YES — connected to your Interactive Brokers account (read-only, via your IBKR connector). Last pull: <b style="color:var(--txt)">100% cash, zero open positions</b> — that is why both sliders start at 0. The pull is a snapshot taken when this page was built; live auto-sync on every open is the next integration. Until then, slide to match reality — never type, never dollars.</div>
+    <h2>INPUTS — everything you set is here</h2>
+    <div class="note">The only things you decide. Everything else the data decides. Your current position seeds from IBKR.</div>
+    <div style="color:var(--cyan);font-size:10px;letter-spacing:.18em;margin:8px 0 2px">WHERE YOU ARE (from IBKR)</div>
     <div class="ctl"><label>Current % invested</label><input type="range" id="curInv" min="0" max="100" step="1"><div class="v" id="curInvV"></div></div>
     <div class="ctl"><label>…of which Large Cap<small>% of equity in LC</small></label><input type="range" id="curLC" min="0" max="100" step="1"><div class="v" id="curLCV"></div></div>
-    <div style="margin-top:12px" id="moves"></div>
+    <div style="color:var(--cyan);font-size:10px;letter-spacing:.18em;margin:14px 0 2px">RISK POLICY (how much at the extremes)</div>
+    <div class="ctl"><label>Invested when market washed out<small>your all-in ceiling</small></label><input type="range" id="maxInv" min="0" max="100" step="5"><div class="v" id="maxInvV"></div></div>
+    <div class="ctl"><label>Invested when market stretched<small>your defensive floor</small></label><input type="range" id="minInv" min="0" max="100" step="5"><div class="v" id="minInvV"></div></div>
+    <div style="color:var(--cyan);font-size:10px;letter-spacing:.18em;margin:14px 0 2px">DIVERSIFICATION</div>
+    <div class="ctl"><label>Names per sleeve<small>fewer = concentrated · more = spread thin. Sets per-position size.</small></label><input type="range" id="nPer" min="1" max="6" step="1"><div class="v" id="nPerV"></div></div>
+    <div id="ibkrnote" class="note" style="margin-top:10px;font-size:10px"></div>
+    <details><summary>SUB-DIAL — heat tilt (optional)</summary>
+      <div class="ctl" style="margin-top:6px"><label>Heat tilt → LC<small>lean large when stretched. 0 = pure data. VIX/10Y/geiger dials live in the MACRO HEAT panel above.</small></label><input type="range" id="lcTilt" min="0" max="0.3" step="0.05"><div class="v" id="lcTiltV"></div></div>
+    </details>
   </div>
 
-  <!-- 4 COHORT -->
+  <!-- 1 MACRO HEAT weights (voters live above already; this panel holds weight sliders) -->
+
+  <!-- 2 TARGET MIX -->
+  <div class="panel">
+    <h2>2 · TARGET MIX — where the money goes</h2>
+    <div class="note">Heat sets HOW MUCH is invested; the sleeves' coldness sets WHERE. Big picture first, detail on demand.</div>
+    <canvas id="donut" width="640" height="300"></canvas>
+    <div id="targets"></div>
+    <details><summary>THE CURVE + split math — human words</summary>
+      <div class="note" id="autosplit" style="margin-top:8px"></div>
+      <canvas id="curve" width="640" height="300"></canvas>
+      <div class="axis"><span>−1 COLD → deploy</span><span>HEAT</span><span>+1 HOT → defend</span></div>
+      <div class="note" style="margin-top:8px;line-height:1.7">% INVESTED = floor + (ceiling − floor) × how-cold. LC/SC split = 50% + (IWM geiger − SPY geiger)×50%, capped 20–80% — colder class earns the bigger sleeve. No hand dials beyond the two policy endpoints.</div>
+    </details>
+  </div>
+
+  <!-- 3 THE MOVES -->
+  <div class="panel">
+    <h2>3 · THE MOVES — what to do, split by schedule</h2>
+    <div class="note">The gap between where you are and the target mix, per sleeve, split into tranches you can actually execute.</div>
+    <div id="moves"></div>
+  </div>
+
+  <!-- 4 MOVE OPTIONS -->
   <div class="panel full">
-    <h2>4 · MOVE OPTIONS — ★FAV cohort by geiger</h2>
-    <div class="note">Your favorites with geiger + fundamentals from the SCINTILLA database (P/E, forward P/E, P/S, revenue growth, margins, D/E). CANDIDATE RULE: the 3 coldest names in each SLEEVE get tagged ADD (style-adjusted coldness — cold QQQ lifts growth names). Sorted cold → hot. Full comps of the suggested names are in 4b. NOTE: volume conviction is NOT wired — your volume equalizer is still 0 on the hub, so nothing here uses volume yet.</div>
+    <h2>4 · MOVE OPTIONS — pick your names, by category</h2>
+    <div class="note">Your favorites with geiger + fundamentals from the SCINTILLA database. Coldest 3 per sleeve are tagged ADD (style-adjusted — cold QQQ lifts growth names). Star a name to send it to COMPARABLES. Volume conviction is NOT wired yet (your volume equalizer is 0 on the hub).</div>
+    <div id="catTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
     <table id="cohort"></table>
     <div class="status"><button class="btn" id="refresh">↻ REFRESH FEEDS</button> <span class="updated" id="cohstamp"></span></div>
   </div>
 
   <!-- 4b COMPARABLES -->
   <div class="panel full">
-    <h2>4b · COMPARABLES — suggested candidates side by side</h2>
-    <div class="note">The names the model is suggesting to ADD, lined up like a comps sheet with median/mean/min/max, so you can judge relative value before you act. Add any favorite manually to compare against them.</div>
-    <div class="note" style="margin-bottom:6px">Suggested names show automatically. To add any favorite, click its \u2606 star in the MOVE OPTIONS table above.</div>
+    <h2>4b · COMPARABLES — study the suggestions by category</h2>
+    <div class="note">Suggested ADD names, lined up like a comps sheet with median/mean/min/max — judge relative value before acting. Switch category; star more names in the table above to compare.</div>
+    <div id="compCat" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
     <table id="comps"></table>
   </div>
 
@@ -272,7 +274,7 @@ const INTERNALS = {'RSP/SPY':[1,1],'IWM/SPY':[1,1],'QQQ/SPY':[1,1],'XLY/XLP':[1,
 const DEFAULTS = {
   dTrend:0.5, dRsi:0.6, dTf:0.763,          // approved geiger + equalizer 3.1785/0.9875
   vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
-  maxInv:100, minInv:15, nLC:4, nSC:2, lcTilt:0,
+  maxInv:100, minInv:15, nLC:4, nSC:2, nPer:2, lcTilt:0,
   curInv:0, curLC:0,
   wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25}
 };
@@ -292,6 +294,7 @@ let S = JSON.parse(localStorage.getItem('alloc-module-v1') || 'null') || structu
 S.wts = Object.assign(structuredClone(DEFAULTS.wts), S.wts || {});
 if (!S._v4) { S.lcTilt = 0; S._v4 = 1; }   // v4: tilt ships OFF — data decides unless you turn it on
 if (!S._v5) { S.wts = structuredClone(DEFAULTS.wts); S._v5 = 1; }  // v5: the agreed BASE weights (2026-07-20) applied once
+if (S.nPer==null) S.nPer=2;
 function save(){ localStorage.setItem('alloc-module-v1', JSON.stringify(S)); }
 
 let COHORT = {};
@@ -483,9 +486,9 @@ function render(){
   set('tenCold', S.tenCold, '−1 @ '+(+S.tenCold).toFixed(1)+'% · +1 @ 3.5%');
   set('maxInv', S.maxInv, S.maxInv+'%');
   set('minInv', S.minInv, S.minInv+'%');
-  set('lcTilt', S.lcTilt ?? 0.1, (S.lcTilt ?? 0.1) === 0 ? 'OFF' : '+'+((S.lcTilt ?? 0.1)*100).toFixed(0)+'%/heat');
-  set('nLC', S.nLC, String(S.nLC));
-  set('nSC', S.nSC, String(S.nSC));
+  set('nPer', S.nPer, S.nPer+' names');
+  set('lcTilt', S.lcTilt ?? 0, (S.lcTilt ?? 0) === 0 ? 'OFF' : '+'+((S.lcTilt)*100).toFixed(0)+'%/heat');
+  const ibn=document.getElementById('ibkrnote'); if(ibn) ibn.innerHTML='IBKR read-only: last pull <b style="color:var(--txt)">100% cash</b>. Slide to match reality — never dollars.';
   set('curInv', S.curInv, S.curInv+'%');
   set('curLC', S.curLC, S.curLC+'%');
   document.getElementById('curLC').max = S.curInv;
@@ -522,7 +525,7 @@ function render(){
   const SH = sleeveShares();
   const sleeveRows = Object.entries(SH).sort((a,b)=>b[1]-a[1]).map(([k,sh]) => {
     const gk = sleeveG(k), eq = sh * inv;
-    return `<div class="move"><div class="mname" style="color:${SLEEVE_COLOR[k]}">${k}</div><div class="mval">${pct(eq)}<small>of equity · ${pct(sh,0)} of invested · geiger ${(gk>=0?'+':'')+gk.toFixed(2)} (${gk<0?'cold — earns more':'warm — earns less'}) · 2 positions × ${pct(eq/2)}</small></div></div>`;
+    return `<div class="move"><div class="mname" style="color:${SLEEVE_COLOR[k]}">${k}</div><div class="mval">${pct(eq)}<small>of equity · ${pct(sh,0)} of invested · geiger ${(gk>=0?'+':'')+gk.toFixed(2)} · ${S.nPer} names × ${pct(eq/S.nPer)}</small></div></div>`;
   }).join('');
   document.getElementById('targets').innerHTML = `
     <div class="move"><div class="mname">INVESTED</div><div class="mval">${pct(inv)}<small>cash ${pct(1-inv)} — HOW MUCH comes from the heat score; WHERE comes from the sleeves below</small></div></div>
@@ -550,18 +553,20 @@ function render(){
   const cadence = urgency>=2?'URGENT — front-load':urgency>=0?'BALANCED — halves':'PATIENT — thirds (cheap without fear tends to get cheaper)';
   const scheduleNote = dTot > .005 ? `<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">CADENCE <b style="color:var(--txt)">${cadence}</b> — [${factors.join(' · ')}]. Each BUILD below is split into these tranches.</div>` : dTot < -.005 ? '<div style="color:var(--orange);font-size:11px;margin:2px 0 6px">Trims execute immediately — de-risking does not wait.</div>' : '';
   const sleeveMoves = Object.entries(SH2).sort((a,b)=>b[1]-a[1]).map(([k,sh]) => {
-    const d = sh * inv; // all-cash today so target = build
+    const d = sh * inv;
     const col = SLEEVE_COLOR[k];
-    if (d <= 0.005) return `<div class="move"><div class="mname" style="color:${col}">${k}</div><div class="mval flat">HOLD</div></div>`;
-    const pills = tranchePlan.map(([frac,lbl],i)=>`<span style="display:inline-block;background:${col};opacity:${(1-i*0.26).toFixed(2)};color:#0a0a0f;font-weight:700;border-radius:5px;padding:3px 9px;margin:3px 6px 0 0;font-size:11px">${spct(d*frac)} <span style="font-weight:400;font-size:9px">${lbl}</span></span>`).join('');
-    return `<div class="move"><div class="mname" style="color:${col}">${k}</div><div><div class="mval add" style="color:${col}">BUILD ${spct(d)}<small>of equity</small></div><div>${pills}</div></div></div>`;
+    if (d <= 0.005) return `<div style="border-left:3px solid ${col};padding:6px 12px;margin:8px 0;opacity:.5"><b style="color:${col}">${k}</b> <span class="cls">HOLD</span></div>`;
+    const tr = tranchePlan.map(([frac,lbl],i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(255,255,255,.02);border-radius:6px;margin-top:6px"><span style="color:var(--dim);font-size:11px">${i+1}. ${lbl}</span><span style="background:${col};opacity:${(1-i*0.22).toFixed(2)};color:#0a0a0f;font-weight:700;border-radius:5px;padding:3px 12px;font-size:12px">${spct(d*frac)}</span></div>`).join('');
+    return `<div style="border-left:3px solid ${col};padding:8px 14px;margin:14px 0;background:rgba(255,255,255,.015);border-radius:0 8px 8px 0">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><b style="color:${col};font-size:14px;letter-spacing:.1em">${k}</b><span style="color:${col};font-size:18px;font-weight:700">BUILD ${spct(d)}<span class="cls" style="font-size:11px;font-weight:400"> of equity</span></span></div>
+      ${tr}</div>`;
   }).join('');
   document.getElementById('moves').innerHTML = `
-    <div class="move"><div class="mname">TOTAL</div><div class="mval ${cls(dTot)}">${word(dTot)} ${spct(dTot)}<small>of equity</small></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:8px;border-bottom:1px solid var(--line)"><span class="mname">TOTAL TO DEPLOY</span><span class="mval ${cls(dTot)}" style="font-size:20px">${word(dTot)} ${spct(dTot)}<small>of equity</small></span></div>
     ${scheduleNote}
     ${sleeveMoves}`;
 
-  drawMixSleeves(sleeveShares(), inv, cInv);
+  drawDonut(sleeveShares(), inv);
   renderBrief(h, inv, lc, dTot, dLC, dSC);
   renderInputMap(h);
   renderCohort(dLC, dSC);
@@ -603,18 +608,25 @@ function drawCurve(h){
   ctx.fillStyle = '#8a8aa0'; ctx.font = '10px monospace';
   ctx.fillText('── invested % target', L+8, T+12); ctx.fillStyle = '#ffd166'; ctx.fillText('╌╌ LC share of invested', L+150, T+12);
 }
-function drawMixSleeves(shares, inv, cInv){
-  const el = document.getElementById('mix'); if (!el) return;
-  const segs = Object.entries(shares).sort((a,b)=>b[1]-a[1]).map(([k,sh]) => [k, sh*inv]);
-  segs.push(['CASH', 1-inv]);
-  const bar = parts => '<div class="stack">' + parts.map(([k, v]) => {
-    if (v <= 0.001) return '';
-    const lbl = v > 0.08 ? `${k} ${Math.round(v*100)}%` : (v > 0.045 ? Math.round(v*100)+'%' : '');
-    return `<div class="seg" style="width:${v*100}%;background:${SLEEVE_COLOR[k]||'#444'};${k==='CASH'?'color:#8a8aa0;':''}">${lbl}</div>`;
-  }).join('') + '</div>';
-  el.innerHTML =
-    '<div class="stacklbl">YOU NOW (IBKR: all cash)</div>' + bar([['CASH', 1]]) +
-    '<div class="stacklbl">TARGET MIX — sleeves sized by coldness</div>' + bar(segs);
+function drawDonut(shares, inv){
+  const cv=document.getElementById('donut'); if(!cv) return; const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height; ctx.clearRect(0,0,W,H);
+  const cx=150, cy=H/2, r=105, ri=62;
+  const segs=Object.entries(shares).sort((a,b)=>b[1]-a[1]).map(([k,sh])=>[k,sh*inv]); segs.push(['CASH',1-inv]);
+  let a=-Math.PI/2;
+  for(const [k,v] of segs){ if(v<=0.001) continue; const a2=a+v*2*Math.PI;
+    ctx.beginPath(); ctx.arc(cx,cy,r,a,a2); ctx.arc(cx,cy,ri,a2,a,true); ctx.closePath();
+    ctx.fillStyle=SLEEVE_COLOR[k]||'#444'; ctx.fill(); a=a2; }
+  ctx.fillStyle='#e8e8f0'; ctx.font='bold 22px monospace'; ctx.textAlign='center';
+  ctx.fillText((inv*100).toFixed(0)+'%', cx, cy-4);
+  ctx.fillStyle='#8a8aa0'; ctx.font='10px monospace'; ctx.fillText('INVESTED', cx, cy+14);
+  // legend
+  let ly=28; ctx.textAlign='left'; ctx.font='12px monospace';
+  for(const [k,v] of segs){ if(v<=0.001) continue;
+    ctx.fillStyle=SLEEVE_COLOR[k]||'#444'; ctx.fillRect(320,ly-9,11,11);
+    ctx.fillStyle='#e8e8f0'; ctx.fillText(k, 340, ly);
+    ctx.fillStyle='#8a8aa0'; ctx.textAlign='right'; ctx.fillText((v*100).toFixed(1)+'% of equity', W-14, ly); ctx.textAlign='left';
+    ly+=24; }
 }
 function drawMix(tLC, tSC, tCash, cLC2, cSC2, cCash){
   const el = document.getElementById('mix'); if (!el) return;
@@ -669,11 +681,17 @@ function renderInputMap(h){
   t.innerHTML = '<tr><th>INPUT</th><th>KIND</th><th>NOW</th><th>WHAT IT DOES, MATHEMATICALLY</th></tr>' +
     rows.map(r => `<tr><td class="n">${r[0]}</td><td class="k">${r[1]}</td><td class="cls">${r[2]}</td><td class="cls">${r[3]}</td></tr>`).join('');
 }
+const CATS=['ALL','GROWTH','SEMIS','SMALL','CRYPTO','CMDTY','BROAD'];
+let CATFILTER='ALL';
+function setCat(c){ CATFILTER=c; render(); }
 function renderCohort(dLC, dSC){
   const SPR2 = styleSpreads();
-  const rows = Object.keys(COHORT).filter(s => !['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
+  const tb=document.getElementById('catTabs');
+  if(tb) tb.innerHTML = CATS.map(c=>`<button onclick="setCat('${c}')" style="background:${c===CATFILTER?'var(--cyan)':'#14141f'};color:${c===CATFILTER?'#0a0a0f':'var(--cyan)'};border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;font-weight:${c===CATFILTER?'700':'400'}">${c}</button>`).join('');
+  let rows = Object.keys(COHORT).filter(s => !['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
     .map(s => { const g = geiger(COHORT[s]); const adj = g + styleAdj(s, SPR2); return {sym:s, cls:CLASSES[s]||'?', g, adj, sleeves:tickerSleeves(s), c:COHORT[s]}; })
     .sort((a,b) => a.adj - b.adj);
+  if(CATFILTER!=='ALL') rows = rows.filter(r=>r.sleeves.includes(CATFILTER));
   const sleeveRank = {};
   for (const sl of Object.keys(SLEEVES)) {
     rows.filter(r => r.sleeves.includes(sl)).slice(0,3).forEach((r,i) => { (sleeveRank[r.sym] = sleeveRank[r.sym] || []).push(sl + ' #' + (i+1)); });
@@ -692,12 +710,13 @@ function renderCohort(dLC, dSC){
     let tag = '';
     if (sleeveRank[r.sym]) { const best = sleeveRank[r.sym][0].split(' '); tag = `<span class="tag add">ADD · ${best[0]} ${best[1]}</span>` + (sleeveRank[r.sym].length>1?` <span class="cls">+${sleeveRank[r.sym].length-1}</span>`:''); }
     else if (hotRank[r.sym]) tag = `<span class="tag trim">TRIM · #${hotRank[r.sym]} ${r.cls}</span>`;
-    const star = COMPARE.has(r.sym) ? '<span style="color:var(--gold)">\u2605</span>' : '<span class="cls">\u2606</span>';
+    const inC = COMPARE.has(r.sym);
+    const star = `<button class="cmpstar" data-sym="${r.sym}" style="background:${inC?'rgba(255,209,102,.15)':'#14141f'};color:${inC?'var(--gold)':'var(--dim)'};border:1px solid ${inC?'var(--gold)':'var(--line)'};border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer" title="compare">${inC?'\u2605 comparing':'+ compare'}</button>`;
     const w = Math.min(50, Math.abs(r.g) * 50);
     const k = COMPS[r.sym] || {};
     const num = (x,d=1,suf='') => (x==null||!isFinite(x))?'<span class="cls">—</span>':(x.toFixed(d)+suf);
     const pctc = (x) => (x==null||!isFinite(x))?'<span class="cls">—</span>':((x*100).toFixed(0)+'%');
-    html += `<tr><td class="cmpstar" data-sym="${r.sym}" style="text-align:center;cursor:pointer" title="add to comparables">${star}</td><td><b>${r.sym}</b></td><td class="cls">${r.sleeves.join("/")||CLASSNAME[r.cls]||r.cls}</td>
+    html += `<tr><td>${star}</td><td><b>${r.sym}</b></td><td class="cls">${r.sleeves.join("/")||CLASSNAME[r.cls]||r.cls}</td>
       <td class="r">${r.c.price.toLocaleString()}</td>
       <td class="r" style="color:${r.c.day>=0?'var(--green)':'var(--red)'}">${spct(r.c.day,2)}</td>
       <td><span class="mini"><span class="mid"></span><span class="b" style="left:${r.g<0?50-w:50}%;width:${w}%;background:${r.g>=0?'var(--cyan)':'var(--orange)'}"></span></span></td>
@@ -712,6 +731,8 @@ function renderCohort(dLC, dSC){
 }
 let COMPARE = new Set(JSON.parse(localStorage.getItem('alloc-compare')||'[]'));
 function toggleCompare(sym){ if(COMPARE.has(sym)) COMPARE.delete(sym); else COMPARE.add(sym); localStorage.setItem('alloc-compare',JSON.stringify([...COMPARE])); render(); }
+let COMPCAT='ALL';
+function setCompCat(c){ COMPCAT=c; render(); }
 function renderComps(){
   const t = document.getElementById('comps'); if (!t) return;
   // suggested = anything currently ADD-tagged (top-3 coldest per sleeve), gathered from the last cohort render
@@ -720,7 +741,13 @@ function renderComps(){
     .map(s=>({sym:s, adj:geiger(COHORT[s])+styleAdj(s,SPR), sleeves:tickerSleeves(s)}));
   const suggested = new Set();
   for (const sl of Object.keys(SLEEVES)) ranked.filter(r=>r.sleeves.includes(sl)).sort((a,b)=>a.adj-b.adj).slice(0,3).forEach(r=>suggested.add(r.sym));
-  const syms = [...new Set([...suggested, ...COMPARE])].filter(x=>COMPS[x]||COHORT[x]);
+  // category switcher — which sleeves have suggestions
+  const cats = ['ALL', ...Object.keys(SLEEVES).filter(sl=>ranked.some(r=>r.sleeves.includes(sl)&&suggested.has(r.sym)))];
+  if (!cats.includes(COMPCAT)) COMPCAT='ALL';
+  const cc=document.getElementById('compCat');
+  if(cc) cc.innerHTML = cats.map(c=>`<button onclick="setCompCat('${c}')" style="background:${c===COMPCAT?'var(--gold)':'#14141f'};color:${c===COMPCAT?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;font-weight:${c===COMPCAT?'700':'400'}">${c}</button>`).join('');
+  let syms = [...new Set([...suggested, ...COMPARE])].filter(x=>COMPS[x]||COHORT[x]);
+  if (COMPCAT!=='ALL') syms = syms.filter(x=>tickerSleeves(x).includes(COMPCAT));
   const cols = [['mktcap','MKT CAP',v=>v>=1e12?'$'+(v/1e12).toFixed(2)+'T':v>=1e9?'$'+(v/1e9).toFixed(0)+'B':'$'+(v/1e6).toFixed(0)+'M'],['g','GEIGER',v=>(v>=0?'+':'')+v.toFixed(2)],['pe','P/E',v=>v.toFixed(1)],['fwd_pe','FWD P/E',v=>v.toFixed(1)],['ps','P/S',v=>v.toFixed(1)],['pb','P/B',v=>v.toFixed(1)],['rev_growth','REV g',v=>(v*100).toFixed(0)+'%'],['gross_m','GROSS',v=>(v*100).toFixed(0)+'%'],['net_m','NET',v=>(v*100).toFixed(0)+'%'],['de','D/E',v=>v.toFixed(2)],['div_yld','DIV',v=>(v*100).toFixed(2)+'%']];
   const data = syms.map(sym=>{ const k=Object.assign({}, COMPS[sym]||{}); k.g = COHORT[sym]?geiger(COHORT[sym]):null; return {sym, k, manual:COMPARE.has(sym) && !suggested.has(sym)}; });
   let html = '<tr><th>NAME</th>'+cols.map(c=>'<th class="r">'+c[1]+'</th>').join('')+'</tr>';
@@ -775,7 +802,8 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   document.getElementById('trace').textContent = L.join('\n');
 }
 // slider wiring
-for (const id of ['dTrend','dRsi','vixCold','tenCold','maxInv','minInv','lcTilt','nLC','nSC','curInv','curLC']) {
+for (const id of ['dTrend','dRsi','vixCold','tenCold','maxInv','minInv','lcTilt','nPer','curInv','curLC']) {
+  const el=document.getElementById(id); if(!el) continue;
   document.getElementById(id).oninput = e => { S[id] = +e.target.value; save(); render(); };
 }
 document.getElementById('refresh').onclick = loadFeeds;
