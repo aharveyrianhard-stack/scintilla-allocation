@@ -540,19 +540,21 @@ function render(){
   const gI2b = COHORT['IWM'] ? geiger(COHORT['IWM']) : null, gR2b = COHORT['RSP'] ? geiger(COHORT['RSP']) : null;
   const breadthAvg = (gI2b!=null && gR2b!=null) ? (gI2b+gR2b)/2 : null;
   let urgency = 0, factors = [];
-  if (vixVote && vixVote.val != null) { urgency += (vixVote.val < 0 ? 1 : -1); factors.push('volatility ' + (vixVote.val<0?'fear (faster)':'complacent (slower)')); }
-  urgency += (h < -0.15 ? 1 : h > 0.15 ? -1 : 0); factors.push('heat ' + (h<-0.15?'cold (faster)':h>0.15?'hot (slower)':'neutral'));
-  if (breadthAvg != null) { urgency += (breadthAvg < -0.15 ? 1 : 0); factors.push('breadth ' + (breadthAvg<-0.15?'washed (faster)':'intact (neutral)')); }
-  const deepDisc = Object.values(SPR).some(v => v < -0.35); if (deepDisc) { urgency += 1; factors.push('deep style discount (faster)'); }
-  const sched = dTot > .005
-    ? (urgency >= 2 ? `URGENT tape: front-load — ½ now, ½ on confirmation. [${factors.join(' · ')}]`
-      : urgency >= 0 ? `Balanced tape: halves — ½ now, ½ on a −3% pullback or vol spike. [${factors.join(' · ')}]`
-      : `Patient tape: thirds — ⅓ now, ⅓ on a −3% pullback, ⅓ on a vol spike (VIX > ${S.vixCold}). Cheap without fear tends to get cheaper. [${factors.join(' · ')}]`)
-    : dTot < -.005 ? 'Trims execute immediately — de-risking does not wait.' : '';
+  if (vixVote && vixVote.val != null) { urgency += (vixVote.val < 0 ? 1 : -1); factors.push('volatility ' + (vixVote.val<0?'fear':'complacent')); }
+  urgency += (h < -0.15 ? 1 : h > 0.15 ? -1 : 0); factors.push('heat ' + (h<-0.15?'cold':h>0.15?'hot':'neutral'));
+  if (breadthAvg != null) { urgency += (breadthAvg < -0.15 ? 1 : 0); factors.push('breadth ' + (breadthAvg<-0.15?'washed':'intact')); }
+  const deepDisc = Object.values(SPR).some(v => v < -0.35); if (deepDisc) { urgency += 1; factors.push('deep style discount'); }
+  const tranchePlan = urgency >= 2 ? [[0.5,'NOW'],[0.5,'on confirmation']]
+    : urgency >= 0 ? [[0.5,'NOW'],[0.5,'on −3% / vol spike']]
+    : [[0.34,'NOW'],[0.33,'on −3% pullback'],[0.33,'on vol spike']];
+  const cadence = urgency>=2?'URGENT — front-load':urgency>=0?'BALANCED — halves':'PATIENT — thirds (cheap without fear tends to get cheaper)';
+  const scheduleNote = dTot > .005 ? `<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">CADENCE <b style="color:var(--txt)">${cadence}</b> — [${factors.join(' · ')}]. Each BUILD below is split into these tranches.</div>` : dTot < -.005 ? '<div style="color:var(--orange);font-size:11px;margin:2px 0 6px">Trims execute immediately — de-risking does not wait.</div>' : '';
   const sleeveMoves = Object.entries(SH2).sort((a,b)=>b[1]-a[1]).map(([k,sh]) => {
-    const tgt = sh * inv;
-    const d = tgt - 0; // per-sleeve current arrives with IBKR position sync; all-cash today
-    return `<div class="move"><div class="mname" style="color:${SLEEVE_COLOR[k]}">${k}</div><div class="mval ${d>0.005?'add':'flat'}">${d>0.005?'BUILD':'HOLD'} ${spct(d)}<small>of equity → candidates tagged ${k} below</small></div></div>`;
+    const d = sh * inv; // all-cash today so target = build
+    const col = SLEEVE_COLOR[k];
+    if (d <= 0.005) return `<div class="move"><div class="mname" style="color:${col}">${k}</div><div class="mval flat">HOLD</div></div>`;
+    const pills = tranchePlan.map(([frac,lbl],i)=>`<span style="display:inline-block;background:${col};opacity:${(1-i*0.26).toFixed(2)};color:#0a0a0f;font-weight:700;border-radius:5px;padding:3px 9px;margin:3px 6px 0 0;font-size:11px">${spct(d*frac)} <span style="font-weight:400;font-size:9px">${lbl}</span></span>`).join('');
+    return `<div class="move"><div class="mname" style="color:${col}">${k}</div><div><div class="mval add" style="color:${col}">BUILD ${spct(d)}<small>of equity</small></div><div>${pills}</div></div></div>`;
   }).join('');
   document.getElementById('moves').innerHTML = `
     <div class="move"><div class="mname">TOTAL</div><div class="mval ${cls(dTot)}">${word(dTot)} ${spct(dTot)}<small>of equity</small></div></div>
