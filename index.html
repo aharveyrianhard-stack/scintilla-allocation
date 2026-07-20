@@ -163,14 +163,23 @@
     <div class="ctl"><label>Current % invested</label><input type="range" id="curInv" min="0" max="100" step="1"><div class="v" id="curInvV"></div></div>
     <div class="ctl"><label>…of which Large Cap<small>% of equity in LC</small></label><input type="range" id="curLC" min="0" max="100" step="1"><div class="v" id="curLCV"></div></div>
     <div style="margin-top:12px" id="moves"></div>
+    <div style="margin-top:12px" id="schedbox"></div>
   </div>
 
   <!-- 4 COHORT -->
   <div class="panel full">
     <h2>4 · MOVE OPTIONS — ★FAV cohort by geiger</h2>
-    <div class="note">Your favorites, each with its own approved geiger (same dials as above). CANDIDATE RULE, exactly: if the LC or SC move is an ADD, the 3 coldest (lowest geiger) favorites in that class get tagged ADD CANDIDATE; if it is a TRIM, the 3 hottest get tagged TRIM CANDIDATE. Nothing else decides it — geiger rank only, volume conviction comes later. Sorted cold → hot.</div>
+    <div class="note">Your favorites with geiger + fundamentals from the SCINTILLA database (P/E, forward P/E, P/S, revenue growth, margins, D/E). CANDIDATE RULE: the 3 coldest names in each SLEEVE get tagged ADD (style-adjusted coldness — cold QQQ lifts growth names). Sorted cold → hot. Full comps of the suggested names are in 4b. NOTE: volume conviction is NOT wired — your volume equalizer is still 0 on the hub, so nothing here uses volume yet.</div>
     <table id="cohort"></table>
     <div class="status"><button class="btn" id="refresh">↻ REFRESH FEEDS</button> <span class="updated" id="cohstamp"></span></div>
+  </div>
+
+  <!-- 4b COMPARABLES -->
+  <div class="panel full">
+    <h2>4b · COMPARABLES — suggested candidates side by side</h2>
+    <div class="note">The names the model is suggesting to ADD, lined up like a comps sheet with median/mean/min/max, so you can judge relative value before you act. Add any favorite manually to compare against them.</div>
+    <div style="margin-bottom:10px">ADD FAVORITE TO COMPARE: <select id="compAdd" style="background:#14141f;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-family:inherit;font-size:11px"></select></div>
+    <table id="comps"></table>
   </div>
 
   <!-- 5 INPUT MAP -->
@@ -286,7 +295,8 @@ if (!S._v4) { S.lcTilt = 0; S._v4 = 1; }   // v4: tilt ships OFF — data decide
 if (!S._v5) { S.wts = structuredClone(DEFAULTS.wts); S._v5 = 1; }  // v5: the agreed BASE weights (2026-07-20) applied once
 function save(){ localStorage.setItem('alloc-module-v1', JSON.stringify(S)); }
 
-let COHORT = {};   // sym -> {price,day,td,rd,gd,tw,rw,gw,ma,maN}
+let COHORT = {};
+let COMPS = {};  // sym -> fundamentals from comps-feed (SCINTILLA database)   // sym -> {price,day,td,rd,gd,tw,rw,gw,ma,maN}
 let MACRO = {};    // name -> {value,trend,rsi,range}
 let STAMPS = {cohort:'', macro:''};
 
@@ -327,6 +337,15 @@ async function loadFeeds(){
     localStorage.setItem('alloc-data-v1', JSON.stringify({mr, cr}));
     ingest(mr, cr);
   } catch(e) { /* keep cached view */ }
+  // comps fundamentals from the SCINTILLA database (own data, not FMP calls)
+  try {
+    const syms = Object.keys(COHORT).join(',');
+    if (syms) {
+      const ct = await fetch(SB + '/comps-feed?syms=' + encodeURIComponent(syms)).then(r=>r.text());
+      const L = ct.trim().split('\n'); const head = L[0].split(',');
+      for (const line of L.slice(1)) { const c = line.split(','); const o = {}; head.forEach((h,i)=>o[h]=c[i]===''?null:+c[i]); COMPS[c[0]] = o; }
+    }
+  } catch(e) { /* comps optional */ }
   // IBKR state handoff: a Claude session syncs percentages (never dollars) to this file on schedule.
   try {
     const ib = await fetch('https://wadinxqplrggagkvrdag.supabase.co/storage/v1/object/public/inbox/ibkr-state.json', {cache:'no-store'}).then(r => r.ok ? r.json() : null);
@@ -522,7 +541,7 @@ function render(){
   const gI2b = COHORT['IWM'] ? geiger(COHORT['IWM']) : null, gR2b = COHORT['RSP'] ? geiger(COHORT['RSP']) : null;
   const breadthAvg = (gI2b!=null && gR2b!=null) ? (gI2b+gR2b)/2 : null;
   let urgency = 0, factors = [];
-  if (vixVote && vixVote.val != null) { urgency += (vixVote.val < 0 ? 1 : -1); factors.push('vol ' + (vixVote.val<0?'fear (faster)':'complacent (slower)')); }
+  if (vixVote && vixVote.val != null) { urgency += (vixVote.val < 0 ? 1 : -1); factors.push('volatility ' + (vixVote.val<0?'fear (faster)':'complacent (slower)')); }
   urgency += (h < -0.15 ? 1 : h > 0.15 ? -1 : 0); factors.push('heat ' + (h<-0.15?'cold (faster)':h>0.15?'hot (slower)':'neutral'));
   if (breadthAvg != null) { urgency += (breadthAvg < -0.15 ? 1 : 0); factors.push('breadth ' + (breadthAvg<-0.15?'washed (faster)':'intact (neutral)')); }
   const deepDisc = Object.values(SPR).some(v => v < -0.35); if (deepDisc) { urgency += 1; factors.push('deep style discount (faster)'); }
@@ -538,13 +557,15 @@ function render(){
   }).join('');
   document.getElementById('moves').innerHTML = `
     <div class="move"><div class="mname">TOTAL</div><div class="mval ${cls(dTot)}">${word(dTot)} ${spct(dTot)}<small>of equity</small></div></div>
-    ${sleeveMoves}
-    <div class="move"><div class="mname">SCHEDULE</div><div style="font-size:11px; line-height:1.7; color:var(--txt)">${sched || '—'}</div></div>`;
+    ${sleeveMoves}`;
+  const schedBox = document.getElementById('schedbox');
+  if (schedBox) schedBox.innerHTML = sched ? `<div style="border:1px solid var(--cyan);border-radius:8px;padding:12px 14px;background:rgba(0,212,255,.06);"><div style="color:var(--cyan);font-size:10px;letter-spacing:.2em;margin-bottom:6px">EXECUTION SCHEDULE</div><div style="font-size:12.5px;line-height:1.7;color:var(--txt)">${sched}</div></div>` : '';
 
   drawMixSleeves(sleeveShares(), inv, cInv);
   renderBrief(h, inv, lc, dTot, dLC, dSC);
   renderInputMap(h);
   renderCohort(dLC, dSC);
+  renderComps();
   renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot, dLC, dSC);
   document.getElementById('stamp').textContent = 'MACRO HEAT MODULE · internals ' + (STAMPS.macro||'—').slice(0,16).replace('T',' ') + 'Z · geigers ' + (STAMPS.cohort||'—').slice(0,16).replace('T',' ') + 'Z · % only, never dollars';
   document.getElementById('cohstamp').textContent = 'feeds: macro-feed (hourly-safe) + cohort-feed (on refresh) · ' + (STAMPS.cohort||'').slice(11,19) + 'Z';
@@ -658,7 +679,7 @@ function renderCohort(dLC, dSC){
     rows.filter(r => r.sleeves.includes(sl)).slice(0,3).forEach((r,i) => { (sleeveRank[r.sym] = sleeveRank[r.sym] || []).push(sl + ' #' + (i+1)); });
   }
   const t = document.getElementById('cohort');
-  let html = '<tr><th>TICKER</th><th>CLASS</th><th class="r">PRICE</th><th class="r">DAY</th><th>GEIGER</th><th class="r">SCORE</th><th class="r">MA</th><th>SIGNAL</th></tr>';
+  let html = '<tr><th>TICKER</th><th>SLEEVES</th><th class="r">PRICE</th><th class="r">DAY</th><th>GEIGER</th><th class="r">SCORE</th><th class="r">P/E</th><th class="r">FWD P/E</th><th class="r">P/S</th><th class="r">REV g</th><th class="r">GROSS</th><th class="r">NET</th><th class="r">D/E</th><th>SIGNAL</th></tr>';
   const addN = {LC: dLC > .005 ? 3 : 0, SC: dSC > .005 ? 3 : 0};
   const trimN = {LC: dLC < -.005 ? 3 : 0, SC: dSC < -.005 ? 3 : 0};
   const coldRank = {}, hotRank = {};
@@ -672,14 +693,47 @@ function renderCohort(dLC, dSC){
     if (sleeveRank[r.sym]) tag = `<span class="tag add">ADD · ${sleeveRank[r.sym].join(' · ')}</span>`;
     else if (hotRank[r.sym]) tag = `<span class="tag trim">TRIM · #${hotRank[r.sym]} ${r.cls}</span>`;
     const w = Math.min(50, Math.abs(r.g) * 50);
+    const k = COMPS[r.sym] || {};
+    const num = (x,d=1,suf='') => (x==null||!isFinite(x))?'<span class="cls">—</span>':(x.toFixed(d)+suf);
+    const pctc = (x) => (x==null||!isFinite(x))?'<span class="cls">—</span>':((x*100).toFixed(0)+'%');
     html += `<tr><td><b>${r.sym}</b></td><td class="cls">${r.sleeves.join("/")||CLASSNAME[r.cls]||r.cls}</td>
       <td class="r">${r.c.price.toLocaleString()}</td>
       <td class="r" style="color:${r.c.day>=0?'var(--green)':'var(--red)'}">${spct(r.c.day,2)}</td>
       <td><span class="mini"><span class="mid"></span><span class="b" style="left:${r.g<0?50-w:50}%;width:${w}%;background:${r.g>=0?'var(--cyan)':'var(--orange)'}"></span></span></td>
       <td class="r">${(r.g>=0?'+':'')+r.g.toFixed(2)}</td>
-      <td class="r cls">${r.c.ma}/${r.c.maN}</td><td>${tag}</td></tr>`;
+      <td class="r">${num(k.pe)}</td><td class="r">${num(k.fwd_pe)}</td><td class="r">${num(k.ps)}</td>
+      <td class="r" style="color:${k.rev_growth>0?'var(--green)':k.rev_growth<0?'var(--red)':'var(--dim)'}">${k.rev_growth==null?'<span class=cls>—</span>':spct(k.rev_growth,0)}</td>
+      <td class="r">${pctc(k.gross_m)}</td><td class="r">${pctc(k.net_m)}</td><td class="r">${num(k.de,2)}</td>
+      <td>${tag}</td></tr>`;
   }
   t.innerHTML = html;
+}
+let MANUAL_COMPS = JSON.parse(localStorage.getItem('alloc-manual-comps')||'[]');
+function renderComps(){
+  const t = document.getElementById('comps'); if (!t) return;
+  // suggested = anything currently ADD-tagged (top-3 coldest per sleeve), gathered from the last cohort render
+  const SPR = styleSpreads();
+  const ranked = Object.keys(COHORT).filter(s=>!['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
+    .map(s=>({sym:s, adj:geiger(COHORT[s])+styleAdj(s,SPR), sleeves:tickerSleeves(s)}));
+  const suggested = new Set();
+  for (const sl of Object.keys(SLEEVES)) ranked.filter(r=>r.sleeves.includes(sl)).sort((a,b)=>a.adj-b.adj).slice(0,3).forEach(r=>suggested.add(r.sym));
+  const syms = [...new Set([...suggested, ...MANUAL_COMPS])].filter(x=>COMPS[x]||COHORT[x]);
+  // populate the add-dropdown with favorites not already shown
+  const dd = document.getElementById('compAdd');
+  if (dd) { const opts = ['<option value="">+ pick a favorite…</option>'].concat(Object.keys(COHORT).filter(x=>!syms.includes(x)).sort().map(x=>`<option value="${x}">${x}</option>`)); dd.innerHTML = opts.join(''); dd.onchange = e=>{ if(e.target.value){ MANUAL_COMPS.push(e.target.value); localStorage.setItem('alloc-manual-comps',JSON.stringify(MANUAL_COMPS)); render(); } }; }
+  const cols = [['mktcap','MKT CAP',v=>v>=1e12?'$'+(v/1e12).toFixed(2)+'T':v>=1e9?'$'+(v/1e9).toFixed(0)+'B':'$'+(v/1e6).toFixed(0)+'M'],['g','GEIGER',v=>(v>=0?'+':'')+v.toFixed(2)],['pe','P/E',v=>v.toFixed(1)],['fwd_pe','FWD P/E',v=>v.toFixed(1)],['ps','P/S',v=>v.toFixed(1)],['pb','P/B',v=>v.toFixed(1)],['rev_growth','REV g',v=>(v*100).toFixed(0)+'%'],['gross_m','GROSS',v=>(v*100).toFixed(0)+'%'],['net_m','NET',v=>(v*100).toFixed(0)+'%'],['de','D/E',v=>v.toFixed(2)],['div_yld','DIV',v=>(v*100).toFixed(2)+'%']];
+  const data = syms.map(sym=>{ const k=Object.assign({}, COMPS[sym]||{}); k.g = COHORT[sym]?geiger(COHORT[sym]):null; return {sym, k, manual:MANUAL_COMPS.includes(sym) && !suggested.has(sym)}; });
+  let html = '<tr><th>NAME</th>'+cols.map(c=>'<th class="r">'+c[1]+'</th>').join('')+'</tr>';
+  for (const d of data) {
+    html += `<tr><td><b>${d.sym}</b>${d.manual?' <span class="cls">(added)</span>':' <span class="tag add" style="margin:0">suggested</span>'}</td>`+
+      cols.map(c=>{ const v=d.k[c[0]]; return '<td class="r">'+(v==null||!isFinite(v)?'<span class="cls">—</span>':c[2](v))+'</td>'; }).join('')+'</tr>';
+  }
+  // stat rows
+  const stat = (fn,label,color)=>{ let row=`<tr><td class="cls" style="color:${color}">${label}</td>`; for(const c of cols){ const vals=data.map(d=>d.k[c[0]]).filter(v=>v!=null&&isFinite(v)); row+='<td class="r" style="color:'+color+'">'+(vals.length?c[2](fn(vals)):'—')+'</td>'; } return row+'</tr>'; };
+  const median=a=>{const b=[...a].sort((x,y)=>x-y);const m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2;};
+  const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
+  if (data.length>1){ html+=stat(median,'MEDIAN','var(--gold)'); html+=stat(mean,'MEAN','var(--gold)'); html+=stat(a=>Math.min(...a),'MIN','#8a8aa0'); html+=stat(a=>Math.max(...a),'MAX','#8a8aa0'); }
+  t.innerHTML = html || '<tr><td class="cls">no suggestions right now</td></tr>';
 }
 function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot, dLC, dSC){
   const f2 = x => (x==null||!isFinite(x)) ? '—' : (x>=0?'+':'')+x.toFixed(2);
