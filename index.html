@@ -141,6 +141,9 @@
     <div class="ctl"><label>Invested when market stretched<small>your defensive floor</small></label><input type="range" id="minInv" min="0" max="100" step="5"><div class="v" id="minInvV"></div></div>
     <div style="color:var(--cyan);font-size:10px;letter-spacing:.18em;margin:14px 0 2px">DIVERSIFICATION</div>
     <div class="ctl"><label>Mode<small>AUTO scales names with the market: names = 2 + (1−heat)/2 × 3, so heat −1 → 5 names (wide, catch the rebound), heat +1 → 2 names (concentrate in the best). Heat ~0 → ~4. MANUAL: you fix it.</small></label><div><button id="divToggle" style="background:#14141f;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:5px 14px;font-family:inherit;font-size:11px;cursor:pointer"></button></div><div class="v" id="divModeV"></div></div>
+    <div class="ctl"><label>Hard cap — TOTAL names<small>your portfolio-wide ceiling on how many individual names you'll hold, all sleeves combined. This is the number that caps how many PICKS the comps table lets you keep — so your plan and your buy-list stay consistent.</small></label><input type="range" id="maxTotal" min="2" max="24" step="1"><div class="v" id="maxTotalV"></div></div>
+    <div class="ctl"><label>Max names per sleeve<small>secondary ceiling inside one sleeve. AUTO can widen up to here but never past it. Keeps any single sleeve from hogging the whole book.</small></label><input type="range" id="maxNames" min="1" max="8" step="1"><div class="v" id="maxNamesV"></div></div>
+    <div class="ctl"><label>Concentration lean<small>tilt the AUTO count. LEFT = spread wider (more names), RIGHT = concentrate (fewer, into the best). 0 = let the market decide. Never overrides the hard cap.</small></label><input type="range" id="concLean" min="-1" max="1" step="0.25"><div class="v" id="concLeanV"></div></div>
     <div class="ctl" id="nPerRow"><label>Names per sleeve<small>manual override</small></label><input type="range" id="nPer" min="1" max="6" step="1"><div class="v" id="nPerV"></div></div>
     <div id="ibkrnote" class="note" style="margin-top:10px;font-size:10px"></div>
     <details><summary>SUB-DIAL — heat tilt (optional)</summary>
@@ -183,7 +186,8 @@
   <!-- 4b COMPARABLES -->
   <div class="panel full">
     <h2>4b · COMPARABLES — study the suggestions by category</h2>
-    <div class="note">Suggested ADD names, lined up like a comps sheet with median/mean/min/max — judge relative value before acting. Switch category; star more names in the table above to compare.</div>
+    <div class="note">Suggested ADD names, lined up like a comps sheet with median/mean/min/max — judge relative value before acting. Cells are shaded vs the peer median: <span style="color:var(--green)">green = better than peers</span>, <span style="color:var(--orange)">orange = worse</span> (cheaper P/E, higher margins & growth, lower debt = better). <b>Drop</b> greys a row and pulls it out of the stats without deleting it; <b>pick</b> marks your keepers (capped at your TOTAL-names hard cap). Star more names in the table above to add non-suggested candidates.</div>
+    <div id="pickNote" class="note" style="font-size:10px;min-height:12px"></div>
     <div id="compCat" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
     <table id="comps"></table>
     <div id="compRestore" style="margin-top:8px"></div>
@@ -282,7 +286,7 @@ const INTERNALS = {'RSP/SPY':[1,1],'IWM/SPY':[1,1],'QQQ/SPY':[1,1],'XLY/XLP':[1,
 const DEFAULTS = {
   dTrend:0.5, dRsi:0.6, dTf:0.763,          // approved geiger + equalizer 3.1785/0.9875
   vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
-  maxInv:100, minInv:15, nLC:4, nSC:2, nPer:2, divAuto:1, lcTilt:0,
+  maxInv:100, minInv:15, nLC:4, nSC:2, nPer:2, divAuto:1, lcTilt:0, maxTotal:12, maxNames:6, concLean:0,
   curInv:0, curLC:0,
   wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25}
 };
@@ -304,6 +308,9 @@ if (!S._v4) { S.lcTilt = 0; S._v4 = 1; }   // v4: tilt ships OFF — data decide
 if (!S._v5) { S.wts = structuredClone(DEFAULTS.wts); S._v5 = 1; }  // v5: the agreed BASE weights (2026-07-20) applied once
 if (S.nPer==null) S.nPer=2;
 if (S.divAuto==null) S.divAuto=1;
+if (S.maxTotal==null) S.maxTotal=12;
+if (S.maxNames==null) S.maxNames=6;
+if (S.concLean==null) S.concLean=0;
 function save(){ localStorage.setItem('alloc-module-v1', JSON.stringify(S)); }
 
 let COHORT = {};
@@ -373,7 +380,7 @@ async function loadFeeds(){
 // ---- math (approved geiger, client dials) ----
 const clamp = x => Math.max(-1, Math.min(1, x));
 // diversification: AUTO scales names with regime — HOT (defend) concentrate in best few, COLD (deploy) cast wider for the rebound.
-function namesPer(h){ if(!S.divAuto) return S.nPer; return Math.round(2 + (1-(h??0))/2 * 3); } // heat -1 -> 5 names, +1 -> 2 names
+function namesPer(h){ const cap=S.maxNames??6; let n; if(!S.divAuto){ n=S.nPer; } else { const base=2 + (1-(h??0))/2 * 3; n=Math.round(base - (S.concLean??0)*1.5); } return Math.max(1, Math.min(cap, n)); } // AUTO: 2+(1-heat)/2*3, leaned by concLean, clamped 1..maxNames
 function geiger(c){
   // Full equalizer: per-TF geiger = TRND 50% + MOM 50% (RSI 60 / W%R 40), weighted by the live curve.
   let num = 0, den = 0;
@@ -498,6 +505,9 @@ function render(){
   set('maxInv', S.maxInv, S.maxInv+'%');
   set('minInv', S.minInv, S.minInv+'%');
   set('nPer', S.nPer, S.nPer+' names');
+  set('maxTotal', S.maxTotal, S.maxTotal+' total');
+  set('maxNames', S.maxNames, S.maxNames+' / sleeve');
+  set('concLean', S.concLean, (S.concLean===0?'neutral':(S.concLean<0?'wider ':'tighter ')+Math.abs(S.concLean).toFixed(2)));
   const effN = namesPer(h);
   const dt=document.getElementById('divToggle'); if(dt){ dt.textContent = S.divAuto?('AUTO · '+effN+' names now'):'MANUAL'; dt.onclick=()=>{ S.divAuto=S.divAuto?0:1; save(); render(); }; }
   const npr=document.getElementById('nPerRow'); if(npr) npr.style.opacity = S.divAuto?0.4:1;
@@ -716,7 +726,7 @@ function renderCohort(dLC, dSC){
     rows.filter(r => r.sleeves.includes(sl)).slice(0,3).forEach((r,i) => { (sleeveRank[r.sym] = sleeveRank[r.sym] || []).push(sl + ' #' + (i+1)); });
   }
   const t = document.getElementById('cohort');
-  let html = '<tr><th></th><th>TICKER</th><th>SLEEVES</th><th class="r">PRICE</th><th class="r">DAY</th><th>GEIGER</th><th class="r">SCORE</th><th class="r">P/E</th><th class="r">FWD P/E</th><th class="r">P/S</th><th class="r">REV g</th><th class="r">GROSS</th><th class="r">NET</th><th class="r">D/E</th><th>SIGNAL</th></tr>';
+  let html = '<tr><th></th><th>TICKER</th><th>SLEEVES</th><th class="r">PRICE</th><th class="r">DAY</th><th>GEIGER</th><th class="r">SCORE</th><th class="r">P/E</th><th class="r">FWD P/E</th><th class="r">P/S</th><th class="r">REV g</th><th class="r">GROSS</th><th class="r">NET</th><th class="r">D/E</th></tr>';
   const addN = {LC: dLC > .005 ? 3 : 0, SC: dSC > .005 ? 3 : 0};
   const trimN = {LC: dLC < -.005 ? 3 : 0, SC: dSC < -.005 ? 3 : 0};
   const coldRank = {}, hotRank = {};
@@ -730,20 +740,19 @@ function renderCohort(dLC, dSC){
     if (sleeveRank[r.sym]) { const best = sleeveRank[r.sym][0].split(' '); tag = `<span class="tag add">ADD · ${best[0]} ${best[1]}</span>` + (sleeveRank[r.sym].length>1?` <span class="cls">+${sleeveRank[r.sym].length-1}</span>`:''); }
     else if (hotRank[r.sym]) tag = `<span class="tag trim">TRIM · #${hotRank[r.sym]} ${r.cls}</span>`;
     const inC = COMPARE.has(r.sym);
-    const star = `<button class="cmpstar" data-sym="${r.sym}" style="background:${inC?'rgba(255,209,102,.15)':'#14141f'};color:${inC?'var(--gold)':'var(--dim)'};border:1px solid ${inC?'var(--gold)':'var(--line)'};border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer" title="compare">${inC?'\u2605 comparing':'+ compare'}</button>`;
+    const star = `<button class="cmpstar" data-sym="${r.sym}" style="background:${inC?'rgba(255,209,102,.15)':'#14141f'};color:${inC?'var(--gold)':'var(--dim)'};border:1px solid ${inC?'var(--gold)':'var(--line)'};border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer" title="add this name to the COMPARABLES table below (for names not auto-suggested)">${inC?'\u2605 in comps':'+ to comps'}</button>`;
     const w = Math.min(50, Math.abs(r.g) * 50);
     const k = COMPS[r.sym] || {};
     const num = (x,d=1,suf='') => (x==null||!isFinite(x))?'<span class="cls">—</span>':(x.toFixed(d)+suf);
     const pctc = (x) => (x==null||!isFinite(x))?'<span class="cls">—</span>':((x*100).toFixed(0)+'%');
-    html += `<tr><td>${star}</td><td><b>${r.sym}</b></td><td class="cls">${r.sleeves.join("/")||CLASSNAME[r.cls]||r.cls}</td>
+    html += `<tr style="${sleeveRank[r.sym]?'background:rgba(0,212,255,.07)':''}"><td>${star}</td><td>${sleeveRank[r.sym]?'<span style=\'color:var(--cyan)\'>\u25b8</span> ':''}<b>${r.sym}</b></td><td class="cls">${r.sleeves.join("/")||CLASSNAME[r.cls]||r.cls}</td>
       <td class="r">${r.c.price.toLocaleString()}</td>
       <td class="r" style="color:${r.c.day>=0?'var(--green)':'var(--red)'}">${spct(r.c.day,2)}</td>
       <td><span class="mini"><span class="mid"></span><span class="b" style="left:${r.g<0?50-w:50}%;width:${w}%;background:${r.g>=0?'var(--cyan)':'var(--orange)'}"></span></span></td>
       <td class="r">${(r.g>=0?'+':'')+r.g.toFixed(2)}</td>
       <td class="r">${num(k.pe)}</td><td class="r">${num(k.fwd_pe)}</td><td class="r">${num(k.ps)}</td>
       <td class="r" style="color:${k.rev_growth>0?'var(--green)':k.rev_growth<0?'var(--red)':'var(--dim)'}">${k.rev_growth==null?'<span class=cls>—</span>':spct(k.rev_growth,0)}</td>
-      <td class="r">${pctc(k.gross_m)}</td><td class="r">${pctc(k.net_m)}</td><td class="r">${num(k.de,2)}</td>
-      <td>${tag}</td></tr>`;
+      <td class="r">${pctc(k.gross_m)}</td><td class="r">${pctc(k.net_m)}</td><td class="r">${num(k.de,2)}</td></tr>`;
   }
   t.innerHTML = html;
   t.querySelectorAll('.cmpstar').forEach(el => el.onclick = () => toggleCompare(el.getAttribute('data-sym')));
@@ -751,10 +760,10 @@ function renderCohort(dLC, dSC){
 let COMPARE = new Set(JSON.parse(localStorage.getItem('alloc-compare')||'[]'));
 function toggleCompare(sym){ if(COMPARE.has(sym)) COMPARE.delete(sym); else COMPARE.add(sym); localStorage.setItem('alloc-compare',JSON.stringify([...COMPARE])); render(); }
 let PICKS = new Set(JSON.parse(localStorage.getItem('alloc-picks')||'[]'));
-let EXCLUDED = new Set(JSON.parse(localStorage.getItem('alloc-excluded')||'[]'));
+let EXCLUDED = new Set(); // session-only: a reload clears drops so nothing is ever lost
 let COMPCAT='ALL';
 function setCompCat(c){ COMPCAT=c; render(); }
-function restoreExcluded(){ EXCLUDED.clear(); localStorage.setItem('alloc-excluded','[]'); render(); }
+function restoreExcluded(){ EXCLUDED.clear(); render(); }
 window.restoreExcluded=restoreExcluded;
 function renderComps(){
   const t = document.getElementById('comps'); if (!t) return;
@@ -769,28 +778,42 @@ function renderComps(){
   if (!cats.includes(COMPCAT)) COMPCAT='ALL';
   const cc=document.getElementById('compCat');
   if(cc) cc.innerHTML = cats.map(c=>`<button onclick="setCompCat('${c}')" style="background:${c===COMPCAT?'var(--gold)':'#14141f'};color:${c===COMPCAT?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;font-weight:${c===COMPCAT?'700':'400'}">${c}</button>`).join('');
-  let syms = [...new Set([...suggested, ...COMPARE])].filter(x=>(COMPS[x]||COHORT[x]) && !EXCLUDED.has(x));
+  let syms = [...new Set([...suggested, ...COMPARE])].filter(x=>(COMPS[x]||COHORT[x]));
   if (COMPCAT!=='ALL') syms = syms.filter(x=>tickerSleeves(x).includes(COMPCAT));
-  const cols = [['mktcap','MKT CAP',v=>v>=1e12?'$'+(v/1e12).toFixed(2)+'T':v>=1e9?'$'+(v/1e9).toFixed(0)+'B':'$'+(v/1e6).toFixed(0)+'M'],['g','GEIGER',v=>(v>=0?'+':'')+v.toFixed(2)],['pe','P/E',v=>v.toFixed(1)],['fwd_pe','FWD P/E',v=>v.toFixed(1)],['ps','P/S',v=>v.toFixed(1)],['pb','P/B',v=>v.toFixed(1)],['rev_growth','REV g',v=>(v*100).toFixed(0)+'%'],['gross_m','GROSS',v=>(v*100).toFixed(0)+'%'],['net_m','NET',v=>(v*100).toFixed(0)+'%'],['de','D/E',v=>v.toFixed(2)],['div_yld','DIV',v=>(v*100).toFixed(2)+'%']];
-  const data = syms.map(sym=>{ const k=Object.assign({}, COMPS[sym]||{}); k.g = COHORT[sym]?geiger(COHORT[sym]):null; return {sym, k, manual:COMPARE.has(sym) && !suggested.has(sym)}; });
+  // [key,label,fmt,dir] dir: -1 lower-is-better, +1 higher-is-better, 0 neutral. valid: ratios must be >0.
+  const cols = [
+    ['mktcap','MKT CAP',v=>v>=1e12?'$'+(v/1e12).toFixed(2)+'T':v>=1e9?'$'+(v/1e9).toFixed(0)+'B':'$'+(v/1e6).toFixed(0)+'M',0],
+    ['g','GEIGER',v=>(v>=0?'+':'')+v.toFixed(2),-1],
+    ['pe','P/E',v=>v.toFixed(1),-1],['fwd_pe','FWD P/E',v=>v.toFixed(1),-1],['ps','P/S',v=>v.toFixed(1),-1],['pb','P/B',v=>v.toFixed(1),-1],
+    ['rev_growth','REV g',v=>(v*100).toFixed(0)+'%',1],['gross_m','GROSS',v=>(v*100).toFixed(0)+'%',1],['net_m','NET',v=>(v*100).toFixed(0)+'%',1],
+    ['de','D/E',v=>v.toFixed(2),-1],['div_yld','DIV',v=>(v*100).toFixed(2)+'%',0]];
+  const RATIO=new Set(['pe','fwd_pe','ps','pb']);
+  const valid=(key,v)=> v!=null && isFinite(v) && !(RATIO.has(key) && v<=0);
+  // peer medians for conditional formatting (only non-excluded, valid)
+  const data = syms.map(sym=>{ const k=Object.assign({}, COMPS[sym]||{}); k.g = COHORT[sym]?geiger(COHORT[sym]):null; return {sym, k, manual:COMPARE.has(sym) && !suggested.has(sym), excl:EXCLUDED.has(sym)}; });
+  const active=data.filter(d=>!d.excl);
+  const med={}; for(const c of cols){ const vs=active.map(d=>d.k[c[0]]).filter(v=>valid(c[0],v)); if(vs.length){ const b=[...vs].sort((x,y)=>x-y); med[c[0]]=b.length%2?b[b.length>>1]:(b[(b.length>>1)-1]+b[b.length>>1])/2; } }
+  const cellColor=(c,v)=>{ if(!valid(c[0],v)||c[3]===0||med[c[0]]==null) return ''; const better=(v-med[c[0]])*c[3]; return better>0?'color:var(--green)':better<0?'color:var(--orange)':''; };
   let html = '<tr><th></th><th>NAME</th>'+cols.map(c=>'<th class="r">'+c[1]+'</th>').join('')+'<th></th></tr>';
   for (const d of data) {
     const picked = PICKS.has(d.sym);
-    const rmBtn = `<button class="comprm" data-sym="${d.sym}" title="drop from comparison — stats recalc without it" style="background:none;color:var(--dim);border:1px solid var(--line);border-radius:5px;padding:2px 8px;font-size:12px;cursor:pointer">✕ drop</button>`;
+    const rmLbl = d.excl ? '↺ restore' : '✕ drop';
+    const rmBtn = `<button class="comprm" data-sym="${d.sym}" title="drop from the stat calc (row stays, greyed)" style="background:none;color:${d.excl?'var(--cyan)':'var(--dim)'};border:1px solid var(--line);border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer">${rmLbl}</button>`;
     const pickBtn = `<button class="compick" data-sym="${d.sym}" style="background:${picked?'rgba(56,224,123,.15)':'#14141f'};color:${picked?'var(--green)':'var(--cyan)'};border:1px solid ${picked?'var(--green)':'var(--line)'};border-radius:5px;padding:2px 10px;font-size:11px;cursor:pointer">${picked?'✓ picked':'pick'}</button>`;
-    html += `<tr style="${picked?'background:rgba(56,224,123,.06)':''}"><td>${rmBtn}</td><td><b>${d.sym}</b>${d.manual?' <span class="cls">(added)</span>':' <span class="tag add" style="margin:0">suggested</span>'}</td>`+
-      cols.map(c=>{ const v=d.k[c[0]]; return '<td class="r">'+(v==null||!isFinite(v)?'<span class="cls">—</span>':c[2](v))+'</td>'; }).join('')+`<td class="r">${pickBtn}</td></tr>`;
+    const rowStyle = d.excl ? 'opacity:.35;text-decoration:line-through' : (picked?'background:rgba(56,224,123,.06)':'');
+    html += `<tr style="${rowStyle}"><td>${rmBtn}</td><td><b>${d.sym}</b>${d.manual?' <span class="cls">(added)</span>':' <span class="tag add" style="margin:0">suggested</span>'}</td>`+
+      cols.map(c=>{ const v=d.k[c[0]]; const ok=valid(c[0],v); return '<td class="r" style="'+(d.excl?'':cellColor(c,v))+'">'+(ok?c[2](v):'<span class="cls">NA</span>')+'</td>'; }).join('')+`<td class="r">${pickBtn}</td></tr>`;
   }
   // stat rows
-  const stat = (fn,label,color)=>{ let row=`<tr><td></td><td class="cls" style="color:${color}">${label}</td>`; for(const c of cols){ const vals=data.map(d=>d.k[c[0]]).filter(v=>v!=null&&isFinite(v)); row+='<td class="r" style="color:'+color+'">'+(vals.length?c[2](fn(vals)):'—')+'</td>'; } return row+'<td></td></tr>'; };
+  const stat = (fn,label,color)=>{ let row=`<tr><td></td><td class="cls" style="color:${color}">${label}</td>`; for(const c of cols){ const vals=active.map(d=>d.k[c[0]]).filter(v=>valid(c[0],v)); row+='<td class="r" style="color:'+color+'">'+(vals.length?c[2](fn(vals)):'NA')+'</td>'; } return row+'<td></td></tr>'; };
   const median=a=>{const b=[...a].sort((x,y)=>x-y);const m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2;};
   const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
-  if (data.length>1){ html+=stat(median,'MEDIAN','var(--gold)'); html+=stat(mean,'MEAN','var(--gold)'); html+=stat(a=>Math.min(...a),'MIN','#8a8aa0'); html+=stat(a=>Math.max(...a),'MAX','#8a8aa0'); }
+  if (active.length>1){ html+=stat(median,'MEDIAN','var(--gold)'); html+=stat(mean,'MEAN','var(--gold)'); html+=stat(a=>Math.min(...a),'MIN','#8a8aa0'); html+=stat(a=>Math.max(...a),'MAX','#8a8aa0'); }
   t.innerHTML = html || '<tr><td class="cls">all suggestions dropped — restore below</td></tr>';
   const rc=document.getElementById('compRestore');
   if(rc){ rc.innerHTML = EXCLUDED.size ? `<span class="cls">dropped: ${[...EXCLUDED].join(', ')} · </span><button style="background:none;border:none;color:var(--cyan);cursor:pointer;font-size:11px" onclick="restoreExcluded()">restore all</button>` : ''; }
-  t.querySelectorAll('.comprm').forEach(el=>el.onclick=()=>{ const s=el.getAttribute('data-sym'); EXCLUDED.add(s); PICKS.delete(s); localStorage.setItem('alloc-excluded',JSON.stringify([...EXCLUDED])); localStorage.setItem('alloc-picks',JSON.stringify([...PICKS])); render(); });
-  t.querySelectorAll('.compick').forEach(el=>el.onclick=()=>{ const s=el.getAttribute('data-sym'); PICKS.has(s)?PICKS.delete(s):PICKS.add(s); localStorage.setItem('alloc-picks',JSON.stringify([...PICKS])); render(); });
+  t.querySelectorAll('.comprm').forEach(el=>el.onclick=()=>{ const s=el.getAttribute('data-sym'); if(EXCLUDED.has(s)){EXCLUDED.delete(s);} else {EXCLUDED.add(s); PICKS.delete(s); localStorage.setItem('alloc-picks',JSON.stringify([...PICKS]));} render(); });
+  t.querySelectorAll('.compick').forEach(el=>el.onclick=()=>{ const s=el.getAttribute('data-sym'); if(PICKS.has(s)){ PICKS.delete(s); } else { if(PICKS.size>=(S.maxTotal??12)){ const pn=document.getElementById('pickNote'); if(pn){ pn.textContent='Total-names hard cap reached ('+(S.maxTotal??12)+'). Drop a pick or raise the TOTAL cap in DIVERSIFICATION.'; pn.style.color='var(--orange)'; } return; } PICKS.add(s); } localStorage.setItem('alloc-picks',JSON.stringify([...PICKS])); render(); });
 }
 function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot, dLC, dSC){
   const f2 = x => (x==null||!isFinite(x)) ? '—' : (x>=0?'+':'')+x.toFixed(2);
@@ -832,7 +855,7 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   document.getElementById('trace').textContent = L.join('\n');
 }
 // slider wiring
-for (const id of ['dTrend','dRsi','vixCold','tenCold','maxInv','minInv','lcTilt','nPer','curInv','curLC']) {
+for (const id of ['dTrend','dRsi','vixCold','tenCold','maxInv','minInv','lcTilt','nPer','maxTotal','maxNames','concLean','curInv','curLC']) {
   const el=document.getElementById(id); if(!el) continue;
   document.getElementById(id).oninput = e => { S[id] = +e.target.value; save(); render(); };
 }
