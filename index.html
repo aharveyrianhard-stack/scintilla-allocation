@@ -58,6 +58,8 @@
   .heatlabel{font-size:15px; letter-spacing:.18em; font-weight:600;}
   .axis{display:flex; justify-content:space-between; color:var(--dim); font-size:9px; letter-spacing:.12em; margin-top:2px;}
   canvas{width:100%; height:190px; display:block; margin-top:8px;}
+  #donut{width:auto !important; height:auto !important; max-width:100%; margin:10px auto;}
+  #curve{width:100% !important; height:auto !important;}
   /* moves */
   .move{display:grid; grid-template-columns:110px 1fr; gap:12px; padding:10px 0; border-bottom:1px solid #14141e; align-items:center;}
   .move:last-child{border-bottom:none;}
@@ -106,7 +108,7 @@
   <div class="panel">
     <h2>1 · MACRO HEAT — the voters</h2>
     <div class="note">Every voter on one scale: −1 washed-out (cold) → +1 stretched (hot). Geigers enter straight; VIX &amp; 10Y are inverted. Drag a weight to change who counts — the score recomputes live.</div>
-    <button id="descToggle" style="background:#14141f;color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:4px 12px;font-family:inherit;font-size:10px;letter-spacing:.1em;cursor:pointer;margin-bottom:8px">▸ show/hide proxy detail</button>
+    <button id="descToggle" style="background:#14141f;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:4px 12px;font-family:inherit;font-size:10px;letter-spacing:.1em;cursor:pointer;margin-bottom:8px">▸ what each voter is (proxy detail)</button>
     <div id="gauges"></div>
     <div class="heatline">
       <div class="heatnum" id="heatnum">—</div>
@@ -138,7 +140,7 @@
     <div class="ctl"><label>Invested when market washed out<small>your all-in ceiling</small></label><input type="range" id="maxInv" min="0" max="100" step="5"><div class="v" id="maxInvV"></div></div>
     <div class="ctl"><label>Invested when market stretched<small>your defensive floor</small></label><input type="range" id="minInv" min="0" max="100" step="5"><div class="v" id="minInvV"></div></div>
     <div style="color:var(--cyan);font-size:10px;letter-spacing:.18em;margin:14px 0 2px">DIVERSIFICATION</div>
-    <div class="ctl"><label>Mode<small>AUTO: names scale with regime (hot → concentrate in best few, cold → cast wider). MANUAL: you fix it.</small></label><div><button id="divToggle" style="background:#14141f;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:5px 14px;font-family:inherit;font-size:11px;cursor:pointer"></button></div><div class="v" id="divModeV"></div></div>
+    <div class="ctl"><label>Mode<small>AUTO scales names with the market: names = 2 + (1−heat)/2 × 3, so heat −1 → 5 names (wide, catch the rebound), heat +1 → 2 names (concentrate in the best). Heat ~0 → ~4. MANUAL: you fix it.</small></label><div><button id="divToggle" style="background:#14141f;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:5px 14px;font-family:inherit;font-size:11px;cursor:pointer"></button></div><div class="v" id="divModeV"></div></div>
     <div class="ctl" id="nPerRow"><label>Names per sleeve<small>manual override</small></label><input type="range" id="nPer" min="1" max="6" step="1"><div class="v" id="nPerV"></div></div>
     <div id="ibkrnote" class="note" style="margin-top:10px;font-size:10px"></div>
     <details><summary>SUB-DIAL — heat tilt (optional)</summary>
@@ -184,6 +186,7 @@
     <div class="note">Suggested ADD names, lined up like a comps sheet with median/mean/min/max — judge relative value before acting. Switch category; star more names in the table above to compare.</div>
     <div id="compCat" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
     <table id="comps"></table>
+    <div id="compRestore" style="margin-top:8px"></div>
   </div>
 
   <!-- 5 INPUT MAP -->
@@ -568,10 +571,10 @@ function render(){
     const d = sh * inv;
     const col = SLEEVE_COLOR[k];
     if (d <= 0.005) return `<div style="border-left:3px solid ${col};padding:10px 14px;opacity:.45;background:rgba(255,255,255,.01);border-radius:0 8px 8px 0"><b style="color:${col}">${k}</b> <span class="cls">HOLD</span></div>`;
-    const tr = tranchePlan.map(([frac,lbl],i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(255,255,255,.02);border-radius:6px;margin-top:6px"><span style="color:var(--dim);font-size:11px">${i+1}. ${lbl}</span><span style="background:${col};opacity:${(1-i*0.22).toFixed(2)};color:#0a0a0f;font-weight:700;border-radius:5px;padding:3px 12px;font-size:12px">${spct(d*frac)}</span></div>`).join('');
+    const tr = tranchePlan.map(([frac,lbl],i)=>`<span style="display:inline-flex;align-items:center;gap:5px;margin:6px 10px 0 0;font-size:11px;color:var(--dim)"><span style="background:${col};opacity:${(1-i*0.2).toFixed(2)};color:#0a0a0f;font-weight:700;border-radius:4px;padding:2px 8px">${spct(d*frac)}</span>${lbl}</span>`).join('');
     return `<div style="border-left:3px solid ${col};padding:10px 14px;background:rgba(255,255,255,.02);border-radius:0 8px 8px 0">
-      <div style="display:flex;justify-content:space-between;align-items:baseline"><b style="color:${col};font-size:14px;letter-spacing:.1em">${k}</b><span style="color:${col};font-size:18px;font-weight:700">BUILD ${spct(d)}<span class="cls" style="font-size:11px;font-weight:400"> of equity</span></span></div>
-      ${tr}</div>`;
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><b style="color:${col};font-size:14px;letter-spacing:.1em">${k}</b><span style="color:${col};font-size:17px;font-weight:700">BUILD ${spct(d)}</span></div>
+      <div style="display:flex;flex-wrap:wrap">${tr}</div></div>`;
   }).join('');
   document.getElementById('moves').innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:8px;border-bottom:1px solid var(--line)"><span class="mname">TOTAL TO DEPLOY</span><span class="mval ${cls(dTot)}" style="font-size:20px">${word(dTot)} ${spct(dTot)}<small>of equity</small></span></div>
@@ -622,25 +625,25 @@ function drawCurve(h){
 }
 function drawDonut(shares, inv){
   const cv=document.getElementById('donut'); if(!cv) return;
-  cv.width=680; cv.height=360; const ctx=cv.getContext('2d');
-  const W=cv.width,H=cv.height; ctx.clearRect(0,0,W,H);
-  const cx=180, cy=H/2, r=135, ri=88;
+  const dpr=window.devicePixelRatio||1; const CSSW=660, CSSH=340;
+  cv.style.width=CSSW+'px'; cv.style.height=CSSH+'px';
+  cv.width=CSSW*dpr; cv.height=CSSH*dpr;
+  const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,CSSW,CSSH);
+  const cx=170, cy=CSSH/2, r=128, ri=82;
   const segs=Object.entries(shares).sort((a,b)=>b[1]-a[1]).map(([k,sh])=>[k,sh*inv]); segs.push(['CASH',1-inv]);
   let a=-Math.PI/2;
-  for(const [k,v] of segs){ if(v<=0.001) continue; const a2=a+v*2*Math.PI - 0.012;
+  for(const [k,v] of segs){ if(v<=0.001) continue; const gap=segs.length>1?0.02:0; const a2=a+v*2*Math.PI-gap;
     ctx.beginPath(); ctx.arc(cx,cy,r,a,a2); ctx.arc(cx,cy,ri,a2,a,true); ctx.closePath();
-    ctx.fillStyle=SLEEVE_COLOR[k]||'#444'; ctx.fill(); a=a2+0.012; }
-  ctx.fillStyle='#e8e8f0'; ctx.font='bold 40px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText((inv*100).toFixed(0)+'%', cx, cy-8);
-  ctx.fillStyle='#8a8aa0'; ctx.font='12px monospace'; ctx.fillText('INVESTED', cx, cy+22);
-  // legend, roomy
-  let ly=54; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-  const lx=400;
+    ctx.fillStyle=SLEEVE_COLOR[k]||'#444'; ctx.fill(); a=a2+gap; }
+  ctx.fillStyle='#e8e8f0'; ctx.font='700 42px "SF Mono",monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(Math.round(inv*100)+'%', cx, cy-6);
+  ctx.fillStyle='#8a8aa0'; ctx.font='12px monospace'; ctx.fillText('INVESTED', cx, cy+20);
+  let ly=48; ctx.textAlign='left'; ctx.textBaseline='middle'; const lx=380;
   for(const [k,v] of segs){ if(v<=0.001) continue;
-    ctx.fillStyle=SLEEVE_COLOR[k]||'#444'; ctx.beginPath(); ctx.roundRect(lx,ly-11,13,13,3); ctx.fill();
-    ctx.fillStyle='#e8e8f0'; ctx.font='13px monospace'; ctx.fillText(k, lx+22, ly);
-    ctx.fillStyle='#8a8aa0'; ctx.textAlign='right'; ctx.fillText((v*100).toFixed(1)+'%', W-14, ly); ctx.textAlign='left';
-    ly+=30; }
+    ctx.fillStyle=SLEEVE_COLOR[k]||'#444'; ctx.beginPath(); ctx.roundRect(lx,ly-7,14,14,4); ctx.fill();
+    ctx.fillStyle='#e8e8f0'; ctx.font='13px monospace'; ctx.fillText(k, lx+24, ly);
+    ctx.fillStyle='#8a8aa0'; ctx.textAlign='right'; ctx.fillText((v*100).toFixed(1)+'%', CSSW-8, ly); ctx.textAlign='left';
+    ly+=32; }
 }
 function drawMix(tLC, tSC, tCash, cLC2, cSC2, cCash){
   const el = document.getElementById('mix'); if (!el) return;
@@ -700,12 +703,14 @@ let CATFILTER='ALL';
 function setCat(c){ CATFILTER=c; render(); }
 function renderCohort(dLC, dSC){
   const SPR2 = styleSpreads();
-  const tb=document.getElementById('catTabs');
-  if(tb) tb.innerHTML = CATS.map(c=>`<button onclick="setCat('${c}')" style="background:${c===CATFILTER?'var(--cyan)':'#14141f'};color:${c===CATFILTER?'#0a0a0f':'var(--cyan)'};border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;font-weight:${c===CATFILTER?'700':'400'}">${c}</button>`).join('');
-  let rows = Object.keys(COHORT).filter(s => !['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
+  let allrows = Object.keys(COHORT).filter(s => !['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
     .map(s => { const g = geiger(COHORT[s]); const adj = g + styleAdj(s, SPR2); return {sym:s, cls:CLASSES[s]||'?', g, adj, sleeves:tickerSleeves(s), c:COHORT[s]}; })
     .sort((a,b) => a.adj - b.adj);
-  if(CATFILTER!=='ALL') rows = rows.filter(r=>r.sleeves.includes(CATFILTER));
+  const liveCats = ['ALL', ...CATS.slice(1).filter(c=>allrows.some(r=>r.sleeves.includes(c)))];
+  if(!liveCats.includes(CATFILTER)) CATFILTER='ALL';
+  const tb=document.getElementById('catTabs');
+  if(tb) tb.innerHTML = liveCats.map(c=>`<button onclick="setCat('${c}')" style="background:${c===CATFILTER?'var(--cyan)':'#14141f'};color:${c===CATFILTER?'#0a0a0f':'var(--cyan)'};border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;font-weight:${c===CATFILTER?'700':'400'}">${c}</button>`).join('');
+  let rows = (CATFILTER!=='ALL') ? allrows.filter(r=>r.sleeves.includes(CATFILTER)) : allrows;
   const sleeveRank = {};
   for (const sl of Object.keys(SLEEVES)) {
     rows.filter(r => r.sleeves.includes(sl)).slice(0,3).forEach((r,i) => { (sleeveRank[r.sym] = sleeveRank[r.sym] || []).push(sl + ' #' + (i+1)); });
@@ -746,8 +751,11 @@ function renderCohort(dLC, dSC){
 let COMPARE = new Set(JSON.parse(localStorage.getItem('alloc-compare')||'[]'));
 function toggleCompare(sym){ if(COMPARE.has(sym)) COMPARE.delete(sym); else COMPARE.add(sym); localStorage.setItem('alloc-compare',JSON.stringify([...COMPARE])); render(); }
 let PICKS = new Set(JSON.parse(localStorage.getItem('alloc-picks')||'[]'));
+let EXCLUDED = new Set(JSON.parse(localStorage.getItem('alloc-excluded')||'[]'));
 let COMPCAT='ALL';
 function setCompCat(c){ COMPCAT=c; render(); }
+function restoreExcluded(){ EXCLUDED.clear(); localStorage.setItem('alloc-excluded','[]'); render(); }
+window.restoreExcluded=restoreExcluded;
 function renderComps(){
   const t = document.getElementById('comps'); if (!t) return;
   // suggested = anything currently ADD-tagged (top-3 coldest per sleeve), gathered from the last cohort render
@@ -761,25 +769,27 @@ function renderComps(){
   if (!cats.includes(COMPCAT)) COMPCAT='ALL';
   const cc=document.getElementById('compCat');
   if(cc) cc.innerHTML = cats.map(c=>`<button onclick="setCompCat('${c}')" style="background:${c===COMPCAT?'var(--gold)':'#14141f'};color:${c===COMPCAT?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;font-weight:${c===COMPCAT?'700':'400'}">${c}</button>`).join('');
-  let syms = [...new Set([...suggested, ...COMPARE])].filter(x=>COMPS[x]||COHORT[x]);
+  let syms = [...new Set([...suggested, ...COMPARE])].filter(x=>(COMPS[x]||COHORT[x]) && !EXCLUDED.has(x));
   if (COMPCAT!=='ALL') syms = syms.filter(x=>tickerSleeves(x).includes(COMPCAT));
   const cols = [['mktcap','MKT CAP',v=>v>=1e12?'$'+(v/1e12).toFixed(2)+'T':v>=1e9?'$'+(v/1e9).toFixed(0)+'B':'$'+(v/1e6).toFixed(0)+'M'],['g','GEIGER',v=>(v>=0?'+':'')+v.toFixed(2)],['pe','P/E',v=>v.toFixed(1)],['fwd_pe','FWD P/E',v=>v.toFixed(1)],['ps','P/S',v=>v.toFixed(1)],['pb','P/B',v=>v.toFixed(1)],['rev_growth','REV g',v=>(v*100).toFixed(0)+'%'],['gross_m','GROSS',v=>(v*100).toFixed(0)+'%'],['net_m','NET',v=>(v*100).toFixed(0)+'%'],['de','D/E',v=>v.toFixed(2)],['div_yld','DIV',v=>(v*100).toFixed(2)+'%']];
   const data = syms.map(sym=>{ const k=Object.assign({}, COMPS[sym]||{}); k.g = COHORT[sym]?geiger(COHORT[sym]):null; return {sym, k, manual:COMPARE.has(sym) && !suggested.has(sym)}; });
   let html = '<tr><th></th><th>NAME</th>'+cols.map(c=>'<th class="r">'+c[1]+'</th>').join('')+'<th></th></tr>';
   for (const d of data) {
     const picked = PICKS.has(d.sym);
-    const pickBtn = `<button class="compick" data-sym="${d.sym}" style="background:${picked?'rgba(56,224,123,.15)':'#14141f'};color:${picked?'var(--green)':'var(--dim)'};border:1px solid ${picked?'var(--green)':'var(--line)'};border-radius:5px;padding:2px 8px;font-size:10px;cursor:pointer">${picked?'✓ picked':'pick'}</button>`;
-    const rmBtn = `<button class="comprm" data-sym="${d.sym}" title="remove from compare" style="background:none;color:var(--dim);border:none;font-size:14px;cursor:pointer">✕</button>`;
-    html += `<tr style="${picked?'background:rgba(56,224,123,.06)':''}"><td>${pickBtn}</td><td><b>${d.sym}</b>${d.manual?' <span class="cls">(added)</span>':' <span class="tag add" style="margin:0">suggested</span>'}</td>`+
-      cols.map(c=>{ const v=d.k[c[0]]; return '<td class="r">'+(v==null||!isFinite(v)?'<span class="cls">—</span>':c[2](v))+'</td>'; }).join('')+`<td class="r">${rmBtn}</td></tr>`;
+    const rmBtn = `<button class="comprm" data-sym="${d.sym}" title="drop from comparison — stats recalc without it" style="background:none;color:var(--dim);border:1px solid var(--line);border-radius:5px;padding:2px 8px;font-size:12px;cursor:pointer">✕ drop</button>`;
+    const pickBtn = `<button class="compick" data-sym="${d.sym}" style="background:${picked?'rgba(56,224,123,.15)':'#14141f'};color:${picked?'var(--green)':'var(--cyan)'};border:1px solid ${picked?'var(--green)':'var(--line)'};border-radius:5px;padding:2px 10px;font-size:11px;cursor:pointer">${picked?'✓ picked':'pick'}</button>`;
+    html += `<tr style="${picked?'background:rgba(56,224,123,.06)':''}"><td>${rmBtn}</td><td><b>${d.sym}</b>${d.manual?' <span class="cls">(added)</span>':' <span class="tag add" style="margin:0">suggested</span>'}</td>`+
+      cols.map(c=>{ const v=d.k[c[0]]; return '<td class="r">'+(v==null||!isFinite(v)?'<span class="cls">—</span>':c[2](v))+'</td>'; }).join('')+`<td class="r">${pickBtn}</td></tr>`;
   }
   // stat rows
   const stat = (fn,label,color)=>{ let row=`<tr><td></td><td class="cls" style="color:${color}">${label}</td>`; for(const c of cols){ const vals=data.map(d=>d.k[c[0]]).filter(v=>v!=null&&isFinite(v)); row+='<td class="r" style="color:'+color+'">'+(vals.length?c[2](fn(vals)):'—')+'</td>'; } return row+'<td></td></tr>'; };
   const median=a=>{const b=[...a].sort((x,y)=>x-y);const m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2;};
   const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
   if (data.length>1){ html+=stat(median,'MEDIAN','var(--gold)'); html+=stat(mean,'MEAN','var(--gold)'); html+=stat(a=>Math.min(...a),'MIN','#8a8aa0'); html+=stat(a=>Math.max(...a),'MAX','#8a8aa0'); }
-  t.innerHTML = html || '<tr><td class="cls">no suggestions right now</td></tr>';
-  t.querySelectorAll('.comprm').forEach(el=>el.onclick=()=>{ const s=el.getAttribute('data-sym'); COMPARE.delete(s); PICKS.delete(s); localStorage.setItem('alloc-compare',JSON.stringify([...COMPARE])); localStorage.setItem('alloc-picks',JSON.stringify([...PICKS])); render(); });
+  t.innerHTML = html || '<tr><td class="cls">all suggestions dropped — restore below</td></tr>';
+  const rc=document.getElementById('compRestore');
+  if(rc){ rc.innerHTML = EXCLUDED.size ? `<span class="cls">dropped: ${[...EXCLUDED].join(', ')} · </span><button style="background:none;border:none;color:var(--cyan);cursor:pointer;font-size:11px" onclick="restoreExcluded()">restore all</button>` : ''; }
+  t.querySelectorAll('.comprm').forEach(el=>el.onclick=()=>{ const s=el.getAttribute('data-sym'); EXCLUDED.add(s); PICKS.delete(s); localStorage.setItem('alloc-excluded',JSON.stringify([...EXCLUDED])); localStorage.setItem('alloc-picks',JSON.stringify([...PICKS])); render(); });
   t.querySelectorAll('.compick').forEach(el=>el.onclick=()=>{ const s=el.getAttribute('data-sym'); PICKS.has(s)?PICKS.delete(s):PICKS.add(s); localStorage.setItem('alloc-picks',JSON.stringify([...PICKS])); render(); });
 }
 function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot, dLC, dSC){
@@ -827,8 +837,8 @@ for (const id of ['dTrend','dRsi','vixCold','tenCold','maxInv','minInv','lcTilt'
   document.getElementById(id).oninput = e => { S[id] = +e.target.value; save(); render(); };
 }
 document.getElementById('refresh').onclick = loadFeeds;
-if(localStorage.getItem('alloc-hidedesc')==='1') document.body.classList.add('hidedesc');
-document.getElementById('descToggle').onclick=()=>{ document.body.classList.toggle('hidedesc'); localStorage.setItem('alloc-hidedesc', document.body.classList.contains('hidedesc')?'1':'0'); };
+if(localStorage.getItem('alloc-hidedesc')!=='0') document.body.classList.add('hidedesc');  // collapsed by default
+(function(){ const b=document.getElementById('descToggle'); const upd=()=>{ const hid=document.body.classList.contains('hidedesc'); b.textContent=(hid?'▸ ':'▾ ')+'what each voter is (proxy detail)'; }; upd(); b.onclick=()=>{ document.body.classList.toggle('hidedesc'); localStorage.setItem('alloc-hidedesc', document.body.classList.contains('hidedesc')?'1':'0'); upd(); }; })();
 loadFeeds();
 </script>
 </body>
