@@ -1,0 +1,549 @@
+  document.querySelectorAll('.lmodeBtn').forEach(b=>b.classList.toggle('active', b.id===(LINES_MODE==='glow'?'lmodeGlow':'lmodeNormal')));
+  if(LINES_MODE!=='glow') return;   // Normal mode: canvas stays cleared, plain crisp lines only
+  const ds=DS[ACTIVE], b=ds[BENCH]; if(!b) return;
+  const lr=chart.timeScale().getVisibleLogicalRange(); if(!lr) return;
+  const n=b.times.length;
+  const from=Math.max(0,Math.floor(lr.from)), to=Math.min(n-1,Math.ceil(lr.to));
+  if(to<=from) return;
+  const maxAum=Math.max(...Object.values(AUM)), minAum=Math.min(...Object.values(AUM));
+  const maxW=v=>1.5+11*Math.sqrt(((v||10)-minAum)/(maxAum-minAum||1));  // px at the current/right edge
+  for(const s of SECTORS){
+    if(!selected.includes(s.t)||!lineSeries[s.t]) continue;
+    const closes=aligned(s.t,ds); if(!closes) continue;
+    const base=closes[Math.min(rebaseIdx,closes.length-1)]||closes[0];
+    const top=[],bot=[]; const wMax=maxW(AUM[s.t]);
+    for(let i=from;i<=to;i++){
+      if(closes[i]==null) continue;
+      const val=(closes[i]/base-1)*100;
+      const x=chart.timeScale().timeToCoordinate(b.times[i]); const y=lineSeries[s.t].priceToCoordinate(val);
+      if(x==null||y==null) continue;
+      const frac=(i-from)/Math.max(1,to-from);           // 0 at oldest visible bar -> 1 at current
+      const w=0.3+wMax*Math.pow(frac,1.6);                 // thin tail, fuller cone near "now"
+      top.push([x,y-w/2]); bot.push([x,y+w/2]);
+    }
+    if(top.length<2) continue;
+    ctx.beginPath();
+    ctx.moveTo(top[0][0],top[0][1]);
+    for(const p of top) ctx.lineTo(p[0],p[1]);
+    for(let i=bot.length-1;i>=0;i--) ctx.lineTo(bot[i][0],bot[i][1]);
+    ctx.closePath();
+    ctx.fillStyle=s.c; ctx.globalAlpha=0.38; ctx.fill();
+    ctx.globalAlpha=1;
+  }
+}
+function renderLines(){
+  if(!chart) initChart();
+  for(const s of SECTORS){
+    if(!lineSeries[s.t]) lineSeries[s.t]=chart.addLineSeries({color:s.c,lineWidth:2,priceLineVisible:false,lastValueVisible:true});
+  }
+  rebaseIdx=-1;
+  setRange(currentRange);
+}
+let currentRange='63';
+function setRange(rk){
+  currentRange=rk;
+  const want = rk==='1D' ? (DS.intra1[BENCH]?'intra1':'intra') : rk==='5D' ? 'intra' : 'daily';
+  if(DS[want][BENCH]) ACTIVE=want;
+  chart.applyOptions({timeScale:{timeVisible:ACTIVE!=='daily',secondsVisible:false}});
+  const n=DS[ACTIVE][BENCH].times.length;
+  const bars = (rk==='1D'||rk==='5D')? n : Math.min(parseInt(rk),n);
+  const from=Math.max(0,n-Math.min(bars,n));
+  rebaseIdx=from; rebaseLines();
+  chart.timeScale().setVisibleLogicalRange({from:from-0.5,to:n-0.5});
+  renderCards(); renderTreemap();   // leaders + heatmap follow the selected timeframe
+}
+
+/* ============ RRG CANVAS ============ */
+function rrgAutoFitR(){
+  // scan every selected sector's visible tail and size the axes to just contain it
+  let maxDev=0.6;
+  for(const s of SECTORS){
+    if(!selected.includes(s.t)) continue;
+    const rr=rrgSeries(s.t); if(!rr) continue;
+    const n=rr.ratio.length;
+    if(RRG_ANIM_BUILD){
+      // animating: frame f shows the OLDEST f points of the full tail (tail-anchored, walks forward to today)
+      const f=Math.min(RRG_ANIM_BUILD,TAIL_PTS);
+      for(let j=0;j<f;j++){
+        const i=n-1-(TAIL_PTS-1-j)*TAIL_STEP; if(i<0) continue;
+        maxDev=Math.max(maxDev,Math.abs(rr.ratio[i]-100),Math.abs(rr.mom[i]-100));
+      }
+    } else {
+      for(let k=TAIL_PTS-1;k>=0;k--){
+        const i=n-1-k*TAIL_STEP; if(i<0) continue;
+        maxDev=Math.max(maxDev,Math.abs(rr.ratio[i]-100),Math.abs(rr.mom[i]-100));
+      }
+    }
+  }
+  return Math.min(RRG_R_MAX,maxDev*1.18);
+}
+function renderRRG(){
+  const cv=document.getElementById('rrg'), wrap=document.getElementById('rrgWrap');
+  const W=wrap.clientWidth,H=wrap.clientHeight, dpr=window.devicePixelRatio||1;
+  cv.width=W*dpr; cv.height=H*dpr;
+  const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
+  const S=Math.min(W,H), ox=(W-S)/2, oy=(H-S)/2;   // square plot, centered
+  const pad=36, cx=ox+S/2, cy=oy+S/2;
+  const R = RRG_VIEW==='FIT' ? rrgAutoFitR() : RRG_R; // z-range shown
+  const lo=p=>p+pad, hi=p=>p+S-pad;
+  const X=v=>ox+pad+((v-(100-R))/(2*R))*(S-2*pad);
+  const Y=v=>oy+S-pad-((v-(100-R))/(2*R))*(S-2*pad);
+  const maxAum=Math.max(...Object.values(AUM)), minAum=Math.min(...Object.values(AUM));
+  const headR=a=>3.6+5.2*Math.sqrt(((a||10)-minAum)/(maxAum-minAum||1));   // bubble size ∝ sqrt(AUM)
+  // quadrant fills
+  ctx.globalAlpha=.06;
+  ctx.fillStyle='#00FFA3'; ctx.fillRect(cx,lo(oy),hi(ox)-cx,cy-lo(oy));
+  ctx.fillStyle='#FFE500'; ctx.fillRect(cx,cy,hi(ox)-cx,hi(oy)-cy);
+  ctx.fillStyle='#FF2D55'; ctx.fillRect(lo(ox),cy,cx-lo(ox),hi(oy)-cy);
+  ctx.fillStyle='#00D4FF'; ctx.fillRect(lo(ox),lo(oy),cx-lo(ox),cy-lo(oy));
+  ctx.globalAlpha=1;
+  // axes
+  ctx.strokeStyle='#252538'; ctx.beginPath();
+  ctx.moveTo(lo(ox),cy);ctx.lineTo(hi(ox),cy); ctx.moveTo(cx,lo(oy));ctx.lineTo(cx,hi(oy)); ctx.stroke();
+  ctx.fillStyle='#868AAA'; ctx.font='9px "SF Mono",Menlo,monospace';
+  ctx.fillText('LEADING',hi(ox)-48,lo(oy)+12); ctx.fillText('WEAKENING',hi(ox)-62,hi(oy)-4);
+  ctx.fillText('LAGGING',lo(ox)+4,hi(oy)-4); ctx.fillText('IMPROVING',lo(ox)+4,lo(oy)+12);
+  ctx.fillText('RS-RATIO →',cx+6,hi(oy)+14); ctx.save(); ctx.translate(ox+10,cy-8); ctx.rotate(-Math.PI/2); ctx.fillText('RS-MOM →',0,0); ctx.restore();
+  // tails + heads: tail is drawn as a tapered CONE — two edges running from the oldest point (a tip,
+  // width≈0) out to the head, widening to the head's own AUM-sized bubble radius. Not a uniform line.
+  for(const s of SECTORS){
+    if(!selected.includes(s.t)) continue;
+    const rr=rrgSeries(s.t); if(!rr) continue;
+    const n=rr.ratio.length;
+    const pts=[];
+    if(RRG_ANIM_BUILD){
+      // animating: dot STARTS at the tail's oldest point and walks forward through history to today,
+      // with a trailing tail growing behind it — ends exactly at the normal full-tail view.
+      const f=Math.min(RRG_ANIM_BUILD,TAIL_PTS);
+      for(let j=0;j<f;j++){ const i=n-1-(TAIL_PTS-1-j)*TAIL_STEP; if(i>=0) pts.push([rr.ratio[i],rr.mom[i]]); }
+    } else {
+      for(let k=TAIL_PTS-1;k>=0;k--){ const i=n-1-k*TAIL_STEP; if(i>=0) pts.push([rr.ratio[i],rr.mom[i]]); }
+    }
+    if(!pts.length) continue;
+    const hr=headR(AUM[s.t]);
+    const px=pts.map(p=>X(p[0])), py=pts.map(p=>Y(p[1]));
+    if(pts.length>=2){
+      const top=[], bot=[];
+      for(let i=0;i<pts.length;i++){
+        let dx,dy;
+        if(i<pts.length-1){ dx=px[i+1]-px[i]; dy=py[i+1]-py[i]; }
+        else{ dx=px[i]-px[i-1]; dy=py[i]-py[i-1]; }
+        const len=Math.sqrt(dx*dx+dy*dy)||1, nx=-dy/len, ny=dx/len;
+        const frac=i/(pts.length-1);                 // 0 at oldest tip -> 1 at head
+        const w=hr*Math.pow(frac,0.9);                // taper: two edges converging to a point at the tail's start
+        top.push([px[i]+nx*w, py[i]+ny*w]);
+        bot.push([px[i]-nx*w, py[i]-ny*w]);
+      }
+      ctx.beginPath();
+      ctx.moveTo(top[0][0],top[0][1]);
+      for(const p of top) ctx.lineTo(p[0],p[1]);
+      for(let i=bot.length-1;i>=0;i--) ctx.lineTo(bot[i][0],bot[i][1]);
+      ctx.closePath();
+      const grad=ctx.createLinearGradient(px[0],py[0],px[pts.length-1],py[pts.length-1]);
+      grad.addColorStop(0, hexA(s.c,0.04));
+      grad.addColorStop(1, hexA(s.c,0.58));
+      ctx.fillStyle=grad; ctx.fill();
+      ctx.strokeStyle=hexA(s.c,0.5); ctx.lineWidth=0.75; ctx.stroke();
+    }
+    const last=pts[pts.length-1];
+    ctx.fillStyle=s.c; ctx.beginPath(); ctx.arc(X(last[0]),Y(last[1]),hr,0,7); ctx.fill();
+    const lx=X(last[0])+hr+3, ly=Y(last[1])+3;
+    ctx.fillStyle='#F2F2F8'; ctx.font='700 10px "SF Mono",Menlo,monospace';
+    ctx.fillText(s.t,lx,ly);
+    const tW=ctx.measureText(s.t+' ').width;
+    ctx.fillStyle='#868AAA'; ctx.font='9px "SF Mono",Menlo,monospace';
+    ctx.fillText(s.sh,lx+tW,ly);
+  }
+}
+function hexA(hex,a){
+  const h=hex.replace('#',''); const n=h.length===3? h.split('').map(c=>c+c).join(''):h;
+  const r=parseInt(n.slice(0,2),16), g=parseInt(n.slice(2,4),16), b=parseInt(n.slice(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/* ============ QUADRANT TABLE ============ */
+function weeksInQuadrant(rr){
+  // walk backward through the weekly series counting consecutive weeks in the SAME quadrant as today —
+  // a simple crossing-detector, no extra data needed beyond the RS-Ratio/RS-Mom series already computed.
+  const n=rr.ratio.length;
+  const qAt=i=>quadrant(rr.ratio[i],rr.mom[i])[0];
+  const cur=qAt(n-1);
+  let weeks=1;
+  for(let i=n-2;i>=0;i--){ if(qAt(i)===cur) weeks++; else break; }
+  return {q:cur,weeks};
+}
+function renderTable(){
+  const order={'LEADING':0,'IMPROVING':1,'WEAKENING':2,'LAGGING':3};
+  const rows=[];
+  for(const s of SECTORS){
+    const rr=rrgSeries(s.t); if(!rr) continue;
+    const x=rr.ratio[rr.ratio.length-1], y=rr.mom[rr.mom.length-1];
+    const [q,cls]=quadrant(x,y);
+    const {weeks}=weeksInQuadrant(rr);
+    rows.push({...s,x,y,q,cls,weeks,p:dayChange(s.t)});
+  }
+  rows.sort((a,b)=>order[a.q]-order[b.q]||b.x-a.x);
+  document.getElementById('qtable').innerHTML=`<table><thead><tr>
+    <th>Sector</th><th>Quadrant</th><th class="num">Weeks In</th><th class="num">RS-Ratio</th><th class="num">RS-Mom</th><th class="num">Day %</th><th class="num">AUM ($B)</th></tr></thead><tbody>`+
+    rows.map(r=>`<tr>
+      <td style="border-left:3px solid ${r.c}; box-shadow:inset 4px 0 0 0 var(--bg); padding-left:12px"><div style="display:flex;flex-direction:column;line-height:1.3"><b>${r.t}</b><span style="color:var(--dim);font-size:9px;text-transform:uppercase;letter-spacing:.04em">${r.n}</span></div></td>
+      <td><span class="badge ${r.cls}">${r.q}</span></td>
+      <td class="num">${r.weeks===1?'<span style="color:var(--crk)">new</span>':r.weeks+'w'}</td>
+      <td class="num">${r.x.toFixed(2)}</td>
+      <td class="num">${r.y.toFixed(2)}</td>
+      <td class="num ${r.p>=0?'up':'dn'}">${r.p>=0?'+':''}${r.p.toFixed(2)}%</td>
+      <td class="num">${AUM[r.t]||'—'}</td></tr>`).join('')+`</tbody></table>`;
+}
+
+/* ============ REGIME READ (Phase 1 — rule-based, derived entirely from data already fetched) ============ */
+function regimeData(){
+  const rows=SECTORS.filter(s=>selected.includes(s.t)).map(s=>{
+    const rr=rrgSeries(s.t); if(!rr) return null;
+    const n=rr.ratio.length;
+    const [q]=quadrant(rr.ratio[n-1],rr.mom[n-1]);
+    const {weeks}=weeksInQuadrant(rr);
+    const t=technicalRead(s.t);
+    const stretchPct = t? (t.last/t.e50-1)*100 : null;
+    return {...s, ratio:rr.ratio[n-1], mom:rr.mom[n-1], q, weeks, rsi:t?t.rsi:null, wpr:t?t.wpr:null, stretchPct};
+  }).filter(Boolean);
+  const cnt=q=>rows.filter(r=>r.q===q).length;
+  const leading=cnt('LEADING'), lagging=cnt('LAGGING'), weakening=cnt('WEAKENING'), improving=cnt('IMPROVING');
+  const cyc=rows.filter(r=>r.g.includes('CYC')), def=rows.filter(r=>r.g.includes('DEF'));
+  const avg=(arr,k)=>arr.length? arr.reduce((a,b)=>a+b[k],0)/arr.length : 100;
+  const cycAvg={ratio:avg(cyc,'ratio'),mom:avg(cyc,'mom')}, defAvg={ratio:avg(def,'ratio'),mom:avg(def,'mom')};
+  const spread=cycAvg.ratio-defAvg.ratio;
+  let regime,regimeNote;
+  if(spread>0.6){ regime='RISK-ON'; regimeNote='Cyclicals (Financials/Industrials/Energy/Materials/Discretionary) are running ahead of Defensives on RS-Ratio — broad-participation rotation, the kind of breadth that usually accompanies a healthy uptrend.'; }
+  else if(spread<-0.6){ regime='RISK-OFF'; regimeNote='Defensives (Healthcare/Staples/Utilities/REITs) are running ahead of Cyclicals — capital rotating toward safety, worth watching for broader weakness.'; }
+  else { regime='MIXED'; regimeNote='Cyclicals and Defensives are close together on RS-Ratio — no clean rotation signal yet, market is likely digesting/consolidating.'; }
+  const crossed=rows.filter(r=>r.weeks<=1);
+  // which breadth bucket is largest -> that's the dominant rotation signal to point at
+  const buckets=[['Leading',leading,'green'],['Improving',improving,'crk'],['Weakening',weakening,'yellow'],['Lagging',lagging,'red']];
+  buckets.sort((a,b)=>b[1]-a[1]);
+  const dominant=buckets[0];
+  // EXTENSION WATCH — forward-looking, not a lagging confirmation: flags sectors stretched far from their
+  // own 50-day trend + RSI extremes, i.e. candidates for a pause/mean-reversion BEFORE any quadrant cross
+  // would confirm it. This directly answers the "crossing is slow" gap — it's meant to fire earlier.
+  const withExt=rows.filter(r=>r.rsi!=null&&r.stretchPct!=null).map(r=>({...r, extScore: Math.abs(r.stretchPct)/10 + Math.abs(r.rsi-50)/50 + (r.wpr!=null? Math.abs(r.wpr+50)/50 : 0)}));
+  withExt.sort((a,b)=>b.extScore-a.extScore);
+  // Williams %R (source ②, derived_series) folded in where available: >-20 = overbought zone, <-80 = oversold
+  // zone — its own dedicated oscillator, not derived from RSI/stretch, so it's an independent confirming vote.
+  const overbought=withExt.filter(r=>r.rsi>=68||r.stretchPct>=8||(r.wpr!=null&&r.wpr>-20)).slice(0,3);
+  const oversold=withExt.filter(r=>r.rsi<=32||r.stretchPct<=-8||(r.wpr!=null&&r.wpr<-80)).slice(0,3);
+  return {rows,leading,lagging,weakening,improving,cycAvg,defAvg,spread,regime,regimeNote,crossed,dominant,overbought,oversold};
+}
+function renderRegime(){
+  const el=document.getElementById('regimeContent'); if(!el) return;
+  const d=regimeData();
+  const cls=d.regime==='RISK-ON'?'on':d.regime==='RISK-OFF'?'off':'mix';
+  const seg=(n,color,label)=> n? `<span style="flex:${n};background:${color}" title="${label}: ${n}">${n}</span>` : '';
+  const pos=v=>Math.min(100,Math.max(0,(v-97)/6*100));
+
+  // ---- rules-based decision walkthrough: deterministic, references the actual numbers above, not a separate model ----
+  const rules=[];
+  const [domName,domCount]=d.dominant;
+  if(domCount>0){
+    if(domName==='Leading') rules.push({tag:'watch',text:`<b>Leading is the largest bucket (${domCount})</b> — these sectors already carry both RS-Ratio ≥100 and RS-Momentum ≥100. Rule: Leading = currently strongest, most confirmed. Worth the most attention for continuation, least attention for "new idea" hunting since the move is already priced in.`});
+    else if(domName==='Improving') rules.push({tag:'watch',text:`<b>Improving is the largest bucket (${domCount})</b> — RS-Momentum ≥100 but RS-Ratio still <100: momentum turning up before relative strength confirms. Rule: Improving = where early rotation shows up first. This is the bucket to watch for names about to cross into Leading.`});
+    else if(domName==='Weakening') rules.push({tag:'caution',text:`<b>Weakening is the largest bucket (${domCount})</b> — RS-Ratio still ≥100 but RS-Momentum has turned <100: strength that's rolling over. Rule: Weakening = still outperforming on the trailing measure but losing the fight on momentum. Worth trimming attention here before Lagging.`});
+    else rules.push({tag:'caution',text:`<b>Lagging is the largest bucket (${domCount})</b> — both RS-Ratio and RS-Momentum <100: confirmed underperformance. Rule: Lagging = lowest priority unless specifically looking for a bottoming/mean-reversion setup.`});
+  }
+  rules.push({tag:'note',text:`<b>Regime call: ${d.regime}.</b> ${d.regimeNote} Rule used: Cyclicals avg RS-Ratio (${d.cycAvg.ratio.toFixed(2)}) vs Defensives avg RS-Ratio (${d.defAvg.ratio.toFixed(2)}), spread = ${d.spread>=0?'+':''}${d.spread.toFixed(2)} — spread beyond ±0.6 calls RISK-ON/RISK-OFF, inside that band calls MIXED.`});
+  for(const r of d.crossed){
+    const bullish=r.q==='LEADING'||r.q==='IMPROVING';
+    rules.push({tag:bullish?'watch':'note', text:`<b>${r.t}</b> (${r.n}) just crossed into <b>${r.q}</b> this week. Rule: a fresh cross confirms a rotation change already happened — it's descriptive/lagging by construction (weekly quadrant data), not a timing signal. ${bullish?'Worth a closer look now that it\'s confirmed.':'Confirms the move, but chasing a fresh Lagging/Weakening cross usually means acting after weakness already showed up — see Extension Watch below for a read that can fire earlier.'}`});
+  }
+  if(!d.crossed.length) rules.push({tag:'note',text:`No sector crossed into a new quadrant this week — current positioning is a continuation of last week's rotation, not a new signal.`});
+  for(const r of d.overbought) rules.push({tag:'caution', text:`<b>${r.t}</b> (${r.n}) looks stretched: RSI(14) ${r.rsi.toFixed(0)}, ${r.stretchPct>=0?'+':''}${r.stretchPct.toFixed(1)}% above its 50-day trend${r.wpr!=null?`, Williams %R ${r.wpr.toFixed(0)}`:''}. Rule: forward-looking extension read (RSI + price-vs-trend distance${r.wpr!=null?' + Williams %R overbought zone (derived_series)':''}), not the quadrant data — moves this stretched often pause or consolidate before continuing, worth watching for a cooldown rather than chasing further strength.`});
+  for(const r of d.oversold) rules.push({tag:'watch', text:`<b>${r.t}</b> (${r.n}) looks stretched to the downside: RSI(14) ${r.rsi.toFixed(0)}, ${r.stretchPct.toFixed(1)}% below its 50-day trend${r.wpr!=null?`, Williams %R ${r.wpr.toFixed(0)}`:''}. Rule: same forward-looking extension read${r.wpr!=null?' (RSI + price-vs-trend + Williams %R oversold zone)':''} — moves this stretched down often see a bounce/consolidation, worth watching for stabilization rather than assuming the decline just continues.`});
+
+  el.innerHTML=`
+    <div class="regimeTop">
+      <div class="regimeBadge ${cls}">${d.regime}</div>
+      <div class="regimeNote">${d.regimeNote}<br>Breadth (of ${d.rows.length} shown): <b style="color:var(--green)">${d.leading}</b> Leading · <b style="color:var(--yellow)">${d.weakening}</b> Weakening · <b style="color:var(--red)">${d.lagging}</b> Lagging · <b style="color:var(--crk)">${d.improving}</b> Improving</div>
+    </div>
+    <div class="breadthBar">${seg(d.leading,'#00FFA3','Leading')}${seg(d.weakening,'#FFE500','Weakening')}${seg(d.lagging,'#FF2D55','Lagging')}${seg(d.improving,'#00D4FF','Improving')}</div>
+    <div class="groupCompare">
+      <div class="gcCol"><div class="gcLabel">Cyclicals avg RS-Ratio</div><div class="gcTrack"><div class="gcFill" style="width:${pos(d.cycAvg.ratio)}%;background:var(--crk)"></div></div><div class="gcVal">${d.cycAvg.ratio.toFixed(2)}</div></div>
+      <div class="gcCol"><div class="gcLabel">Defensives avg RS-Ratio</div><div class="gcTrack"><div class="gcFill" style="width:${pos(d.defAvg.ratio)}%;background:var(--purple)"></div></div><div class="gcVal">${d.defAvg.ratio.toFixed(2)}</div></div>
+    </div>
+    <div>
+      <div class="secHead">Just crossed into a new quadrant this week <span style="color:var(--dim);font-weight:400;text-transform:none;letter-spacing:0">— confirms a move that already happened (lagging)</span></div>
+      ${d.crossed.length? d.crossed.map(r=>`<span class="crossChip"><span style="color:${r.c}">●</span> <b>${r.t}</b> → ${r.q}</span>`).join('') : '<span style="font-family:var(--mono);font-size:11px;color:var(--dim)">none this week</span>'}
+    </div>
+    <div>
+      <div class="secHead">Extension Watch <span style="color:var(--dim);font-weight:400;text-transform:none;letter-spacing:0">— forward-looking: stretched RSI / price-vs-50-day, can fire before a quadrant cross confirms anything</span></div>
+      ${(d.overbought.length||d.oversold.length)? [
+        ...d.overbought.map(r=>`<span class="crossChip"><span style="color:${r.c}">●</span> <b>${r.t}</b> stretched up · RSI ${r.rsi.toFixed(0)} · ${r.stretchPct>=0?'+':''}${r.stretchPct.toFixed(1)}% vs 50d</span>`),
+        ...d.oversold.map(r=>`<span class="crossChip"><span style="color:${r.c}">●</span> <b>${r.t}</b> stretched down · RSI ${r.rsi.toFixed(0)} · ${r.stretchPct.toFixed(1)}% vs 50d</span>`)
+      ].join('') : '<span style="font-family:var(--mono);font-size:11px;color:var(--dim)">nothing meaningfully stretched right now</span>'}
+    </div>
+    <div>
+      <div class="secHead">DB Regime State <span style="color:var(--dim);font-weight:400;text-transform:none;letter-spacing:0">— live, per-ticker/per-term read from Supabase regime_state, a SEPARATE signal from the RISK-ON/OFF badge above (that badge is this page's own RRG-breadth calc; this row is a different engine's directional call, shown as-is)</span></div>
+      ${REGIME_LIVE_STATUS==='ok'? `<div style="display:flex;flex-wrap:wrap;gap:6px">${d.rows.map(r=>{
+        const rg=REGIME_LIVE[r.t]; if(!rg) return `<span class="crossChip"><span style="color:${r.c}">●</span> <b>${r.t}</b> <span style="color:var(--dim)">missing</span></span>`;
+        const terms=['SHORT','MID','LONG'].map(term=>{
+          const x=rg[term]; if(!x) return `${term}:—`;
+          const col=x.state==='bull'?'var(--green)':x.state==='bear'?'var(--red)':'var(--yellow)';
+          return `${term}:<b style="color:${col}">${x.state} ${x.score>=0?'+':''}${x.score}</b>`;
+        }).join(' ');
+        return `<span class="crossChip"><span style="color:${r.c}">●</span> <b>${r.t}</b> ${terms}</span>`;
+      }).join('')}</div>` : REGIME_LIVE_STATUS==='pending'? `<span style="font-family:var(--mono);font-size:11px;color:var(--dim)">fetching from Supabase…</span>` : `<span style="font-family:var(--mono);font-size:11px;color:var(--yellow)">Supabase fetch failed — regime_state unavailable this refresh</span>`}
+    </div>
+    <div>
+      <div class="secHead">What this means — rules applied, in order</div>
+      <div class="decisionBox">${rules.map(r=>`<div class="ruleRow"><span class="ruleTag ${r.tag}">${r.tag==='watch'?'watch':r.tag==='caution'?'caution':'context'}</span><span>${r.text}</span></div>`).join('')}</div>
+    </div>`;
+}
+
+/* ============ ETF DETAIL (Phase 2 — sub-industry/holdings static+illustrative, technicals live, fundamentals placeholder) ============ */
+let DETAIL_FOCUS=localStorage.getItem('sr_detailFocus')||'XLK';
+let DETAIL_TAB='sub';
+function renderDetailPicker(){
+  const el=document.getElementById('detailPicker'); if(!el) return;
+  el.innerHTML='';
+  for(const s of SECTORS){
+    const b=document.createElement('span');
+    b.className='dchip'+(DETAIL_FOCUS===s.t?' on':'');
+    b.innerHTML=`<span class="sw" style="background:${s.c}"></span>${s.t}`;
+    b.onclick=()=>{ DETAIL_FOCUS=s.t; localStorage.setItem('sr_detailFocus',s.t); renderDetailPicker(); renderDetailContent(); renderDetailActionable(); };
+    el.appendChild(b);
+  }
+}
+// Combined actionable read — ties Technicals (rules scorecard) + live Geiger (Supabase) + Extension
+// (RSI/50d stretch) together into one verdict for the focused sector, instead of three separate numbers
+// the person has to reconcile themselves.
+function renderDetailActionable(){
+  const el=document.getElementById('detailActionable'); if(!el) return;
+  const s=SECTORS.find(x=>x.t===DETAIL_FOCUS); if(!s) return;
+  const t=technicalRead(s.t);
+  if(!t){ el.innerHTML=`<div class="arWhy">not enough daily history loaded yet for ${s.t}</div>`; return; }
+  const live=GEIGER_LIVE[s.t];
+  const lq=QUOTES_LIVE[s.t];
+  const stretchPct=(t.last/t.e50-1)*100;
+  const wprHit = t.wpr!=null && (t.wpr>-20||t.wpr<-80);
+  const extended = t.rsi!=null && (t.rsi>=68||stretchPct>=8||(t.wpr!=null&&t.wpr>-20)) ? 'overbought' : (t.rsi!=null && (t.rsi<=32||stretchPct<=-8||(t.wpr!=null&&t.wpr<-80)) ? 'oversold' : null);
+  // votes: technicals score sign, geiger composite sign (if live), extension direction (inverted — extension argues AGAINST chasing the current direction)
+  let votes=0, nVotes=0;
+  if(t.score!=null){ votes += Math.sign(t.score); nVotes++; }
+  if(live){ votes += Math.sign(live.composite); nVotes++; }
+  let verdict, color;
+  if(extended==='overbought'){ verdict='STRETCHED — CAUTION CHASING'; color='var(--yellow)'; }
+  else if(extended==='oversold'){ verdict='STRETCHED — WATCH FOR STABILIZATION'; color='var(--yellow)'; }
+  else if(nVotes>0 && votes>0){ verdict='ALIGNED BULLISH'; color='var(--green)'; }
+  else if(nVotes>0 && votes<0){ verdict='ALIGNED BEARISH'; color='var(--red)'; }
+  else { verdict='MIXED SIGNALS'; color='var(--dim)'; }
+  const parts=[];
+  parts.push(`Technicals: <b style="color:${t.read.includes('BUY')?'var(--green)':t.read.includes('SELL')?'var(--red)':'var(--yellow)'}">${t.read}</b> (score ${t.score>=0?'+':''}${t.score}${t.source==='db'?', DB-sourced':', Yahoo fallback'})`);
+  parts.push(live? `Geiger (live): <b style="color:${live.composite>=0?'var(--green)':'var(--red)'}">${live.composite>=0?'+':''}${live.composite.toFixed(3)}</b>` : `Geiger: <span style="color:var(--dim)">unavailable</span>`);
+  parts.push(`Extension: ${extended? `<b style="color:var(--yellow)">${extended}</b> (RSI ${t.rsi.toFixed(0)}${t.wpr!=null?`, W%R ${t.wpr.toFixed(0)}`:''}, ${stretchPct>=0?'+':''}${stretchPct.toFixed(1)}% vs trend)` : `<span style="color:var(--dim)">not stretched</span>`}`);
+  parts.push(lq&&lq.price!=null? `Quote (live_quotes): <b>${lq.price.toFixed(2)}</b> <span style="color:${lq.chg_pct>=0?'var(--green)':'var(--red)'}">${lq.chg_pct>=0?'+':''}${lq.chg_pct!=null?lq.chg_pct.toFixed(2):'—'}%</span> · updated ${freshText(lq.updated_ts)}` : `Quote: <span style="color:var(--dim)">${QUOTES_LIVE_STATUS==='pending'?'fetching…':'unavailable'}</span>`);
+  const prof=PROFILE_LIVE[s.t]; const avgVol=prof&&prof.avg_volume!=null?prof.avg_volume:null; const curVol=lq&&lq.volume!=null?lq.volume:null;
+  if(curVol!=null&&avgVol){ const rvol=curVol/avgVol; const rc=rvol>=1.5?'var(--green)':rvol<=0.6?'var(--red)':'var(--text)';
+    parts.push(`RVOL: <b style="color:${rc}">${rvol.toFixed(2)}×</b> <span style="color:var(--dim)">(live_quotes.volume ${(curVol/1e6).toFixed(1)}M ÷ company_profile.avg_volume ${(avgVol/1e6).toFixed(1)}M)${lq&&lq.updated_ts?` · updated ${freshText(lq.updated_ts)}`:''}</span>`); }
+  else { parts.push(`RVOL: <span style="color:var(--yellow)">missing — ${curVol==null?'no live_quotes.volume':'no company_profile.avg_volume'} for ${s.t}</span>`); }
+  el.innerHTML=`<div class="arVerdict" style="color:${color}">${verdict}</div><div class="arWhy">${parts.join('<br>')}<br><span style="color:var(--dim)">Rule: agree = ALIGNED, extension overrides both (a stretched read means "don't chase," even if Technicals/Geiger still agree) since extension is the one forward-looking input here.</span></div>`;
+}
+function renderDetailContent(){
+  const s=SECTORS.find(x=>x.t===DETAIL_FOCUS); if(!s) return;
+  const d=ETF_DETAIL[s.t]||{sub:[],top:[]};
+  document.querySelectorAll('#detailTabs .atab').forEach(b=>b.classList.toggle('active',b.dataset.dv===DETAIL_TAB));
+  const el=document.getElementById('detailContent'); if(!el) return;
+  const flag=(txt)=>`<div style="font-family:var(--mono);font-size:10px;color:var(--yellow);margin-bottom:12px;letter-spacing:.06em;text-transform:uppercase;line-height:1.5">${txt}</div>`;
+  if(DETAIL_TAB==='sub'){
+    el.innerHTML=flag(`Static reference — illustrative GICS sub-industries for ${s.t}, will wire to FMP industry classification later`)+
+      `<div style="display:flex;flex-wrap:wrap;gap:8px">${d.sub.map(x=>`<span style="font-family:var(--mono);font-size:11px;color:var(--ink2);border:1px solid var(--border);padding:8px 12px;border-left:3px solid ${s.c}">${x}</span>`).join('')}</div>`;
+  } else if(DETAIL_TAB==='holdings'){
+    el.innerHTML=flag(`Static reference — illustrative top constituents with a plausible weight curve, NOT live holdings/weights, will wire to FMP ETF-holdings endpoint later`)+
+      `<div style="display:flex;flex-direction:column;gap:0;max-width:520px">${d.top.map((x,i)=>{
+        const pct=TOP_HOLD_PCT[i]||1;
+        return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px">
+          <span style="color:var(--mute);width:16px">${i+1}</span>
+          <b style="width:56px;color:var(--text)">${x}</b>
+          <span style="flex:1;height:8px;background:var(--bg);border:1px solid var(--line2);position:relative"><span style="position:absolute;left:0;top:0;bottom:0;width:${(pct/19*100).toFixed(0)}%;background:${s.c};opacity:.6"></span></span>
+          <span style="width:44px;text-align:right;color:var(--ink2)">${pct}%</span>
+        </div>`;
+      }).join('')}</div>`;
+  } else if(DETAIL_TAB==='tech'){
+    const t=technicalRead(s.t);
+    if(!t){ el.innerHTML=`<div style="font-family:var(--mono);font-size:11px;color:var(--dim)">not enough daily history loaded yet for ${s.t}</div>`; }
+    else{
+      const readColor=t.read.includes('BUY')?'var(--green)':t.read.includes('SELL')?'var(--red)':'var(--yellow)';
+      const dbFlag = t.source==='db'
+        ? `LIVE, DB-sourced — RSI/Williams %R/MACD/EMA21/SMA50 read directly from Supabase derived_series (tf='1D'), updated ${freshText(t.updatedTs)}. No in-browser indicator math for this ticker. "Read" is Scintilla's own transparent rule set (not TradingView's or any third party's rating): each row below is a pass/fail condition, score = passes minus fails, mapped to the badge.`
+        : `YAHOO FALLBACK — derived_series hasn't loaded yet or doesn't cover ${s.t}; EMA20/EMA50/RSI computed client-side from Yahoo closes instead (no Williams %R/MACD in this mode). "Read" is Scintilla's own transparent rule set: each row below is a pass/fail condition, score = passes minus fails, mapped to the badge.`;
+      el.innerHTML=flag(dbFlag)+
+        `<div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:0 0 auto">
+            <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:${readColor};border:1px solid ${readColor};padding:14px 22px;text-align:center">${t.read}</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--dim)">score: ${t.score>=0?'+':''}${t.score}</div>
+          </div>
+          <div style="flex:1;min-width:280px">
+            ${t.conditions.map(c=>`<div class="scoreRow"><span class="scoreMark ${c.pass?'pass':'fail'}">${c.pass?'✓':'✗'}</span><span>${c.label}</span><span class="scoreWhy">${c.detail}</span></div>`).join('')}
+          </div>
+        </div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--ink2);line-height:1.7">
+          <b style="color:var(--crk)">Sector Sentiment: ${t.sentiment.toFixed(0)}/100</b> — our own composite, not CNN's Fear &amp; Greed. Formula: 50 (neutral) + 0.8×(RSI−50) + 3×((Price/EMA50 − 1)×100), clamped 0–100. Right now that's 50 ${t.rsiTilt>=0?'+':'−'}${Math.abs(t.rsiTilt).toFixed(1)} (RSI tilt) ${t.trendTilt>=0?'+':'−'}${Math.abs(t.trendTilt).toFixed(1)} (trend tilt).<br>
+          <span style="color:var(--dim)">Price: ${t.last.toFixed(2)} · ${t.source==='db'?'EMA21':'EMA20'}: ${t.e20.toFixed(2)} · ${t.source==='db'?'SMA50':'EMA50'}: ${t.e50.toFixed(2)} · RSI(14): ${t.rsi!=null?t.rsi.toFixed(1):'—'}${t.source==='db'?` · Williams %R: ${t.wpr!=null?t.wpr.toFixed(1):'—'} · MACD: ${t.macd!=null?t.macd.toFixed(2):'—'} (signed ${t.macdSigned!=null?t.macdSigned.toFixed(2):'—'}) · CCI: ${t.cci!=null?t.cci.toFixed(1):'—'} · ROC: ${t.roc!=null?t.roc.toFixed(1):'—'} · Stoch: ${t.stoch!=null?t.stoch.toFixed(1):'—'}`:''}</span>
+        </div>`;
+    }
+  } else if(DETAIL_TAB==='geiger'){
+    const live=GEIGER_LIVE[s.t];
+    const barPct=v=>((v+1)/2*100).toFixed(0);   // -1..+1 -> 0..100%
+    if(live){
+      const composite=live.composite, trend=live.trend, momentum=live.momentum, structure=live.structure||0;
+      let verdict; if(composite>0.35) verdict='STRONG BULLISH'; else if(composite>0.10) verdict='BULLISH'; else if(composite<-0.35) verdict='STRONG BEARISH'; else if(composite<-0.10) verdict='BEARISH'; else verdict='NEUTRAL';
+      const vColor=verdict.includes('BULL')?'var(--green)':verdict.includes('BEAR')?'var(--red)':'var(--yellow)';
+      const ageMin=Math.round((Date.now()/1000-live.updated_ts)/60);
+      el.innerHTML=flag(`LIVE — this is the real Geiger, pulled straight from the same Supabase table (composite_staged) that feeds scintillahub.ai's own Geiger reads. Not computed on this page. Current formula: composite = 0.5×Trend + 0.5×Momentum (Momentum = RSI 60% / Williams %R 40%, the "equalizer" mix set on scintillahub.ai). Structure &amp; Volatility are archived (0 weight) in the live system right now, not something this page turned off. Updated ${ageMin<1?'just now':ageMin+'m ago'}.`)+
+        `<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+          <div style="font-family:var(--mono);font-size:22px;font-weight:700;color:${vColor};border:1px solid ${vColor};padding:12px 20px;text-align:center">${verdict}</div>
+          <div style="font-family:var(--mono);font-size:13px;color:var(--ink2)">composite: <b style="color:${vColor}">${composite>=0?'+':''}${composite.toFixed(4)}</b> <span style="color:var(--dim)">conviction: ${live.conviction!=null?live.conviction.toFixed(2):'—'}</span></div>
+        </div>
+        <div class="geigerArc">
+          <div class="geigerBar"><span class="gbLabel">Trend (0.5 wt, daily)</span><div class="gbTrack"><div class="gbFill" style="left:${trend>=0?50:barPct(trend)}%;width:${Math.abs(trend)/2*100}%;background:var(--blue)"></div></div><span class="gbVal">${trend>=0?'+':''}${trend.toFixed(3)} → contributes ${(trend*0.5)>=0?'+':''}${(trend*0.5).toFixed(3)}</span></div>
+          <div class="geigerBar"><span class="gbLabel">Momentum (0.5 wt, RSI 60/W%R 40)</span><div class="gbTrack"><div class="gbFill" style="left:${momentum>=0?50:barPct(momentum)}%;width:${Math.abs(momentum)/2*100}%;background:var(--purple)"></div></div><span class="gbVal">${momentum>=0?'+':''}${momentum.toFixed(3)} → contributes ${(momentum*0.5)>=0?'+':''}${(momentum*0.5).toFixed(3)}</span></div>
+          <div class="geigerBar"><span class="gbLabel">Structure (archived, 0 wt)</span><div class="gbTrack"><div class="gbFill" style="left:50%;width:0%;background:var(--yellow)"></div></div><span class="gbVal">${structure.toFixed(2)} → off</span></div>
+        </div>`;
+    } else if(GEIGER_LIVE_STATUS==='pending'){
+      el.innerHTML=`<div style="font-family:var(--mono);font-size:11px;color:var(--dim)">fetching live Geiger from Supabase…</div>`;
+    } else {
+      const g=geigerApprox(s.t);
+      const fallbackNote=flag(`Live Supabase fetch failed or ${s.t} isn't in composite_staged — showing a local fallback approximation instead (older, superseded 0.30/0.25/0.20 weighting), NOT the real current formula. Retry: refreshGeigerLive() in console, or reload.`);
+      if(!g){ el.innerHTML=fallbackNote+`<div style="font-family:var(--mono);font-size:11px;color:var(--dim)">not enough daily history loaded yet for ${s.t} either.</div>`; }
+      else{
+        const vColor=g.verdict.includes('BULL')?'var(--green)':g.verdict.includes('BEAR')?'var(--red)':'var(--yellow)';
+        el.innerHTML=fallbackNote+
+          `<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center">
+            <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${vColor};border:1px solid ${vColor};padding:10px 18px">${g.verdict}</div>
+            <div style="font-family:var(--mono);font-size:12px;color:var(--ink2)">fallback composite: <b style="color:${vColor}">${g.composite>=0?'+':''}${g.composite.toFixed(3)}</b></div>
+          </div>`;
+      }
+    }
+  } else {
+    el.innerHTML=flag(`Placeholder — FMP not yet wired into this page. No fake numbers shown.`)+
+      `<table style="width:100%;font-family:var(--mono);font-size:11px;color:var(--ink2);border-collapse:collapse">
+        <tr><td style="padding:7px 0;border-bottom:1px solid var(--border)">Analyst Grade (Buy/Hold/Sell mix)</td><td style="text-align:right;color:var(--dim)">— pending FMP</td></tr>
+        <tr><td style="padding:7px 0;border-bottom:1px solid var(--border)">Trailing P/E (sector representative names)</td><td style="text-align:right;color:var(--dim)">— pending FMP</td></tr>
+        <tr><td style="padding:7px 0;border-bottom:1px solid var(--border)">Forward P/E</td><td style="text-align:right;color:var(--dim)">— pending FMP</td></tr>
+        <tr><td style="padding:7px 0;border-bottom:1px solid var(--border)">Dividend Yield</td><td style="text-align:right;color:var(--dim)">— pending FMP</td></tr>
+        <tr><td style="padding:7px 0;border-bottom:1px solid var(--border)">Revenue Growth (YoY)</td><td style="text-align:right;color:var(--dim)">— pending FMP</td></tr>
+        <tr><td style="padding:7px 0;border-bottom:1px solid var(--border)">Avg forward EPS growth estimate</td><td style="text-align:right;color:var(--dim)">— pending FMP</td></tr>
+        <tr><td style="padding:7px 0">Analyst avg price-target upside</td><td style="text-align:right;color:var(--dim)">— pending FMP</td></tr>
+      </table>`;
+  }
+}
+document.querySelectorAll('#detailTabs .atab').forEach(b=>b.onclick=()=>{ DETAIL_TAB=b.dataset.dv; renderDetailContent(); });
+
+/* ============ CONTROLS ============ */
+function toggle(t){
+  selected=selected.includes(t)? selected.filter(x=>x!==t):[...selected,t];
+  localStorage.setItem('sr_sel',JSON.stringify(selected));
+  renderAll(false);
+}
+function renderChips(){
+  const el=document.getElementById('chips'); el.innerHTML='';
+  for(const s of SECTORS){
+    const c=document.createElement('span');
+    c.className='chip'+(selected.includes(s.t)?' on':'');
+    c.innerHTML=`<span class="dot" style="background:${s.c}"></span>${s.t}`;
+    c.onclick=()=>toggle(s.t);
+    el.appendChild(c);
+  }
+}
+document.querySelectorAll('.grp').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.grp').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+  const g=b.dataset.grp;
+  selected = g==='ALL'? SECTORS.map(s=>s.t) : SECTORS.filter(s=>s.g.includes(g)).map(s=>s.t);
+  localStorage.setItem('sr_sel',JSON.stringify(selected));
+  renderAll(false);
+});
+document.querySelectorAll('.rng').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.rng').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+  setRange(b.dataset.d);
+});
+document.getElementById('refreshBtn').onclick=()=>boot(true);
+
+/* ---- RRG toolbar: tail slider, Fit/Max/Center, Animate, local sector chips ---- */
+function renderRrgChips(){
+  const el=document.getElementById('rrgChips'); if(!el) return; el.innerHTML='';
+  for(const s of SECTORS){
+    const c=document.createElement('span');
+    c.className='chip'+(selected.includes(s.t)?' on':'');
+    c.innerHTML=`<span class="dot" style="background:${s.c}"></span>${s.t}`;
+    c.onclick=()=>toggle(s.t);
+    el.appendChild(c);
+  }
+}
+function setRrgView(v){
+  RRG_VIEW=v;
+  document.querySelectorAll('#rrgTools .rbtn').forEach(b=>{ if(['rrgFit','rrgMax','rrgCenter'].includes(b.id)) b.classList.remove('active'); });
+  if(v==='FIT') document.getElementById('rrgFit').classList.add('active');
+  if(v==='MAX'){ document.getElementById('rrgMax').classList.add('active'); RRG_R=RRG_R_MAX; }
+  if(v==='CENTER'){ document.getElementById('rrgCenter').classList.add('active'); RRG_R=RRG_R_DEFAULT; }
+  renderRRG();
+}
+document.getElementById('rrgFit').onclick=()=>setRrgView('FIT');
+document.getElementById('rrgMax').onclick=()=>setRrgView('MAX');
+document.getElementById('rrgCenter').onclick=()=>setRrgView('CENTER');
+function setTailPts(v){
+  TAIL_PTS=v;
+  document.getElementById('tailSlider').value=v;
+  document.getElementById('tailReadout').textContent=v+'w';
+  renderRRG();
+}
+document.getElementById('tailSlider').oninput=(e)=>setTailPts(+e.target.value);
+document.getElementById('tailReset').onclick=()=>setTailPts(TAIL_REC);
+document.getElementById('rrgAnimate').onclick=function(){
+  const btn=this;
+  if(RRG_ANIM){ clearInterval(RRG_ANIM); RRG_ANIM=null; RRG_ANIM_BUILD=null; btn.textContent='▶ Animate'; btn.classList.remove('active'); renderRRG(); return; }
+  // build-up reveal: starts at the OLDEST point of the current tail (1 point), grows week by week up to
+  // the full length set on the Tail Length slider — i.e. it plays out exactly what "tail" you've configured.
+  btn.textContent='⏸ Pause'; btn.classList.add('active');
+  RRG_ANIM_BUILD=1; renderRRG();   // draw frame 1 synchronously — no flash of the old full state
+  RRG_ANIM=setInterval(()=>{
+    RRG_ANIM_BUILD++; renderRRG();
+    if(RRG_ANIM_BUILD>=TAIL_PTS){ clearInterval(RRG_ANIM); RRG_ANIM=null; RRG_ANIM_BUILD=null; btn.textContent='▶ Animate'; btn.classList.remove('active'); renderRRG(); }
+  },380);
+};
+
+/* ============ BOOT ============ */
+function renderAll(dataChanged){
+  renderChips(); renderRrgChips(); renderHeatmap(); renderAumPanel(); renderRRG(); renderTable(); renderRegime(); renderDetailPicker(); renderDetailContent(); renderDetailActionable();
+  if(dataChanged) renderLines(); else rebaseLines();
+}
+async function boot(manual){
+  const st=document.getElementById('status');
+  try{
+    st.textContent='fetching…';
+    await loadData();
+    renderAll(true);
+    st.classList.remove('err');
+    st.innerHTML=`<b>● LIVE</b> ${PRICE_SOURCE==='ohlcv_history'?'Supabase ohlcv_history':'Yahoo fallback'} daily · updated ${new Date().toLocaleTimeString()} · auto-refresh ${REFRESH_MIN}min`;
+    document.getElementById('banner').style.display='none';
+  }catch(e){
+    st.classList.add('err'); st.innerHTML='<b>● FEED DOWN</b>';
+    const bn=document.getElementById('banner');
+    bn.style.display='block';
+    bn.textContent='Data feed unreachable. On scintillahub.ai this should never happen (own relay) — hard-refresh (Cmd+Shift+R); if still red, tell Claude.';
+  }
+}
+window.addEventListener('resize',()=>{renderRRG(); renderTreemap(); updateLabels(); renderAumPanel();});
+boot();
+refreshGeigerLive();
+refreshDerivedLive();
+refreshQuotesLive();
+refreshProfileLive();
+refreshRegimeLive();
+refreshRankingsLive();
+refreshUniverseCheck();
+setInterval(()=>refreshRankingsLive(),REFRESH_MIN*60*1000);
+setInterval(()=>boot(),REFRESH_MIN*60*1000);
+setInterval(()=>refreshGeigerLive(),REFRESH_MIN*60*1000);
+setInterval(()=>refreshDerivedLive(),REFRESH_MIN*60*1000);
+setInterval(()=>refreshQuotesLive(),REFRESH_MIN*60*1000);
+setInterval(()=>refreshProfileLive(),REFRESH_MIN*60*1000);
+setInterval(()=>refreshRegimeLive(),REFRESH_MIN*60*1000);
+</script>
+</body>
+</html>
