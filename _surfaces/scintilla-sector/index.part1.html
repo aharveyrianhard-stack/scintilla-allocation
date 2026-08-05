@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCINTILLA — Sector Rotation</title>
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+  :root{
+    --bg:#0A0A0F; --panel:#0D0D14; --panel2:#0F0F1A; --border:#1A1A2A; --line2:#252538;
+    --hair:rgba(0,212,255,.34); --text:#F2F2F8; --ink2:#C6C8DE; --dim:#868AAA; --mute:#6B6E90;
+    --crk:#00D4FF; --green:#00FFA3; --red:#FF2D55; --yellow:#FFE500; --blue:#2D9CFF; --purple:#8B5CF6;
+    --mono:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;
+    --sans:ui-sans-serif,-apple-system,"Helvetica Neue",sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); padding:22px 26px 60px; min-height:100vh;}
+  header{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; margin-bottom:14px;}
+  h1{font-family:var(--mono); font-size:16px; font-weight:400; letter-spacing:.22em; text-transform:uppercase; color:var(--text);}
+  h1 span{color:var(--crk);}
+  .status{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim);}
+  .status b{color:var(--green);}
+  .status.err b{color:var(--red);}
+  .controls{display:flex; flex-wrap:wrap; align-items:stretch; margin-bottom:14px; border:1px solid var(--border); background:var(--panel);}
+  .cgroup{display:flex; align-items:stretch; border-right:1px solid var(--line2);}
+  .cgroup:last-child{border-right:none;}
+  .clabel{font-family:var(--mono); font-size:8px; letter-spacing:.3em; text-transform:uppercase; color:var(--mute); display:flex; align-items:center; padding:0 10px 0 14px; border-right:1px solid var(--border);}
+  .btn{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; background:transparent; border:none; border-right:1px solid var(--border); color:var(--ink2); padding:10px 14px; border-radius:0; cursor:pointer; user-select:none;}
+  .btn:hover{color:var(--text);}
+  .btn.active{color:var(--crk); background:rgba(0,212,255,.08); box-shadow:inset 0 -2px 0 var(--crk); font-weight:600;}
+  #chips{display:flex; flex-wrap:wrap; align-items:center; gap:4px; padding:5px 10px; border-right:1px solid var(--border);}
+  .chip{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10px; letter-spacing:.04em; color:var(--dim); border:1px dashed var(--border); padding:4px 9px; border-radius:0; cursor:pointer; user-select:none;}
+  .chip.on{color:#fff; font-weight:700; border-color:var(--crk);}
+  .chip .dot{width:7px; height:7px; border-radius:50%;}
+  .divider{display:none;}
+  .grid{display:grid; gap:12px;
+    grid-template-columns:240px 1fr 1.35fr;
+    grid-template-rows:minmax(300px,38vh) minmax(260px,32vh) minmax(340px,44vh) minmax(700px,90vh) minmax(280px,auto) minmax(240px,auto) minmax(320px,auto);
+    grid-template-areas:"cards aum aum" "heat heat heat" "lines lines lines" "rrg rrg rrg" "table table table" "regime regime regime" "detail detail detail";}
+  #p-cards{grid-area:cards} #p-aum{grid-area:aum} #p-heat{grid-area:heat} #p-lines{grid-area:lines} #p-table{grid-area:table} #p-rrg{grid-area:rrg} #p-regime{grid-area:regime} #p-detail{grid-area:detail}
+  .panel{background:var(--panel); border:.8px solid rgba(0,212,255,.20); border-radius:0; padding:12px; display:flex; flex-direction:column; overflow:hidden;}
+  .panel h2{font-family:var(--mono); font-size:12px; font-weight:400; color:var(--crk); text-transform:uppercase; letter-spacing:.14em; border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:10px; display:flex; justify-content:space-between; gap:10px;}
+  .panel h2 .sub{font-size:10px; letter-spacing:.06em; color:var(--ink2); align-self:center; text-transform:uppercase;}
+  .aumLegend{position:absolute; right:10px; bottom:8px; z-index:3; font-family:var(--mono); font-size:9.5px; color:var(--ink2); background:rgba(10,10,15,.72); border:1px solid var(--line2); padding:5px 9px; pointer-events:none; display:flex; align-items:center; gap:6px;}
+  .aumLegend .swatch{width:22px; height:6px; background:linear-gradient(90deg, transparent, var(--crk)); display:inline-block;}
+  .lmodeGroup{display:flex; border:1px solid var(--border); flex:0 0 auto; align-self:center;}
+  .lmodeBtn{font-family:var(--mono); font-size:9px; letter-spacing:.08em; text-transform:uppercase; background:transparent; border:none; border-right:1px solid var(--border); color:var(--dim); padding:5px 10px; cursor:pointer;}
+  .lmodeBtn:last-child{border-right:none;}
+  .lmodeBtn:hover{color:var(--ink2);}
+  .lmodeBtn.active{color:var(--crk); background:rgba(0,212,255,.08); font-weight:600;}
+  /* heatmap */
+  #heatcards{flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden;}
+  .lrow{flex:1; min-height:0; display:flex; align-items:center; gap:8px; padding:2px 9px 2px 14px; cursor:pointer; font-family:var(--mono); font-size:10px; border:1px solid transparent; border-left-width:4px; box-shadow:inset 5px 0 0 0 var(--bg);}
+  .lrow:hover{border-color:var(--line2);}
+  .lrow .info{display:flex; flex-direction:column; justify-content:center; line-height:1.2; min-width:0;}
+  .lrow .tk{font-size:11px; font-weight:700; color:var(--text);}
+  .lrow .nm{font-size:7px; letter-spacing:.05em; text-transform:uppercase; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .lrow .pc{font-weight:700; font-variant-numeric:tabular-nums; margin-left:auto; font-size:11px;}
+  #treemap{flex:1; position:relative;}
+  .tmtile{position:absolute; border:2px solid var(--bg); border-radius:0; overflow:hidden; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; line-height:1.15; font-family:var(--mono); transition:filter .1s; box-shadow:inset 0 0 0 3px var(--bg);}
+  .tmtile:hover{filter:brightness(1.3);}
+  .tmtile .tk{font-weight:700; color:#fff;}
+  .tmtile .nm{opacity:.7; text-transform:uppercase; letter-spacing:.05em;}
+  .tmtile .pc{font-weight:700;}
+  /* lines */
+  #lines{flex:1; position:relative;}
+  #linesAum{position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none;}
+  #linesChart{position:absolute; inset:0; z-index:2;}
+  /* rrg */
+  #rrgWrap{flex:1; position:relative;}
+  #rrg{position:absolute; inset:0; width:100%; height:100%;}
+  /* table */
+  #qtable{flex:1; overflow-y:auto;}
+  table{width:100%; border-collapse:collapse; font-size:12px;}
+  th{text-align:left; font-family:var(--mono); color:var(--dim); font-size:9px; text-transform:uppercase; letter-spacing:.1em; padding:8px 10px; border-bottom:1px solid var(--line2); position:sticky; top:0; background:var(--panel);}
+  td{padding:7px 10px; border-bottom:1px solid var(--border); color:var(--ink2); font-family:var(--mono);}
+  tr:hover td{background:var(--panel2);}
+  .badge{font-family:var(--mono); font-size:9px; font-weight:400; letter-spacing:.08em; padding:2px 7px; border-radius:0; border:1px dashed;}
+  .b-lead{color:var(--green); border-color:rgba(0,255,163,.4);}
+  .b-weak{color:var(--yellow); border-color:rgba(255,229,0,.35);}
+  .b-lag{color:var(--red); border-color:rgba(255,45,85,.4);}
+  .b-impr{color:var(--crk); border-color:var(--hair);}
+  .num{font-variant-numeric:tabular-nums; text-align:right;}
+  .up{color:var(--green);} .dn{color:var(--red);}
+  .llabel{position:absolute; font-family:var(--mono); font-size:10px; font-weight:700; pointer-events:none; transform:translateY(-50%); text-shadow:0 0 4px #0A0A0F, 0 0 4px #0A0A0F; z-index:5;}
+  #banner{display:none; background:rgba(255,45,85,.08); border:1px solid var(--red); color:var(--red); font-family:var(--mono); font-size:11px; letter-spacing:.04em; padding:8px 12px; border-radius:0; margin-bottom:10px;}
+  @media(max-width:700px){.grid{grid-template-columns:1fr; grid-template-rows:repeat(5,minmax(300px,45vh)); grid-template-areas:"cards" "heat" "lines" "rrg" "table";}}
+  #docs{margin-top:14px; display:flex; flex-direction:column; gap:8px;}
+  #docs details{background:var(--panel); border:1px solid var(--border); border-radius:0; padding:12px 16px; font-size:12.5px; color:var(--ink2); line-height:1.65;}
+  #docs summary{cursor:pointer; font-family:var(--mono); color:var(--ink2); font-weight:400; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;}
+  #docs summary:hover{color:var(--crk);}
+  #docs details>div{margin-top:10px;}
+  #docs code{background:var(--bg); border:1px dashed var(--line2); padding:1px 6px; border-radius:0; font-family:var(--mono); font-size:11px; color:var(--crk);}
+  #docs b{color:var(--text);}
+  /* rrg toolbar */
+  #rrgTools{display:flex; align-items:center; flex-wrap:wrap; gap:14px; padding:8px 10px; border:1px solid var(--border); background:var(--panel2); margin-bottom:10px; font-family:var(--mono);}
+  #rrgTools .rgroup{display:flex; align-items:center; gap:7px;}
+  #rrgTools .rlabel{font-size:8px; letter-spacing:.24em; text-transform:uppercase; color:var(--mute);}
+  #rrgTools .rbtn{font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; background:transparent; border:1px solid var(--line2); color:var(--ink2); padding:5px 10px; cursor:pointer;}
+  #rrgTools .rbtn:hover{color:var(--text); border-color:var(--crk);}
+  #rrgTools .rbtn.active{color:var(--crk); border-color:var(--crk); background:rgba(0,212,255,.08);}
+  #rrgTools .rbtn.rec::after{content:'★'; font-size:8px; margin-left:5px; color:var(--yellow); vertical-align:top;}
+  #rrgTools input[type=range]{width:130px; accent-color:var(--crk); background:transparent;}
+  #rrgTools .tailReadout{font-size:11px; color:var(--crk); font-weight:700; min-width:34px; text-align:right;}
+  #rrgTools .rec-tag{font-size:8px; color:var(--dim); letter-spacing:.08em;}
+  #rrgChips{display:flex; flex-wrap:wrap; align-items:center; gap:4px;}
+  #rrgChips .chip{padding:3px 8px; font-size:9px;}
+  /* aum panel */
+  #aumTabs,#detailTabs{display:flex; gap:0; border:1px solid var(--border); margin-bottom:8px; flex:0 0 auto;}
+  #aumTabs .atab,#detailTabs .atab{flex:1; font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; background:transparent; border:none; border-right:1px solid var(--border); color:var(--dim); padding:7px 4px; cursor:pointer;}
+  #aumTabs .atab:last-child,#detailTabs .atab:last-child{border-right:none;}
+  #aumTabs .atab:hover,#detailTabs .atab:hover{color:var(--ink2);}
+  #aumTabs .atab.active,#detailTabs .atab.active{color:var(--crk); background:rgba(0,212,255,.08); box-shadow:inset 0 -2px 0 var(--crk); font-weight:600;}
+  #detailPicker{display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px;}
+  #detailPicker .dchip{font-family:var(--mono); font-size:10px; letter-spacing:.03em; padding:5px 9px; border:1px solid var(--border); color:var(--ink2); cursor:pointer; display:flex; align-items:center; gap:5px; background:transparent;}
+  #detailPicker .dchip .sw{width:8px; height:8px; border-radius:50%; display:inline-block;}
+  #detailPicker .dchip.on{border-color:var(--crk); color:var(--crk); background:rgba(0,212,255,.08); font-weight:600;}
+  #aumContent{flex:1; position:relative; overflow:hidden; display:flex; flex-direction:column;}
+  .aumBarRow{flex:1; min-height:0; display:flex; align-items:center; gap:10px; padding:0 2px; font-family:var(--mono); font-size:12px;}
+  .aumBarRow .abLabel{width:66px; flex:0 0 auto; line-height:1.2;}
+  .aumBarRow .abLabel b{font-size:13px;}
+  .aumBarRow .abLabel .abNm{display:block; font-size:7px; font-weight:400; letter-spacing:.05em; text-transform:uppercase; color:var(--dim);}
+  .aumBarRow .abTrack{flex:1; height:60%; background:var(--bg); border:1px solid var(--line2); position:relative;}
+  .aumBarRow .abFill{position:absolute; left:0; top:0; bottom:0;}
+  .aumBarRow .abVal{width:38px; flex:0 0 auto; text-align:right; color:var(--ink2); font-size:11px;}
+  #aumTable{width:100%; border-collapse:collapse; font-size:11px;}
+  #aumTable td{padding:4px 6px; border-bottom:1px solid var(--border); font-family:var(--mono); color:var(--ink2);}
+  /* regime panel */
+  #regimeContent{display:flex; flex-direction:column; gap:16px; overflow-y:auto; height:100%;}
+  .regimeTop{display:flex; align-items:center; gap:20px; flex-wrap:wrap;}
+  .regimeBadge{font-family:var(--mono); font-size:22px; font-weight:700; letter-spacing:.08em; padding:11px 20px; border:1px solid; text-transform:uppercase; flex:0 0 auto;}
+  .regimeBadge.on{color:var(--green); border-color:var(--green); background:rgba(0,255,163,.06);}
+  .regimeBadge.off{color:var(--red); border-color:var(--red); background:rgba(255,45,85,.06);}
+  .regimeBadge.mix{color:var(--yellow); border-color:var(--yellow); background:rgba(255,229,0,.06);}
+  .regimeNote{font-family:var(--mono); font-size:12px; color:var(--ink2); line-height:1.7; flex:1; min-width:260px;}
+  .breadthBar{display:flex; height:28px; border:1px solid var(--line2);}
+  .breadthBar span{display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:10.5px; font-weight:700; color:#0A0A0F;}
+  .groupCompare{display:flex; gap:24px;}
+  .gcCol{flex:1; min-width:160px;}
+  .gcLabel{font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--mute); margin-bottom:5px;}
+  .gcCol .gcTrack{height:10px; background:var(--bg); border:1px solid var(--line2); position:relative;}
+  .gcCol .gcFill{position:absolute; left:0; top:0; bottom:0;}
+  .gcCol .gcVal{font-family:var(--mono); font-size:12px; color:var(--ink2); margin-top:3px;}
+  .crossChip{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11px; border:1px dashed var(--line2); padding:5px 10px; margin:0 6px 6px 0;}
+  .secHead{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--crk); font-weight:700; margin-bottom:8px;}
+  /* decision / rules-read block */
+  #detailActionable{border:1px solid var(--crk); background:rgba(0,212,255,.05); padding:12px 16px; margin-bottom:14px; display:flex; gap:16px; align-items:center; flex-wrap:wrap;}
+  #detailActionable .arVerdict{font-family:var(--mono); font-size:16px; font-weight:700; letter-spacing:.04em; padding:8px 16px; border:1px solid currentColor; flex:0 0 auto;}
+  #detailActionable .arWhy{font-family:var(--mono); font-size:11px; color:var(--ink2); line-height:1.6; flex:1; min-width:260px;}
+  .decisionBox{border:1px solid var(--line2); background:var(--panel2); padding:14px 16px;}
+  .ruleRow{display:flex; gap:10px; align-items:flex-start; font-family:var(--mono); font-size:11.5px; color:var(--ink2); line-height:1.6; padding:8px 0; border-bottom:1px solid var(--border);}
+  .ruleRow:last-child{border-bottom:none;}
+  .ruleTag{flex:0 0 auto; font-size:9px; font-weight:700; letter-spacing:.08em; padding:3px 8px; text-transform:uppercase; align-self:flex-start; margin-top:1px;}
+  .ruleTag.watch{color:var(--green); border:1px solid var(--green); background:rgba(0,255,163,.06);}
+  .ruleTag.caution{color:var(--red); border:1px solid var(--red); background:rgba(255,45,85,.06);}
+  .ruleTag.note{color:var(--crk); border:1px solid var(--crk); background:rgba(0,212,255,.06);}
+  /* scorecard (technicals) */
+  .scoreRow{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; color:var(--ink2); padding:6px 0; border-bottom:1px solid var(--border);}
+  .scoreRow:last-child{border-bottom:none;}
+  .scoreMark{flex:0 0 18px; height:18px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; border-radius:50%;}
+  .scoreMark.pass{color:var(--green); background:rgba(0,255,163,.12); border:1px solid var(--green);}
+  .scoreMark.fail{color:var(--red); background:rgba(255,45,85,.12); border:1px solid var(--red);}
+  .scoreWhy{color:var(--dim); font-size:10px; margin-left:auto; text-align:right;}
+  .geigerArc{display:flex; gap:16px; align-items:center; flex-wrap:wrap;}
+  .geigerBar{display:flex; flex-direction:column; gap:4px; min-width:150px;}
+  .geigerBar .gbLabel{font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--mute);}
+  .geigerBar .gbTrack{height:10px; background:var(--bg); border:1px solid var(--line2); position:relative;}
+  .geigerBar .gbFill{position:absolute; top:0; bottom:0; }
+  .geigerBar .gbVal{font-family:var(--mono); font-size:11px; color:var(--ink2);}
+</style>
+</head>
+<body>
+<header>
+  <h1>SCINTILLA <span>// SECTOR ROTATION</span></h1>
+  <div class="status" id="status">loading…</div>
+</header>
+<div id="dataSpine" style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 14px 0"></div>
+<div id="rankStrip" style="margin:6px 14px 2px"></div>
+<div id="banner"></div>
+<div class="controls">
+  <span class="cgroup"><span class="clabel">Group</span><button class="btn grp active" data-grp="ALL">All 11</button><button class="btn grp" data-grp="CYC">Cyclicals</button><button class="btn grp" data-grp="DEF">Defensives</button><button class="btn grp" data-grp="GRW">Growth</button></span>
+  <span class="cgroup"><span class="clabel">Range</span><button class="btn rng" data-d="1D">1D</button><button class="btn rng" data-d="5D">5D</button><button class="btn rng" data-d="21">1M</button><button class="btn rng active" data-d="63">3M</button><button class="btn rng" data-d="999">6M</button><button class="btn" id="refreshBtn">Refresh</button></span>
+  <span class="cgroup" style="flex:1"><span class="clabel">Sectors</span><span id="chips"></span></span>
+</div>
+<div class="grid">
+  <div class="panel" id="p-cards"><h2>Leaders <span class="sub" id="hmDate"></span></h2><div id="heatcards"></div></div>
+  <div class="panel" id="p-aum"><h2>Fund Size (AUM) <span class="sub">4 views — pick whichever reads best, it's just a display choice</span></h2>
+    <div id="aumTabs">
+      <button class="atab" data-v="bars">Bars</button>
+      <button class="atab" data-v="donut">Donut</button>
+      <button class="atab active" data-v="bubbles">Bubbles</button>
+      <button class="atab" data-v="table">Table</button>
+    </div>
+    <div id="aumContent"></div>
+  </div>
+  <div class="panel" id="p-heat"><h2>Sector Heatmap <span class="sub">tile size ≈ fund AUM · color = move over selected timeframe · click = toggle</span></h2><div id="treemap"></div></div>
+  <div class="panel" id="p-lines"><h2>Relative Performance % <span class="sub">drag time axis = zoom · rebases % to left edge like TV</span>
+    <span class="lmodeGroup"><button class="lmodeBtn" id="lmodeNormal">Normal</button><button class="lmodeBtn" id="lmodeGlow">Glow (AUM)</button></span></h2>
+    <div id="lines"><canvas id="linesAum"></canvas><div id="linesChart"></div><div class="aumLegend" id="aumLegendEl"><span class="swatch"></span> glow width = fund AUM, thickest at "now" (right) — drawn on the graph itself, behind the price lines, same idea as the RRG tail cones</div></div></div>
+  <div class="panel" id="p-table"><h2>Quadrant Positions</h2><div id="qtable"></div></div>
+  <div class="panel" id="p-rrg"><h2>Rotation Map (RRG) <span class="sub">vs SPY · weekly · 14w RS window</span></h2>
+    <div id="rrgTools">
+      <span class="rgroup"><button class="rbtn" id="rrgAnimate">▶ Animate</button></span>
+      <span class="rgroup"><button class="rbtn" id="rrgFit">Fit</button><button class="rbtn" id="rrgMax">Max</button><button class="rbtn active rec" id="rrgCenter">Center</button></span>
+      <span class="rgroup"><span class="rlabel">Tail Length</span><input type="range" id="tailSlider" min="2" max="26" step="1" value="5"><span class="tailReadout" id="tailReadout">5w</span><button class="rbtn" id="tailReset" title="Reset to recommended">&#8634; 5w</button><span class="rec-tag">recommended: 5w — StockCharts' own default; no universal standard exists</span></span>
+      <span class="rgroup" style="flex:1; justify-content:flex-end"><span class="rlabel">Sectors</span><span id="rrgChips"></span></span>
+    </div>
+    <div id="rrgWrap"><canvas id="rrg"></canvas></div></div>
+  <div class="panel" id="p-regime"><h2>Regime Read <span class="sub">rule-based off the RRG data above — deterministic, not AI-generated</span></h2><div id="regimeContent"></div></div>
+  <div class="panel" id="p-detail"><h2>ETF Detail <span class="sub">sub-industry &amp; holdings are static reference (illustrative, not live) · technicals are live, computed off the daily closes above</span></h2>
+    <div id="detailPicker"></div>
+    <div id="detailActionable"></div>
+    <div id="detailTabs" style="margin-top:2px">
+      <button class="atab active" data-dv="sub">Sub-Industry</button>
+      <button class="atab" data-dv="holdings">Top Holdings</button>
+      <button class="atab" data-dv="tech">Technicals</button>
+      <button class="atab" data-dv="geiger">Geiger</button>
+      <button class="atab" data-dv="fund">Fundamentals</button>
+    </div>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<div id="docs">
+  <details><summary>SPECS & DATA SOURCES</summary><div>
+    <b>Universe:</b> 11 SPDR sector ETFs (XLK XLC XLY XLF XLI XLB XLE XLV XLP XLU XLRE) vs benchmark <b>SPY</b>.<br>
+    <b>Source-of-Truth Order (Move 1, Alan, 2026-07-24): Supabase <code>wadinxqplrggagkvrdag</code> is the source of truth. Yahoo is now a flagged fallback only, used exactly where a Supabase table is still empty/unwired. FMP is never used. Never render stale data as live — every DB-sourced number below shows its own <code>updated_ts</code> freshness inline, and missing data shows "missing", never a placeholder value.</b><br>
+    <b>① Supabase</b> (project <code>scintilla-live</code>, same database that feeds scintillahub.ai itself, read via anon/RLS-gated key, eight independent reads, each polled every 5 min, each failure isolated to its own tab/section):<br>
+    &nbsp;&nbsp;• <code>composite_staged</code> (tf='D') — real Geiger composite/trend/momentum/conviction. Geiger tab.<br>
+    &nbsp;&nbsp;• <code>derived_series</code> (tf='1D') — RSI, Williams %R, MACD, CCI, ROC, Stochastic, EMA5/8/13/21/34, SMA50/100/150/200. Feeds Technicals scorecard, Sector Sentiment, Extension Watch, Actionable Read — REPLACES all in-browser EMA/RSI math when a ticker has a row here.<br>
+    &nbsp;&nbsp;• <code>live_quotes</code> — price, chg_pct, volume, prev_close. Feeds the ETF Detail Actionable Read quote line.<br>
+    &nbsp;&nbsp;• <code>regime_state</code> — per-ticker/per-term (SHORT/MID/LONG) bull/bear + score. Feeds the "DB Regime State" block in Regime Read, kept SEPARATE from this page's own RISK-ON/OFF badge (different signal shape — see Chain 2b).<br>
+    &nbsp;&nbsp;• <code>ohlcv_history</code> (tf='D' daily / 'W' weekly / '5' 5-min / '1' 1-min; timestamp = epoch seconds) — OHLCV price bars. <b>PRIMARY price spine (wired 2026-07-30):</b> feeds Chain 1 Relative-Performance % lines, Chain 2a RRG (weekly), heatmap %, Leaders. Replaces the Yahoo relay, which is now flagged-fallback only.<br>
+    &nbsp;&nbsp;• <code>company_profile</code> (<code>avg_volume</code>) — 30-day average volume, populated for all 12. Feeds RVOL = <code>live_quotes.volume ÷ company_profile.avg_volume</code> in the Actionable Read (wired 2026-07-30).<br>
+    &nbsp;&nbsp;• <code>sector_rankings</code> — <b>this tool's PUBLISHED OUTPUT (C7, 2026-08-05):</b> rank/score per sector, written hourly server-side by <code>refresh_sector_rankings()</code> (pg_cron) from <code>composite_staged</code> tf='D', universe-checked against <code>ticker_cohorts</code>. This page reads it back and shows it in the strip under the header — the allocation module consumes the same rows. Deploys for this page now go through the Vercel API directly (serialized), not the shared _queue file.<br>
+    &nbsp;&nbsp;• <code>ticker_cohorts</code> (cohort=MACRO) — THE universe table: boot-time check that all 11 sectors + SPY are present; any missing name is flagged in the badge strip, never silently assumed.<br>
+    <b>② Yahoo Finance</b> (via same-origin relay <code>/api/yahoo</code>; fallbacks: hub relay, direct Yahoo, public proxies) — <code>close-only</code> daily (6mo) and intraday (1m/5m) series. <b>FLAGGED FALLBACK ONLY as of 2026-07-30:</b> the price spine (daily/weekly/1m/5m bars for RRG, Relative Performance % lines, heatmap %, Leaders) now reads Supabase <code>ohlcv_history</code> (①) as PRIMARY and only falls back to Yahoo if that DB read throws. Also still the flagged client-side fallback in Technicals/Sentiment when <code>derived_series</code> doesn't cover a ticker yet.<br>
+    <b>③ Static hand-compiled reference</b> (hardcoded in this file) — fund AUM $B approximations (<code>AUM</code> map), GICS sub-industry lists and illustrative top-holdings/weights (<code>ETF_DETAIL</code>, <code>TOP_HOLD_PCT</code>). BLOCKED from moving to Supabase <code>etf_holdings</code>/<code>etf_info</code> right now — both tables confirmed EMPTY (0 rows) for our tickers as of 2026-07-24. Flagged everywhere it's used.<br>
+    <b>RVOL (WIRED 2026-07-30):</b> ordered formula was <code>live_quotes.volume ÷ etf_info.avg_volume</code>, but <code>etf_info</code> is empty; <code>company_profile.avg_volume</code> IS populated for all 12, so RVOL now = <code>live_quotes.volume ÷ company_profile.avg_volume</code>, shown live in the Actionable Read. Falls back to explicit "missing" (never a fake number) if either input is absent.<br>
+    <b>sector_performance</b> table exists (18k+ rows) but is explicitly NOT used per Alan's order — treated as off-limits regardless of row count.<br>
+    <b>Timeframe buttons:</b> 1D/5D use intraday series (source ②); 1M/3M/6M use daily (source ②). Leaders list, heatmap colors, and the % lines all follow the selected timeframe. RRG always computes on daily→weekly-resampled data from source ②, independent of the timeframe buttons.
+  </div></details>
+  <details><summary>FORMULAS & COMPUTATIONS — what feeds what</summary><div>
+    This section is ordered as dependency chains: raw input → each derived step → what it's displayed as. Source tags: ① Supabase, ② Yahoo, ③ static.<br><br>
+    <b>Chain 1 — Relative Performance %:</b> <code>ohlcv_history</code> daily/intraday closes (①, Yahoo flagged-fallback) → <code>(close_i / close_base − 1) × 100</code>, base = first visible bar, rebases live as you pan/zoom → drawn as the % lines. <b>Normal/Glow toggle:</b> in Glow mode only, the same closes are re-walked to build a taper-width polygon per sector (width ∝ √AUM from source ③, thin at the left edge → full width at "now") drawn on a canvas behind the crisp lines — same underlying % values either way. <i>Migrated 2026-07-30: closes now come from Supabase <code>ohlcv_history</code> (①, tf='D'/'5'/'1') as PRIMARY; Yahoo flagged-fallback only. Same math.</i><br>
+    <b>Chain 2a — RRG (rotation math):</b> <code>ohlcv_history</code> weekly closes (①, tf='W'; ~20y available, 2y window used, Yahoo flagged-fallback) → RS = 100 × sector/SPY → smoothed EMA(4) → <b>RS-Ratio</b> = 100 + z-score of smoothed RS over a rolling 14-week window, <b>RS-Momentum</b> = 100 + z-score of the 4-week change in RS-Ratio over the same window, both finished with EMA(2) → <b>Quadrant</b> (Leading/Weakening/Lagging/Improving off the ≥100/&lt;100 split on both axes) → drawn as the RRG scatter + tails (head size ∝ √AUM from source ③). <i>Migrated 2026-07-30: weekly bars confirmed (tf='W', 1044 bars/ticker ≈ 20y) and now sourced from <code>ohlcv_history</code> (①); Yahoo flagged-fallback only.</i><br>
+    &nbsp;&nbsp;Quadrant series, walked backward → <b>Weeks In</b> + <b>"just crossed"</b> flag (weeks==1) → <b>Regime Read "just crossed" list</b>, labeled lagging/confirmatory (can only fire after a rotation change already happened).<br>
+    &nbsp;&nbsp;RS-Ratio, grouped Cyclicals vs Defensives → averaged per group → <b>spread</b> → <b>RISK-ON/RISK-OFF/MIXED</b> badge (±0.6 threshold) + breadth counts → <b>"What this means" rules block</b>. This badge is THIS PAGE'S OWN basket-wide calc — see Chain 2b for the separate DB regime signal.<br>
+    <b>Chain 2b — DB Regime State (①, NOT computed on this page):</b> Supabase <code>regime_state</code> row per ticker × term (SHORT/MID/LONG) → <code>state</code> (bull/bear) + <code>score</code> (−1..+1) shown as-is in a dedicated "DB Regime State" row under Regime Read. Deliberately kept separate from the RISK-ON/OFF badge above: that badge is one basket-wide call from this page's own RRG breadth math (Chain 2a); this is a different engine's per-ticker/per-term call — showing both, not merging them, so nothing is silently overwritten or reconciled without a visible rule.<br>
+    <b>Chain 2c — Extension Watch (forward-looking overbought/oversold):</b> RSI(14) + Williams %R (both ①, from <code>derived_series</code> when available) + stretchPct = (price/trend-EMA − 1)×100 (Chain 3) → <b>overbought</b> if RSI≥68 OR stretch≥+8% OR Williams %R > −20 (its own overbought zone) → <b>oversold</b> if RSI≤32 OR stretch≤−8% OR Williams %R < −80 (its own oversold zone) → Extension Watch chips + rules text. This is the FORWARD-LOOKING counterpart to the lagging "just crossed" list (Chain 2a) — can fire before any quadrant cross confirms anything, and now has a real Williams %R vote instead of only RSI+stretch.<br>
+    <b>Chain 3 — Technicals scorecard / Sector Sentiment / ETF Detail Actionable Read:</b> <code>derived_series</code> (①, tf='1D') → RSI, Williams %R, MACD (raw + signed), CCI, ROC, Stochastic, EMA21, SMA50, latest price backstopped by <code>live_quotes</code> (①) → up to 9 pass/fail conditions (price vs EMA21, price vs SMA50, EMA21 vs SMA50, RSI bands ×4, Williams %R overbought/oversold, MACD signed) → <b>score</b> = passes minus fails → <b>STRONG BUY…STRONG SELL badge</b>. <i>Flagged Yahoo fallback</i>: if a ticker has no <code>derived_series</code> row yet, falls back to client-computed EMA20/EMA50/RSI(14) from Yahoo closes (②), no Williams %R/MACD in that mode — the Technicals tab visibly states which mode is active. Same RSI + trend-EMA → <b>Sector Sentiment</b> = 50 + 0.8×(RSI−50) + 3×((price/trend-EMA−1)×100), clamped 0–100 (our own composite, not CNN's Fear &amp; Greed). <b>Actionable Read</b> (top of ETF Detail) = Technicals score (this chain) + Geiger composite (Chain 4, ①) + Extension state (Chain 2c) + live quote/chg_pct (①, <code>live_quotes</code>) + RVOL (live: <code>live_quotes.volume ÷ company_profile.avg_volume</code>), reconciled: if Extension flags stretched, that overrides an agreeing Technicals/Geiger read → ALIGNED BULLISH/BEARISH, STRETCHED, or MIXED SIGNALS.<br>
+    <b>Chain 4 — Geiger (①, NOT computed on this page):</b> Supabase <code>composite_staged</code> row (tf='D') → <code>composite = 0.5×trend + 0.5×momentum</code> (momentum = RSI 60% / Williams %R 40%, the "equalizer" mix set on scintillahub.ai itself; structure &amp; volatility archived at 0 in the live system) → STRONG BULLISH…STRONG BEARISH verdict off the composite value. If the fetch fails, falls back to a local approximation using an older, superseded 0.30/0.25/0.20 weighting — clearly flagged, not the real number.<br>
+    <b>Chain 5 — AUM sizing (③, static):</b> <code>AUM</code> $B map → RRG head/tail radius (√AUM), heatmap tile size (squarified treemap), Quadrant table's AUM column, Relative Performance Glow-mode taper width, and the standalone Fund Size panel's 4 display views — no different data underneath, purely a display choice.<br>
+    <b>Chain 6 — Sub-Industry / Top Holdings (③, static, BLOCKED from moving to ①):</b> <code>ETF_DETAIL</code> hand-compiled list + <code>TOP_HOLD_PCT</code> illustrative decay curve → shown as-is, not derived from anything else, not live. Supabase <code>etf_holdings</code>/<code>etf_info</code> are the ordered replacement but both are confirmed EMPTY (0 rows) for our 12 tickers — logged as an outstanding blocker, not silently worked around.<br>
+    <b>Outstanding / logged (see Research_Logs/SECTOR_ROTATION_LOG.json, "move1_sprint_board"):</b> (1) Chain 1 + Chain 2a price-bar migration to <code>ohlcv_history</code> — <b>DONE 2026-07-30</b> (daily tf='D', weekly tf='W', 5m tf='5', 1m tf='1'; Yahoo flagged-fallback only). (2) Chain 6 holdings/fundamentals migration — STILL BLOCKED on empty <code>etf_holdings</code>/<code>etf_info</code>. (3) RVOL — <b>DONE 2026-07-30</b> via <code>company_profile.avg_volume</code>. (4) Fundamentals tab (grade/P-E/yield/growth) still needs FMP, not built, explicit "pending FMP" placeholders (never wired per Alan's FMP-never rule for THIS table's data — Fundamentals tab is the one exception awaiting a future explicit source decision from Alan, not a live claim).
+  </div></details>
+  <details><summary>CODE & DEPLOY</summary><div>
+    <b>Canonical source:</b> <code>/Users/alanharvey/SCINTILLA 0.5/scintilla-sector/index.html</code> — its own standalone Vercel project (<code>scintilla-sector</code>, project id <code>prj_5GJnTOR1uzYH4S7ZMZ5Iuy71y3n7</code>). NOT part of <code>_VERCEL_DEPLOY</code> (the hub) anymore.<br>
+    <b>Live URL:</b> <code>https://sectorrotation.scintillahub.ai</code> — real subdomain, bound directly to this project (no proxy/rewrite in the path). <code>scintillahub.ai/sectorrotation</code> still works as a redirect for old links.<br>
+    <b>Relay:</b> <code>scintilla-sector/api/yahoo.js</code> (its own copy — do not point this page at the hub's relay).<br>
+    <b>Deploy:</b> write <code>/Users/alanharvey/SCINTILLA 0.5/scintilla-sector</code> + a new stamp line into <code>_queue/deploy_request.txt</code> → launchd watcher <code>ai.scintilla.autodeploy</code> runs <code>vercel deploy --prod</code> from that dir only. Log: <code>_queue/deploy_log.txt</code>.
+  </div></details>
+  <details><summary>INSTRUCTIONS FOR OTHER CLAUDE SESSIONS</summary><div>
+    1. <b>This page is fully isolated from the hub.</b> It lives in its own folder (<code>scintilla-sector/</code>) and its own Vercel project, deployed independently. Deploying the hub (<code>_VERCEL_DEPLOY/</code>) CANNOT affect this page, and deploying this page CANNOT affect the hub. Do not merge them back together.<br>
+    2. To change THIS page: edit <code>/Users/alanharvey/SCINTILLA 0.5/scintilla-sector/index.html</code>, then point <code>_queue/deploy_request.txt</code> line 1 at <code>/Users/alanharvey/SCINTILLA 0.5/scintilla-sector</code> (not <code>_VERCEL_DEPLOY</code>). Watcher deploys in ~15s.<br>
+    3. To change the HUB (other pages), deploy <code>_VERCEL_DEPLOY/</code> as before — it will never touch this page.<br>
+    4. Need market data in a page? Use a same-origin relay like <code>api/yahoo.js</code> in your own project folder — don't reach across projects.<br>
+    5. This page's owner-session log: <code>Research_Logs/SECTOR_ROTATION_LOG.json</code>.
+  </div></details>
+</div>
+
+<script>
+/* ============ CONFIG ============ */
+const SECTORS = [   // colors = SCINTILLA design-system tokens only; sh = short abbreviation (memory aid on dense labels)
+  {t:'XLK', n:'Technology',        sh:'Tech',    c:'#00D4FF', g:['GRW']},
+  {t:'XLC', n:'Communications',    sh:'Comm',    c:'#8B5CF6', g:['GRW']},
+  {t:'XLY', n:'Cons. Discretionary',sh:'Disc',   c:'#FF3DBE', g:['CYC']},
+  {t:'XLF', n:'Financials',        sh:'Fin',     c:'#00FFA3', g:['CYC']},
+  {t:'XLI', n:'Industrials',       sh:'Indl',    c:'#FFD400', g:['CYC']},
+  {t:'XLB', n:'Materials',         sh:'Matl',    c:'#C8FF00', g:['CYC']},
+  {t:'XLE', n:'Energy',            sh:'Enrg',    c:'#FF8A00', g:['CYC']},
+  {t:'XLV', n:'Healthcare',        sh:'Health',  c:'#2D9CFF', g:['DEF']},
+  {t:'XLP', n:'Cons. Staples',     sh:'Staples', c:'#F2F2F8', g:['DEF']},
+  {t:'XLU', n:'Utilities',         sh:'Util',    c:'#868AAA', g:['DEF']},
+  {t:'XLRE',n:'Real Estate',       sh:'REIT',    c:'#FF2D55', g:['DEF']},
+];
+const BENCH='SPY';
+const REFRESH_MIN=5;
+const RRG_WIN=14, TAIL_STEP=1; const TAIL_REC=5; let TAIL_PTS=TAIL_REC;   // weekly, JdK-style; tail user-selectable, rec = StockCharts' own default
+const RRG_R_DEFAULT=3.2, RRG_R_MAX=6.5;
+let RRG_R=RRG_R_DEFAULT;              // current half-range of the RRG axes (Center=default, Fit=auto, Max=wide)
+let RRG_VIEW='CENTER';                // CENTER | FIT | MAX — which button is active
+let RRG_ANIM=null;                    // animation timer handle, null = not animating
+let RRG_ANIM_BUILD=null;              // while animating: how many tail points are currently revealed (1 -> TAIL_PTS)
+
+/* ============ STATE ============ */
+let DS={daily:{},intra:{},intra1:{},weekly:{}}; let ACTIVE='daily';
+let selected = JSON.parse(localStorage.getItem('sr_sel')||'null') || SECTORS.map(s=>s.t);
+let lineSeries={}, chart=null, rebaseIdx=-1, rebasing=false;
+
+/* ============ FETCH (own /api/yahoo relay first, then public fallbacks) ============ */
+async function fetchJSON(path,qs){
+  const direct=`https://query1.finance.yahoo.com/${path}?${qs}`;
+  const tries=[
+    `/api/yahoo?path=${encodeURIComponent(path)}&${qs}`,      // same-origin relay (hosted on scintillahub.ai)
+    `https://scintillahub.ai/api/yahoo?path=${encodeURIComponent(path)}&${qs}`, // hub relay (works from local copies too)
+    direct,                                                    // works in some browsers/extensions
+    'https://corsproxy.io/?url='+encodeURIComponent(direct),   // public fallback 1
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(direct)]; // public fallback 2
+  for(const u of tries){
+    try{ const r=await fetch(u,{cache:'no-store'}); if(r.ok){const j=await r.json(); if(j&&!j.error) return j;} }catch(e){}
+  }
+  throw new Error('all fetch routes failed');
+}
+function parseSpark(j){
+  const out={};
+  const put=(sym,ts,cl)=>{
+    const times=[],closes=[];
+    for(let i=0;i<(ts||[]).length;i++){ if(cl[i]!=null){times.push(ts[i]); closes.push(cl[i]);} }
+    if(times.length) out[sym]={times,closes};
+  };
+  const arr=j.spark? j.spark.result : j.result;
+  if(Array.isArray(arr)){
+    for(const r of arr){
+      const resp=r.response&&r.response[0]; if(!resp) continue;
+      put(r.symbol, resp.timestamp, (resp.indicators.quote[0].close)||[]);
+    }
+  }else{
+    for(const sym in j){ const o=j[sym]; if(o&&o.timestamp&&o.close) put(sym,o.timestamp,o.close); }
+  }
+  return out;
+}
