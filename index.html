@@ -95,6 +95,7 @@
 
 <h1>SCINTILLA <span class="dot">·</span> ALLOCATION</h1>
 <div class="sub" id="stamp">—</div>
+<div id="dataspine" style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px"></div>
 
 <div class="grid">
 
@@ -178,6 +179,7 @@
   <div class="panel full">
     <h2>4 · MOVE OPTIONS — pick your names, by category</h2>
     <div class="note">Your favorites with geiger + fundamentals from the SCINTILLA database. Coldest 3 per sleeve are tagged ADD (style-adjusted — cold QQQ lifts growth names). Star a name to send it to COMPARABLES. Volume conviction is NOT wired yet (your volume equalizer is 0 on the hub).</div>
+    <div id="sectorStrip" style="margin-bottom:10px"></div>
     <div id="catTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
     <table id="cohort"></table>
     <div class="status"><button class="btn" id="refresh">↻ REFRESH FEEDS</button> <span class="updated" id="cohstamp"></span></div>
@@ -186,7 +188,7 @@
   <!-- 4b COMPARABLES -->
   <div class="panel full">
     <h2>4b · COMPARABLES — study the suggestions by category</h2>
-    <div class="note">Suggested ADD names, lined up like a comps sheet with median/mean/min/max — judge relative value before acting. Cells are shaded vs the peer median: <span style="color:var(--green)">green = better than peers</span>, <span style="color:var(--orange)">orange = worse</span> (cheaper P/E, higher margins & growth, lower debt = better). <b>Drop</b> greys a row and pulls it out of the stats without deleting it; <b>pick</b> marks your keepers (capped at your TOTAL-names hard cap). Star more names in the table above to add non-suggested candidates.</div>
+    <div class="note">Suggested ADD names, lined up like a comps sheet with median/mean/min/max — judge relative value before acting. Cells are shaded vs the peer median: <span style="color:var(--green)">green = better than peers</span>, <span style="color:var(--orange)">orange = worse</span> (cheaper P/E, higher margins &amp; growth, lower debt = better). <b>Drop</b> greys a row and pulls it out of the stats without deleting it; <b>pick</b> marks your keepers (capped at your TOTAL-names hard cap). Star more names in the table above to add non-suggested candidates.</div>
     <div id="pickNote" class="note" style="font-size:10px;min-height:12px"></div>
     <div id="compCat" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
     <table id="comps"></table>
@@ -208,6 +210,7 @@
     <div class="note" style="line-height:1.75">
     <b style="color:var(--txt)">WHAT THIS IS.</b> The SCINTILLA allocation module: market heat → % invested → LC/SC split → moves in % of equity / class / position, with ★FAV candidates ranked by their own geigers. Percent-only, never dollars. Canonical source: GitHub aharveyrianhard-stack/scintilla-allocation (main auto-deploys here). Served at scintillahub.ai/allocation and allocation.scintillahub.ai — same page.<br><br>
     <b style="color:var(--txt)">DATA POLICY.</b> Test lane = YAHOO via Supabase functions macro-feed + cohort-feed (5-min server cache). Symbol map: BTCUSD→BTC-USD, GCUSD→GC=F, SIUSD→SI=F, CLUSD→CL=F. Proven voters graduate to the SCINTILLA database as primary with Yahoo as fallback. FMP is PROHIBITED everywhere in this module.<br><br>
+    <b style="color:var(--txt)">CONSOLIDATION (2026-08-05 · C7).</b> This module now reads the shared SCINTILLA source-of-truth directly: GEIGER = <code>composite_staged</code> (tf=D, the hub equalizer output — the client no longer computes scoring geigers; cohort-feed Yahoo primitives remain only as a flagged FALLBACK). UNIVERSE = <code>ticker_cohorts</code> + <code>hub_favorites</code> (hardcoded TICKER_STYLES retained only as fallback). QUOTE+RVOL = <code>live_quotes</code> ÷ <code>company_profile.avg_volume</code>. MACRO = <code>treasury_rates</code> (10Y) + <code>vix_term</code> (VIX; Yahoo fallback flagged when stale). SECTOR = <code>sector_rankings</code>, published hourly by the sector-rotation tool from the same composite_staged — displayed as a ranking strip and a per-name SECT chip (display/annotation only, no score-math change). Every data element carries a freshness/source badge in the strip under the title. etf_holdings/etf_info remain empty — nothing faked.<br><br>
     <b style="color:var(--txt)">PROXY MENU.</b> LC→SPY · SC→IWM · Growth→QQQ · Value→RSP · Semis→SMH · Crypto→BTC-USD · Oil→CL=F (LIVE as its own independent voter, inverted — per Alan; no other commodity voters unless Alan asks) · Defensives→XLP+XLU. Mechanics when added: SLEEVES are sized by relative coldness — colder sleeve earns more, its coldest favorites get ADD-tagged. STYLES (growth/value — cross-cap by nature) never become sleeves; they re-rank candidates INSIDE sleeves (cold QQQ pushes growth names up the ADD list in both classes). Sector geigers (already in macro-feed, all 11) will re-rank by sector the same way — integrates with the hub sectorrotation tool.<br><br>
     <b style="color:var(--txt)">PARITY — EQUALIZER REVIEWED ON THE HUB 2026-07-19 (logo menu → Weight Equalizer).</b> Read-back of the live surface: TF curve 2h 1.2 · 3h 3.6 · 4h 6.7 · 6h 9.3 · 12h 9.3 · 1d 9.3 · 3d 7.6 · 1w 2.9 (1m–1h and 2w–1M at 0) · families TRND 50 / MOM 50 (only those two carry weight live) · momentum mix 60 RSI / 40 Williams · SAVE persists to operator_weights (currently 0 rows = hub running these defaults). THIS MODULE NOW RUNS THAT EXACT CURVE: cohort-feed v4 computes the primitives per TF, intraday resampled from Yahoo 60m bars (2h=2×60m, 3h=3, 4h=4, 6h=6, 12h=13 bars — test-lane approximation; database bars replace them on graduation). Remaining differences vs the hub can only come from Yahoo data lag/timestamps — by design, per Alan's doctrine. When operator_weights gains rows, read it live and drop the hardcoded curve.<br><br>
     <b style="color:var(--txt)">RSI LEVELS — verified vs GOOGL_GEIGER_v2 (GEIGER!A24):</b> momentum is "mapped straight from its range to −1…+1". 23/77 are the ends of the map, not gates — every intermediate RSI level feeds proportionally, continuously.<br><br>
@@ -215,6 +218,12 @@
     <b style="color:var(--txt)">YOUR STATE / IBKR.</b> Panel 3 seeds from storage file inbox/ibkr-state.json (percentages only, never dollars). It updates ONLY when Alan tells a session "sync IBKR" (scheduled auto-sync was proposed and REJECTED — do not create one). IBKR connector is read-only OAuth; never touch orders.<br><br>
     <b style="color:var(--txt)">ARCHITECTURE (v11, Alan doctrine): SCORE = HOW MUCH (total risk from heat); SLEEVES = WHERE (GROWTH/SMALL/BROAD/SEMIS/CRYPTO/CMDTY, shares proportional to coldness, capped 5-35%). Every proxy does real work in WHERE regardless of its score weight. Tickers can live in several sleeves. LC/SC survives as a lens readout only. Per-sleeve CURRENT arrives with IBKR position sync (all-cash today, so every sleeve reads BUILD). Schedule is multi-factor (vol + heat + breadth + style discounts), not VIX-only. Open on Alan word: breadth voters as RATIO geigers (IWM/SPY, RSP/SPY from macro-feed) instead of straight geigers.</b><br><br>
     <b style="color:var(--txt)">STYLE LAYER — LIVE (2026-07-20): style proxies vs SPY (GROWTH=QQQ, SEMIS=SMH, VALUE=RSP, CRYPTO=BTC, DEFENSIVE=XLP+XLU) produce STYLE TILTS in the MOVES panel (lean into / avoid on adds) and re-rank the candidate list by style-adjusted coldness (geiger + 0.5 × avg style spread). Styles tilt WITHIN sleeves; sleeves remain LC/SC. Cold QQQ literally pushes growth names up the ADD list. THE BRIEF panel at the top is generated from the same numbers.</b><br><br>\n    <b style="color:var(--txt)">AGREED BASE (2026-07-20, starting point for testing):</b> weights SPY 1 · QQQ 1 · IWM 0.5 · SMH 0.5 · VIX 0.5 · US10Y 0.5 · OIL 0.5 · VALUE 0 (reading) · CRYPTO 0.25 · DEF 0.25. Policy: invested 100% at max cold, 15% at max hot, linear. LC/SC split data-driven (IWM vs SPY), tilt OFF. Positions 4 LC / 2 SC. All of it testable, none of it sacred.<br><br>
+    <b style="color:var(--gold)">ECOSYSTEM DIRECTION — ALAN 2026-07-23 (the tool must become one connected system, not stacked panels).</b> Core problem Alan named: nothing flows downstream — TARGET MIX is pure sleeve-coldness % and ignores his PICKS; PICK only highlights; the cap doesn't reach the pie; sleeves don't "compete." The spine to build: HEAT → total %invested → SLEEVES COMPETE (coldness + undervaluation) for the % → within each sleeve your PICKED names split that sleeve's % → cadence front-loads the most undervalued sleeves/names → the pies redraw live as you pick. Phases:<br>
+    &nbsp;&nbsp;<b>P1 legibility</b> — dials show a live readout of their effect; explain why manual names-per-sleeve greys under AUTO; label the build cadence explicitly as TRANCHES.<br>
+    &nbsp;&nbsp;<b>P2 close the loop (priority)</b> — PICKS flow into TARGET MIX. Two-ring donut: outer = sleeves (WHERE), inner = your actual picked names sized inside each sleeve. Fewer names → bigger each; TOTAL cap limits count; diversification flows downstream so the pie moves as you select.<br>
+    &nbsp;&nbsp;<b>P3 selection workflow</b> — PICK opens a dedicated SELECTION stage: cards of the tickers, slide through to finalize takers, then it generates the per-name tranche plan in a visual way (Alan wants it to look cool, maybe its own pies).<br>
+    &nbsp;&nbsp;<b>P4 smarter cadence</b> — replace blind thirds. Build leans toward the MORE UNDERVALUED sleeves first; same per-name (which name is better to buy right now). Needs value signal (P5) + more data; Alan: "you don't have everything to decide with confidence, but you will."<br>
+    &nbsp;&nbsp;<b>P5 sleeves compete + VALUE OVERLAY</b> — fundamentals (P/E, P/S, rev growth, margins, D/E — Alan's list) enter ranking as a value axis alongside geiger; sleeves compete on cold + cheap, more automatically. Kept separate from geiger. Answers the SNDK-vs-MU question. Also parked here: ETF fund-level fundamentals (weighted P/E, P/B, yield, expense) so a sleeve proxy can sit in comps; empty-sleeve targets pulled from the hub-at-large by theme (not just blue-chips; RSP is the blue-chip case), favorites tagged.<br><br>
     <b style="color:var(--txt)">AWAITING ALAN'S GO:</b> multi-class sleeve engine (classes beyond LC/SC) · style re-ranking wiring · sector re-ranking wiring · database graduation of voters · volume conviction coefficient (proposal exists: RVOL time-of-day, VWAP position, volume shelves — scales loudness + gates execution, never votes direction).
     </div></details>
   </div>
@@ -232,17 +241,153 @@
 
 <script>
 const SB = 'https://wadinxqplrggagkvrdag.supabase.co/functions/v1';
+/* ===================== C7 SSOT LAYER (2026-08-05) =====================
+   Direct anon (read-only, publishable-key) PostgREST reads of the shared SCINTILLA truth tables.
+   NEVER FMP from this page. Yahoo edge-feeds are FALLBACK ONLY and flagged when used.
+   Every read lands a freshness/source badge in #dataspine (table · age · LIVE/STALE/FALLBACK).
+   PostgREST caps responses at 1000 rows: every read here is either a guarded small-slice
+   (asserts rows<1000) or a per-key limited fetch — never an unguarded giant in.() query. */
+const SB_REST='https://wadinxqplrggagkvrdag.supabase.co/rest/v1';
+const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZGlueHFwbHJnZ2Fna3ZyZGFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1NDk0MTYsImV4cCI6MjA5NjEyNTQxNn0.1UKKUb_fY-xOy33vNUszDzxGECqQxdcwaxb9kN7KY-g';
+async function sbGet(path){
+  const r=await fetch(SB_REST+'/'+path,{headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON},cache:'no-store'});
+  if(!r.ok) throw new Error(path.split('?')[0]+' '+r.status);
+  return r.json();
+}
+let COMPOSITE={}, COMPOSITE_STATUS='pending';           // ticker -> {trend,momentum,composite,updated_ts}  THE geiger
+let UNIVERSE={cohorts:{}, favs:new Set(), status:'pending'};  // THE universe: ticker_cohorts + hub_favorites
+let QUOTES={}, PROFILES={}, TREAS=null, VIXDB=null, SECTOR_RANKS=null, OPW=null;
+const SPINE={};
+function spineSet(k,ts,mode,note){ SPINE[k]={ts,mode,note}; }
+function freshTxt(ts){
+  if(ts==null) return '';
+  const es=(typeof ts==='number')?ts:(Date.parse(ts)/1000);
+  if(!isFinite(es)) return '';
+  const m=(Date.now()/1000-es)/60;
+  return m<1?'just now':m<60?Math.round(m)+'m ago':m<60*48?(m/60).toFixed(1)+'h ago':Math.round(m/1440)+'d ago';
+}
+function ageMode(ts,staleSec){
+  if(ts==null) return 'LIVE';
+  const es=(typeof ts==='number')?ts:(Date.parse(ts)/1000);
+  return (isFinite(es)&&(Date.now()/1000-es)>staleSec)?'STALE':'LIVE';
+}
+function renderSpine(){
+  const el=document.getElementById('dataspine'); if(!el) return;
+  const col={LIVE:'#38e07b',STALE:'var(--orange)',FALLBACK:'var(--gold)'};
+  el.innerHTML=Object.entries(SPINE).map(([k,v])=>
+    `<span style="border:1px solid ${col[v.mode]||'var(--line)'};color:${col[v.mode]||'var(--dim)'};border-radius:5px;padding:2px 8px;font-size:10px;letter-spacing:.04em" title="${(v.note||'').replace(/"/g,'&quot;')}">${k}${v.ts?' · '+freshTxt(v.ts):''} · ${v.mode}</span>`).join('');
+}
+async function refreshSSOT(){
+  const J=[];
+  // THE universe
+  J.push(sbGet('ticker_cohorts?select=ticker,cohort&limit=1000').then(rows=>{
+    if(rows.length>=1000) throw new Error('truncated at PostgREST cap');
+    const m={}; for(const r of rows)(m[r.ticker]=m[r.ticker]||[]).push(r.cohort);
+    UNIVERSE.cohorts=m; UNIVERSE.status='ok';
+    spineSet('ticker_cohorts',null,'LIVE',rows.length+' rows — THE universe');
+  }).catch(e=>{UNIVERSE.status='error';spineSet('ticker_cohorts',null,'FALLBACK','read failed ('+e.message+') — hardcoded TICKER_STYLES in use');}));
+  J.push(sbGet('hub_favorites?select=ticker,added_at&limit=1000').then(rows=>{
+    UNIVERSE.favs=new Set(rows.map(r=>r.ticker));
+    spineSet('hub_favorites',null,'LIVE',rows.length+' favorites');
+  }).catch(e=>spineSet('hub_favorites',null,'FALLBACK','read failed')));
+  // THE geiger — composite_staged tf=D (~211 rows, guarded well under the 1000 cap)
+  J.push(sbGet('composite_staged?select=ticker,trend,momentum,composite,updated_ts&tf=eq.D&limit=1000').then(rows=>{
+    if(rows.length>=1000) throw new Error('truncated at PostgREST cap');
+    const m={}; let mx=0; for(const r of rows){m[r.ticker]=r; if(r.updated_ts>mx)mx=r.updated_ts;}
+    COMPOSITE=m; COMPOSITE_STATUS='ok';
+    spineSet('composite_staged',mx,ageMode(mx,45*60),rows.length+' tickers tf=D — THE geiger (0.5×trend+0.5×momentum, hub equalizer output)');
+  }).catch(e=>{COMPOSITE_STATUS='error';spineSet('composite_staged',null,'FALLBACK','read failed ('+e.message+') — client Yahoo geiger in use');}));
+  // quote + RVOL inputs
+  J.push(sbGet('live_quotes?select=ticker,price,chg_pct,volume,prev_close,updated_ts&limit=1000').then(rows=>{
+    if(rows.length>=1000) throw new Error('truncated at PostgREST cap');
+    const m={}; let mx=null; for(const r of rows){m[r.ticker]=r; const es=Date.parse(r.updated_ts)/1000; if(!mx||es>mx)mx=es;}
+    QUOTES=m; spineSet('live_quotes',mx,ageMode(mx,30*60),rows.length+' quotes');
+  }).catch(e=>spineSet('live_quotes',null,'FALLBACK','read failed — cohort-feed prices in use')));
+  J.push(sbGet('company_profile?select=ticker,sector,market_cap,avg_volume,is_etf&limit=1000').then(rows=>{
+    if(rows.length>=1000) throw new Error('truncated at PostgREST cap');
+    const m={}; for(const r of rows)m[r.ticker]=r;
+    PROFILES=m; spineSet('company_profile',null,'LIVE',rows.length+' profiles (sector · mcap · avg_volume)');
+  }).catch(e=>spineSet('company_profile',null,'FALLBACK','read failed — RVOL/sector chips unavailable')));
+  // macro truth
+  J.push(sbGet('treasury_rates?select=date,y10,updated_ts&order=date.desc&limit=1').then(rows=>{
+    if(rows[0]){TREAS=rows[0]; const age=(Date.now()-Date.parse(TREAS.date))/864e5;
+      spineSet('treasury_rates',TREAS.updated_ts,age>5?'STALE':'LIVE','10Y '+TREAS.y10+'% @ '+TREAS.date);}
+  }).catch(e=>spineSet('treasury_rates',null,'FALLBACK','read failed — Yahoo ^TNX in use')));
+  J.push(sbGet('vix_term?select=date,vix,vix3m,ratio,updated_ts&order=date.desc&limit=1').then(rows=>{
+    if(rows[0]){VIXDB=rows[0]; VIXDB.fresh=(Date.now()-Date.parse(VIXDB.date))/864e5<=3;
+      spineSet('vix_term',null,VIXDB.fresh?'LIVE':'STALE','VIX '+VIXDB.vix+' @ '+VIXDB.date+(VIXDB.fresh?'':' — stale, Yahoo VIX voting instead (flagged)'));}
+  }).catch(e=>spineSet('vix_term',null,'FALLBACK','read failed — Yahoo VIX in use')));
+  // published sector rotation (written by the sector tool from the same composite_staged)
+  J.push(sbGet('sector_rankings?select=date,sector,sector_name,rank,score,method,updated_at&order=date.desc,rank.asc&limit=22').then(rows=>{
+    if(rows.length){const d0=rows[0].date; const list=rows.filter(r=>r.date===d0);
+      SECTOR_RANKS={date:d0,list,bySector:Object.fromEntries(list.map(r=>[r.sector,r])),updated_at:rows[0].updated_at};
+      spineSet('sector_rankings',rows[0].updated_at,ageMode(rows[0].updated_at,3*3600),list.length+' sectors @ '+d0+' — published by the sector-rotation tool');}
+    else spineSet('sector_rankings',null,'STALE','table empty');
+  }).catch(e=>spineSet('sector_rankings',null,'FALLBACK','read failed — sector lens off')));
+  // operator weights (hub applies these upstream inside composite_staged; read for transparency)
+  J.push(sbGet('operator_weights?select=dim,key,weight,enabled&limit=100').then(rows=>{
+    OPW={rows:rows.length}; spineSet('operator_weights',null,'LIVE',rows.length+' rows — applied upstream by the hub inside composite_staged');
+  }).catch(e=>spineSet('operator_weights',null,'FALLBACK','read failed')));
+  await Promise.all(J);
+  renderSpine();
+}
+// THE geiger accessor: composite_staged first, client Yahoo geiger strictly as flagged fallback
+function tickerG(sym){
+  const r=COMPOSITE[sym];
+  if(r&&r.composite!=null) return {g:Math.max(-1,Math.min(1,r.composite)),src:'db'};
+  const c=COHORT[sym];
+  if(c) return {g:geiger(c),src:'fallback'};
+  return null;
+}
+function gv(sym){ const r=tickerG(sym); return r?r.g:null; }
+// FMP-style profile sector names -> GICS sector ETF
+const SECTOR_ETF={'Technology':'XLK','Communication Services':'XLC','Consumer Cyclical':'XLY','Consumer Discretionary':'XLY','Financial Services':'XLF','Financials':'XLF','Industrials':'XLI','Basic Materials':'XLB','Materials':'XLB','Energy':'XLE','Healthcare':'XLV','Health Care':'XLV','Consumer Defensive':'XLP','Consumer Staples':'XLP','Utilities':'XLU','Real Estate':'XLRE'};
+function sectorChip(sym){
+  const p=PROFILES[sym]; if(!p||!p.sector) return '<span class="cls">—</span>';
+  const etf=SECTOR_ETF[p.sector]; const sr=SECTOR_RANKS&&etf?SECTOR_RANKS.bySector[etf]:null;
+  if(!sr) return '<span class="cls">'+p.sector.slice(0,12)+'</span>';
+  const col=sr.rank<=3?'var(--green)':sr.rank>=9?'var(--orange)':'var(--dim)';
+  return '<span style="color:'+col+'" title="'+p.sector+' · '+etf+' rank '+sr.rank+'/11 · score '+(+sr.score).toFixed(2)+' · sector_rankings (published by the sector-rotation tool)">#'+sr.rank+' '+etf+'</span>';
+}
+function rvolTxt(sym){
+  const q=QUOTES[sym],p=PROFILES[sym];
+  if(!q||!p||!q.volume||!p.avg_volume) return '<span class="cls">—</span>';
+  const rv=q.volume/p.avg_volume;
+  const col=rv>=1.5?'var(--gold)':rv>=1?'var(--txt)':'var(--dim)';
+  return '<span style="color:'+col+'" title="RVOL = live_quotes.volume ÷ company_profile.avg_volume">'+rv.toFixed(2)+'×</span>';
+}
+function renderSectorStrip(){
+  const el=document.getElementById('sectorStrip'); if(!el) return;
+  if(!SECTOR_RANKS){ el.innerHTML='<span class="cls">sector_rankings unavailable — sector lens off</span>'; return; }
+  const chips=SECTOR_RANKS.list.map(r=>{
+    const col=r.rank<=3?'var(--green)':r.rank>=9?'var(--orange)':'var(--dim)';
+    return '<span style="border:1px solid var(--line);border-radius:5px;padding:3px 8px;font-size:11px;color:'+col+'" title="'+(r.sector_name||'')+' · '+r.method+'">#'+r.rank+' '+r.sector+' '+(r.score>=0?'+':'')+(+r.score).toFixed(2)+'</span>';
+  }).join(' ');
+  el.innerHTML='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin-bottom:4px">SECTOR ROTATION — published ranking · <code>sector_rankings</code> (sector tool, same composite_staged geiger) · '+freshTxt(SECTOR_RANKS.updated_at)+' · annotation lens only, no score-math change</div><div style="display:flex;flex-wrap:wrap;gap:5px">'+chips+'</div>';
+}
+function candidateSyms(){
+  // THE universe = ticker_cohorts (pick cohorts) + hub_favorites. Legacy cohort-feed set only as fallback.
+  const pickCohorts=new Set(['GROWTH','AI_HARDWARE','AI_HW','AI_SOFTWARE','CRYPTO','MEGACAP','BLUE_CHIP','THEMATIC','INTL']);
+  const out=new Set();
+  for(const [sym,cs] of Object.entries(UNIVERSE.cohorts)) if(cs.some(c=>pickCohorts.has(c))) out.add(sym);
+  for(const f of UNIVERSE.favs) out.add(f);
+  for(const s of CMDTY_SYMS) if(COMPOSITE[s]||COHORT[s]) out.add(s);
+  if(!out.size) for(const s of Object.keys(COHORT)) out.add(s);   // FALLBACK universe (spine flags it)
+  return [...out];
+}
+/* =================== end C7 SSOT LAYER =================== */
 const CLASSES = {ANET:'LC',AMD:'LC',SPY:'IDX',CRDO:'SC',PSTG:'SC',ALAB:'SC',NVDA:'LC',QQQ:'IDX',SNDK:'SC',AMAT:'LC',AVGO:'LC',ASML:'LC',AMZN:'LC',LRCX:'LC',MU:'LC',TSM:'LC',GOOGL:'LC',NBIS:'SC',ARM:'LC',CIFR:'SC',DRAM:'IDX',MRVL:'LC',TSLA:'LC',USO:'ETF',CLUSD:'CMD',MSFT:'LC',WULF:'SC',BTCUSD:'CRY',PLTR:'LC',CRWV:'SC',RKLB:'SC',APLD:'SC',USAR:'SC',IREN:'SC',SLV:'ETF',ASTS:'SC',OKLO:'SC',GCUSD:'CMD',SIUSD:'CMD',MSTR:'SC',IWM:'IDX',SMH:'IDX'};
 const CLASSNAME = {LC:'Large Cap',SC:'Small Cap',IDX:'Index',ETF:'ETF',CMD:'Commodity',CRY:'Crypto'};
 // STYLE LAYER: proxies vs SPY decide which styles are discounted; styles never become sleeves — they tilt MOVES and re-rank candidates.
 const TICKER_STYLES = {NVDA:['GROWTH','SEMIS'],AMD:['GROWTH','SEMIS'],AVGO:['SEMIS'],ASML:['SEMIS'],AMAT:['SEMIS'],LRCX:['SEMIS'],MU:['SEMIS'],TSM:['SEMIS'],MRVL:['SEMIS'],SNDK:['SEMIS'],CRDO:['SEMIS'],ALAB:['SEMIS'],ANET:['GROWTH'],ARM:['GROWTH','SEMIS'],TSLA:['GROWTH'],PLTR:['GROWTH'],AMZN:['GROWTH'],GOOGL:['GROWTH'],MSFT:['GROWTH'],NBIS:['GROWTH'],CRWV:['GROWTH'],PSTG:['GROWTH'],ASTS:['GROWTH'],OKLO:['GROWTH'],RKLB:['GROWTH'],APLD:['CRYPTO'],IREN:['CRYPTO'],CIFR:['CRYPTO'],WULF:['CRYPTO'],MSTR:['CRYPTO'],BTCUSD:['CRYPTO'],USO:['CMDTY'],SLV:['CMDTY'],CLUSD:['CMDTY'],GCUSD:['CMDTY'],SIUSD:['CMDTY']};
 function styleSpreads(){
-  const gS = COHORT['SPY'] ? geiger(COHORT['SPY']) : null;
+  const gS = gv('SPY');                                  // SSOT: composite_staged
   if (gS == null) return {};
   const sp = {};
-  const pair = (name, sym) => { if (COHORT[sym]) sp[name] = geiger(COHORT[sym]) - gS; };
+  const pair = (name, sym) => { const g = gv(sym); if (g != null) sp[name] = g - gS; };
   pair('GROWTH','QQQ'); pair('SEMIS','SMH'); pair('VALUE','RSP'); pair('CRYPTO','BTCUSD');
-  if (COHORT['XLP'] && COHORT['XLU']) sp['DEFENSIVE'] = (geiger(COHORT['XLP'])+geiger(COHORT['XLU']))/2 - gS;
+  const gp = gv('XLP'), gu = gv('XLU');
+  if (gp != null && gu != null) sp['DEFENSIVE'] = (gp+gu)/2 - gS;
   return sp;
 }
 function styleAdj(sym, spreads){
@@ -257,9 +402,9 @@ function styleAdj(sym, spreads){
 const SLEEVES = {GROWTH:['QQQ'], SMALL:['IWM'], BROAD:['RSP'], SEMIS:['SMH'], CRYPTO:['BTCUSD'], CMDTY:['GCUSD','SIUSD','CLUSD']};
 const SLEEVE_COLOR = {GROWTH:'#00d4ff', SMALL:'#7dd3fc', BROAD:'#ffd166', SEMIS:'#a78bfa', CRYPTO:'#ff8c42', CMDTY:'#38e07b', CASH:'#23233a'};
 function sleeveG(name){
-  const syms = SLEEVES[name].filter(x => COHORT[x]);
+  const syms = SLEEVES[name].filter(x => gv(x) != null); // SSOT: composite_staged
   if (!syms.length) return null;
-  return syms.reduce((t,x) => t + geiger(COHORT[x]), 0) / syms.length;
+  return syms.reduce((t,x) => t + gv(x), 0) / syms.length;
 }
 function sleeveShares(){
   const raw = {};
@@ -272,10 +417,24 @@ function sleeveShares(){
   for (const k of Object.keys(raw)) raw[k] = raw[k] / capTot;
   return raw;
 }
+// SSOT: sleeve membership derives from ticker_cohorts (DB); TICKER_STYLES only as flagged fallback.
+const COHORT_SLEEVE = {AI_HARDWARE:'SEMIS', AI_HW:'SEMIS', AI_SOFTWARE:'GROWTH', GROWTH:'GROWTH', THEMATIC:'GROWTH', CRYPTO:'CRYPTO', MEGACAP:'BROAD', BLUE_CHIP:'BROAD', INTL:'BROAD'};
+const CMDTY_SYMS = new Set(['GCUSD','SIUSD','CLUSD','USO','SLV']);
+function tickerCls(sym){
+  const p = PROFILES[sym];
+  if (p && p.market_cap != null && !p.is_etf) return p.market_cap < 10e9 ? 'SC' : 'LC';  // DB-driven cap class
+  return CLASSES[sym] || null;
+}
 function tickerSleeves(sym){
-  const tags = TICKER_STYLES[sym] || [];
-  const out = new Set(tags.filter(t => SLEEVES[t]));
-  const cls = CLASSES[sym];
+  const out = new Set();
+  if (CMDTY_SYMS.has(sym)) out.add('CMDTY');
+  const dbc = UNIVERSE.cohorts[sym];
+  if (dbc && dbc.length) {
+    for (const c of dbc) { const sl = COHORT_SLEEVE[c]; if (sl) out.add(sl); }
+  } else {
+    for (const t of (TICKER_STYLES[sym] || [])) if (SLEEVES[t]) out.add(t);   // FALLBACK map
+  }
+  const cls = tickerCls(sym);
   if (cls === 'SC') out.add('SMALL');
   if (!out.size && cls === 'LC') out.add('BROAD');
   return [...out];
@@ -291,16 +450,16 @@ const DEFAULTS = {
   wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25}
 };
 const VOTER_DESC = {
-  SPY: 'PROXY: SPY (Yahoo). The approved geiger on the S&P across your full equalizer curve (2h→1w): ribbon order 50% + momentum 50% (RSI 60 / W%R 40, straight 23→77 map — every level in between feeds, per GOOGL_GEIGER_v2). WHEN it reads positive the market is stretched and it pushes the score UP toward Overbought; negative = washed out, pushes DOWN toward Oversold.',
-  QQQ: 'PROXY: QQQ (Yahoo). Same geiger on the Nasdaq-100. When growth is the stretched side it pushes the score UP; when growth is the beaten-down side (like now) it pulls the score DOWN. Watch it vs SPY: the gap says which side is discounted.',
-  IWM: 'PROXY: IWM (Yahoo). Same geiger on small caps. As a voter it adds breadth: a rally without small caps reads cooler. NOTE: whether weighted or not, IWM-vs-SPY always drives the LC/SC split in panel 2.',
-  SMH: 'PROXY: SMH (Yahoo). Same geiger on semis, the current leadership. Weighted in, a stretched semi complex pushes the score UP (leadership froth) and a broken one drags it DOWN.',
-  VIX: 'PROXY: ^VIX level (Yahoo), not a geiger. HOW IT VOTES: below ~21 it votes hot (+) — calm/complacency, pushes the score UP; above ~21 it votes cold (−) — fear, pulls it DOWN; at 12 it maxes at +1, at your cold endpoint (30) it floors at −1, clamped beyond. Today 18.8 → +0.25: mildly complacent. KNOWN LIMIT: level-only is v1-simplistic — term structure (VIX vs VIX3M) and rate-of-change are roadmap upgrades.',
-  US10Y: 'PROXY: ^TNX level (Yahoo), not a geiger. HOW IT VOTES: below ~4.15% yields are fuel — pushes the score UP; above ~4.15% they are a headwind — pulls it DOWN; +1 at 3.5%, −1 at 4.8%. Today 4.54% → −0.60: rates are a drag. Same v1-simplistic caveat as VIX — a yield-trend geiger is a roadmap upgrade.',
-  OIL: 'PROXY: CL=F crude futures (Yahoo), its own independent voter — never lumped with other commodities. INVERTED geiger: oil trending hot = inflation pressure = pulls the score DOWN; oil breaking down = relief = pushes UP. Base weight 0.5 because it matters now; dial to 0 the day it stops.',
-  VALUE: 'PROXY: RSP equal-weight S&P (Yahoo). The value/breadth style. Straight geiger: a hot equal-weight tape = broad strength pushes the score UP; a cold one = narrow market, pulls DOWN. Base weight 0 — reading only for now; as a STYLE it will re-rank candidates rather than vote, per the roadmap.',
-  CRYPTO: 'PROXY: BTC-USD (Yahoo). The risk-appetite tell. Straight geiger: BTC running hot = speculative appetite = pushes the score UP; BTC breaking = risk coming off = pulls DOWN. Base weight 0.25 — a tell, not a driver.',
-  DEF: 'PROXY: XLP+XLU average (Yahoo), INVERTED. When defensives are the hot trade, money is hiding — that is risk-off, so it pulls the score DOWN; defensives cold = nobody paying up for safety = pushes UP. Base weight 0.25.'
+  SPY: 'PROXY: SPY (composite_staged · db; Yahoo fallback). The approved geiger on the S&P across your full equalizer curve (2h→1w): ribbon order 50% + momentum 50% (RSI 60 / W%R 40, straight 23→77 map — every level in between feeds, per GOOGL_GEIGER_v2). WHEN it reads positive the market is stretched and it pushes the score UP toward Overbought; negative = washed out, pushes DOWN toward Oversold.',
+  QQQ: 'PROXY: QQQ (composite_staged · db; Yahoo fallback). Same geiger on the Nasdaq-100. When growth is the stretched side it pushes the score UP; when growth is the beaten-down side (like now) it pulls the score DOWN. Watch it vs SPY: the gap says which side is discounted.',
+  IWM: 'PROXY: IWM (composite_staged · db; Yahoo fallback). Same geiger on small caps. As a voter it adds breadth: a rally without small caps reads cooler. NOTE: whether weighted or not, IWM-vs-SPY always drives the LC/SC split in panel 2.',
+  SMH: 'PROXY: SMH (composite_staged · db; Yahoo fallback). Same geiger on semis, the current leadership. Weighted in, a stretched semi complex pushes the score UP (leadership froth) and a broken one drags it DOWN.',
+  VIX: 'PROXY: VIX level (vix_term · db when fresh; Yahoo fallback flagged when stale), not a geiger. HOW IT VOTES: below ~21 it votes hot (+) — calm/complacency, pushes the score UP; above ~21 it votes cold (−) — fear, pulls it DOWN; at 12 it maxes at +1, at your cold endpoint (30) it floors at −1, clamped beyond. Today 18.8 → +0.25: mildly complacent. KNOWN LIMIT: level-only is v1-simplistic — term structure (VIX vs VIX3M) and rate-of-change are roadmap upgrades.',
+  US10Y: 'PROXY: US 10Y yield (treasury_rates.y10 · db; Yahoo fallback), not a geiger. HOW IT VOTES: below ~4.15% yields are fuel — pushes the score UP; above ~4.15% they are a headwind — pulls it DOWN; +1 at 3.5%, −1 at 4.8%. Today 4.54% → −0.60: rates are a drag. Same v1-simplistic caveat as VIX — a yield-trend geiger is a roadmap upgrade.',
+  OIL: 'PROXY: CLUSD crude (composite_staged · db; Yahoo fallback), its own independent voter — never lumped with other commodities. INVERTED geiger: oil trending hot = inflation pressure = pulls the score DOWN; oil breaking down = relief = pushes UP. Base weight 0.5 because it matters now; dial to 0 the day it stops.',
+  VALUE: 'PROXY: RSP equal-weight S&P (composite_staged · db). The value/breadth style. Straight geiger: a hot equal-weight tape = broad strength pushes the score UP; a cold one = narrow market, pulls DOWN. Base weight 0 — reading only for now; as a STYLE it will re-rank candidates rather than vote, per the roadmap.',
+  CRYPTO: 'PROXY: BTCUSD (composite_staged · db). The risk-appetite tell. Straight geiger: BTC running hot = speculative appetite = pushes the score UP; BTC breaking = risk coming off = pulls DOWN. Base weight 0.25 — a tell, not a driver.',
+  DEF: 'PROXY: XLP+XLU average (composite_staged · db), INVERTED. When defensives are the hot trade, money is hiding — that is risk-off, so it pulls the score DOWN; defensives cold = nobody paying up for safety = pushes UP. Base weight 0.25.'
 };
 let S = JSON.parse(localStorage.getItem('alloc-module-v1') || 'null') || structuredClone(DEFAULTS);
 S.wts = Object.assign(structuredClone(DEFAULTS.wts), S.wts || {});
@@ -345,8 +504,9 @@ async function loadFeeds(){
   const haveCache = cached && cached.mr && cached.cr;
   if (haveCache) { ingest(cached.mr, cached.cr); document.getElementById('loading').style.display='none'; render(); }
   else document.getElementById('loading').style.display='flex';
-  document.getElementById('loadmsg').textContent = 'pulling macro internals + per-ticker geigers…';
+  document.getElementById('loadmsg').textContent = 'pulling SSOT tables (composite_staged · cohorts · quotes) + fallback feeds…';
   document.getElementById('refresh').textContent = '↻ REFRESHING…';
+  const ssotP = refreshSSOT();   // SSOT DB reads run in parallel with the legacy fallback feeds
   try {
     const [mr, cr] = await Promise.all([
       fetch(SB + '/macro-feed?v=5').then(r=>r.text()),
@@ -354,16 +514,20 @@ async function loadFeeds(){
     ]);
     localStorage.setItem('alloc-data-v1', JSON.stringify({mr, cr}));
     ingest(mr, cr);
-  } catch(e) { /* keep cached view */ }
-  // comps fundamentals from the SCINTILLA database (own data, not FMP calls)
+  } catch(e) { /* keep cached view — SSOT reads are primary now */ }
+  try { await ssotP; } catch(e) { /* per-table spine badges carry their own error state */ }
+  // comps value layer from the SCINTILLA database (fundamentals / ratios_history / analyst_estimates via comps-feed; never FMP)
   try {
-    const syms = Object.keys(COHORT).join(',');
-    if (syms) {
-      const ct = await fetch(SB + '/comps-feed?syms=' + encodeURIComponent(syms)).then(r=>r.text());
+    const syms = candidateSyms();
+    const batches = []; for (let i = 0; i < syms.length; i += 60) batches.push(syms.slice(i, i+60).join(','));
+    const texts = await Promise.all(batches.map(b => fetch(SB + '/comps-feed?syms=' + encodeURIComponent(b)).then(r=>r.text())));
+    for (const ct of texts) {
       const L = ct.trim().split('\n'); const head = L[0].split(',');
       for (const line of L.slice(1)) { const c = line.split(','); const o = {}; head.forEach((h,i)=>o[h]=c[i]===''?null:+c[i]); COMPS[c[0]] = o; }
     }
-  } catch(e) { /* comps optional */ }
+    spineSet('comps-feed', null, 'LIVE', Object.keys(COMPS).length+' tickers — fundamentals/ratios_history/analyst_estimates (db)');
+  } catch(e) { spineSet('comps-feed', null, 'FALLBACK', 'comps read failed'); }
+  renderSpine();
   // IBKR state handoff: a Claude session syncs percentages (never dollars) to this file on schedule.
   try {
     const ib = await fetch('https://wadinxqplrggagkvrdag.supabase.co/storage/v1/object/public/inbox/ibkr-state.json', {cache:'no-store'}).then(r => r.ok ? r.json() : null);
@@ -408,23 +572,28 @@ function internalsScore(){
 }
 function voters(){
   const v = [];
-  const idx = sym => COHORT[sym] ? geiger(COHORT[sym]) : null;
-  v.push({key:'SPY', name:'SPY GEIGER', sub:'approved · equalizer 2h→1w', val:idx('SPY')});
-  v.push({key:'QQQ', name:'QQQ GEIGER', sub:'approved · equalizer 2h→1w', val:idx('QQQ')});
-  v.push({key:'IWM', name:'IWM GEIGER', sub:'small caps', val:idx('IWM')});
-  v.push({key:'SMH', name:'SMH GEIGER', sub:'semis', val:idx('SMH')});
-  const vix = MACRO['VIX'] ? MACRO['VIX'].value : null;
-  v.push({key:'VIX', name:'VIX (inv)', sub: vix!=null ? vix.toFixed(1) : '—', val: vix!=null ? clamp(((S.vixCold+12)/2 - vix) / ((S.vixCold-12)/2)) : null});
-  const ten = MACRO['US10Y'] ? MACRO['US10Y'].value : null;
-  v.push({key:'US10Y', name:'US 10Y (inv)', sub: ten!=null ? ten.toFixed(2)+'%' : '—', val: ten!=null ? clamp(((+S.tenCold+3.5)/2 - ten) / ((+S.tenCold-3.5)/2)) : null});
-  const oil = COHORT['CLUSD'];
-  v.push({key:'OIL', name:'OIL (inv)', sub: oil ? 'CL ' + oil.price.toFixed(1) : '—', val: oil ? clamp(-geiger(oil)) : null});
-  const rsp = COHORT['RSP'];
-  v.push({key:'VALUE', name:'VALUE (RSP)', sub:'equal-weight', val: rsp ? geiger(rsp) : null});
-  const btc = COHORT['BTCUSD'];
-  v.push({key:'CRYPTO', name:'CRYPTO (BTC)', sub:'risk appetite', val: btc ? geiger(btc) : null});
-  const xlp = COHORT['XLP'], xlu = COHORT['XLU'];
-  v.push({key:'DEF', name:'DEFENSIVES (inv)', sub:'XLP+XLU', val: (xlp && xlu) ? clamp(-(geiger(xlp)+geiger(xlu))/2) : null});
+  const idx = sym => gv(sym);                                            // SSOT: composite_staged
+  const gsrc = sym => COMPOSITE[sym] ? 'composite_staged · db' : (COHORT[sym] ? 'FALLBACK client geiger (yahoo)' : '—');
+  v.push({key:'SPY', name:'SPY GEIGER', sub:gsrc('SPY'), val:idx('SPY')});
+  v.push({key:'QQQ', name:'QQQ GEIGER', sub:gsrc('QQQ'), val:idx('QQQ')});
+  v.push({key:'IWM', name:'IWM GEIGER', sub:'small caps · '+gsrc('IWM'), val:idx('IWM')});
+  v.push({key:'SMH', name:'SMH GEIGER', sub:'semis · '+gsrc('SMH'), val:idx('SMH')});
+  let vix = null, vixSub = '—';
+  if (VIXDB && VIXDB.fresh && VIXDB.vix != null) { vix = VIXDB.vix; vixSub = vix.toFixed(1)+' · vix_term (db) '+VIXDB.date; }
+  else if (MACRO['VIX']) { vix = MACRO['VIX'].value; vixSub = vix.toFixed(1)+' · FALLBACK yahoo'+(VIXDB&&VIXDB.date?' (vix_term stale @ '+VIXDB.date+')':''); }
+  v.push({key:'VIX', name:'VIX (inv)', sub: vixSub, val: vix!=null ? clamp(((S.vixCold+12)/2 - vix) / ((S.vixCold-12)/2)) : null});
+  let ten = null, tenSub = '—';
+  if (TREAS && TREAS.y10 != null) { ten = TREAS.y10; tenSub = ten.toFixed(2)+'% · treasury_rates (db) '+TREAS.date; }
+  else if (MACRO['US10Y']) { ten = MACRO['US10Y'].value; tenSub = ten.toFixed(2)+'% · FALLBACK yahoo'; }
+  v.push({key:'US10Y', name:'US 10Y (inv)', sub: tenSub, val: ten!=null ? clamp(((+S.tenCold+3.5)/2 - ten) / ((+S.tenCold-3.5)/2)) : null});
+  const oil = gv('CLUSD');
+  v.push({key:'OIL', name:'OIL (inv)', sub: oil!=null ? 'CL · '+gsrc('CLUSD') : '—', val: oil!=null ? clamp(-oil) : null});
+  const rsp = gv('RSP');
+  v.push({key:'VALUE', name:'VALUE (RSP)', sub:'equal-weight · '+gsrc('RSP'), val: rsp});
+  const btc = gv('BTCUSD');
+  v.push({key:'CRYPTO', name:'CRYPTO (BTC)', sub:'risk appetite · '+gsrc('BTCUSD'), val: btc});
+  const gp2 = gv('XLP'), gu2 = gv('XLU');
+  v.push({key:'DEF', name:'DEFENSIVES (inv)', sub:'XLP+XLU · '+(COMPOSITE['XLP']?'db':'fallback'), val: (gp2!=null && gu2!=null) ? clamp(-(gp2+gu2)/2) : null});
   return v;
 }
 function heat(){
@@ -441,9 +610,9 @@ function investedAt(h){ const x = (1 - h) / 2; return (S.minInv + (S.maxInv - S.
 // LC/SC split: DATA-DRIVEN. Colder class gets the bigger sleeve, sized by the geiger spread.
 // Optional sub-dial: heat tilt — when overall heat is high, lean extra toward large caps (better holds when stretched).
 function lcShareAuto(h){
-  const s = COHORT['SPY'], i = COHORT['IWM'];
-  if (!s || !i) return 0.5;
-  return Math.min(.8, Math.max(.2, 0.5 + (geiger(i) - geiger(s)) * 0.5 + (S.lcTilt || 0) * (h || 0)));
+  const s = gv('SPY'), i = gv('IWM');                    // SSOT: composite_staged
+  if (s == null || i == null) return 0.5;
+  return Math.min(.8, Math.max(.2, 0.5 + (i - s) * 0.5 + (S.lcTilt || 0) * (h || 0)));
 }
 function heatLabel(h){
   if (h >= .5) return ['DEEP OVERBOUGHT', 'var(--red)'];
@@ -522,7 +691,7 @@ function render(){
   drawCurve(h);
 
   // data-driven split readout
-  const gS = COHORT['SPY'] ? geiger(COHORT['SPY']) : null, gI = COHORT['IWM'] ? geiger(COHORT['IWM']) : null;
+  const gS = gv('SPY'), gI = gv('IWM');                  // SSOT: composite_staged
   if (gS != null && gI != null) {
     const lcs = lcShareAuto(h);
     const tiltTerm = (S.lcTilt || 0) * h;
@@ -597,8 +766,10 @@ function render(){
   renderCohort(dLC, dSC);
   renderComps();
   renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot, dLC, dSC);
-  document.getElementById('stamp').textContent = 'MACRO HEAT MODULE · internals ' + (STAMPS.macro||'—').slice(0,16).replace('T',' ') + 'Z · geigers ' + (STAMPS.cohort||'—').slice(0,16).replace('T',' ') + 'Z · % only, never dollars';
-  document.getElementById('cohstamp').textContent = 'feeds: macro-feed (hourly-safe) + cohort-feed (on refresh) · ' + (STAMPS.cohort||'').slice(11,19) + 'Z';
+  const csFresh = SPINE['composite_staged'] && SPINE['composite_staged'].ts ? freshTxt(SPINE['composite_staged'].ts) : '—';
+  document.getElementById('stamp').textContent = 'MACRO HEAT MODULE · geiger SSOT composite_staged (' + csFresh + ') · universe ticker_cohorts+hub_favorites · % only, never dollars';
+  document.getElementById('cohstamp').textContent = 'SSOT: composite_staged + ticker_cohorts/hub_favorites + live_quotes + sector_rankings (db) · comps: fundamentals/ratios_history/analyst_estimates · fallback feeds flagged in the badge strip';
+  renderSpine(); renderSectorStrip();
   save();
 }
 function drawCurve(h){
@@ -672,7 +843,7 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const el = document.getElementById('brief'); if (!el) return;
   const g = sym => COHORT[sym] ? geiger(COHORT[sym]) : null;
   const gS = g('SPY'), gQ = g('QQQ'), gI = g('IWM'), gR = g('RSP');
-  const vix = MACRO['VIX']?.value, ten = MACRO['US10Y']?.value;
+  const vix = (VIXDB && VIXDB.fresh) ? VIXDB.vix : MACRO['VIX']?.value, ten = (TREAS && TREAS.y10!=null) ? TREAS.y10 : MACRO['US10Y']?.value;
   const SPR = styleSpreads();
   const f = x => x==null?'—':(x>=0?'+':'')+x.toFixed(2);
   const lbl = heatLabel(h)[0];
@@ -703,7 +874,7 @@ function renderInputMap(h){
     ['LC share rails', RAIL, '20% – 80%', 'Clamp on the data split so one hot print can’t zero a class. Constant, not a dial — stays internal as classes are added.'],
     ['Momentum clamp anchors', APPR, 'RSI 23 / 77', 'Your geiger levels — where RSI reads fully washed-out / fully stretched.'],
     ['Trend/Momentum · RSI/W%R', APPR, S.dTrend.toFixed(2)+'/'+(1-S.dTrend).toFixed(2)+' · '+S.dRsi.toFixed(2)+'/'+(1-S.dRsi).toFixed(2), 'The approved geiger family blends (match the hub equalizer: TRND 50/MOM 50, RSI 60/W%R 40). Changing them changes every geiger at once.'],
-    ['Equalizer TF curve', APPR, Object.entries(EQ_W).map(([t,w])=>t+' '+w).join(' · '), 'Locked to the live hub equalizer (reviewed 2026-07-19). Change it in the hub → SAVE; once operator_weights has rows this page reads them live.'],
+    ['Equalizer TF curve', APPR, (OPW && OPW.rows ? 'operator_weights: '+OPW.rows+' rows (read live)' : Object.entries(EQ_W).map(([t,w])=>t+' '+w).join(' · ')), 'Scoring now reads composite_staged directly — the hub applies the equalizer curve (operator_weights) upstream. The hardcoded curve remains only inside the client FALLBACK geiger.'],
   ];
   t.innerHTML = '<tr><th>INPUT</th><th>KIND</th><th>NOW</th><th>WHAT IT DOES, MATHEMATICALLY</th></tr>' +
     rows.map(r => `<tr><td class="n">${r[0]}</td><td class="k">${r[1]}</td><td class="cls">${r[2]}</td><td class="cls">${r[3]}</td></tr>`).join('');
@@ -713,8 +884,15 @@ let CATFILTER='ALL';
 function setCat(c){ CATFILTER=c; render(); }
 function renderCohort(dLC, dSC){
   const SPR2 = styleSpreads();
-  let allrows = Object.keys(COHORT).filter(s => !['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
-    .map(s => { const g = geiger(COHORT[s]); const adj = g + styleAdj(s, SPR2); return {sym:s, cls:CLASSES[s]||'?', g, adj, sleeves:tickerSleeves(s), c:COHORT[s]}; })
+  const PROXY_EXCLUDE = new Set(['IWM','SMH','RSP','XLP','XLU','SPY','QQQ']);
+  let allrows = candidateSyms().filter(s => !PROXY_EXCLUDE.has(s))
+    .map(s => { const tg = tickerG(s); if (!tg) return null;
+      const g = tg.g, adj = g + styleAdj(s, SPR2);
+      const q = QUOTES[s], c = COHORT[s] || {};
+      const price = (q && q.price != null) ? +q.price : c.price;
+      const day = (q && q.chg_pct != null) ? (+q.chg_pct)/100 : c.day;   // chg_pct is percent-units; c.day is a fraction
+      return {sym:s, cls:tickerCls(s)||'?', g, gsrc:tg.src, adj, sleeves:tickerSleeves(s), price, day, fav:UNIVERSE.favs.has(s)}; })
+    .filter(Boolean)
     .sort((a,b) => a.adj - b.adj);
   const liveCats = ['ALL', ...CATS.slice(1).filter(c=>allrows.some(r=>r.sleeves.includes(c)))];
   if(!liveCats.includes(CATFILTER)) CATFILTER='ALL';
@@ -726,7 +904,7 @@ function renderCohort(dLC, dSC){
     rows.filter(r => r.sleeves.includes(sl)).slice(0,3).forEach((r,i) => { (sleeveRank[r.sym] = sleeveRank[r.sym] || []).push(sl + ' #' + (i+1)); });
   }
   const t = document.getElementById('cohort');
-  let html = '<tr><th></th><th>TICKER</th><th>SLEEVES</th><th class="r">PRICE</th><th class="r">DAY</th><th>GEIGER</th><th class="r">SCORE</th><th class="r">P/E</th><th class="r">FWD P/E</th><th class="r">P/S</th><th class="r">REV g</th><th class="r">GROSS</th><th class="r">NET</th><th class="r">D/E</th></tr>';
+  let html = '<tr><th></th><th>TICKER</th><th>SLEEVES</th><th>SECT</th><th class="r">PRICE</th><th class="r">DAY</th><th class="r">RVOL</th><th>GEIGER</th><th class="r">SCORE</th><th class="r">P/E</th><th class="r">FWD P/E</th><th class="r">P/S</th><th class="r">REV g</th><th class="r">GROSS</th><th class="r">NET</th><th class="r">D/E</th></tr>';
   const addN = {LC: dLC > .005 ? 3 : 0, SC: dSC > .005 ? 3 : 0};
   const trimN = {LC: dLC < -.005 ? 3 : 0, SC: dSC < -.005 ? 3 : 0};
   const coldRank = {}, hotRank = {};
@@ -740,14 +918,15 @@ function renderCohort(dLC, dSC){
     if (sleeveRank[r.sym]) { const best = sleeveRank[r.sym][0].split(' '); tag = `<span class="tag add">ADD · ${best[0]} ${best[1]}</span>` + (sleeveRank[r.sym].length>1?` <span class="cls">+${sleeveRank[r.sym].length-1}</span>`:''); }
     else if (hotRank[r.sym]) tag = `<span class="tag trim">TRIM · #${hotRank[r.sym]} ${r.cls}</span>`;
     const inC = COMPARE.has(r.sym);
-    const star = `<button class="cmpstar" data-sym="${r.sym}" style="background:${inC?'rgba(255,209,102,.15)':'#14141f'};color:${inC?'var(--gold)':'var(--dim)'};border:1px solid ${inC?'var(--gold)':'var(--line)'};border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer" title="add this name to the COMPARABLES table below (for names not auto-suggested)">${inC?'\u2605 in comps':'+ to comps'}</button>`;
+    const star = `<button class="cmpstar" data-sym="${r.sym}" style="background:${inC?'rgba(255,209,102,.15)':'#14141f'};color:${inC?'var(--gold)':'var(--dim)'};border:1px solid ${inC?'var(--gold)':'var(--line)'};border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer" title="add this name to the COMPARABLES table below (for names not auto-suggested)">${inC?'★ in comps':'+ to comps'}</button>`;
     const w = Math.min(50, Math.abs(r.g) * 50);
     const k = COMPS[r.sym] || {};
     const num = (x,d=1,suf='') => (x==null||!isFinite(x))?'<span class="cls">—</span>':(x.toFixed(d)+suf);
     const pctc = (x) => (x==null||!isFinite(x))?'<span class="cls">—</span>':((x*100).toFixed(0)+'%');
-    html += `<tr style="${sleeveRank[r.sym]?'background:rgba(0,212,255,.07)':''}"><td>${star}</td><td>${sleeveRank[r.sym]?'<span style=\'color:var(--cyan)\'>\u25b8</span> ':''}<b>${r.sym}</b></td><td class="cls">${r.sleeves.join("/")||CLASSNAME[r.cls]||r.cls}</td>
-      <td class="r">${r.c.price.toLocaleString()}</td>
-      <td class="r" style="color:${r.c.day>=0?'var(--green)':'var(--red)'}">${spct(r.c.day,2)}</td>
+    html += `<tr style="${sleeveRank[r.sym]?'background:rgba(0,212,255,.07)':''}"><td>${star}</td><td>${sleeveRank[r.sym]?'<span style=\'color:var(--cyan)\'>▸</span> ':''}<b>${r.sym}</b>${r.fav?' <span style="color:var(--gold)" title="hub_favorites">★</span>':''}${r.gsrc==='fallback'?' <span class="cls" title="composite_staged row missing — client Yahoo geiger fallback">⚠</span>':''}</td><td class="cls">${r.sleeves.join("/")||CLASSNAME[r.cls]||r.cls}</td><td>${sectorChip(r.sym)}</td>
+      <td class="r">${r.price==null?'<span class="cls">—</span>':(+r.price).toLocaleString()}</td>
+      <td class="r" style="color:${r.day>=0?'var(--green)':'var(--red)'}">${r.day==null?'<span class="cls">—</span>':spct(r.day,2)}</td>
+      <td class="r">${rvolTxt(r.sym)}</td>
       <td><span class="mini"><span class="mid"></span><span class="b" style="left:${r.g<0?50-w:50}%;width:${w}%;background:${r.g>=0?'var(--cyan)':'var(--orange)'}"></span></span></td>
       <td class="r">${(r.g>=0?'+':'')+r.g.toFixed(2)}</td>
       <td class="r">${num(k.pe)}</td><td class="r">${num(k.fwd_pe)}</td><td class="r">${num(k.ps)}</td>
@@ -769,8 +948,8 @@ function renderComps(){
   const t = document.getElementById('comps'); if (!t) return;
   // suggested = anything currently ADD-tagged (top-3 coldest per sleeve), gathered from the last cohort render
   const SPR = styleSpreads();
-  const ranked = Object.keys(COHORT).filter(s=>!['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
-    .map(s=>({sym:s, adj:geiger(COHORT[s])+styleAdj(s,SPR), sleeves:tickerSleeves(s)}));
+  const ranked = candidateSyms().filter(s=>!['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
+    .map(s=>{ const tg=tickerG(s); return tg ? {sym:s, adj:tg.g+styleAdj(s,SPR), sleeves:tickerSleeves(s)} : null; }).filter(Boolean);
   const suggested = new Set();
   for (const sl of Object.keys(SLEEVES)) ranked.filter(r=>r.sleeves.includes(sl)).sort((a,b)=>a.adj-b.adj).slice(0,3).forEach(r=>suggested.add(r.sym));
   // category switcher — which sleeves have suggestions
@@ -778,7 +957,7 @@ function renderComps(){
   if (!cats.includes(COMPCAT)) COMPCAT='ALL';
   const cc=document.getElementById('compCat');
   if(cc) cc.innerHTML = cats.map(c=>`<button onclick="setCompCat('${c}')" style="background:${c===COMPCAT?'var(--gold)':'#14141f'};color:${c===COMPCAT?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;font-weight:${c===COMPCAT?'700':'400'}">${c}</button>`).join('');
-  let syms = [...new Set([...suggested, ...COMPARE])].filter(x=>(COMPS[x]||COHORT[x]));
+  let syms = [...new Set([...suggested, ...COMPARE])].filter(x=>(COMPS[x]||COMPOSITE[x]||COHORT[x]));
   if (COMPCAT!=='ALL') syms = syms.filter(x=>tickerSleeves(x).includes(COMPCAT));
   // [key,label,fmt,dir] dir: -1 lower-is-better, +1 higher-is-better, 0 neutral. valid: ratios must be >0.
   const cols = [
@@ -790,7 +969,7 @@ function renderComps(){
   const RATIO=new Set(['pe','fwd_pe','ps','pb']);
   const valid=(key,v)=> v!=null && isFinite(v) && !(RATIO.has(key) && v<=0);
   // peer medians for conditional formatting (only non-excluded, valid)
-  const data = syms.map(sym=>{ const k=Object.assign({}, COMPS[sym]||{}); k.g = COHORT[sym]?geiger(COHORT[sym]):null; return {sym, k, manual:COMPARE.has(sym) && !suggested.has(sym), excl:EXCLUDED.has(sym)}; });
+  const data = syms.map(sym=>{ const k=Object.assign({}, COMPS[sym]||{}); k.g = gv(sym); return {sym, k, manual:COMPARE.has(sym) && !suggested.has(sym), excl:EXCLUDED.has(sym)}; });
   const active=data.filter(d=>!d.excl);
   const med={}; for(const c of cols){ const vs=active.map(d=>d.k[c[0]]).filter(v=>valid(c[0],v)); if(vs.length){ const b=[...vs].sort((x,y)=>x-y); med[c[0]]=b.length%2?b[b.length>>1]:(b[(b.length>>1)-1]+b[b.length>>1])/2; } }
   const cellColor=(c,v)=>{ if(!valid(c[0],v)||c[3]===0||med[c[0]]==null) return ''; const better=(v-med[c[0]])*c[3]; return better>0?'color:var(--green)':better<0?'color:var(--orange)':''; };
@@ -820,17 +999,14 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   const cy = s => `%c${s}%c`;
   const L = [];
   const gTrace = sym => {
+    const r = COMPOSITE[sym];
+    if (r) return `${sym}  composite_staged (tf=D, db): trend ${f2(r.trend)}×0.5 + momentum ${f2(r.momentum)}×0.5 = ${f2(r.composite)}   [${freshTxt(r.updated_ts)}]`;
     const c = COHORT[sym]; if (!c || !c.tf) return sym+': no data';
-    const parts = TFS.filter(t => c.tf[t] && c.tf[t].t != null).map(t => {
-      const p = c.tf[t];
-      const g = p.t*S.dTrend + (p.r*S.dRsi + p.g*(1-S.dRsi))*(1-S.dTrend);
-      return `${t} ${f2(g)}×${EQ_W[t]}`;
-    });
-    return `${sym}  per-TF geiger (TRND ${S.dTrend}/MOM ${(1-S.dTrend).toFixed(1)}, RSI ${S.dRsi}/W%R ${(1-S.dRsi).toFixed(1)}): ${parts.join(' · ')}  →  equalizer-weighted = ${f2(geiger(c))}`;
+    return `${sym}  FALLBACK client geiger (cohort-feed Yahoo primitives, equalizer curve local) = ${f2(geiger(c))}`;
   };
-  L.push('STEP A · GEIGER VOTERS (equalizer curve 2h→1w from the hub, primitives from cohort-feed)');
+  L.push('STEP A · GEIGER VOTERS (SSOT: composite_staged — the hub equalizer output; client geiger math retired to fallback)');
   for (const s of ['SPY','QQQ','IWM','SMH']) L.push('  ' + gTrace(s));
-  const vix = MACRO['VIX']?.value, ten = MACRO['US10Y']?.value;
+  const vix = (VIXDB && VIXDB.fresh) ? VIXDB.vix : MACRO['VIX']?.value, ten = (TREAS && TREAS.y10!=null) ? TREAS.y10 : MACRO['US10Y']?.value;
   const vv = voters();
   L.push('STEP B · LEVEL VOTERS (hostile things flip so hot always means hot)');
   L.push(`  VIX ${vix?.toFixed(1)}: below ~${((S.vixCold+12)/2).toFixed(0)} votes hot(+), above votes cold(−); +1 @ 12, −1 @ ${S.vixCold} → ${f2(vv[4].val)}`);
