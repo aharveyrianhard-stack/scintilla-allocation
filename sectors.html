@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCINTILLA SECTOR ROTATION</title>
+<style>
+  :root{--bg:#0e1116;--surface:#161b22;--surface2:#1c2330;--line:#2a3342;--ink:#e6e9ee;--ink2:#9aa4b2;--ink3:#67707e;
+        --good:#3fb27f;--warn:#d9a13b;--bad:#d96b5b;--accent:#5b9dd9;--mono:'SF Mono',ui-monospace,Menlo,Consolas,monospace}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,'Segoe UI',Roboto,sans-serif;padding:16px 16px 40px;max-width:1400px;margin:0 auto}
+  h1{font-size:16px;letter-spacing:.1em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  h1 span.t{color:var(--accent)}
+  .conn{font-size:11px;color:var(--ink2);display:flex;align-items:center;gap:6px;margin-left:auto}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ink3)}
+  .dot.live{background:var(--good);box-shadow:0 0 6px var(--good)} .dot.stale{background:var(--warn)} .dot.err{background:var(--bad)}
+  h2{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);margin:22px 0 8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  h2 .hint{font-size:10px;letter-spacing:.02em;text-transform:none;color:var(--ink3);font-weight:400}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+  .pill{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--ink2)}
+  .pill.basis{color:#111;background:var(--accent);border-color:var(--accent);font-weight:600}
+  .pill.warnp{color:var(--warn);border-color:var(--warn)}
+  .banner{font-size:11px;color:var(--ink2);border:1px dashed var(--line);border-radius:8px;padding:7px 10px;margin:10px 0 4px;line-height:1.6}
+  .banner b{color:var(--ink)}
+  .grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:12px}
+  @media(max-width:1000px){.grid2{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);text-align:right;padding:5px 7px;border-bottom:1px solid var(--line);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  td{padding:5px 7px;border-bottom:1px solid #1a212c;font-family:var(--mono);text-align:right;white-space:nowrap}
+  td.t{font-family:inherit;text-align:left}
+  .up{color:var(--good)} .dn{color:var(--bad)} .mut{color:var(--ink3)}
+  .heat{display:inline-block;padding:2px 7px;border-radius:4px;font-family:var(--mono);font-size:12px;min-width:62px;text-align:right}
+  select{background:var(--surface2);color:var(--ink);border:1px solid var(--line);border-radius:6px;font:12px var(--mono);padding:3px 6px}
+  .err-box{color:var(--bad);font-family:var(--mono);font-size:11.5px;padding:8px 0}
+  .small{font-size:10.5px;color:var(--ink3)}
+  canvas{background:var(--surface2);border-radius:6px;display:block}
+  .rank{display:inline-block;width:18px;color:var(--ink3);font-family:var(--mono)}
+  .arrow{font-family:var(--mono);font-size:11px}
+  footer{margin-top:26px;font-size:10.5px;color:var(--ink3);line-height:1.7;border-top:1px solid var(--line);padding-top:10px}
+</style>
+</head>
+<body>
+<h1>SCINTILLA · <span class="t">SECTOR ROTATION</span>
+  <span class="pill">DB READS ONLY</span>
+  <span class="pill" id="excPill">EXCHANGE</span>
+  <select id="exc"><option value="NYSE">NYSE</option><option value="NASDAQ">NASDAQ</option></select>
+  <span class="conn"><span class="dot" id="dot"></span><span id="asof">booting…</span></span>
+</h1>
+
+<div class="banner"><b>WHAT THIS IS STANDING ON — read once:</b>
+<b>sector_perf_daily / sector_pe_daily</b> (FMP historical sector performance + P/E, daily back to 1999-12-02) · <b>etf_sector_weights</b> (FMP ETF sector weightings, <b>current snapshot only</b> — no history yet) · <b>composite_staged</b> (THE Geiger, 0.5×Trend+0.5×Momentum, tf=D) and <b>live_quotes</b> for the sector-ETF cross-check.
+<b>Two honest caveats.</b> (1) <b>average_change is equal-weighted breadth</b> — the mean daily % change of the sector's constituents. It is NOT a cap-weighted index return, so it will NOT match XLK/XLE. That is a feature: breadth and the cap-weighted ETF disagreeing IS the rotation signal. Both are shown side by side. (2) These feeds are <b>per-exchange</b>; NYSE and NASDAQ genuinely differ for the same sector and day. Pick one — never blend them.</div>
+
+<h2>ROTATION BOARD <span class="hint">cumulative equal-weighted sector return over each window · ranked on 1M · green = leading, red = lagging</span></h2>
+<div class="card" style="overflow-x:auto"><div id="board"></div></div>
+
+<div class="grid2" style="margin-top:12px">
+  <div class="card">
+    <div class="k">LEADERSHIP CHANGE <span class="small">— 1M rank now vs 1M rank as of 21 sessions ago. This is the rotation itself.</span></div>
+    <div id="rotation"></div>
+  </div>
+  <div class="card">
+    <div class="k">SECTOR VALUATION <span class="small">— current P/E vs its own 1y median and 4y percentile</span></div>
+    <div id="pe"></div>
+  </div>
+</div>
+
+<h2>BREADTH vs CAP-WEIGHTED <span class="hint">equal-weighted sector breadth (this page) against the sector ETF's live quote + Geiger (composite_staged) · divergence = mega-cap carrying, or breadth carrying</span></h2>
+<div class="card" style="overflow-x:auto"><div id="cross"></div></div>
+
+<h2>INDEX COMPOSITION <span class="hint">FMP ETF sector weightings — current snapshot only, no history served</span></h2>
+<div class="card" style="overflow-x:auto"><div id="weights"></div></div>
+
+<footer>
+  <b>PROVENANCE</b> · sector_perf_daily / sector_pe_daily / etf_sector_weights ← edge fn <b>sector-feeds-refresh</b> (cron 203, weekdays 07:25 UTC, instrumented to fmp_bandwidth_log) · composite_staged ← Geiger RPCs · live_quotes ← live-quote-batch.<br>
+  <b>PRICE BASIS</b> · this page reports vendor-computed sector aggregates (equal-weighted % change, P/E), which carry no adjusted/raw choice. The ETF cross-check column uses <b>live_quotes</b> = raw prints (LIVE lens). Daily bar surfaces elsewhere in SCINTILLA run on the ADJUSTED basis per app_config.price_basis.<br>
+  Receipt CC-MEGA-002-WS2 · SCINTILLA Command (Cowork cloud) · hosted on scintilla-allocation (git auto-deploy).
+</footer>
+
+<script>
+const SB='https://wadinxqplrggagkvrdag.supabase.co/rest/v1';
+const KEY='sb_publishable_AutibLpFtTns-WHAg67Pvw_I0HmjqE9';
+const H={'apikey':KEY,'Authorization':'Bearer '+KEY};
+const $=id=>document.getElementById(id);
+async function j(p){const r=await fetch(SB+'/'+p,{headers:H,cache:'no-store'});if(!r.ok)throw new Error(p.split('?')[0]+' HTTP '+r.status);return r.json()}
+const fN=(x,d=2)=>x==null||!isFinite(x)?'—':(+x).toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:d});
+const fP=x=>x==null||!isFinite(x)?'—':(x>0?'+':'')+(+x).toFixed(2)+'%';
+const cls=x=>x==null||!isFinite(x)?'mut':(x>=0?'up':'dn');
+const SECTORS=['Technology','Financial Services','Healthcare','Consumer Cyclical','Communication Services','Industrials','Consumer Defensive','Energy','Basic Materials','Utilities','Real Estate'];
+const ETF={'Technology':'XLK','Financial Services':'XLF','Healthcare':'XLV','Consumer Cyclical':'XLY','Communication Services':'XLC','Industrials':'XLI','Consumer Defensive':'XLP','Energy':'XLE','Basic Materials':'XLB','Utilities':'XLU','Real Estate':'XLRE'};
+const WIN=[['1D',1],['1W',5],['1M',21],['3M',63],['6M',126],['12M',252]];
+const S={};
+
+function cum(rows,n,skip){skip=skip||0;let v=1,k=0;for(let i=skip;i<rows.length&&k<n;i++,k++){const r=+rows[i].average_change;if(isFinite(r))v*=(1+r/100)}return k?(v-1)*100:null}
+function heatBg(z){
+  if(z==null||!isFinite(z))return 'transparent';
+  const a=Math.min(1,Math.abs(z))*0.42+0.06;
+  return z>=0?'rgba(63,178,127,'+a+')':'rgba(217,107,91,'+a+')';
+}
+
+async function boot(){
+  const exc=$('exc').value;
+  $('excPill').textContent='EXCHANGE: '+exc;
+  const tasks={};
+  SECTORS.forEach(s=>{
+    tasks['p:'+s]='sector_perf_daily?select=date,average_change&sector=eq.'+encodeURIComponent(s)+'&exchange=eq.'+exc+'&order=date.desc&limit=300';
+    tasks['e:'+s]='sector_pe_daily?select=date,pe&sector=eq.'+encodeURIComponent(s)+'&exchange=eq.'+exc+'&order=date.desc&limit=1000';
+  });
+  tasks['geiger']='composite_staged?select=ticker,trend,momentum,composite,updated_ts&tf=eq.D&limit=1000';
+  tasks['quotes']='live_quotes?select=ticker,price,chg_pct,updated_ts&limit=1000';
+  tasks['weights']='etf_sector_weights?select=as_of,etf,sector,weight_pct&limit=1000';
+  const keys=Object.keys(tasks);
+  const res=await Promise.allSettled(keys.map(k=>j(tasks[k])));
+  keys.forEach((k,i)=>{S[k]=res[i].status==='fulfilled'?res[i].value:{err:res[i].reason}});
+  const ok=keys.filter(k=>!S[k].err).length;
+  $('dot').className='dot '+(ok===keys.length?'live':(ok>keys.length*0.6?'stale':'err'));
+  const latest=(S['p:Technology']&&!S['p:Technology'].err&&S['p:Technology'][0])?S['p:Technology'][0].date:'—';
+  $('asof').textContent=ok+'/'+keys.length+' feeds · data through '+latest;
+  renderBoard();renderRotation();renderPE();renderCross();renderWeights();
+}
+
+function seriesFor(s){const r=S['p:'+s];return (r&&!r.err)?r:null}
+
+function renderBoard(){
+  const el=$('board');
+  const rows=SECTORS.map(s=>{
+    const r=seriesFor(s); if(!r)return null;
+    const o={s:s,n:r.length};
+    WIN.forEach(function(w){o[w[0]]=cum(r,w[1])});
+    return o;
+  }).filter(Boolean);
+  if(!rows.length){el.innerHTML='<div class="err-box">FEED ERROR — no sector series returned (shown, never faked)</div>';return}
+  rows.sort((a,b)=>(b['1M']==null?-1e9:b['1M'])-(a['1M']==null?-1e9:a['1M']));
+  const scale={};WIN.forEach(function(w){const lab=w[0];const v=rows.map(r=>r[lab]).filter(x=>x!=null&&isFinite(x));scale[lab]=Math.max.apply(null,v.map(Math.abs).concat([0.0001]))});
+  let h='<table><tr><th>#</th><th>SECTOR</th><th>ETF</th>'+WIN.map(w=>'<th>'+w[0]+'</th>').join('')+'<th>SESSIONS</th></tr>';
+  rows.forEach((r,i)=>{
+    h+='<tr><td class="rank">'+(i+1)+'</td><td class="t"><b>'+r.s+'</b></td><td class="mut">'+(ETF[r.s]||'—')+'</td>';
+    WIN.forEach(function(w){const lab=w[0];const v=r[lab];h+='<td><span class="heat" style="background:'+heatBg(v==null?null:v/scale[lab])+'">'+fP(v)+'</span></td>'});
+    h+='<td class="mut">'+r.n+'</td></tr>';
+  });
+  el.innerHTML=h+'</table><div class="small" style="margin-top:6px">Compounded from daily equal-weighted constituent averages. Ranked on 1M. Colour is scaled within each column, so it compares sectors against each other in that window — not across windows.</div>';
+}
+
+function renderRotation(){
+  const el=$('rotation');
+  const now=[],then=[];
+  SECTORS.forEach(s=>{const r=seriesFor(s);if(!r)return;now.push({s:s,v:cum(r,21,0)});then.push({s:s,v:cum(r,21,21)})});
+  if(!now.length){el.innerHTML='<div class="err-box">no data</div>';return}
+  now.sort((a,b)=>(b.v==null?-1e9:b.v)-(a.v==null?-1e9:a.v));
+  then.sort((a,b)=>(b.v==null?-1e9:b.v)-(a.v==null?-1e9:a.v));
+  const rNow={},rThen={};now.forEach((x,i)=>rNow[x.s]=i+1);then.forEach((x,i)=>rThen[x.s]=i+1);
+  const rows=SECTORS.map(s=>({s:s,now:rNow[s],then:rThen[s],d:(rThen[s]||0)-(rNow[s]||0)})).filter(x=>x.now).sort((a,b)=>b.d-a.d||a.now-b.now);
+  let h='<table><tr><th>SECTOR</th><th>RANK NOW</th><th>21d AGO</th><th>MOVE</th></tr>';
+  rows.forEach(r=>{
+    const arrow=r.d>0?('▲ +'+r.d):(r.d<0?('▼ '+r.d):'· 0');
+    h+='<tr><td class="t">'+r.s+'</td><td>'+r.now+'</td><td class="mut">'+r.then+'</td><td class="'+(r.d>0?'up':(r.d<0?'dn':'mut'))+'"><span class="arrow">'+arrow+'</span></td></tr>';
+  });
+  el.innerHTML=h+'</table><div class="small" style="margin-top:6px">Both ranks use the same 1M window — the current one, and the one ending 21 sessions ago. Rising rank = money rotating in.</div>';
+}
+
+function renderPE(){
+  const el=$('pe');
+  const rows=SECTORS.map(s=>{
+    const r=S['e:'+s]; if(!r||r.err||!r.length)return null;
+    const cur=+r[0].pe; const vals=r.map(x=>+x.pe).filter(x=>isFinite(x)&&x>0);
+    const y1=vals.slice(0,252).sort((a,b)=>a-b); const med=y1.length?y1[Math.floor(y1.length/2)]:null;
+    const all=vals.slice().sort((a,b)=>a-b);
+    const pct=all.length?all.filter(x=>x<=cur).length/all.length*100:null;
+    return {s:s,cur:cur,med:med,prem:med?((cur-med)/med*100):null,pct:pct,n:vals.length};
+  }).filter(Boolean).sort((a,b)=>(b.pct==null?-1:b.pct)-(a.pct==null?-1:a.pct));
+  if(!rows.length){el.innerHTML='<div class="err-box">no P/E data</div>';return}
+  let h='<table><tr><th>SECTOR</th><th>P/E NOW</th><th>1y MED</th><th>vs MED</th><th>%ILE</th></tr>';
+  rows.forEach(r=>{
+    h+='<tr><td class="t">'+r.s+'</td><td>'+fN(r.cur,1)+'</td><td class="mut">'+fN(r.med,1)+'</td><td class="'+cls(r.prem)+'">'+fP(r.prem)+'</td><td><span class="heat" style="background:'+heatBg(r.pct==null?null:(r.pct-50)/50)+'">'+(r.pct==null?'—':r.pct.toFixed(0))+'</span></td></tr>';
+  });
+  el.innerHTML=h+'</table><div class="small" style="margin-top:6px">Percentile is against this sector\'s own history in the window loaded (up to 1000 sessions ≈ 4y — PostgREST caps a page at 1000 rows, so this is 4y, not the full 1999 depth). High percentile = expensive versus its own past, not versus other sectors.</div>';
+}
+
+function renderCross(){
+  const el=$('cross');
+  const g={},q={};
+  (S.geiger&&!S.geiger.err?S.geiger:[]).forEach(r=>g[r.ticker]=r);
+  (S.quotes&&!S.quotes.err?S.quotes:[]).forEach(r=>q[r.ticker]=r);
+  const rows=SECTORS.map(s=>{
+    const r=seriesFor(s); const e=ETF[s];
+    return {s:s,e:e,breadth1M:r?cum(r,21):null,breadth1D:r?cum(r,1):null,
+            etfChg:q[e]?+q[e].chg_pct:null, geiger:g[e]?+g[e].composite:null,
+            trend:g[e]?+g[e].trend:null, mom:g[e]?+g[e].momentum:null};
+  }).sort((a,b)=>(b.geiger==null?-9:b.geiger)-(a.geiger==null?-9:a.geiger));
+  let h='<table><tr><th>SECTOR</th><th>ETF</th><th>GEIGER</th><th>TREND</th><th>MOM</th><th>ETF CHG% (LIVE)</th><th>BREADTH 1D</th><th>BREADTH 1M</th><th>DIVERGENCE 1D</th></tr>';
+  rows.forEach(r=>{
+    const div=(r.etfChg!=null&&r.breadth1D!=null)?(r.etfChg-r.breadth1D):null;
+    h+='<tr><td class="t"><b>'+r.s+'</b></td><td class="mut">'+r.e+'</td>'+
+       '<td class="'+cls(r.geiger)+'">'+fN(r.geiger,3)+'</td><td>'+fN(r.trend,2)+'</td><td>'+fN(r.mom,2)+'</td>'+
+       '<td class="'+cls(r.etfChg)+'">'+fP(r.etfChg)+'</td><td class="'+cls(r.breadth1D)+'">'+fP(r.breadth1D)+'</td><td class="'+cls(r.breadth1M)+'">'+fP(r.breadth1M)+'</td>'+
+       '<td class="'+cls(div)+'">'+fP(div)+'</td></tr>';
+  });
+  el.innerHTML=h+'</table><div class="small" style="margin-top:6px">DIVERGENCE = cap-weighted ETF move minus equal-weighted breadth, same day. <b>Positive</b> = the big names are pulling the sector up while the average constituent lags (narrow leadership). <b>Negative</b> = broad participation the ETF is not showing. Geiger is the one SSOT reading for that ETF (composite_staged tf=D) — no recomputation here.</div>';
+}
+
+function renderWeights(){
+  const el=$('weights');
+  const w=S.weights;
+  if(!w||w.err||!w.length){el.innerHTML='<div class="err-box">etf_sector_weights unavailable</div>';return}
+  const etfs=['SPY','QQQ','IWM'];
+  const byEtf={};w.forEach(r=>{(byEtf[r.etf]=byEtf[r.etf]||{})[r.sector]=+r.weight_pct});
+  const asOf=w[0].as_of;
+  let h='<table><tr><th>SECTOR</th>'+etfs.map(e=>'<th>'+e+'</th>').join('')+'<th>SPY − QQQ</th></tr>';
+  SECTORS.forEach(s=>{
+    const vals=etfs.map(e=>byEtf[e]?byEtf[e][s]:null);
+    const d=(vals[0]!=null&&vals[1]!=null)?(vals[0]-vals[1]):null;
+    h+='<tr><td class="t">'+s+'</td>'+vals.map(v=>'<td>'+(v==null?'—':fN(v,1)+'%')+'</td>').join('')+'<td class="'+cls(d)+'">'+(d==null?'—':fN(d,1))+'</td></tr>';
+  });
+  el.innerHTML=h+'</table><div class="small" style="margin-top:6px">As of '+asOf+' — <span class="pill warnp">SNAPSHOT ONLY</span> FMP serves current weightings, no history. History accrues from this date forward via cron 203. Use it to read what an index actually is today, not to chart drift.</div>';
+}
+
+$('exc').onchange=boot;
+boot();
+</script>
+</body>
+</html>
