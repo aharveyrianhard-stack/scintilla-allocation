@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCINTILLA — Cold Store &amp; Deep Fill</title>
+<style>
+:root{
+  --bg:#0a0c10; --panel:#12151c; --panel2:#171b24; --line:#232838;
+  --ink:#e8ecf4; --dim:#8b93a7; --dimmer:#5c6478;
+  --ok:#3fd18b; --warn:#f0b429; --bad:#f2545b; --acc:#5b9cff; --acc2:#a978ff;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 20px 80px}
+header{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:26px}
+h1{margin:0;font-size:23px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--dim);font-size:13px;margin-top:6px}
+.sub b{color:var(--ink);font-weight:600}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);
+  font-weight:650;margin:34px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.grid{display:grid;gap:12px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px 17px}
+.k{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);font-weight:600}
+.v{font-family:var(--mono);font-size:26px;font-weight:600;margin-top:7px;letter-spacing:-.02em}
+.v.sm{font-size:18px}
+.note{font-size:12px;color:var(--dimmer);margin-top:5px;line-height:1.45}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);
+  font-weight:650;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid #1a1e29;font-family:var(--mono);font-size:12.5px}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--panel2)}
+.r{text-align:right}
+.tick{color:var(--ink);font-family:var(--mono);font-weight:600}
+.pill{display:inline-block;padding:1px 8px;border-radius:20px;font-size:10.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.05em;font-family:inherit}
+.p-run{background:rgba(63,209,139,.13);color:var(--ok)}
+.p-pend{background:rgba(139,147,167,.13);color:var(--dim)}
+.p-ex{background:rgba(91,156,255,.13);color:var(--acc)}
+.p-err{background:rgba(242,84,91,.13);color:var(--bad)}
+.p-fav{background:rgba(169,120,255,.13);color:var(--acc2)}
+.bar{height:5px;background:#1a1e29;border-radius:3px;overflow:hidden;margin-top:9px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--ok));border-radius:3px}
+.scroll{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.scroll table{font-size:12.5px}
+.scroll thead th{position:sticky;top:0;background:var(--panel);z-index:1}
+.hero{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc);
+  border-radius:10px;padding:17px 19px;margin-bottom:22px}
+.hero p{margin:0 0 9px}
+.hero p:last-child{margin-bottom:0}
+.hero .lede{color:var(--ink);font-size:14.5px}
+.hero .body{color:var(--dim);font-size:13.5px}
+.hero.warn{border-left-color:var(--warn)}
+.hero.ok{border-left-color:var(--ok)}
+code{font-family:var(--mono);font-size:12px;background:#1b202b;padding:1.5px 5px;border-radius:4px;color:#c9d4e8}
+footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);color:var(--dimmer);font-size:11.5px}
+.load{color:var(--dim);font-size:13px;padding:22px;text-align:center}
+.err{color:var(--bad);font-size:12.5px;font-family:var(--mono);padding:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Cold Store &amp; Deep Fill</h1>
+  <div class="sub">Deep 1-minute history on Cloudflare R2 · live from the database ·
+    <b id="stamp">loading…</b></div>
+</header>
+
+<div class="hero ok">
+  <p class="lede"><b>Deep history no longer passes through Postgres.</b></p>
+  <p class="body">The filler fetches 1-minute bars from the vendor, gzips them, and writes them straight to R2.
+  Postgres sees only a progress row and a manifest row per tick — no bar writes, no bar scans. The statement
+  timeout and connection ceilings that took the database down on 6 August simply stop applying, because the
+  database is no longer in the path.</p>
+</div>
+
+<h2>Direct fill → R2</h2>
+<div class="grid g4">
+  <div class="card"><div class="k">Rows in R2</div><div class="v" id="m-rows">—</div>
+    <div class="note">written by the direct filler</div></div>
+  <div class="card"><div class="k">Compressed</div><div class="v" id="m-gz">—</div>
+    <div class="note" id="m-ratio">—</div></div>
+  <div class="card"><div class="k">Objects</div><div class="v" id="m-obj">—</div>
+    <div class="note">hive-partitioned, byte-verified on write</div></div>
+  <div class="card"><div class="k">Tickers touched</div><div class="v" id="m-tk">—</div>
+    <div class="note" id="m-span">—</div></div>
+</div>
+
+<h2>Two depths</h2>
+<div class="grid g2">
+  <div class="card">
+    <div class="k"><span class="pill p-fav">Deep</span> &nbsp;Favorites</div>
+    <div class="v sm" id="d-fav">—</div>
+    <div class="bar"><i id="d-favbar" style="width:0"></i></div>
+    <div class="note" id="d-favnote">The tickers actually traded and analysed. Deep 1-minute belongs here, and
+      the picker is strictly priority-ordered — favorites reach full depth before the rest of the fleet gets a
+      single call.</div>
+  </div>
+  <div class="card">
+    <div class="k">Rest of fleet</div>
+    <div class="v sm" id="d-fleet">—</div>
+    <div class="bar"><i id="d-fleetbar" style="width:0"></i></div>
+    <div class="note">Shallow-but-sufficient. Queued behind favorites by design, not by accident.</div>
+  </div>
+</div>
+
+<h2>Per-ticker progress</h2>
+<div class="scroll">
+  <table>
+    <thead><tr>
+      <th>Ticker</th><th>Depth</th><th>Status</th>
+      <th class="r">Days</th><th class="r">Rows → R2</th><th class="r">Objects</th>
+      <th>Reached back to</th>
+    </tr></thead>
+    <tbody id="rows"><tr><td colspan="7" class="load">loading…</td></tr></tbody>
+  </table>
+</div>
+
+<h2>Object layout</h2>
+<div class="card">
+  <p style="margin:0 0 10px;color:var(--dim);font-size:13.5px">Hive-partitioned gzip CSV, readable as one table
+  by DuckDB over the S3 API. Columns are <code>ts,open,high,low,close,volume</code> with no header row —
+  deliberately identical to what the earlier Postgres-side exporter wrote, so old and new objects read together.</p>
+  <p style="margin:0;font-family:var(--mono);font-size:12.5px;color:#c9d4e8">
+    tf1/ticker=&lt;TICKER&gt;/ym=&lt;YYYY-MM&gt;/part-&lt;YYYYMMDD&gt;-&lt;YYYYMMDD&gt;.csv.gz</p>
+  <p class="note" style="margin-top:11px">A tick never straddles a calendar month, so every object sits under
+  exactly one <code>ym=</code> prefix. The key is derived from the days inside it, so a re-run overwrites rather
+  than duplicates. Every PUT is read back and byte-length compared before its manifest row is written — an
+  object only counts here if it survived that check.</p>
+</div>
+
+<h2>Legacy migration (Postgres → R2)</h2>
+<div class="hero warn">
+  <p class="lede"><b>Paused, deliberately.</b></p>
+  <p class="body">The original design wrote deep bars into Postgres and then dragged them back out to R2. That
+  export drain saturated the instance on 6 August: the extraction call was running to its full 120-second
+  timeout while a fresh invocation started every 60 seconds, so roughly nineteen ran at once, each holding a
+  connection and a heavy table scan. Every other scheduled job starved behind it.</p>
+  <p class="body">It is stopped in code and its schedule is removed. Nothing was deleted — the manifest still
+  holds each chunk's true state, so it resumes exactly where it stopped once it has a single-flight lock,
+  weekly rather than monthly windows, and a timeout short enough to fail fast. The bars it already moved are
+  safe in R2 and counted below.</p>
+</div>
+<div class="grid g4">
+  <div class="card"><div class="k">Chunks exported</div><div class="v" id="l-exp">—</div>
+    <div class="note">verified before the drain was paused</div></div>
+  <div class="card"><div class="k">Rows moved</div><div class="v" id="l-rows">—</div>
+    <div class="note">out of Postgres, into R2</div></div>
+  <div class="card"><div class="k">Still pending</div><div class="v" id="l-pend">—</div>
+    <div class="note">resumes from here, unchanged</div></div>
+  <div class="card"><div class="k">Errored</div><div class="v" id="l-err">—</div>
+    <div class="note">retryable; state preserved</div></div>
+</div>
+
+<footer>
+  Reads the database only — no vendor call is made from this page. Sources:
+  <code>coldstore_objects</code>, <code>deep1m_r2_progress</code>, <code>coldstore_manifest</code>.
+  Kill switch <code>app_config.deep1m_r2_enabled</code>. Basis for <code>tf='1'</code> is RAW
+  (split-adjusted, dividend-unadjusted) — the vendor serves no dividend-adjusted intraday series on any tier.
+</footer>
+
+</div>
+<script>
+const SB='https://wadinxqplrggagkvrdag.supabase.co/rest/v1';
+const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZGlueHFwbHJnZ2Fna3ZyZGFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1NDk0MTYsImV4cCI6MjA5NjEyNTQxNn0.1UKKUb_fY-xOy33vNUszDzxGECqQxdcwaxb9kN7KY-g';
+const H={apikey:AK,Authorization:'Bearer '+AK};
+const j=p=>fetch(SB+'/'+p,{headers:H,cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(r.status));
+const nf=n=>n==null?'—':Number(n).toLocaleString();
+const by=b=>{if(b==null)return'—';const u=['B','KB','MB','GB','TB'];let i=0,x=Number(b);
+  while(x>=1024&&i<u.length-1){x/=1024;i++}return x.toFixed(x<10&&i>0?1:0)+' '+u[i]};
+
+function pill(s){
+  const m={running:'p-run',pending:'p-pend',exhausted:'p-ex',error:'p-err'};
+  return '<span class="pill '+(m[s]||'p-pend')+'">'+(s||'pending')+'</span>';
+}
+
+async function load(){
+  try{
+    const [objs,prog,man]=await Promise.all([
+      j('coldstore_objects?select=ticker,rows,bytes_gz,d_from&limit=20000'),
+      j('deep1m_r2_progress?select=ticker,priority,status,days_done,rows_written,objects_written,cursor_date&order=priority.asc,rows_written.desc&limit=400'),
+      j('coldstore_manifest?select=status,rows_exported&limit=5000').catch(()=>[])
+    ]);
+
+    // --- direct fill headline ---
+    const rows=objs.reduce((a,o)=>a+(o.rows||0),0);
+    const gz=objs.reduce((a,o)=>a+(o.bytes_gz||0),0);
+    const tks=new Set(objs.map(o=>o.ticker));
+    const oldest=objs.map(o=>o.d_from).filter(Boolean).sort()[0];
+    document.getElementById('m-rows').textContent=nf(rows);
+    document.getElementById('m-gz').textContent=by(gz);
+    document.getElementById('m-obj').textContent=nf(objs.length);
+    document.getElementById('m-tk').textContent=nf(tks.size);
+    document.getElementById('m-span').textContent=oldest?('reaching back to '+oldest):'—';
+    // a 1-min bar row is ~45 raw bytes; report the ratio we actually achieved
+    const raw=rows*45;
+    document.getElementById('m-ratio').textContent=gz?('~'+(raw/gz).toFixed(1)+'x smaller than raw CSV'):'—';
+
+    // --- two depths ---
+    const fav=prog.filter(p=>p.priority===0), fleet=prog.filter(p=>p.priority!==0);
+    const started=a=>a.filter(p=>(p.rows_written||0)>0).length;
+    document.getElementById('d-fav').textContent=started(fav)+' / '+fav.length+' started';
+    document.getElementById('d-fleet').textContent=started(fleet)+' / '+fleet.length+' started';
+    document.getElementById('d-favbar').style.width=(fav.length?100*started(fav)/fav.length:0)+'%';
+    document.getElementById('d-fleetbar').style.width=(fleet.length?100*started(fleet)/fleet.length:0)+'%';
+
+    // --- per-ticker table ---
+    const tb=document.getElementById('rows');
+    const show=prog.filter(p=>(p.rows_written||0)>0||p.status!=='pending');
+    tb.innerHTML = show.length ? show.map(p=>
+      '<tr><td class="tick">'+p.ticker+'</td>'+
+      '<td>'+(p.priority===0?'<span class="pill p-fav">deep</span>':'<span class="pill p-pend">fleet</span>')+'</td>'+
+      '<td>'+pill(p.status)+'</td>'+
+      '<td class="r">'+nf(p.days_done)+'</td>'+
+      '<td class="r">'+nf(p.rows_written)+'</td>'+
+      '<td class="r">'+nf(p.objects_written)+'</td>'+
+      '<td>'+(p.cursor_date||'—')+'</td></tr>').join('')
+      : '<tr><td colspan="7" class="load">no ticker has been filled yet</td></tr>';
+
+    // --- legacy migration ---
+    const g=s=>man.filter(m=>m.status===s);
+    document.getElementById('l-exp').textContent=nf(g('exported').length);
+    document.getElementById('l-rows').textContent=nf(g('exported').reduce((a,m)=>a+(m.rows_exported||0),0));
+    document.getElementById('l-pend').textContent=nf(g('pending').length);
+    document.getElementById('l-err').textContent=nf(g('error').length);
+
+    document.getElementById('stamp').textContent=new Date().toLocaleString();
+  }catch(e){
+    document.getElementById('rows').innerHTML='<tr><td colspan="7" class="err">could not read the database: '+e+'</td></tr>';
+    document.getElementById('stamp').textContent='read failed';
+  }
+}
+load();
+setInterval(load,60000);
+</script>
+</body>
+</html>
