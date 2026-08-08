@@ -1,0 +1,20 @@
+# .links — scintilla-allocation
+# Every external surface this repo is wired to. Verified 2026-08-08 where marked.
+
+github:
+  owner: aharveyrianhard-stack
+  repo: scintilla-allocation
+  url: https://github.com/aharveyrianhard-stack/scintilla-allocation
+
+vercel:
+  project: scintilla-allocation
+  live_urls: []
+  verified: true   # domains read from the Vercel project on 2026-08-08
+
+supabase:
+  project: scintilla-live (wadinxqplrggagkvrdag)
+
+drive:
+  folder: unset           # not yet recorded — fill when the Drive folder id is known
+
+registry: https://github.com/aharveyrianhard-stack/ai-operating-system/blob/main/registry/projects.yaml
