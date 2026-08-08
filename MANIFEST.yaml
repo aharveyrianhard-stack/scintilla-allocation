@@ -1,0 +1,20 @@
+# MANIFEST — scintilla-allocation
+# Written 2026-08-08 by the execution session. NO REPOSITORY WAS MOVED.
+# This file records what this repo is and where it is DESTINED to live, so the
+# eventual consolidation is a lookup rather than an archaeology project.
+
+slug: scintilla-allocation
+owner: aharveyrianhard-stack
+status: active          # canonical | active | superseded | archived
+role: >
+  Allocation module — heat-to-balance methodology, approved Geiger math, percent-only.
+
+destination:
+  repo: scintilla            # target structure: urth · scintilla · operating-system · breathflow · swing-lab · capability-studio
+  path: apps/allocation
+  moved: false            # nothing has moved yet, by instruction
+
+notes: >
+  Vercel deploys from main.
+
+last_reviewed: 2026-08-08
