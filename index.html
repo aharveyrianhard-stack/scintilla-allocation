@@ -425,6 +425,8 @@ async function refreshSSOT(){
     const m={}; for(const r of mem) m[r.ticker]=r.group_key; SECTOR_OF=m;
     const ind=await sbGetPaged('ticker_membership?select=ticker,group_key&kind=eq.industry&order=ticker.asc');
     const im={}; for(const r of ind) im[r.ticker]=r.group_key; INDUSTRY_OF=im;
+    const ck=await sbGetPaged('ticker_membership?select=group_key&kind=eq.cohort&order=group_key.asc');
+    TRUE_COHORT_SET=new Set(ck.map(r=>r.group_key));
     const d=(await sbGet('sector_rankings?select=date&order=date.desc&limit=1'))[0]?.date;
     const rows=d?await sbGet('sector_rankings?select=sector,sector_name,rank,score,trend,momentum&date=eq.'+d+'&limit=20'):[];
     const byEtf={}; for(const r of rows) byEtf[r.sector]=r;
@@ -578,12 +580,75 @@ function styleAdj(sym, spreads){
 // the COLDER the sleeve, the BIGGER its share of invested. Shares capped 5-35% and renormalized. Score = HOW MUCH; sleeves = WHERE.
 const SLEEVES = {GROWTH:['QQQ'], SMALL:['IWM'], BROAD:['RSP'], SEMIS:['SMH'], CRYPTO:['BTCUSD'], CMDTY:['GCUSD','SIUSD','CLUSD']};
 const SLEEVE_COLOR = {GROWTH:'#00d4ff', SMALL:'#7dd3fc', BROAD:'#ffd166', SEMIS:'#a78bfa', CRYPTO:'#ff8c42', CMDTY:'#38e07b', CASH:'#23233a'};
+/* ================= THE REAL AXES (2026-08-11) =================
+   Alan: "we use sectors and cohorts" · "i have no idea where this broad is coming from".
+   The sleeve list was a side-build artifact that crushed four different things into one
+   bucket list — a style (GROWTH), a size (SMALL), themes (SEMIS, CRYPTO) and BROAD, which
+   is RSP wearing a costume and appears nowhere in the cohorts database. Money is now
+   allocated across a REAL axis you can name, and you pick which one.
+   Each group is read the same way everything else here is read: trend and momentum apart,
+   from the constituents. Share is coldness LIFTED BY THE TURN — cold and turning up earns
+   more than cold and still falling, which is the "is the cheapness merited" question one
+   level up from the names. */
+let AXIS = localStorage.getItem('alloc-axis') || 'sector';   // sector | cohort
+function setAxis(v){ AXIS=v; localStorage.setItem('alloc-axis',v); render(); }
+const GROUP_MIN = 3;                       // a group needs this many read names to be fundable
+function groupsOfTicker(sym){
+  if(AXIS==='sector'){
+    const k=SECTOR_OF[sym]; if(k) return [k];
+    for(const [g,coh] of [['CRYPTO','CRYPTO'],['METALS','METALS'],['OIL','ENERGY']])
+      if((UNIVERSE.cohorts[sym]||[]).includes(coh)) return [g];
+    return [];                              // no sector: shown, never silently rehomed
+  }
+  return (UNIVERSE.cohorts[sym]||[]).filter(c=>TRUE_COHORT_SET.has(c));
+}
+let TRUE_COHORT_SET=new Set();
+let GROUP_READ={};                          // group -> {trend, mom, score, q, kind, n}
+function buildGroupReads(){
+  const uni=Object.keys(COMPOSITE);
+  const members={};
+  for(const t of uni) for(const g of groupsOfTicker(t)) (members[g]=members[g]||[]).push(t);
+  const out={};
+  for(const [g,names] of Object.entries(members)){
+    const T=names.map(t=>(REGIME[t]||{}).trend).filter(v=>v!=null);
+    const M=names.map(t=>(REGIME[t]||{}).mom).filter(v=>v!=null);
+    if(names.length<GROUP_MIN || T.length<2 || M.length<2) continue;
+    const avg=a=>a.reduce((x,y)=>x+y,0)/a.length, tr=avg(T), mo=avg(M);
+    out[g]={trend:tr, mom:mo, score:(tr+mo)/2, n:names.length, ...rrg(tr,mo)};
+  }
+  GROUP_READ=out;
+}
+/* Share = coldness, lifted or cut by what the group is actually doing. */
+function groupShares(){
+  const raw={}; let tot=0;
+  for(const [g,r] of Object.entries(GROUP_READ)){
+    const cold=Math.max(0.05,(1-r.score)/2);
+    const turn = r.kind==='improve'?1.35 : r.kind==='lag'?0.6 : r.kind==='weak'?0.85 : 1.0;
+    raw[g]=cold*turn; tot+=raw[g];
+  }
+  if(!tot) return {};
+  for(const g of Object.keys(raw)) raw[g]/=tot;
+  let cap=0; for(const g of Object.keys(raw)){ raw[g]=Math.min(0.35,Math.max(0.02,raw[g])); cap+=raw[g] }
+  for(const g of Object.keys(raw)) raw[g]/=cap;
+  return raw;
+}
+function sleeveShares(){ return groupShares() }
+function tickerSleeves(sym){ return groupsOfTicker(sym) }
+const GROUP_PALETTE=['#00d4ff','#7dd3fc','#ffd166','#a78bfa','#ff8c42','#38e07b','#f472b6','#facc15','#4ade80','#60a5fa','#fb923c','#c084fc','#2dd4bf','#f87171'];
+function groupColor(g){ let h=0; for(let i=0;i<g.length;i++) h=(h*31+g.charCodeAt(i))>>>0; return GROUP_PALETTE[h%GROUP_PALETTE.length]; }
 function sleeveG(name){
-  const syms = SLEEVES[name].filter(x => gv(x) != null); // SSOT: composite_staged
+  /* A sector or cohort has no single proxy ticker — its reading is its constituents,
+     which is also how the sector tool does it. The old proxy path (QQQ for GROWTH etc.)
+     is kept only for any legacy sleeve key still passed in. */
+  const r = GROUP_READ[name];
+  if (r) return r.score;
+  const legacy = SLEEVES[name];
+  if (!legacy) return null;
+  const syms = legacy.filter(x => gv(x) != null);
   if (!syms.length) return null;
   return syms.reduce((t,x) => t + gv(x), 0) / syms.length;
 }
-function sleeveShares(){
+function sleeveShares_OLD(){
   const raw = {};
   let tot = 0;
   for (const k of Object.keys(SLEEVES)) { const g = sleeveG(k); if (g == null) continue; raw[k] = Math.max(0.05, 1 - g); tot += raw[k]; }
@@ -602,7 +667,7 @@ function tickerCls(sym){
   if (p && p.market_cap != null && !p.is_etf) return p.market_cap < 10e9 ? 'SC' : 'LC';  // DB-driven cap class
   return CLASSES[sym] || null;
 }
-function tickerSleeves(sym){
+function tickerSleeves_OLD(sym){
   const out = new Set();
   if (CMDTY_SYMS.has(sym)) out.add('CMDTY');
   const dbc = UNIVERSE.cohorts[sym];
@@ -957,7 +1022,7 @@ function render(){
   const scheduleNote = dTot > .005 ? `<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">CADENCE <b style="color:var(--txt)">${cadence}</b> — [${factors.join(' · ')}]. The first clip is sized by the readings, not by a round number.</div>` : dTot < -.005 ? '<div style="color:var(--orange);font-size:11px;margin:2px 0 6px">Trims execute immediately — de-risking does not wait.</div>' : '';
   const sleeveMoves = Object.entries(SH2).sort((a,b)=>b[1]-a[1]).map(([k,sh]) => {
     const d = sh * inv;
-    const col = SLEEVE_COLOR[k];
+    const col = (SLEEVE_COLOR[k]||groupColor(k));
     if (d <= 0.005) return `<div style="border-left:3px solid ${col};padding:10px 14px;opacity:.45;background:rgba(255,255,255,.01);border-radius:0 8px 8px 0"><b style="color:${col}">${k}</b> <span class="cls">HOLD</span></div>`;
     const tr = tranchePlan.map(([frac,lbl],i)=>`<span style="display:inline-flex;align-items:center;gap:5px;margin:6px 10px 0 0;font-size:11px;color:var(--dim)"><span style="background:${col};opacity:${(1-i*0.2).toFixed(2)};color:#0a0a0f;font-weight:700;border-radius:4px;padding:2px 8px">${spct(d*frac)}</span>${lbl}</span>`).join('');
     return `<div style="border-left:3px solid ${col};padding:10px 14px;background:rgba(255,255,255,.02);border-radius:0 8px 8px 0">
@@ -969,6 +1034,7 @@ function render(){
     ${scheduleNote}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">${sleeveMoves}</div>`;
 
+  buildGroupReads();
   buildPeerStats();
   renderSectorRot();
   drawDonut(sleeveShares(), inv);
@@ -1065,7 +1131,7 @@ function drawDonut(shares, inv){
   const ring=(a,a2,or,irr,fill)=>{ if(a2<=a) return; ctx.beginPath(); ctx.arc(cx,cy,or,a,a2); ctx.arc(cx,cy,irr,a2,a,true); ctx.closePath(); ctx.fillStyle=fill; ctx.fill(); };
   let a=-Math.PI/2;
   for(const [k,v] of segs){ if(v<=0.001) continue;
-    const gap=segs.length>1?0.02:0, span=v*2*Math.PI-gap, a2=a+span, col=SLEEVE_COLOR[k]||'#444';
+    const gap=segs.length>1?0.02:0, span=v*2*Math.PI-gap, a2=a+span, col=(SLEEVE_COLOR[k]||groupColor(k));
     ring(a,a2,r,ri,col);                                    // OUTER — where the money goes
     if(k!=='CASH'){                                         // INNER — which of your names hold it
       const info=PM.sleeves[k], n=info?info.names.length:0;
@@ -1082,7 +1148,7 @@ function drawDonut(shares, inv){
   let ly=40; ctx.textAlign='left'; ctx.textBaseline='middle'; const lx=380;
   ctx.fillStyle='#8a8aa0'; ctx.font='10px monospace'; ctx.fillText('OUTER RING = SLEEVE · INNER = YOUR PICKS', lx, ly-18);
   for(const [k,v] of segs){ if(v<=0.001) continue;
-    ctx.fillStyle=SLEEVE_COLOR[k]||'#444'; ctx.beginPath(); ctx.roundRect(lx,ly-7,14,14,4); ctx.fill();
+    ctx.fillStyle=(SLEEVE_COLOR[k]||groupColor(k)); ctx.beginPath(); ctx.roundRect(lx,ly-7,14,14,4); ctx.fill();
     ctx.fillStyle='#e8e8f0'; ctx.font='13px monospace'; ctx.fillText(k, lx+24, ly);
     const n=k==='CASH'?null:(PM.sleeves[k]?PM.sleeves[k].names.length:0);
     if(n!=null){ ctx.fillStyle=n?'#8a8aa0':'#ff8c42'; ctx.font='10px monospace';
@@ -1102,6 +1168,7 @@ function renderSectorRot(){
   const chips=rs.map(r=>`<span title="${r.name} · trend ${(+r.trend).toFixed(2)} · momentum ${(+r.momentum).toFixed(2)}" style="display:inline-block;margin:2px 5px 2px 0;padding:2px 7px;border:1px solid var(--line);border-radius:5px;font-size:10px"><b style="color:${scol(r.kind)}">${r.key}</b> <span style="color:var(--dim)">${r.q}</span></span>`).join('');
   el.innerHTML=
    '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin-bottom:6px">WHAT TO BUY — coldness on its own is not a reason. This is coldness combined with what trend and momentum are doing.</div>'+
+   seg('ALLOCATE ACROSS',AXIS,[['sector','SECTORS'],['cohort','COHORTS']],'setAxis')+
    seg('INTENT',INTENT,[['dip','DIPS IN UPTRENDS','cold, but the trend is still up — a pullback'],
                         ['turn','TURNS','beaten down and momentum has crossed up'],
                         ['strength','CONFIRMED STRENGTH','trend and momentum both up — this is buying strength, not value'],
@@ -1132,7 +1199,7 @@ function renderPickMix(shares, inv){
     '<div>'+seg('REGIME GATE',RGATE,[['off','OFF'],['warn','WARN'],['exclude','EXCLUDE BREAKDOWNS']],'setRgate')+'</div></div>';
   const rows=Object.entries(PM.sleeves).sort((a,b)=>b[1].share-a[1].share).map(([k,info])=>{
     if(info.share<=0.001) return '';
-    const col=SLEEVE_COLOR[k]||'#444';
+    const col=(SLEEVE_COLOR[k]||groupColor(k));
     const inner=info.names.length
       ? info.names.map(n=>{const rg=REGIME[n.sym]||{}; const vr=valueRead(n.sym);
           const rc=rg.kind==='avoid'?'var(--orange)':rg.kind==='buy'?'var(--green)':'#8a8aa0';
