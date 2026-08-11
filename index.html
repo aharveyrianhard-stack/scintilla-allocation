@@ -306,12 +306,23 @@ function setKnife(v){ KNIFE=v; localStorage.setItem('alloc-knife',v); render(); 
 function setVmode(v){ VMODE=v; localStorage.setItem('alloc-vmode',v); render(); }
 function setSweight(v){ SWEIGHT=+v; localStorage.setItem('alloc-sweight',v); render(); }
 /* Regime fit: how well a name matches what you said you want to buy. 1 = exactly it. */
+/* The intent applied to a READ KIND — used for a name and for its sector alike, so the two
+   levels can never diverge in what "a dip" or "a turn" means. */
+function intentFitKind(kind){
+  if(!kind||kind==='none') return 0.5;
+  if(INTENT==='pure')     return 0.5;
+  if(INTENT==='dip')      return kind==='buy'?1 : kind==='go'?0.55 : kind==='improve'?0.35 : 0.1;
+  if(INTENT==='turn')     return kind==='improve'?1 : kind==='buy'?0.6 : kind==='go'?0.4 : 0.15;
+  return kind==='go'?1 : kind==='buy'?0.5 : kind==='improve'?0.25 : 0.1;   // strength
+}
+function sectorReadOf(sym){
+  const k=SECTOR_OF[sym]; if(!k) return null;
+  return SECTOR_READ[k] || GROUP_READ[k] || null;
+}
+const E_SECREAD={};   // filled from SECTOR_READ each render so the ranking reads one place
 function intentFit(sym){
-  const r=REGIME[sym]; if(!r||r.kind==='none') return 0.5;
-  if(INTENT==='pure')     return 0.5;                                  // coldness only, no regime view
-  if(INTENT==='dip')      return r.kind==='buy'?1 : r.kind==='go'?0.55 : r.kind==='care'?0.35 : 0.1;
-  if(INTENT==='turn')     return r.kind==='care'?1 : r.kind==='buy'?0.6 : r.kind==='go'?0.4 : 0.15;
-  /* strength */          return r.kind==='go'?1 : r.kind==='buy'?0.5 : r.kind==='care'?0.25 : 0.1;
+  const r=REGIME[sym]; if(!r) return 0.5;
+  return intentFitKind(r.kind);
 }
 /* VALUE — the fundamentals file\'s method: compare against a PEER SET and flag by IQR
    outliers, not a percentile I invented. Peers = the name\'s sector when it has one,
@@ -1161,6 +1172,8 @@ function render(){
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">${sleeveMoves}</div>`;
 
   buildGroupReads();
+  for(const k of Object.keys(E_SECREAD)) delete E_SECREAD[k];
+  Object.assign(E_SECREAD, SECTOR_READ);
   buildPeerStats();
   renderSectorRot();
   drawDonut(sleeveShares(), inv);
@@ -1490,7 +1503,17 @@ function renderComps(){
                its score no matter how cold it is. At HOW HARD = 0 this collapses back to
                pure coldness, so the old behaviour is still reachable. */
             let attract = (1 - (tg.g + styleAdj(s,SPR))) / 2;            // 0..1, 1 = coldest
-            attract *= (1 - w) + w*(0.15 + 1.7*intentFit(s));            // intent can cut or lift it hard
+            /* ONE PIPELINE (2026-08-11). Rotation used to attach to allocation as a separate
+               re-rank with its own vocabulary. Now the SAME intent runs through the SAME
+               readOf() at both levels: the name's own trend x momentum, and the trend x
+               momentum of the sector it sits in. A name is scored on what it is doing AND on
+               what its neighbourhood is doing, judged by one rule. Rotation is no longer an
+               adjustment bolted onto allocation — it is the same question asked one level up. */
+            const secR = (AXIS==='sector' ? (E_SECREAD[SECTOR_OF[s]]||null) : null) || sectorReadOf(s);
+            const fitName = intentFit(s);
+            const fitSect = secR ? intentFitKind(secR.kind) : 0.5;
+            const fit = 0.7*fitName + 0.3*fitSect;                        // the name leads, its sector confirms
+            attract *= (1 - w) + w*(0.15 + 1.7*fit);
             if(VMODE!=='off' && vr) attract *= 1 - w*0.5*vr.z;           // cheap vs peers lifts, dear cuts
             return {sym:s, adj:-attract, sleeves:tickerSleeves(s), rg, vr}; }).filter(Boolean);
   const suggested = new Set();
