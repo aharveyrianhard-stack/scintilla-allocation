@@ -274,7 +274,7 @@ async function sbGetPaged(path, pageSize=1000, maxPages=12){
   }
   throw new Error('paged read exceeded '+maxPages+' pages');
 }
-let MKTINT=null, FAN={};   // market_internals — the real advance/decline line
+let MKTINT=null;   // market_internals — the real advance/decline line
 let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={};   // industry = the sub-sector axis (93 groups, 317 names)   // ticker -> our sector key ; sector key -> the rotation read
 /* SECTOR ROTATION, ACTUALLY WIRED IN (2026-08-11).
    Until now the only thing sector did in this module was the XLP+XLU defensives voter and
@@ -286,13 +286,7 @@ let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={};   // industry = the sub-sector
    name-level regime uses. Nothing is re-derived from prices. */
 const SECTOR_ETF_OF={TECH:'XLK',HEALTH:'XLV',FINANCIALS:'XLF',DISCRET:'XLY',INDUSTRIAL:'XLI',
   MATERIALS:'XLB',ENERGY:'XLE',STAPLES:'XLP',UTILITIES:'XLU',REAL_ESTATE:'XLRE',COMMS:'XLC'};
-function rrg(t,m){
-  if(t==null||m==null) return {q:'NO READ', kind:'none'};
-  if(t>0  && m>0)  return {q:'LEADING',   kind:'lead'};    // strong and still gaining
-  if(t>0  && m<=0) return {q:'WEAKENING', kind:'weak'};    // still strong, losing steam
-  if(t<=0 && m>0)  return {q:'IMPROVING', kind:'improve'}; // beaten down, turning up
-  return {q:'LAGGING', kind:'lag'};                        // beaten down, still falling
-}
+function rrg(t,m){ return readOf(t,m) }   // sectors read exactly as names do
 function sectorRead(sym){
   const k=SECTOR_OF[sym]; if(!k) return null;
   const r=SECTOR_READ[k]; if(!r) return null;
@@ -377,6 +371,19 @@ let REGIME={};   // ticker -> {trend, mom, label, kind}  from fan_daily + moment
    already computes them (fan_daily.read = trend, momentum_daily.read = momentum), and
    the pair gives a regime. This is the v1 Alan described — deliberately four quadrants
    and no more — and it is what tells you whether cheapness is merited or is a warning. */
+/* ONE READ, USED AT EVERY LEVEL (2026-08-11).
+   Alan: "the convergence was the fucking first thing i asked for." Rotation had rrg() for sectors
+   and the allocation had regimeOf() for names — two functions, two vocabularies, same arithmetic.
+   They are now one. A sector, a cohort and a single name are all read by the same trend x momentum
+   call, so a sector cannot say one thing while its constituents are scored by another rule. */
+function readOf(t,m){
+  if(t==null||m==null) return {label:'NO READ', q:'NO READ', kind:'none', score:null};
+  const score=(t+m)/2;
+  if(t>0  && m>0)  return {label:'UPTREND, CONFIRMED', q:'LEADING',   kind:'go',      score};
+  if(t>0  && m<=0) return {label:'PULLBACK IN UPTREND', q:'WEAKENING', kind:'buy',     score};
+  if(t<=0 && m>0)  return {label:'BOUNCE IN DOWNTREND', q:'IMPROVING', kind:'improve', score};
+  return {label:'BREAKDOWN', q:'LAGGING', kind:'avoid', score};
+}
 function regimeOf(t,m){
   if(t==null||m==null) return {label:'NO READ', kind:'none'};
   if(t>0  && m>0)  return {label:'UPTREND, CONFIRMED', kind:'go'};
@@ -447,12 +454,11 @@ async function refreshSSOT(){
   // REGIME — trend and momentum kept apart, latest bar only
   J.push((async()=>{
     const [fa,mo]=await Promise.all([
-      sbGet('fan_daily?select=ticker,asof,read,s50,s200,w200_rising,pairs&order=asof.desc&limit=1000'),
+      sbGet('fan_daily?select=ticker,asof,read&order=asof.desc&limit=1000'),
       sbGet('momentum_daily?select=ticker,asof,read&order=asof.desc&limit=1000')
     ]);
     const newest=a=>{const d=a.length?a[0].asof:null; return a.filter(r=>r.asof===d)};
     const T={}, M={};
-    FAN={}; for(const r of newest(fa)) if(FAN[r.ticker]===undefined) FAN[r.ticker]=r;
     for(const r of newest(fa)) if(T[r.ticker]===undefined) T[r.ticker]=r.read;
     for(const r of newest(mo)) if(M[r.ticker]===undefined) M[r.ticker]=r.read;
     const out={}; for(const k of new Set([...Object.keys(T),...Object.keys(M)]))
@@ -696,7 +702,7 @@ const DEFAULTS = {
   vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
   maxInv:100, minInv:15, nLC:4, nSC:2, nPer:2, divAuto:1, lcTilt:0, maxTotal:12, maxNames:6, concLean:0,
   curInv:0, curLC:0,
-  wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25, BREADTH_EW:0.5, BREADTH_SC:0.25, VIX_TERM:0.25, CURVE:0.5, PCC:0, SKEW:0.25, ADLINE:0.5, B_200D:0.5, B_50D:0.25, B_W200:0.25, TRIN:0.25, B_VOL:0.25, CONC:0.5, CREDIT:0.5, DURATION:0.25, HAVEN:0.25}
+  wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25, BREADTH_EW:0.5, BREADTH_SC:0.25, VIX_TERM:0.25, CURVE:0.5, PCC:0, SKEW:0.25, ADLINE:0.5, TRIN:0.25, B_VOL:0.25, CONC:0.5, CREDIT:0.5, DURATION:0.25, HAVEN:0.25}
 };
 const VOTER_DESC = {
   SPY: 'PROXY: SPY (composite_staged · db; Yahoo fallback). The approved geiger on the S&P across your full equalizer curve (2h→1w): ribbon order 50% + momentum 50% (RSI 60 / W%R 40, straight 23→77 map — every level in between feeds, per GOOGL_GEIGER_v2). WHEN it reads positive the market is stretched and it pushes the score UP toward Overbought; negative = washed out, pushes DOWN toward Oversold.',
@@ -820,103 +826,95 @@ function voters(){
   const v = [];
   const idx = sym => gv(sym);                                            // SSOT: composite_staged
   const gsrc = sym => COMPOSITE[sym] ? 'composite_staged · db' : (COHORT[sym] ? 'FALLBACK client geiger (yahoo)' : '—');
-  v.push({key:'SPY', speed:'FAST', name:'SPY GEIGER', sub:gsrc('SPY'), val:idx('SPY')});
-  v.push({key:'QQQ', speed:'FAST', name:'QQQ GEIGER', sub:gsrc('QQQ'), val:idx('QQQ')});
-  v.push({key:'IWM', speed:'FAST', name:'IWM GEIGER', sub:'small caps · '+gsrc('IWM'), val:idx('IWM')});
-  v.push({key:'SMH', speed:'FAST', name:'SMH GEIGER', sub:'semis · '+gsrc('SMH'), val:idx('SMH')});
+  v.push({key:'SPY', speed:0.15, name:'SPY GEIGER', sub:gsrc('SPY'), val:idx('SPY')});
+  v.push({key:'QQQ', speed:0.15, name:'QQQ GEIGER', sub:gsrc('QQQ'), val:idx('QQQ')});
+  v.push({key:'IWM', speed:0.15, name:'IWM GEIGER', sub:'small caps · '+gsrc('IWM'), val:idx('IWM')});
+  v.push({key:'SMH', speed:0.15, name:'SMH GEIGER', sub:'semis · '+gsrc('SMH'), val:idx('SMH')});
   let vix = null, vixSub = '—';
   if (VIXDB && VIXDB.fresh && VIXDB.vix != null) { vix = VIXDB.vix; vixSub = vix.toFixed(1)+' · vix_term (db) '+VIXDB.date; }
   else if (MACRO['VIX']) { vix = MACRO['VIX'].value; vixSub = vix.toFixed(1)+' · FALLBACK yahoo'+(VIXDB&&VIXDB.date?' (vix_term stale @ '+VIXDB.date+')':''); }
-  v.push({key:'VIX', speed:'FAST', name:'VIX (inv)', sub: vixSub, val: vix!=null ? clamp(((S.vixCold+12)/2 - vix) / ((S.vixCold-12)/2)) : null});
+  v.push({key:'VIX', speed:0.15, name:'VIX (inv)', sub: vixSub, val: vix!=null ? clamp(((S.vixCold+12)/2 - vix) / ((S.vixCold-12)/2)) : null});
   let ten = null, tenSub = '—';
   if (TREAS && TREAS.y10 != null) { ten = TREAS.y10; tenSub = ten.toFixed(2)+'% · treasury_rates (db) '+TREAS.date; }
   else if (MACRO['US10Y']) { ten = MACRO['US10Y'].value; tenSub = ten.toFixed(2)+'% · FALLBACK yahoo'; }
-  v.push({key:'US10Y', speed:'SLOW', name:'US 10Y (inv)', sub: tenSub, val: ten!=null ? clamp(((+S.tenCold+3.5)/2 - ten) / ((+S.tenCold-3.5)/2)) : null});
+  v.push({key:'US10Y', speed:0.85, name:'US 10Y (inv)', sub: tenSub, val: ten!=null ? clamp(((+S.tenCold+3.5)/2 - ten) / ((+S.tenCold-3.5)/2)) : null});
   const oil = gv('CLUSD');
-  v.push({key:'OIL', speed:'FAST', name:'OIL (inv)', sub: oil!=null ? 'CL · '+gsrc('CLUSD') : '—', val: oil!=null ? clamp(-oil) : null});
+  v.push({key:'OIL', speed:0.15, name:'OIL (inv)', sub: oil!=null ? 'CL · '+gsrc('CLUSD') : '—', val: oil!=null ? clamp(-oil) : null});
   const rsp = gv('RSP');
-  v.push({key:'VALUE', speed:'SLOW', name:'VALUE (RSP)', sub:'equal-weight · '+gsrc('RSP'), val: rsp});
+  v.push({key:'VALUE', speed:0.85, name:'VALUE (RSP)', sub:'equal-weight · '+gsrc('RSP'), val: rsp});
   const btc = gv('BTCUSD');
-  v.push({key:'CRYPTO', speed:'FAST', name:'CRYPTO (BTC)', sub:'risk appetite · '+gsrc('BTCUSD'), val: btc});
+  v.push({key:'CRYPTO', speed:0.15, name:'CRYPTO (BTC)', sub:'risk appetite · '+gsrc('BTCUSD'), val: btc});
   /* ADDED 2026-08-11 — things we already hold and were not using. Every one ships at
      weight 0: wired and visible, contributing nothing until Alan sets a weight. */
   // BREADTH AS A RATIO, not a straight geiger — equal-weight vs the index, and small vs large.
   const gSPY=gv('SPY'), gRSP=gv('RSP'), gIWM=gv('IWM');
-  v.push({key:'BREADTH_EW', speed:'SLOW', name:'EQUAL-WEIGHT vs INDEX',
+  v.push({key:'BREADTH_EW', speed:0.85, name:'EQUAL-WEIGHT vs INDEX',
           sub:(gRSP!=null&&gSPY!=null)?'RSP − SPY = '+f2v(gRSP-gSPY)+' · negative means the average stock is colder than the index':'—',
           val:(gRSP!=null&&gSPY!=null)?clamp(gRSP-gSPY):null});
-  v.push({key:'BREADTH_SC', speed:'SLOW', name:'SMALL vs LARGE',
+  v.push({key:'BREADTH_SC', speed:0.85, name:'SMALL vs LARGE',
           sub:(gIWM!=null&&gSPY!=null)?'IWM − SPY = '+f2v(gIWM-gSPY):'—',
           val:(gIWM!=null&&gSPY!=null)?clamp(gIWM-gSPY):null});
   // VIX TERM STRUCTURE — spot vs 3-month. Above 1 is backwardation, i.e. stress now.
   /* Only votes on a FRESH row. vix_term stopped on 2026-06-08, so today this reads
      stale and contributes nothing rather than voting on a two-month-old ratio. */
   const vFresh=(VIXDB&&VIXDB.fresh), vr3=(VIXDB&&VIXDB.ratio!=null)?+VIXDB.ratio:null;
-  v.push({key:'VIX_TERM', speed:'SLOW', name:'VIX TERM (spot ÷ 3m)',
+  v.push({key:'VIX_TERM', speed:0.85, name:'VIX TERM (spot ÷ 3m)',
           sub:vr3==null?'— not read':(vFresh?vr3.toFixed(3)+' · above 1.00 = stress priced now':'STALE '+VIXDB.date+' — not voting'),
           val:(vFresh&&vr3!=null)?clamp((1-vr3)*4):null});
   // YIELD CURVE — 10y minus 2y. Inverted is the classic warning; we hold the whole curve.
   const c10=(TREAS&&TREAS.y10!=null)?+TREAS.y10:null, c2=(TREAS&&TREAS.y2!=null)?+TREAS.y2:null;
-  v.push({key:'CURVE', speed:'SLOW', name:'YIELD CURVE (10y − 2y)',
+  v.push({key:'CURVE', speed:0.85, name:'YIELD CURVE (10y − 2y)',
           sub:(c10!=null&&c2!=null)?((c10-c2).toFixed(2)+'% · negative = inverted'):'— not read',
           val:(c10!=null&&c2!=null)?clamp((c10-c2)/1.5):null});
   // PUT/CALL — wired and empty on purpose. No data in put_call_history after 2019-10-04.
-  v.push({key:'PCC', speed:'SLOW', name:'PUT / CALL (breadth)', sub:'no data in the database after 2019-10-04 — wired, contributing nothing', val:null});
+  v.push({key:'PCC', speed:0.85, name:'PUT / CALL (breadth)', sub:'no data in the database after 2019-10-04 — wired, contributing nothing', val:null});
   /* SKEW — how expensive out-of-the-money puts are against calls. It answers the question a
      put/call ratio is read for, and unlike a contract count it does not lurch on one large hedge.
      SLOW: this is a sentiment/regime reading, not an intraday one. */
   const skew=(VIXDB&&VIXDB.skew!=null)?+VIXDB.skew:null;
-  v.push({key:'SKEW', name:'SKEW (put protection bid)', speed:'SLOW',
+  v.push({key:'SKEW', name:'SKEW (put protection bid)', speed:0.85,
           sub:skew!=null?skew.toFixed(1)+' · above ~135 means people are paying up for downside protection':'— not read',
           val:skew!=null?clamp((135-skew)/25):null});
   /* BREADTH — the real advance/decline line, computed across the whole market, not proxied. */
   const ad=MKTINT&&MKTINT.advancers!=null&&MKTINT.decliners!=null
            ? (MKTINT.advancers-MKTINT.decliners)/Math.max(1,MKTINT.advancers+MKTINT.decliners) : null;
-  v.push({key:'ADLINE', name:'ADVANCE / DECLINE', speed:'SLOW',
+  v.push({key:'ADLINE', name:'ADVANCE / DECLINE', speed:0.85,
           sub:ad!=null?(MKTINT.advancers+' up / '+MKTINT.decliners+' down across '+MKTINT.universe+' issues'):'— not read',
           val:ad!=null?clamp(ad*2):null});
   /* ===== BREADTH, PROPERLY ===== One advance/decline number was not breadth, it was a
      headline. Everything below is computed from data the tool already reads — the fan
      structure per name, the internals table, and the Station leadership instruments.
      All SLOW: breadth is a durability question, not an intraday one. */
-  const fanArr=Object.values(FAN), quoted=fanArr.filter(f=>QUOTES[f.ticker]&&QUOTES[f.ticker].price>0);
-  const pctOf=(arr,pred)=>arr.length? arr.filter(pred).length/arr.length : null;
-  const a200=pctOf(quoted,f=>f.s200>0 && QUOTES[f.ticker].price>f.s200);
-  const a50 =pctOf(quoted,f=>f.s50 >0 && QUOTES[f.ticker].price>f.s50);
-  const w200=pctOf(fanArr,f=>f.w200_rising);
-  v.push({key:'B_200D', name:'% ABOVE 200-DAY', speed:'SLOW',
-          sub:a200==null?'—':(a200*100).toFixed(0)+'% of '+quoted.length+' names above their 200-day',
-          val:a200==null?null:clamp((a200-0.5)*2)});
-  v.push({key:'B_50D', name:'% ABOVE 50-DAY', speed:'SLOW',
-          sub:a50==null?'—':(a50*100).toFixed(0)+'% of '+quoted.length+' names above their 50-day',
-          val:a50==null?null:clamp((a50-0.5)*2)});
-  v.push({key:'B_W200', name:'% WITH RISING 200-WEEK', speed:'SLOW',
-          sub:w200==null?'—':(w200*100).toFixed(0)+'% of '+fanArr.length+' names — the slowest breadth there is',
-          val:w200==null?null:clamp((w200-0.5)*2)});
+  /* BREADTH REMOVED (2026-08-11). B_200D / B_50D / B_W200 measured the percentage of ALAN'S
+     387-name universe above its moving averages and called it breadth. Alan: "u cant measure
+     breadth in hub dude... my hub is not the market". He is right — a watchlist statistic is not
+     a market statistic, and presenting one as the other is worse than having no reading. Broad
+     market measures must come from broad market data, which here means market_internals
+     (22,925 issues) and nothing else. */
   /* TRIN — advancing issues vs advancing volume. Below 1 means the volume is going with the
      advance; above 1 means the up-issues are not being paid for. Inverted: high TRIN is cold. */
   const trin=(MKTINT&&MKTINT.trin!=null)?+MKTINT.trin:null;
-  v.push({key:'TRIN', name:'TRIN (inv)', speed:'FAST',
+  v.push({key:'TRIN', name:'TRIN (inv)', speed:0.15,
           sub:trin!=null?trin.toFixed(3)+' · below 1.00 = volume confirming the advance':'—',
           val:trin!=null?clamp((1-trin)*2):null});
   /* UP vs DOWN VOLUME — conviction behind the advance/decline count. */
   const uv=MKTINT&&MKTINT.adv_volume>0&&MKTINT.dec_volume>0
            ? (MKTINT.adv_volume-MKTINT.dec_volume)/(MKTINT.adv_volume+MKTINT.dec_volume) : null;
-  v.push({key:'B_VOL', name:'UP vs DOWN VOLUME', speed:'FAST',
+  v.push({key:'B_VOL', name:'UP vs DOWN VOLUME', speed:0.15,
           sub:uv!=null?((uv*100).toFixed(1)+'% net up-volume'):'—', val:uv!=null?clamp(uv*3):null});
   /* CONCENTRATION — the Station leadership question: is the tape a few names or many?
      MAGS above SPY means mega-cap is carrying it. Inverted: concentration is fragility. */
   const gM=gv('MAGS'), gS3=gv('SPY');
-  v.push({key:'CONC', name:'CONCENTRATION (inv)', speed:'SLOW',
+  v.push({key:'CONC', name:'CONCENTRATION (inv)', speed:0.85,
           sub:(gM!=null&&gS3!=null)?'MAGS − SPY = '+f2v(gM-gS3)+' · positive means mega-caps are carrying the tape':'—',
           val:(gM!=null&&gS3!=null)?clamp(-(gM-gS3)):null});
   /* CREDIT and DURATION — the two transmission channels Station asks for. */
   const gH=gv('HYG'), gT=gv('TLT'), gG=gv('GCUSD');
-  v.push({key:'CREDIT', name:'CREDIT (HYG)', speed:'SLOW', sub:gH!=null?'high yield · composite_staged':'—', val:gH});
-  v.push({key:'DURATION', name:'DURATION (TLT)', speed:'SLOW', sub:gT!=null?'long treasuries · composite_staged':'—', val:gT});
-  v.push({key:'HAVEN', name:'GOLD (inv)', speed:'FAST', sub:gG!=null?'haven bid · composite_staged':'—', val:gG!=null?clamp(-gG):null});
+  v.push({key:'CREDIT', name:'CREDIT (HYG)', speed:0.85, sub:gH!=null?'high yield · composite_staged':'—', val:gH});
+  v.push({key:'DURATION', name:'DURATION (TLT)', speed:0.85, sub:gT!=null?'long treasuries · composite_staged':'—', val:gT});
+  v.push({key:'HAVEN', name:'GOLD (inv)', speed:0.15, sub:gG!=null?'haven bid · composite_staged':'—', val:gG!=null?clamp(-gG):null});
   const gp2 = gv('XLP'), gu2 = gv('XLU');
-  v.push({key:'DEF', speed:'SLOW', name:'DEFENSIVES (inv)', sub:'XLP+XLU · '+(COMPOSITE['XLP']?'db':'fallback'), val: (gp2!=null && gu2!=null) ? clamp(-(gp2+gu2)/2) : null});
+  v.push({key:'DEF', speed:0.85, name:'DEFENSIVES (inv)', sub:'XLP+XLU · '+(COMPOSITE['XLP']?'db':'fallback'), val: (gp2!=null && gu2!=null) ? clamp(-(gp2+gu2)/2) : null});
   return v;
 }
 /* TWO HEATS. Alan, from the Station spec: fast/slow is update cadence, not horizon, and it has to
@@ -924,20 +922,36 @@ function voters(){
    FAST answers "what is the pressure right now" and sets the approach to it. Blending them into one
    number was hiding the difference. heat() stays the SLOW regime number so every existing consumer
    keeps its meaning; heatFast() and drift() are the new half. */
-function heatOf(speed){
+/* SPEED IS A CURVE, NOT TWO BOXES (2026-08-11).
+   Alan: "yes fast slow as curve use that broadly. no arbitrary breaks. so apply that logic
+   everywhere. smooth always." A binary split is weakest exactly at the seam, and the seam is
+   arbitrary. So every voter declares its cadence as a NUMBER on 0..1 — 0 is the fastest-moving
+   information, 1 the slowest — and the heat is read at any point on that curve through a smooth
+   kernel. Nothing is excluded at any position; a voter's influence falls off with distance from
+   where you are reading, it never switches off. As indicators are added each one declares a
+   number and needs no category. */
+const SPEED_BAND = 0.28;                       // kernel width — how far a voter's influence reaches
+function heatAt(pos){
   let num=0, den=0;
-  for (const v of voters()) { if (v.val==null) continue; if (speed && v.speed!==speed) continue;
-    const w = S.wts[v.key] ?? 0; num += v.val*w; den += w; }
+  for (const v of voters()){
+    if (v.val==null) continue;
+    const w = S.wts[v.key] ?? 0; if(!w) continue;
+    const sp = (typeof v.speed==='number') ? v.speed : 0.5;
+    const k = Math.exp(-Math.pow((sp-pos)/SPEED_BAND, 2));   // gaussian, smooth, never zero
+    num += v.val*w*k; den += w*k;
+  }
   return den ? num/den : null;
 }
-function heatFast(){ return heatOf('FAST') }
-function heatSlow(){ return heatOf('SLOW') }
+function heatFast(){ return heatAt(0.15) }
+function heatSlow(){ return heatAt(0.85) }
+/* The whole curve, for reading the shape rather than two endpoints. */
+function heatCurve(n){ const out=[]; for(let i=0;i<(n||9);i++){ const p=i/((n||9)-1); out.push([+p.toFixed(2), heatAt(p)]) } return out }
 /* Is fast travelling toward the regime target or away from it? */
 function drift(){
   const f=heatFast(), sl=heatSlow();
   if(f==null||sl==null) return {state:'—', note:'not enough voters on one side to compare'};
   const gap=f-sl;
-  if(Math.abs(gap)<0.12) return {state:'CONVERGING', gap, note:'fast pressure agrees with the regime — execute into it'};
+  if(Math.abs(gap)<0.12) return {state:'CONVERGING', gap, note:'the fast end of the curve agrees with the slow end — execute into it'};
   if(Math.sign(f)!==Math.sign(sl)) return {state:'CONTRADICTING', gap, note:'fast and slow disagree in sign — re-examine the regime call before trading harder either way'};
   return {state:'DIVERGING', gap, note:gap>0?'fast is hotter than the regime — hold the remainder, wait for the trigger':'fast is colder than the regime — the approach can be quicker than the target implies'};
 }
