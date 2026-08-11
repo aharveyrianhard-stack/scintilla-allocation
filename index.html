@@ -274,7 +274,7 @@ async function sbGetPaged(path, pageSize=1000, maxPages=12){
   }
   throw new Error('paged read exceeded '+maxPages+' pages');
 }
-let MKTINT=null;   // market_internals — the real advance/decline line
+let MKTINT=null, FAN={};   // market_internals — the real advance/decline line
 let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={};   // industry = the sub-sector axis (93 groups, 317 names)   // ticker -> our sector key ; sector key -> the rotation read
 /* SECTOR ROTATION, ACTUALLY WIRED IN (2026-08-11).
    Until now the only thing sector did in this module was the XLP+XLU defensives voter and
@@ -421,7 +421,7 @@ async function refreshSSOT(){
     spineSet('ticker_cohorts',null,'LIVE',rows.length+' rows · '+Object.keys(m).length+' tickers — THE universe');
   }).catch(e=>{UNIVERSE.status='error';spineSet('ticker_cohorts',null,'FALLBACK','read failed ('+e.message+') — hardcoded TICKER_STYLES in use');}));
   // BREADTH — the advance/decline line the database computes across 22,925 issues.
-  J.push(sbGet('market_internals?select=asof,advancers,decliners,add_line,trin,universe&order=asof.desc&limit=2').then(rows=>{
+  J.push(sbGet('market_internals?select=asof,advancers,decliners,add_line,trin,universe,adv_volume,dec_volume&order=asof.desc&limit=2').then(rows=>{
     if(rows[0]){ MKTINT=rows[0];
       spineSet('market_internals',null,'LIVE','A/D '+MKTINT.advancers+'/'+MKTINT.decliners+' · '+MKTINT.universe+' issues'); }
   }).catch(e=>spineSet('market_internals',null,'FALLBACK','read failed')));
@@ -447,11 +447,12 @@ async function refreshSSOT(){
   // REGIME — trend and momentum kept apart, latest bar only
   J.push((async()=>{
     const [fa,mo]=await Promise.all([
-      sbGet('fan_daily?select=ticker,asof,read&order=asof.desc&limit=1000'),
+      sbGet('fan_daily?select=ticker,asof,read,s50,s200,w200_rising,pairs&order=asof.desc&limit=1000'),
       sbGet('momentum_daily?select=ticker,asof,read&order=asof.desc&limit=1000')
     ]);
     const newest=a=>{const d=a.length?a[0].asof:null; return a.filter(r=>r.asof===d)};
     const T={}, M={};
+    FAN={}; for(const r of newest(fa)) if(FAN[r.ticker]===undefined) FAN[r.ticker]=r;
     for(const r of newest(fa)) if(T[r.ticker]===undefined) T[r.ticker]=r.read;
     for(const r of newest(mo)) if(M[r.ticker]===undefined) M[r.ticker]=r.read;
     const out={}; for(const k of new Set([...Object.keys(T),...Object.keys(M)]))
@@ -695,7 +696,7 @@ const DEFAULTS = {
   vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
   maxInv:100, minInv:15, nLC:4, nSC:2, nPer:2, divAuto:1, lcTilt:0, maxTotal:12, maxNames:6, concLean:0,
   curInv:0, curLC:0,
-  wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25, BREADTH_EW:0, BREADTH_SC:0, VIX_TERM:0, CURVE:0, PCC:0, SKEW:0, ADLINE:0}
+  wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25, BREADTH_EW:0.5, BREADTH_SC:0.25, VIX_TERM:0.25, CURVE:0.5, PCC:0, SKEW:0.25, ADLINE:0.5, B_200D:0.5, B_50D:0.25, B_W200:0.25, TRIN:0.25, B_VOL:0.25, CONC:0.5, CREDIT:0.5, DURATION:0.25, HAVEN:0.25}
 };
 const VOTER_DESC = {
   SPY: 'PROXY: SPY (composite_staged · db; Yahoo fallback). The approved geiger on the S&P across your full equalizer curve (2h→1w): ribbon order 50% + momentum 50% (RSI 60 / W%R 40, straight 23→77 map — every level in between feeds, per GOOGL_GEIGER_v2). WHEN it reads positive the market is stretched and it pushes the score UP toward Overbought; negative = washed out, pushes DOWN toward Oversold.',
@@ -874,6 +875,46 @@ function voters(){
   v.push({key:'ADLINE', name:'ADVANCE / DECLINE', speed:'SLOW',
           sub:ad!=null?(MKTINT.advancers+' up / '+MKTINT.decliners+' down across '+MKTINT.universe+' issues'):'— not read',
           val:ad!=null?clamp(ad*2):null});
+  /* ===== BREADTH, PROPERLY ===== One advance/decline number was not breadth, it was a
+     headline. Everything below is computed from data the tool already reads — the fan
+     structure per name, the internals table, and the Station leadership instruments.
+     All SLOW: breadth is a durability question, not an intraday one. */
+  const fanArr=Object.values(FAN), quoted=fanArr.filter(f=>QUOTES[f.ticker]&&QUOTES[f.ticker].price>0);
+  const pctOf=(arr,pred)=>arr.length? arr.filter(pred).length/arr.length : null;
+  const a200=pctOf(quoted,f=>f.s200>0 && QUOTES[f.ticker].price>f.s200);
+  const a50 =pctOf(quoted,f=>f.s50 >0 && QUOTES[f.ticker].price>f.s50);
+  const w200=pctOf(fanArr,f=>f.w200_rising);
+  v.push({key:'B_200D', name:'% ABOVE 200-DAY', speed:'SLOW',
+          sub:a200==null?'—':(a200*100).toFixed(0)+'% of '+quoted.length+' names above their 200-day',
+          val:a200==null?null:clamp((a200-0.5)*2)});
+  v.push({key:'B_50D', name:'% ABOVE 50-DAY', speed:'SLOW',
+          sub:a50==null?'—':(a50*100).toFixed(0)+'% of '+quoted.length+' names above their 50-day',
+          val:a50==null?null:clamp((a50-0.5)*2)});
+  v.push({key:'B_W200', name:'% WITH RISING 200-WEEK', speed:'SLOW',
+          sub:w200==null?'—':(w200*100).toFixed(0)+'% of '+fanArr.length+' names — the slowest breadth there is',
+          val:w200==null?null:clamp((w200-0.5)*2)});
+  /* TRIN — advancing issues vs advancing volume. Below 1 means the volume is going with the
+     advance; above 1 means the up-issues are not being paid for. Inverted: high TRIN is cold. */
+  const trin=(MKTINT&&MKTINT.trin!=null)?+MKTINT.trin:null;
+  v.push({key:'TRIN', name:'TRIN (inv)', speed:'FAST',
+          sub:trin!=null?trin.toFixed(3)+' · below 1.00 = volume confirming the advance':'—',
+          val:trin!=null?clamp((1-trin)*2):null});
+  /* UP vs DOWN VOLUME — conviction behind the advance/decline count. */
+  const uv=MKTINT&&MKTINT.adv_volume>0&&MKTINT.dec_volume>0
+           ? (MKTINT.adv_volume-MKTINT.dec_volume)/(MKTINT.adv_volume+MKTINT.dec_volume) : null;
+  v.push({key:'B_VOL', name:'UP vs DOWN VOLUME', speed:'FAST',
+          sub:uv!=null?((uv*100).toFixed(1)+'% net up-volume'):'—', val:uv!=null?clamp(uv*3):null});
+  /* CONCENTRATION — the Station leadership question: is the tape a few names or many?
+     MAGS above SPY means mega-cap is carrying it. Inverted: concentration is fragility. */
+  const gM=gv('MAGS'), gS3=gv('SPY');
+  v.push({key:'CONC', name:'CONCENTRATION (inv)', speed:'SLOW',
+          sub:(gM!=null&&gS3!=null)?'MAGS − SPY = '+f2v(gM-gS3)+' · positive means mega-caps are carrying the tape':'—',
+          val:(gM!=null&&gS3!=null)?clamp(-(gM-gS3)):null});
+  /* CREDIT and DURATION — the two transmission channels Station asks for. */
+  const gH=gv('HYG'), gT=gv('TLT'), gG=gv('GCUSD');
+  v.push({key:'CREDIT', name:'CREDIT (HYG)', speed:'SLOW', sub:gH!=null?'high yield · composite_staged':'—', val:gH});
+  v.push({key:'DURATION', name:'DURATION (TLT)', speed:'SLOW', sub:gT!=null?'long treasuries · composite_staged':'—', val:gT});
+  v.push({key:'HAVEN', name:'GOLD (inv)', speed:'FAST', sub:gG!=null?'haven bid · composite_staged':'—', val:gG!=null?clamp(-gG):null});
   const gp2 = gv('XLP'), gu2 = gv('XLU');
   v.push({key:'DEF', speed:'SLOW', name:'DEFENSIVES (inv)', sub:'XLP+XLU · '+(COMPOSITE['XLP']?'db':'fallback'), val: (gp2!=null && gu2!=null) ? clamp(-(gp2+gu2)/2) : null});
   return v;
