@@ -273,6 +273,21 @@ async function sbGetPaged(path, pageSize=1000, maxPages=12){
   }
   throw new Error('paged read exceeded '+maxPages+' pages');
 }
+let REGIME={};   // ticker -> {trend, mom, label, kind}  from fan_daily + momentum_daily
+/* THE REGIME LAYER (2026-08-11). The geiger blends trend and momentum into one number;
+   blending hides the thing that matters most for a buy. A name pulling back inside an
+   uptrend and a name breaking down can carry the SAME geiger, and they are not the same
+   trade. So trend and momentum are read separately, straight from the daily spine that
+   already computes them (fan_daily.read = trend, momentum_daily.read = momentum), and
+   the pair gives a regime. This is the v1 Alan described — deliberately four quadrants
+   and no more — and it is what tells you whether cheapness is merited or is a warning. */
+function regimeOf(t,m){
+  if(t==null||m==null) return {label:'NO READ', kind:'none'};
+  if(t>0  && m>0)  return {label:'UPTREND, CONFIRMED', kind:'go'};
+  if(t>0  && m<=0) return {label:'PULLBACK IN UPTREND', kind:'buy'};   // cheap here is usually merited
+  if(t<=0 && m>0)  return {label:'BOUNCE IN DOWNTREND', kind:'care'};  // rally inside a broken tape
+  return {label:'BREAKDOWN', kind:'avoid'};                            // cheap here is a warning
+}
 let COMPOSITE={}, COMPOSITE_STATUS='pending';           // ticker -> {trend,momentum,composite,updated_ts}  THE geiger
 let UNIVERSE={cohorts:{}, favs:new Set(), status:'pending'};  // THE universe: ticker_cohorts + hub_favorites
 let QUOTES={}, PROFILES={}, TREAS=null, VIXDB=null, SECTOR_RANKS=null, OPW=null;
@@ -309,6 +324,21 @@ async function refreshSSOT(){
     UNIVERSE.cohorts=m; UNIVERSE.status='ok';
     spineSet('ticker_cohorts',null,'LIVE',rows.length+' rows · '+Object.keys(m).length+' tickers — THE universe');
   }).catch(e=>{UNIVERSE.status='error';spineSet('ticker_cohorts',null,'FALLBACK','read failed ('+e.message+') — hardcoded TICKER_STYLES in use');}));
+  // REGIME — trend and momentum kept apart, latest bar only
+  J.push((async()=>{
+    const [fa,mo]=await Promise.all([
+      sbGet('fan_daily?select=ticker,asof,read&order=asof.desc&limit=1000'),
+      sbGet('momentum_daily?select=ticker,asof,read&order=asof.desc&limit=1000')
+    ]);
+    const newest=a=>{const d=a.length?a[0].asof:null; return a.filter(r=>r.asof===d)};
+    const T={}, M={};
+    for(const r of newest(fa)) if(T[r.ticker]===undefined) T[r.ticker]=r.read;
+    for(const r of newest(mo)) if(M[r.ticker]===undefined) M[r.ticker]=r.read;
+    const out={}; for(const k of new Set([...Object.keys(T),...Object.keys(M)]))
+      out[k]={trend:T[k]??null, mom:M[k]??null, ...regimeOf(T[k]??null, M[k]??null)};
+    REGIME=out;
+    spineSet('regimes',null,'LIVE',Object.keys(out).length+' names · trend + momentum apart');
+  })().catch(e=>spineSet('regimes',null,'FALLBACK','read failed ('+e.message+')')));
   J.push(sbGet('hub_favorites?select=ticker,added_at&limit=1000').then(rows=>{
     UNIVERSE.favs=new Set(rows.map(r=>r.ticker));
     spineSet('hub_favorites',null,'LIVE',rows.length+' favorites');
@@ -523,21 +553,17 @@ function ingest(mr, cr){
 }
 async function loadFeeds(){
   // instant paint from last data, refresh in background (server also caches geigers 5 min)
-  const cached = JSON.parse(localStorage.getItem('alloc-data-v1') || 'null');
-  const haveCache = cached && cached.mr && cached.cr;
-  if (haveCache) { ingest(cached.mr, cached.cr); document.getElementById('loading').style.display='none'; render(); }
-  else document.getElementById('loading').style.display='flex';
-  document.getElementById('loadmsg').textContent = 'pulling SSOT tables (composite_staged · cohorts · quotes) + fallback feeds…';
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('loadmsg').textContent = 'reading the database — composite_staged · cohorts · quotes · regimes…';
   document.getElementById('refresh').textContent = '↻ REFRESHING…';
-  const ssotP = refreshSSOT();   // SSOT DB reads run in parallel with the legacy fallback feeds
-  try {
-    const [mr, cr] = await Promise.all([
-      fetch(SB + '/macro-feed?v=5').then(r=>r.text()),
-      fetch(SB + '/cohort-feed').then(r=>r.text())
-    ]);
-    localStorage.setItem('alloc-data-v1', JSON.stringify({mr, cr}));
-    ingest(mr, cr);
-  } catch(e) { /* keep cached view — SSOT reads are primary now */ }
+  const ssotP = refreshSSOT();
+  /* YAHOO IS GONE (2026-08-11, Alan: "nothing can reach for yahoo").
+     The macro-feed / cohort-feed edge functions were the last Yahoo path in this module.
+     Verified before cutting: all 11 macro voters (SPY QQQ IWM SMH RSP BTCUSD XLP XLU
+     CLUSD GCUSD SIUSD) carry a composite_staged row, VIX comes from vix_term and the
+     10Y from treasury_rates. Nothing was left for Yahoo to answer, so the fetches are
+     removed rather than left as a fallback that could quietly reintroduce a second
+     source with a different cadence and lag. */
   try { await ssotP; } catch(e) { /* per-table spine badges carry their own error state */ }
   // comps value layer from the SCINTILLA database (fundamentals / ratios_history / analyst_estimates via comps-feed; never FMP)
   try {
@@ -841,10 +867,21 @@ function pickMix(shares, inv){
   const sleeves={}, perName={}, picks=[...PICKS];
   for(const [k,sh] of Object.entries(shares)){
     const eq=sh*inv;                                        // this sleeve's % OF EQUITY
-    const mine=picks.filter(s=>tickerSleeves(s).includes(k));
-    const each=mine.length?eq/mine.length:0;
-    for(const s of mine) perName[s]=(perName[s]||0)+each;
-    sleeves[k]={share:eq, names:mine.map(s=>({sym:s,frac:each})), unassigned:mine.length?0:eq};
+    let mine=picks.filter(s=>tickerSleeves(s).includes(k));
+    // REGIME GATE — a breakdown is not a discount
+    const blocked = RGATE==='exclude' ? mine.filter(s=>(REGIME[s]||{}).kind==='avoid') : [];
+    if(blocked.length) mine=mine.filter(s=>!blocked.includes(s));
+    // WEIGHT the split rather than dividing it equally
+    const wOf = s => {
+      if(SPLIT==='cold'){ const g=gv(s); return g==null?0.5:Math.max(0.05,(1-g)/2) }   // colder earns more
+      if(SPLIT==='cheap'){ const c=COMPS[s]; const pe=c&&c.pe>0?c.pe:null;
+                           return pe==null?0.5:Math.max(0.05,Math.min(1,20/pe)) }      // cheaper earns more
+      return 1;                                                                         // equal
+    };
+    const ws=mine.map(wOf), tot=ws.reduce((a,b)=>a+b,0)||1;
+    for(let i=0;i<mine.length;i++){ const f=eq*ws[i]/tot; perName[mine[i]]=(perName[mine[i]]||0)+f }
+    sleeves[k]={share:eq, names:mine.map((s,i)=>({sym:s,frac:eq*ws[i]/tot})),
+                unassigned:mine.length?0:eq, blocked};
   }
   const placed=new Set(Object.values(sleeves).flatMap(v=>v.names.map(n=>n.sym)));
   return {sleeves, perName, orphans:picks.filter(s=>!placed.has(s)), nPicks:picks.length,
@@ -901,11 +938,20 @@ function renderPickMix(shares, inv){
       'Pick names in <b>4b · COMPARABLES</b> (the ★/PICK buttons) and both rings redraw as you go — fewer names means a bigger slice each, up to your TOTAL cap of '+cap+'.</div>';
     return;
   }
+  const seg=(id,cur,opts,fn)=>'<span class="lbl" style="margin-right:6px">'+id+'</span>'+opts.map(([v,t])=>
+    `<button onclick="${fn}('${v}')" style="background:${cur===v?'var(--gold)':'#14141f'};color:${cur===v?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:5px;padding:4px 10px;font-family:inherit;font-size:10px;letter-spacing:.06em;cursor:pointer;margin-right:4px">${t}</button>`).join('');
+  const toggles='<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:8px 0 10px">'+
+    '<div>'+seg('SPLIT WITHIN SLEEVE',SPLIT,[['equal','EQUAL'],['cold','COLDER FIRST'],['cheap','CHEAPER FIRST']],'setSplit')+'</div>'+
+    '<div>'+seg('REGIME GATE',RGATE,[['off','OFF'],['warn','WARN'],['exclude','EXCLUDE BREAKDOWNS']],'setRgate')+'</div></div>';
   const rows=Object.entries(PM.sleeves).sort((a,b)=>b[1].share-a[1].share).map(([k,info])=>{
     if(info.share<=0.001) return '';
     const col=SLEEVE_COLOR[k]||'#444';
     const inner=info.names.length
-      ? info.names.map(n=>'<span style="display:inline-block;margin:2px 10px 2px 0"><b style="color:'+col+'">'+n.sym+'</b> <span style="color:#8a8aa0">'+(n.frac*100).toFixed(1)+'% of equity</span></span>').join('')
+      ? info.names.map(n=>{const rg=REGIME[n.sym]||{};
+          const rc=rg.kind==='avoid'?'var(--orange)':rg.kind==='buy'?'var(--green)':'#8a8aa0';
+          return '<span style="display:inline-block;margin:2px 10px 2px 0"><b style="color:'+col+'">'+n.sym+'</b> <span style="color:#8a8aa0">'+(n.frac*100).toFixed(1)+'%</span>'+
+            (rg.label?' <span style="color:'+rc+';font-size:10px">'+rg.label+'</span>':'')+'</span>'}).join('')
+        + (info.blocked&&info.blocked.length?'<div style="color:var(--orange);margin-top:4px">held out by the regime gate — breaking down, not on sale: '+info.blocked.join(', ')+'</div>':'')
       : '<span style="color:var(--orange)">nothing picked here — this '+(info.share*100).toFixed(1)+'% stays UNASSIGNED (it is not given to the other sleeves)</span>';
     return '<div class="move"><div class="mname" style="color:'+col+'">'+k+'</div><div class="mval" style="font-size:12px">'+
       (info.share*100).toFixed(1)+'% of equity<small>'+inner+'</small></div></div>';
@@ -917,7 +963,7 @@ function renderPickMix(shares, inv){
   if(PM.unassignedTot>0.001) notes.push('<span style="color:var(--orange)">'+(PM.unassignedTot*100).toFixed(1)+'% of equity sits in sleeves you have not picked into</span>');
   if(multi.length) notes.push('in more than one sleeve, so these are their combined real size: '+multi.join(' · '));
   if(PM.orphans.length) notes.push('<span style="color:var(--orange)">picked but in no sleeve the model funds: '+PM.orphans.join(', ')+'</span>');
-  el.innerHTML='<div class="note" style="margin:10px 0 4px;letter-spacing:.06em">YOUR NAMES INSIDE THE MIX — equal split within each sleeve (P4 will lean it toward the cheaper name)</div>'+
+  el.innerHTML='<div class="note" style="margin:10px 0 4px;letter-spacing:.06em">YOUR NAMES INSIDE THE MIX</div>'+toggles+
     rows+'<div class="note" style="margin-top:6px;line-height:1.7">'+notes.join(' · ')+'</div>';
 }
 function drawMix(tLC, tSC, tCash, cLC2, cSC2, cCash){
@@ -1033,6 +1079,15 @@ function renderCohort(dLC, dSC){
 let COMPARE = new Set(JSON.parse(localStorage.getItem('alloc-compare')||'[]'));
 function toggleCompare(sym){ if(COMPARE.has(sym)) COMPARE.delete(sym); else COMPARE.add(sym); localStorage.setItem('alloc-compare',JSON.stringify([...COMPARE])); render(); }
 let PICKS = new Set(JSON.parse(localStorage.getItem('alloc-picks')||'[]'));
+/* TWO NEW INPUTS (2026-08-11), both of which only exist because the tools are together.
+   WITHIN-SLEEVE METHOD — an equal split was, in Alan's words, "mega simplistic": it
+   ignores that the tool already knows which of two names is colder or cheaper.
+   REGIME GATE — a name's regime decides whether its cheapness is merited. Cheap inside a
+   pullback is an opportunity; cheap inside a breakdown is the market telling you why. */
+let SPLIT = localStorage.getItem('alloc-split') || 'cold';    // equal | cold | cheap
+let RGATE = localStorage.getItem('alloc-rgate') || 'warn';    // off | warn | exclude
+function setSplit(v){ SPLIT=v; localStorage.setItem('alloc-split',v); render(); }
+function setRgate(v){ RGATE=v; localStorage.setItem('alloc-rgate',v); render(); }
 let EXCLUDED = new Set(); // session-only: a reload clears drops so nothing is ever lost
 let COMPCAT='ALL';
 function setCompCat(c){ COMPCAT=c; render(); }
