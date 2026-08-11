@@ -44,6 +44,12 @@ tr:last-child td{border-bottom:none}
 .framebar a{color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none}
 .note{color:var(--ink2);font-size:12px;line-height:1.7}
 .gap{color:var(--warn)}
+.phil{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.pbtns{display:flex;gap:6px;margin-top:6px}
+.pbtn{font-family:var(--mono);font-size:12px;letter-spacing:.14em;padding:9px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--ink3);cursor:pointer}
+.pbtn[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:#0b0f14;font-weight:600}
+.pexp{flex:1;min-width:260px;color:var(--ink2);font-size:12.5px;line-height:1.7}
+.fear{font-family:var(--mono);font-size:11px}
 #boot{padding:26px 0;color:var(--ink2);font-family:var(--mono);font-size:12px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
@@ -52,7 +58,18 @@ tr:last-child td{border-bottom:none}
 <div class="wrap">
 
   <h1>SCINTILLA · THE DESK</h1>
-  <p class="sub">One link. The portfolio allocation recommendation, the consolidated read behind it, and every full tool underneath &mdash; not a stripped copy of one.</p>
+  <p class="sub">One link. What to buy, how much, and why &mdash; built from every tool at once, because each one knows something the others need.</p>
+
+  <div class="phil">
+    <div>
+      <div class="lbl">How this book thinks</div>
+      <div class="pbtns">
+        <button class="pbtn" data-p="CONTRARIAN" aria-selected="true">CONTRARIAN</button>
+        <button class="pbtn" data-p="ORTHODOX" aria-selected="false">ORTHODOX</button>
+      </div>
+    </div>
+    <div class="pexp" id="pexp"></div>
+  </div>
   <div class="strip" id="spine"></div>
 
   <div id="boot">reading the spine&hellip;</div>
@@ -209,119 +226,169 @@ function chip(name,state,detail){
       const sec=E.sectorOf[sym]; if(!sec) return null;
       const etf=E.sectorEtf[sec]; if(!etf) return null;
       const s=secByEtf[etf]; if(!s) return null;
-      return {etf, rank:s.rank, name:s.sector_name, pull:(11-s.rank)/10};   // 1 = strongest sector
+      return {etf, rank:s.rank, name:s.sector_name};   // rank 1..11; each philosophy reads it its own way
     }
 
-    /* ===== 3. THE CONSOLIDATED SCORE =====
-       Weights are stated on the page. When an axis is missing for a name the remaining
-       weights renormalise, so a name is never punished for data we simply do not hold. */
-    const Wt={cold:.50, sector:.25, value:.25};
-    /* Two exclusions, both principled rather than cosmetic:
-       · the sleeve PROXIES themselves (same set the module uses) — you buy the sleeve
-         through its names, not by buying the yardstick that measures it;
-       · anything sitting in NO sleeve. This page allocates strictly WITHIN sleeves, so a
-         name with no sleeve has nowhere to be bought. That is what caught VIX, which is a
-         fear gauge and not an investable position at all. */
+    /* ANALYST UPSIDE — how far the street thinks the name can run from here.
+       (target_avg / live price) − 1. This is the closest thing we hold to a stored
+       intrinsic value; the DCF tool computes its own in-page and stores nothing, so
+       this stands in for it until a DCF output table exists. */
+    const pt = await gPaged('price_target_consensus?select=ticker,target_avg,num_analysts&order=ticker.asc');
+    const tgt = Object.fromEntries(pt.filter(r=>r.target_avg>0).map(r=>[r.ticker,r]));
+    const lq = await gPaged('live_quotes?select=ticker,price&order=ticker.asc');
+    const px = Object.fromEntries(lq.filter(r=>r.price>0).map(r=>[r.ticker,r.price]));
+    let staleTargets=0;
+    function upside(sym){
+      const t=tgt[sym], p=px[sym]; if(!t||!p) return null;
+      const u=t.target_avg/p - 1;                      // +0.25 = street sees 25% more
+      /* A target implying more than +200% is not a forecast, it is a stale target sitting
+         against a price that has since collapsed — BYND printed +8467% on this data.
+         Treated as NO READING rather than shown as signal. Never silently: the count of
+         these is reported on the page. */
+      if(u>2 || u<-0.95){ staleTargets++; return null }
+      return u;
+    }
+
+    /* FEAR. Not excluded, not hidden — it is the input that decides how hard to lean.
+       VIX is a reading on the market, never a position, so it is kept out of the
+       name ranking and used here instead. */
+    const vixRow = (await g('vix_term?select=vix,updated_ts&order=updated_ts.desc&limit=1'))[0];
+    const vix = vixRow ? +vixRow.vix : null;
+
+    /* Index proxies are the yardsticks the buckets are measured with — you buy a bucket
+       through its names, not by buying the ruler. VIX sits here too: it is a reading,
+       and it does its work above, on how much goes to work at all. */
     const PROXY=new Set(['IWM','SMH','RSP','XLP','XLU','SPY','QQQ','VIX']);
-    const drop={proxy:0, noSleeve:0, noGeiger:0};
-    const scored=cands.map(s=>{
-      if(PROXY.has(s)){ drop.proxy++; return null }
-      if(!(E.sleeves[s]||[]).length){ drop.noSleeve++; return null }
-      const gg=E.gv[s]; if(gg==null){ drop.noGeiger++; return null }
-      const cold=(1-gg)/2;                                   // geiger −1 (washed out) → 1.0
-      const sp=sectorPull(s), cv=cheap(s);
-      let num=Wt.cold*cold, den=Wt.cold;
-      if(sp){ num+=Wt.sector*sp.pull; den+=Wt.sector }
-      if(cv!=null){ num+=Wt.value*cv; den+=Wt.value }
-      return {sym:s, g:gg, cold, sec:sp, val:cv, score:num/den,
-              axes:1+(sp?1:0)+(cv!=null?1:0), sleeves:E.sleeves[s]||[]};
-    }).filter(Boolean).sort((a,b)=>b.score-a.score);
 
-    const nWithVal=scored.filter(x=>x.val!=null).length;
-    const nWithSec=scored.filter(x=>x.sec).length;
+    /* ===== 3. THE TWO PHILOSOPHIES =====
+       Same inputs, opposite convictions. This is the whole point of having the tools
+       in one place: each one holds a number the others need, and once they are together
+       you can ask the same book two different questions.
 
-    /* ===== 4. RENDER ===== */
-    const nameCap = E.maxTotal;
-    const top = scored.slice(0, nameCap);
+       CONTRARIAN — buy what nobody wants. Beaten-down scores best, the OUT-OF-FAVOUR
+       sector scores best, cheap matters most, and fear is an invitation: the more the
+       VIX is up, the harder it leans in.
+       ORTHODOX — buy what is working. Strength scores best, the LEADING sector scores
+       best, quality is preferred to cheapness, and fear is a reason to step back. */
+    const PHIL={
+      CONTRARIAN:{
+        w:{tape:.40, sector:.20, cheap:.25, upside:.15},
+        tape:g=>(1-g)/2,                       // washed out (−1) → 1.0
+        sector:r=>(r-1)/10,                    // LAST of 11 → 1.0 (buy the unloved sector)
+        fear:v=>Math.min(.10, Math.max(-.05,(v-18)/100)),   // VIX up → put MORE to work
+        line:'Buy what nobody wants. A washed-out tape, an out-of-favour sector and a cheap price score best, and rising fear is treated as an invitation rather than a warning.'
+      },
+      ORTHODOX:{
+        w:{tape:.35, sector:.30, cheap:.15, upside:.20},
+        tape:g=>(g+1)/2,                       // strong (+1) → 1.0
+        sector:r=>(11-r)/10,                   // FIRST of 11 → 1.0 (ride the leaders)
+        fear:v=>Math.min(.05, Math.max(-.12,(18-v)/100)),   // VIX up → step BACK
+        line:'Buy what is already working. Strength, a leading sector and analyst upside score best, cheapness counts for less, and rising fear is a reason to hold back.'
+      }
+    };
+    const fearWord=v=> v==null?'unknown' : v<15?'complacent — there is no fear to buy'
+      : v<20?'calm' : v<30?'fear is building' : 'panic';
 
-    document.getElementById('hero').innerHTML=`
-      <div class="stat"><div class="k">How much invested</div><div class="v acc">${pct(inv,0)}</div>
-        <div class="n">cash ${pct(1-inv,0)} · from macro heat ${f2(h)}${label?' — '+esc(label.toLowerCase()):''}</div></div>
-      <div class="stat"><div class="k">Ranked on</div><div class="v">${scored.length}</div>
-        <div class="n">of ${cands.length} candidates · set aside: ${drop.noGeiger} <span class="${drop.noGeiger?'warn':''}">no geiger yet</span>, ${drop.proxy} sleeve proxies, ${drop.noSleeve} in no sleeve</div></div>
-      <div class="stat"><div class="k">Names to hold</div><div class="v">${top.length}</div>
-        <div class="n">your TOTAL cap is ${nameCap} — the list below is ranked, you still choose</div></div>
-      <div class="stat"><div class="k">Value axis live on</div><div class="v ${nWithVal?'':'bad'}">${nWithVal}</div>
-        <div class="n">of ${scored.length} ranked · the rest score on geiger${nWithSec?' + sector':''} only</div></div>`;
+    let PH='CONTRARIAN';
+    function build(){
+      const P=PHIL[PH];
+      const scored=cands.map(s=>{
+        if(PROXY.has(s)) return null;
+        const sl=E.sleeves[s]||[];
+        const gg=E.gv[s]; if(gg==null) return null;
+        const sp=sectorPull(s), cv=cheap(s), up=upside(s);
+        let num=P.w.tape*P.tape(gg), den=P.w.tape;
+        if(sp){ num+=P.w.sector*P.sector(sp.rank); den+=P.w.sector }
+        if(cv!=null){ num+=P.w.cheap*cv; den+=P.w.cheap }
+        if(up!=null){ num+=P.w.upside*Math.max(0,Math.min(1,up/.6)); den+=P.w.upside }
+        return {sym:s, g:gg, sec:sp, val:cv, up, score:num/den,
+                axes:1+(sp?1:0)+(cv!=null?1:0)+(up!=null?1:0), sleeves:sl, unbucketed:!sl.length};
+      }).filter(Boolean).sort((a,b)=>b.score-a.score);
 
-    const topSleeves=Object.entries(shares).sort((a,b)=>b[1]-a[1]).slice(0,3)
-      .map(([k,v])=>`<b>${esc(k)}</b> ${pct(v*inv,0)}`).join(', ');
-    document.getElementById('why').innerHTML=
-      `<b>The read.</b> Macro heat is <span class="num">${f2(h)}</span>${label?' — '+esc(label.toLowerCase()):''}, which puts <span class="num acc">${pct(inv,0)}</span> of the book to work and leaves <span class="num">${pct(1-inv,0)}</span> in cash. `+
-      `The coldest sleeves earn the most of that: ${topSleeves} of equity. `+
-      `Inside those sleeves ${scored.length} names carry a live geiger and are ranked below on a consolidated score — how washed out the name is, whether its sector is leading, and how cheap it is against its own industry peers. `+
-      (nWithVal
-        ? `<span class="gap">The value axis is real but partial: ${nWithVal} of ${scored.length} ranked names have usable fundamentals, so the rest are scored on the axes we do hold and are marked in the table.</span>`
-        : `<span class="bad">No usable fundamentals landed for these names, so this ranking is geiger and sector only — the value axis is not contributing.</span>`)+
-      ` Nothing here is faked: a name with no data is shown as “—”, never filled in.`;
+      const nCheap=scored.filter(x=>x.val!=null).length;
+      const nUp=scored.filter(x=>x.up!=null).length;
+      const nSec=scored.filter(x=>x.sec).length;
+      const tilt=P.fear(vix);
+      const finalInv=Math.max(0,Math.min(1,inv+tilt));
+      const cap=E.maxTotal, top=scored.slice(0,cap);
 
-    document.getElementById('sleeves').innerHTML=
-      '<tr><th>Sleeve</th><th>Geiger</th><th>Share of invested</th><th>Of equity</th><th>Ranked names</th></tr>'+
-      Object.entries(shares).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
-        const sg=E.sleeveG[k], n=scored.filter(x=>x.sleeves.includes(k)).length;
-        return `<tr><td class="t">${esc(k)}</td><td>${f2(sg)}</td>
-          <td>${pct(v)}</td><td class="acc">${pct(v*inv)}</td>
-          <td>${n?n:'<span class="warn">0</span>'}</td></tr>`;
-      }).join('')+
-      `<tr><td class="t">CASH</td><td>—</td><td>—</td><td>${pct(1-inv)}</td><td>—</td></tr>`;
+      document.getElementById('pexp').innerHTML=
+        `<b class="acc">${PH}.</b> ${esc(P.line)}<br>
+         <span class="fear">FEAR NOW · VIX ${vix==null?'—':vix.toFixed(1)} — ${esc(fearWord(vix))} → `+
+        `${tilt>0?`<span class="ok">puts ${pct(tilt,0)} MORE to work</span>`:tilt<0?`<span class="warn">holds ${pct(-tilt,0)} back</span>`:'no change'}</span>`;
 
-    document.getElementById('rankhow').innerHTML=
-      `Consolidated score = <b>50% coldness</b> (the geiger, washed-out scores best) + <b>25% sector pull</b> (its sector's rank today, 1st of 11 scores best) + <b>25% cheapness</b> (its P/E percentile inside its own industry — a loss-making name scores neutral, never “cheap”). `+
-      `When an axis has no data for a name the remaining weights renormalise, so nothing is punished for data we do not hold. The <b>AXES</b> column tells you how many of the three actually fired.`;
+      document.getElementById('hero').innerHTML=`
+        <div class="stat"><div class="k">Put to work</div><div class="v acc">${pct(finalInv,0)}</div>
+          <div class="n">cash ${pct(1-finalInv,0)} · model says ${pct(inv,0)} from heat ${f2(h)}, ${PH.toLowerCase()} ${tilt>=0?'adds':'takes off'} ${pct(Math.abs(tilt),0)} for fear</div></div>
+        <div class="stat"><div class="k">Names ranked</div><div class="v">${scored.length}</div>
+          <div class="n">of ${cands.length} on the list · ${cands.length-scored.length} set aside (index proxies, or no reading yet)</div></div>
+        <div class="stat"><div class="k">Names to hold</div><div class="v">${top.length}</div>
+          <div class="n">your cap is ${cap} — this is a ranked shortlist, you still choose</div></div>
+        <div class="stat"><div class="k">Signals per name</div><div class="v">${(scored.reduce((t,x)=>t+x.axes,0)/(scored.length||1)).toFixed(1)}<span style="font-size:15px;color:var(--ink3)">/4</span></div>
+          <div class="n">tape ${scored.length} · sector ${nSec} · cheap ${nCheap} · upside ${nUp}</div></div>`;
 
-    document.getElementById('ranked').innerHTML=
-      '<tr><th>#</th><th>Ticker</th><th>Sleeves</th><th>Geiger</th><th>Sector</th><th>Cheapness</th><th>Axes</th><th>Score</th></tr>'+
-      top.map((x,i)=>`<tr>
-        <td>${i+1}</td>
-        <td class="t">${esc(x.sym)}</td>
-        <td class="w" style="font-size:11px">${esc(x.sleeves.join(' / ')||'—')}</td>
-        <td class="${x.g<0?'ok':''}">${f2(x.g)}</td>
-        <td>${x.sec?`#${x.sec.rank} ${esc(x.sec.etf)}`:'<span class="bad">—</span>'}</td>
-        <td>${x.val==null?'<span class="bad">—</span>':(x.val*100).toFixed(0)+'%'}</td>
-        <td class="${x.axes===3?'ok':x.axes===2?'warn':'bad'}">${x.axes}/3</td>
-        <td><span class="bar" style="width:${Math.round(x.score*54)}px"></span> ${x.score.toFixed(3)}</td>
-      </tr>`).join('');
+      const topS=Object.entries(shares).sort((a,b)=>b[1]-a[1]).slice(0,3)
+        .map(([k,v])=>`<b>${esc(k)}</b> ${pct(v*finalInv,0)}`).join(', ');
+      document.getElementById('why').innerHTML=
+        `<b>The read, in plain words.</b> The tape is ${esc((label||'').toLowerCase())} (heat ${f2(h)}), which on the model alone puts <span class="num">${pct(inv,0)}</span> of the book to work. `+
+        `The VIX is <span class="num">${vix==null?'—':vix.toFixed(1)}</span> — ${esc(fearWord(vix))} — so a ${PH.toLowerCase()} book ${tilt>0?`leans in and takes it to <span class="num acc">${pct(finalInv,0)}</span>`:tilt<0?`pulls back to <span class="num acc">${pct(finalInv,0)}</span>`:`stays at <span class="num acc">${pct(finalInv,0)}</span>`}. `+
+        `The biggest buckets are ${topS} of everything you own. `+
+        `Underneath, ${scored.length} names are ranked on four readings — how the tape is treating them, whether their sector is ${PH==='CONTRARIAN'?'out of favour':'leading'}, how cheap they are next to their own industry, and how far analysts think they can run. `+
+        `Where a reading does not exist for a name we score it on the ones that do and say so, rather than inventing a number.`;
 
-    const age=t=>{ if(t==null) return '—'; const m=(Date.now()/1000-t)/60; return m<60?Math.round(m)+'m':(m/60).toFixed(1)+'h' };
-    const gts=E.geigerTs;
-    document.getElementById('inputs').innerHTML=
-      '<tr><th>Input</th><th>What it decides</th><th>Source</th><th>Coverage</th><th>State</th></tr>'+
-      [
-       ['Macro heat','how much of the book is invested at all','treasury_rates + vix_term + index geigers',
-        'all voters present', 'LIVE'],
-       ['Geiger','which names are washed out enough to buy','composite_staged (tf=D)',
-        `${scored.length} of ${cands.length} candidates · ${age(gts)} old`, scored.length===cands.length?'LIVE':'PARTIAL'],
-       ['Universe','which names are even considered','ticker_cohorts + hub_favorites',
-        `${E.universeTickers} tickers`, E.universeStatus==='ok'?'LIVE':'DOWN'],
-       ['Sector pull','which sectors are leading today','sector_rankings',
-        `${nWithSec} of ${scored.length} ranked names mapped`, secRows.length?(nWithSec?'LIVE':'PARTIAL'):'DOWN'],
-       ['Value','how cheap a name is against its own industry','ratios_history + ticker_membership (industry)',
-        `${nWithVal} of ${scored.length} ranked names`, nWithVal===0?'DOWN':(nWithVal<scored.length?'PARTIAL':'LIVE')],
-       ['DCF','intrinsic value per name','computed in the DCF tool, not stored',
-        'not wired into this score', 'PARTIAL']
-      ].map(r=>`<tr><td class="t">${esc(r[0])}</td><td class="w">${esc(r[1])}</td>
-        <td class="w" style="font-size:11px">${esc(r[2])}</td><td>${esc(r[3])}</td>
-        <td class="${r[4]==='LIVE'?'ok':r[4]==='PARTIAL'?'warn':'bad'}">${esc(r[4])}</td></tr>`).join('');
+      document.getElementById('sleeves').innerHTML=
+        '<tr><th>Bucket</th><th>Its own reading</th><th>Share of what is invested</th><th>Of everything you own</th><th>Names ranked in it</th></tr>'+
+        Object.entries(shares).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+          const n=scored.filter(x=>x.sleeves.includes(k)).length;
+          return `<tr><td class="t">${esc(k)}</td><td>${f2(E.sleeveG[k])}</td><td>${pct(v)}</td>
+            <td class="acc">${pct(v*finalInv)}</td><td>${n?n:'<span class="warn">0</span>'}</td></tr>`}).join('')+
+        `<tr><td class="t">CASH</td><td>—</td><td>—</td><td>${pct(1-finalInv)}</td><td>—</td></tr>`;
 
-    document.getElementById('spine').innerHTML=
-      chip('geiger', scored.length===cands.length?'LIVE':'PARTIAL', `${scored.length}/${cands.length} ranked`)+
-      chip('universe', E.universeStatus==='ok'?'LIVE':'DOWN', E.universeTickers+' tickers')+
-      chip('sector', secRows.length?'LIVE':'DOWN', today||'')+
-      chip('value', nWithVal===0?'DOWN':(nWithVal<scored.length?'PARTIAL':'LIVE'), `${nWithVal}/${scored.length}`)+
-      chip('dcf','PARTIAL','not in the score yet');
+      document.getElementById('rankhow').innerHTML=
+        `<b>${PH}</b> weights: tape <b>${pct(P.w.tape,0)}</b> · sector <b>${pct(P.w.sector,0)}</b> · cheapness <b>${pct(P.w.cheap,0)}</b> · analyst upside <b>${pct(P.w.upside,0)}</b>. `+
+        `${PH==='CONTRARIAN'?'Beaten-down and out-of-favour score highest.':'Strong and leading score highest.'} `+
+        `If a reading is missing for a name, the other weights simply share it out, so nothing is punished for a number we do not have yet — <b>SIGNALS</b> tells you how many of the four were real. `+
+        `A company losing money is never counted as “cheap”. `+
+        `<span class="gap">Names marked NO BUCKET are ranked but the model has no home for them yet: it hands money to buckets, and they are not in one — so decide those by hand.</span>`;
 
-    document.getElementById('foot').innerHTML=
-      `Everything above is computed by calling the allocation module's own functions through a same-origin frame — <span class="num">heat()</span>, <span class="num">investedAt()</span>, <span class="num">sleeveShares()</span>, <span class="num">gv()</span> — so this page cannot quietly disagree with the tool you already trust. The two extra axes (sector, value) are read straight from the database and are shown with their real coverage.`;
+      document.getElementById('ranked').innerHTML=
+        '<tr><th>#</th><th>Ticker</th><th>Bucket</th><th>Tape</th><th>Sector today</th><th>Cheap vs its industry</th><th>Analyst upside</th><th>Signals</th><th>Score</th></tr>'+
+        top.map((x,i)=>`<tr>
+          <td>${i+1}</td><td class="t">${esc(x.sym)}</td>
+          <td class="w" style="font-size:11px">${x.unbucketed?'<span class="warn">NO BUCKET</span>':esc(x.sleeves.join(' / '))}</td>
+          <td class="${x.g<0?'ok':''}">${f2(x.g)}</td>
+          <td>${x.sec?`#${x.sec.rank} ${esc(x.sec.etf)}`:'<span class="bad">—</span>'}</td>
+          <td>${x.val==null?'<span class="bad">—</span>':(x.val*100).toFixed(0)+'%'}</td>
+          <td class="${x.up>0?'ok':''}">${x.up==null?'<span class="bad">—</span>':(x.up*100).toFixed(0)+'%'}</td>
+          <td class="${x.axes>=3?'ok':x.axes===2?'warn':'bad'}">${x.axes}/4</td>
+          <td><span class="bar" style="width:${Math.round(x.score*54)}px"></span> ${x.score.toFixed(3)}</td>
+        </tr>`).join('');
+
+      const age=t=>{ if(!t) return '—'; const m=(Date.now()/1000-t)/60; return m<60?Math.round(m)+'m':(m/60).toFixed(1)+'h' };
+      document.getElementById('inputs').innerHTML=
+        '<tr><th>Reading</th><th>What it decides</th><th>Where it comes from</th><th>How many names it covers</th></tr>'+
+        [['Tape (the geiger)','whether a name is beaten down or running','composite_staged, daily',`${scored.length} of ${scored.length} · ${age(E.geigerTs)} old`],
+         ['Fear (VIX)','how hard this book leans in or steps back','vix_term',`VIX ${vix==null?'—':vix.toFixed(1)} — ${fearWord(vix)}`],
+         ['Sector standing','which corner of the market is in or out of favour','sector_rankings, published daily',`${nSec} of ${scored.length}`],
+         ['Cheapness','the price against its own industry peers','ratios_history + the 93-industry map',`${nCheap} of ${scored.length}`],
+         ['Analyst upside','how far the street thinks it can run','price_target_consensus vs live price',`${nUp} of ${scored.length}`+(staleTargets?` · ${staleTargets} ignored as stale`:'')],
+         ['The buckets','how much money each corner gets','the allocation module, live',`${Object.keys(shares).length} buckets`]
+        ].map(r=>`<tr><td class="t">${esc(r[0])}</td><td class="w">${esc(r[1])}</td><td class="w" style="font-size:11px">${esc(r[2])}</td><td>${esc(r[3])}</td></tr>`).join('');
+
+      document.getElementById('spine').innerHTML=
+        chip('tape','LIVE',`${scored.length} names`)+
+        chip('universe', E.universeStatus==='ok'?'LIVE':'DOWN', E.universeTickers+' tickers')+
+        chip('sector', nSec?'LIVE':'DOWN', today||'')+
+        chip('cheapness', nCheap===0?'DOWN':(nCheap<scored.length?'PARTIAL':'LIVE'), `${nCheap}/${scored.length}`)+
+        chip('upside', nUp===0?'DOWN':(nUp<scored.length?'PARTIAL':'LIVE'), `${nUp}/${scored.length}`)+
+        chip('fear','LIVE', vix==null?'—':'VIX '+vix.toFixed(1));
+    }
+    document.querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{
+      PH=b.dataset.p;
+      document.querySelectorAll('.pbtn').forEach(x=>x.setAttribute('aria-selected', x.dataset.p===PH));
+      build();
+    });
+    build();
 
     document.getElementById('boot').hidden=true;
     document.getElementById('out').hidden=false;
