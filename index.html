@@ -274,7 +274,7 @@ async function sbGetPaged(path, pageSize=1000, maxPages=12){
   }
   throw new Error('paged read exceeded '+maxPages+' pages');
 }
-let MKTINT=null, MKTBREADTH={};   // broad-market series — sourced OUTSIDE the hub universe   // market_internals — the real advance/decline line
+let MKTINT=null, MKTBREADTH={}, PEERS={};   // FMP algorithmic peers, per fundamentals-spec   // broad-market series — sourced OUTSIDE the hub universe   // market_internals — the real advance/decline line
 let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={};   // industry = the sub-sector axis (93 groups, 317 names)   // ticker -> our sector key ; sector key -> the rotation read
 /* SECTOR ROTATION, ACTUALLY WIRED IN (2026-08-11).
    Until now the only thing sector did in this module was the XLP+XLU defensives voter and
@@ -337,6 +337,13 @@ let PEERSTATS={};
    meaningful P/E, but dropping it means 41 names carry no value reading at all. Comparing
    it on sales against peers measured the same way keeps it in the system honestly, and the
    measure used is shown so the two are never silently mixed. */
+/* Peer set, in the spec's order of preference. */
+function peerGroupOf(sym){
+  const p=PEERS[sym];
+  if(p && p.length>=4) return {mode:'fmp_peers', members:p, n:p.length};
+  const k=peerKeys(sym)[0];
+  return k? {mode:k.startsWith('i:')?'sub-sector':k.startsWith('s:')?'sector':'cohort', key:k, n:null} : null;
+}
 function peerKeys(sym){
   return [INDUSTRY_OF[sym] && 'i:'+INDUSTRY_OF[sym],
           SECTOR_OF[sym]   && 's:'+SECTOR_OF[sym],
@@ -448,6 +455,14 @@ async function refreshSSOT(){
      TradingView is the SETUP source. It is chart-driven, one symbol per read, so it is not
      the live-hub source — that needs a REST provider (Polygon / Barchart / CBOE DataShop).
      This wiring is deliberately source-agnostic: land the rows, the voters light up. */
+  /* FMP PEERS — the fundamentals spec defines the peer set as "FMP algorithmic peers vs
+     screener vs ETF constituents". This reads whichever table they land in and falls back to
+     the sub-sector -> sector -> cohort hierarchy only when they are absent, saying which was
+     used on every row so the two are never confused. */
+  J.push(sbGetPaged('ticker_peers?select=ticker,peer&order=ticker.asc').then(rows=>{
+    const m={}; for(const r of rows)(m[r.ticker]=m[r.ticker]||[]).push(r.peer); PEERS=m;
+    spineSet('ticker_peers',null,'LIVE',Object.keys(m).length+' names with FMP peers');
+  }).catch(()=>spineSet('ticker_peers',null,'FALLBACK','no peers table — comps on the membership hierarchy')));
   J.push(sbGet('market_breadth?select=*&order=asof.desc&limit=1').then(rows=>{
     if(rows[0]){ MKTBREADTH=rows[0]; spineSet('market_breadth',null,'LIVE','broad-market series'); }
   }).catch(()=>spineSet('market_breadth',null,'FALLBACK','no market_breadth table — breadth voters abstaining')));
@@ -1297,6 +1312,26 @@ function drawDonut(shares, inv){
 }
 /* The per-name readout under the pie — the "flows downstream" half of P2 in words. */
 /* The rotation read, on the page, with the toggles that act on it. */
+/* COMPS EMIT — the shape the database session asked for so it can land as a fourth column
+   in ticker_classification: (ticker, peer_sector, confidence, n_peers).
+   For a name whose sector nobody else has an opinion on, this says which sector the companies
+   it actually trades like sit in. Confidence is the share of its peers agreeing on that sector,
+   so a unanimous peer set scores 1 and a split one scores low and can be ignored. */
+function compsEmit(){
+  const out=[];
+  for(const sym of Object.keys(COMPS)){
+    const pg=peerGroupOf(sym); if(!pg) continue;
+    let members = pg.mode==='fmp_peers' ? pg.members
+                : Object.keys(COMPS).filter(o=>o!==sym && peerKeys(o)[0]===pg.key);
+    const secs={}; let n=0;
+    for(const m of members){ const sec=SECTOR_OF[m]; if(!sec) continue; secs[sec]=(secs[sec]||0)+1; n++ }
+    if(n<3) continue;
+    const [best,cnt]=Object.entries(secs).sort((a,b)=>b[1]-a[1])[0];
+    out.push({ticker:sym, peer_sector:best, confidence:+(cnt/n).toFixed(3), n_peers:n, basis:pg.mode});
+  }
+  return out.sort((a,b)=>b.confidence-a.confidence);
+}
+window.compsEmit=compsEmit;
 function renderSectorRot(){
   const el=document.getElementById('sectorrot'); if(!el) return;
   const seg=(label,cur,opts,fn)=>'<div style="margin:0 16px 6px 0;display:inline-block"><span class="cls" style="margin-right:6px">'+label+'</span>'+opts.map(([v,t,tip])=>
