@@ -297,24 +297,31 @@ function sectorRead(sym){
    recommend buying overbought" and "weve discussed coldness with the trend and momentum".
    So intent is expressed as coldness COMBINED with what trend and momentum are doing,
    which is the thing that separates a dip from a falling knife. */
-let INTENT = localStorage.getItem('alloc-intent') || 'dip';   // dip | turn | strength | pure
-let KNIFE  = localStorage.getItem('alloc-knife')  || 'on';    // on = skip breakdowns
-let VMODE  = localStorage.getItem('alloc-vmode')  || 'tilt';  // off | tilt | require
-let SWEIGHT= +(localStorage.getItem('alloc-sweight') ?? 50);
-function setIntent(v){ INTENT=v; localStorage.setItem('alloc-intent',v); render(); }
-function setKnife(v){ KNIFE=v; localStorage.setItem('alloc-knife',v); render(); }
-function setVmode(v){ VMODE=v; localStorage.setItem('alloc-vmode',v); render(); }
-function setSweight(v){ SWEIGHT=+v; localStorage.setItem('alloc-sweight',v); render(); }
+/* ONE STANDARD METHOD (2026-08-11). Alan: "i hate that dips toggle. the system should
+   recognize it all and we should have a standard method not a million methods. those are all
+   more variables to design test debug."
+   He is right. Every toggle was a variable to design, test and debug, and each one was a
+   question the system should answer for itself. What a regime MEANS is not a preference:
+   a pullback inside an uptrend is a better place to buy than a breakdown, always. So the
+   method is fixed and the toggles are gone.
+
+   THE METHOD, stated once:
+     1. WHERE  each sector/cohort's own trend x momentum sets its share — cold earns more,
+               lifted when it is turning up, cut when it is still falling
+     2. WHICH  each name scores on how washed out it is, weighted by what its own regime and
+               its sector's regime say about whether that cheapness is merited
+     3. VALUE  price against its peer set, by IQR, always tilting — never a gate
+     4. RISK   a breakdown is down-weighted hard rather than excluded, so nothing is hidden */
+const METHOD = {
+  regimeFit: {buy:1.0, go:0.62, improve:0.45, avoid:0.12, none:0.5},  // pullback > trend > bounce > breakdown
+  nameVsSector: 0.7,       // the name leads, its neighbourhood confirms
+  regimeWeight: 0.55,      // how much the regime moves a name against pure coldness
+  valueWeight: 0.22        // how much cheapness against peers tilts it
+};
 /* Regime fit: how well a name matches what you said you want to buy. 1 = exactly it. */
 /* The intent applied to a READ KIND — used for a name and for its sector alike, so the two
    levels can never diverge in what "a dip" or "a turn" means. */
-function intentFitKind(kind){
-  if(!kind||kind==='none') return 0.5;
-  if(INTENT==='pure')     return 0.5;
-  if(INTENT==='dip')      return kind==='buy'?1 : kind==='go'?0.55 : kind==='improve'?0.35 : 0.1;
-  if(INTENT==='turn')     return kind==='improve'?1 : kind==='buy'?0.6 : kind==='go'?0.4 : 0.15;
-  return kind==='go'?1 : kind==='buy'?0.5 : kind==='improve'?0.25 : 0.1;   // strength
-}
+function intentFitKind(kind){ return METHOD.regimeFit[kind||'none'] ?? 0.5 }
 function sectorReadOf(sym){
   const k=SECTOR_OF[sym]; if(!k) return null;
   return SECTOR_READ[k] || GROUP_READ[k] || null;
@@ -1239,26 +1246,20 @@ function drawCurve(h){
 /* ===================== P2 · CLOSE THE LOOP (2026-08-11) =====================
    PICKS now flow into TARGET MIX. The sleeve's share (the WHERE) is split among
    the names you actually picked inside that sleeve, so the pie moves as you select.
-   SPLIT RULE: equal — Alan's spec is "fewer names -> bigger each". Leaning the split
-   toward the more undervalued name is P4 and is deliberately NOT done here.
-   A name living in several sleeves earns a slice in EACH (the module's own doctrine:
-   "tickers can live in several sleeves"); perName holds its combined real size.
-   A sleeve with no picks keeps its share as an explicit UNASSIGNED arc — never
-   silently redistributed to the sleeves that do have picks. */
+   SIZING RULE: the score that RANKS a name is the score that SIZES it. There is no separate
+   split setting — a second method for sizing was one more variable to design, test and debug,
+   and it could disagree with the ranking it sat next to. */
 function pickMix(shares, inv){
   const sleeves={}, perName={}, picks=[...PICKS];
   for(const [k,sh] of Object.entries(shares)){
     const eq=sh*inv;                                        // this sleeve's % OF EQUITY
     let mine=picks.filter(s=>tickerSleeves(s).includes(k));
-    // REGIME GATE — a breakdown is not a discount
-    const blocked = RGATE==='exclude' ? mine.filter(s=>(REGIME[s]||{}).kind==='avoid') : [];
-    if(blocked.length) mine=mine.filter(s=>!blocked.includes(s));
-    // WEIGHT the split rather than dividing it equally
+    const blocked=[];   // nothing is removed — a breakdown is weighted down by wOf, never hidden
     const wOf = s => {
-      if(SPLIT==='cold'){ const g=gv(s); return g==null?0.5:Math.max(0.05,(1-g)/2) }   // colder earns more
-      if(SPLIT==='cheap'){ const c=COMPS[s]; const pe=c&&c.pe>0?c.pe:null;
-                           return pe==null?0.5:Math.max(0.05,Math.min(1,20/pe)) }      // cheaper earns more
-      const g2=gv(s); return g2==null?0.5:Math.max(0.05,(1-g2)/2);
+      const g=gv(s); let a = g==null?0.5:(1-g)/2;                       // washed out earns more
+      const rg=REGIME[s]||{}; a *= (1-METHOD.regimeWeight) + METHOD.regimeWeight*2*intentFitKind(rg.kind);
+      const vr=valueRead(s); if(vr) a *= 1 - METHOD.valueWeight*vr.z;   // cheap vs peers earns more
+      return Math.max(0.05, a);
     };
     const ws=mine.map(wOf), tot=ws.reduce((a,b)=>a+b,0)||1;
     for(let i=0;i<mine.length;i++){ const f=eq*ws[i]/tot; perName[mine[i]]=(perName[mine[i]]||0)+f }
@@ -1341,18 +1342,13 @@ function renderSectorRot(){
   const scol=k=>k==='lead'?'var(--green)':k==='improve'?'var(--cyan)':k==='weak'?'var(--gold)':'var(--orange)';
   const chips=rs.map(r=>`<span title="${r.name} · trend ${(+r.trend).toFixed(2)} · momentum ${(+r.momentum).toFixed(2)}" style="display:inline-block;margin:2px 5px 2px 0;padding:2px 7px;border:1px solid var(--line);border-radius:5px;font-size:10px"><b style="color:${scol(r.kind)}">${r.key}</b> <span style="color:var(--dim)">${r.q}</span></span>`).join('');
   el.innerHTML=
-   '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin-bottom:6px">WHAT TO BUY — coldness on its own is not a reason. This is coldness combined with what trend and momentum are doing.</div>'+
+   
    seg('ALLOCATE ACROSS',AXIS,[['sector','SECTORS'],['cohort','COHORTS']],'setAxis')+
-   seg('INTENT',INTENT,[['dip','DIPS IN UPTRENDS','cold, but the trend is still up — a pullback'],
-                        ['turn','TURNS','beaten down and momentum has crossed up'],
-                        ['strength','CONFIRMED STRENGTH','trend and momentum both up — this is buying strength, not value'],
-                        ['pure','PURE COLDNESS','ignore regime, coldest first (the old behaviour)']],'setIntent')+
-   seg('FALLING KNIVES',KNIFE,[['on','SKIP'],['off','ALLOW']],'setKnife')+
-   seg('VALUE vs PEERS',VMODE,[['tilt','TILT','cheap vs peer set nudges it up the list'],
-                               ['require','CHEAP ONLY','drop anything not below the peer Q1'],
-                               ['off','IGNORE','']],'setVmode')+
-   '<div style="display:inline-block;margin-bottom:6px"><span class="cls" style="margin-right:6px">HOW HARD</span>'+
-     `<input type="range" min="0" max="100" step="10" value="${SWEIGHT}" oninput="setSweight(this.value)" style="vertical-align:middle;width:100px"><span class="cls" style="margin-left:6px">${SWEIGHT}%</span></div>`+
+   '<div class="note" style="margin:4px 0 8px;font-size:11px;line-height:1.7"><b style="color:var(--gold)">ONE METHOD, NO SETTINGS.</b> '+
+   'Each sector or cohort earns its share from its own trend and momentum — colder earns more, lifted when it is turning up, cut when it is still falling. '+
+   'Inside it, a name scores on how washed out it is, judged against what its own regime and its sector\'s regime say about whether that cheapness is merited. '+
+   'Price against its peer set tilts it. A breakdown is weighted down hard, never hidden. '+
+   'The score that ranks a name is the score that sizes it.</div>'+
    '<div class="note" style="margin:6px 0 4px;font-size:11px">NAME REGIMES · '+Object.entries(rc).map(([k,v])=>k+' '+v).join(' · ')+'</div>'+
    '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 3px">SECTORS — a separate axis from the sleeves. A name has both.</div>'+
    '<div style="margin-bottom:8px">'+chips+'</div>';
@@ -1369,8 +1365,7 @@ function renderPickMix(shares, inv){
   const seg=(id,cur,opts,fn)=>'<span class="lbl" style="margin-right:6px">'+id+'</span>'+opts.map(([v,t])=>
     `<button onclick="${fn}('${v}')" style="background:${cur===v?'var(--gold)':'#14141f'};color:${cur===v?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:5px;padding:4px 10px;font-family:inherit;font-size:10px;letter-spacing:.06em;cursor:pointer;margin-right:4px">${t}</button>`).join('');
   const toggles='<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:8px 0 10px">'+
-    '<div>'+seg('SPLIT WITHIN SLEEVE',SPLIT,[['cold','COLDER FIRST'],['cheap','CHEAPER FIRST']],'setSplit')+'</div>'+
-    '<div>'+seg('REGIME GATE',RGATE,[['off','OFF'],['warn','WARN'],['exclude','EXCLUDE BREAKDOWNS']],'setRgate')+'</div></div>';
+    '</div>';
   const rows=Object.entries(PM.sleeves).sort((a,b)=>b[1].share-a[1].share).map(([k,info])=>{
     if(info.share<=0.001) return '';
     const col=(SLEEVE_COLOR[k]||groupColor(k));
@@ -1513,10 +1508,8 @@ let PICKS = new Set(JSON.parse(localStorage.getItem('alloc-picks')||'[]'));
    ignores that the tool already knows which of two names is colder or cheaper.
    REGIME GATE — a name's regime decides whether its cheapness is merited. Cheap inside a
    pullback is an opportunity; cheap inside a breakdown is the market telling you why. */
-let SPLIT = localStorage.getItem('alloc-split') || 'cold';    // cold | cheap — never equal, an equal split throws away what the tool already knows
-let RGATE = localStorage.getItem('alloc-rgate') || 'warn';    // off | warn | exclude
-function setSplit(v){ SPLIT=v; localStorage.setItem('alloc-split',v); render(); }
-function setRgate(v){ RGATE=v; localStorage.setItem('alloc-rgate',v); render(); }
+/* No split toggle either: the score that RANKS a name is the score that SIZES it. */
+
 let EXCLUDED = new Set(); // session-only: a reload clears drops so nothing is ever lost
 let COMPCAT='ALL';
 function setCompCat(c){ COMPCAT=c; render(); }
@@ -1528,10 +1521,8 @@ function renderComps(){
   const SPR = styleSpreads();
   const ranked = candidateSyms().filter(s=>!['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
     .map(s=>{ const tg=tickerG(s); if(!tg) return null; const rg=REGIME[s]||{};
-            if(KNIFE==='on' && rg.kind==='avoid') return null;              // no falling knives
             const vr=valueRead(s);
-            if(VMODE==='require' && (!vr || vr.tag!=='CHEAP')) return null;  // cheap or nothing
-            const w=SWEIGHT/100;
+            const w=METHOD.regimeWeight;
             /* Coldness alone was swamping everything — an additive nudge left all three
                intents returning the same names, which is the "too basic" failure. Intent is
                MULTIPLICATIVE instead: a name that is cold for the wrong reason loses most of
@@ -1547,9 +1538,9 @@ function renderComps(){
             const secR = (AXIS==='sector' ? (E_SECREAD[SECTOR_OF[s]]||null) : null) || sectorReadOf(s);
             const fitName = intentFit(s);
             const fitSect = secR ? intentFitKind(secR.kind) : 0.5;
-            const fit = 0.7*fitName + 0.3*fitSect;                        // the name leads, its sector confirms
+            const fit = METHOD.nameVsSector*fitName + (1-METHOD.nameVsSector)*fitSect;
             attract *= (1 - w) + w*(0.15 + 1.7*fit);
-            if(VMODE!=='off' && vr) attract *= 1 - w*0.5*vr.z;           // cheap vs peers lifts, dear cuts
+            if(vr) attract *= 1 - METHOD.valueWeight*vr.z;                // cheap vs peers lifts, dear cuts
             return {sym:s, adj:-attract, sleeves:tickerSleeves(s), rg, vr}; }).filter(Boolean);
   const suggested = new Set();
   for (const sl of Object.keys(SLEEVES)) ranked.filter(r=>r.sleeves.includes(sl)).sort((a,b)=>a.adj-b.adj).slice(0,3).forEach(r=>suggested.add(r.sym));
