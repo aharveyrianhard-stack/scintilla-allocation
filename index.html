@@ -474,7 +474,7 @@ async function refreshSSOT(){
     PROFILES=m; spineSet('company_profile',null,'LIVE',rows.length+' profiles (sector · mcap · avg_volume)');
   }).catch(e=>spineSet('company_profile',null,'FALLBACK','read failed — RVOL/sector chips unavailable')));
   // macro truth
-  J.push(sbGet('treasury_rates?select=date,y10,updated_ts&order=date.desc&limit=1').then(rows=>{
+  J.push(sbGet('treasury_rates?select=date,y2,y10,updated_ts&order=date.desc&limit=1').then(rows=>{
     if(rows[0]){TREAS=rows[0]; const age=(Date.now()-Date.parse(TREAS.date))/864e5;
       spineSet('treasury_rates',TREAS.updated_ts,age>5?'STALE':'LIVE','10Y '+TREAS.y10+'% @ '+TREAS.date);}
   }).catch(e=>spineSet('treasury_rates',null,'FALLBACK','read failed — Yahoo ^TNX in use')));
@@ -624,7 +624,7 @@ const DEFAULTS = {
   vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
   maxInv:100, minInv:15, nLC:4, nSC:2, nPer:2, divAuto:1, lcTilt:0, maxTotal:12, maxNames:6, concLean:0,
   curInv:0, curLC:0,
-  wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25}
+  wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25, BREADTH_EW:0, BREADTH_SC:0, VIX_TERM:0, CURVE:0, PCC:0}
 };
 const VOTER_DESC = {
   SPY: 'PROXY: SPY (composite_staged · db; Yahoo fallback). The approved geiger on the S&P across your full equalizer curve (2h→1w): ribbon order 50% + momentum 50% (RSI 60 / W%R 40, straight 23→77 map — every level in between feeds, per GOOGL_GEIGER_v2). WHEN it reads positive the market is stretched and it pushes the score UP toward Overbought; negative = washed out, pushes DOWN toward Oversold.',
@@ -743,6 +743,7 @@ function internalsScore(){
   if (sect && isFinite(sect.value)) { num += (sect.value * 2 - 1); den += 1; }
   return den ? num / den : 0;
 }
+function f2v(x){return x==null?'—':(x>=0?'+':'')+(+x).toFixed(2)}
 function voters(){
   const v = [];
   const idx = sym => gv(sym);                                            // SSOT: composite_staged
@@ -765,6 +766,30 @@ function voters(){
   v.push({key:'VALUE', name:'VALUE (RSP)', sub:'equal-weight · '+gsrc('RSP'), val: rsp});
   const btc = gv('BTCUSD');
   v.push({key:'CRYPTO', name:'CRYPTO (BTC)', sub:'risk appetite · '+gsrc('BTCUSD'), val: btc});
+  /* ADDED 2026-08-11 — things we already hold and were not using. Every one ships at
+     weight 0: wired and visible, contributing nothing until Alan sets a weight. */
+  // BREADTH AS A RATIO, not a straight geiger — equal-weight vs the index, and small vs large.
+  const gSPY=gv('SPY'), gRSP=gv('RSP'), gIWM=gv('IWM');
+  v.push({key:'BREADTH_EW', name:'EQUAL-WEIGHT vs INDEX',
+          sub:(gRSP!=null&&gSPY!=null)?'RSP − SPY = '+f2v(gRSP-gSPY)+' · negative means the average stock is colder than the index':'—',
+          val:(gRSP!=null&&gSPY!=null)?clamp(gRSP-gSPY):null});
+  v.push({key:'BREADTH_SC', name:'SMALL vs LARGE',
+          sub:(gIWM!=null&&gSPY!=null)?'IWM − SPY = '+f2v(gIWM-gSPY):'—',
+          val:(gIWM!=null&&gSPY!=null)?clamp(gIWM-gSPY):null});
+  // VIX TERM STRUCTURE — spot vs 3-month. Above 1 is backwardation, i.e. stress now.
+  /* Only votes on a FRESH row. vix_term stopped on 2026-06-08, so today this reads
+     stale and contributes nothing rather than voting on a two-month-old ratio. */
+  const vFresh=(VIXDB&&VIXDB.fresh), vr3=(VIXDB&&VIXDB.ratio!=null)?+VIXDB.ratio:null;
+  v.push({key:'VIX_TERM', name:'VIX TERM (spot ÷ 3m)',
+          sub:vr3==null?'— not read':(vFresh?vr3.toFixed(3)+' · above 1.00 = stress priced now':'STALE '+VIXDB.date+' — not voting'),
+          val:(vFresh&&vr3!=null)?clamp((1-vr3)*4):null});
+  // YIELD CURVE — 10y minus 2y. Inverted is the classic warning; we hold the whole curve.
+  const c10=(TREAS&&TREAS.y10!=null)?+TREAS.y10:null, c2=(TREAS&&TREAS.y2!=null)?+TREAS.y2:null;
+  v.push({key:'CURVE', name:'YIELD CURVE (10y − 2y)',
+          sub:(c10!=null&&c2!=null)?((c10-c2).toFixed(2)+'% · negative = inverted'):'— not read',
+          val:(c10!=null&&c2!=null)?clamp((c10-c2)/1.5):null});
+  // PUT/CALL — wired and empty on purpose. No data in put_call_history after 2019-10-04.
+  v.push({key:'PCC', name:'PUT / CALL (breadth)', sub:'no data in the database after 2019-10-04 — wired, contributing nothing', val:null});
   const gp2 = gv('XLP'), gu2 = gv('XLU');
   v.push({key:'DEF', name:'DEFENSIVES (inv)', sub:'XLP+XLU · '+(COMPOSITE['XLP']?'db':'fallback'), val: (gp2!=null && gu2!=null) ? clamp(-(gp2+gu2)/2) : null});
   return v;
