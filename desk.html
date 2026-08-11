@@ -91,6 +91,13 @@ tr:last-child td{border-bottom:none}
       <div class="scroll"><table id="ranked"></table></div>
     </div>
 
+    <!-- ============ WHAT NEEDS FIXING ============ -->
+    <h2 style="margin-top:22px">What needs fixing &mdash; coverage, called out</h2>
+    <div class="card">
+      <div class="note" id="fixnote" style="margin-bottom:10px"></div>
+      <div class="scroll"><table id="fix"></table></div>
+    </div>
+
     <!-- ============ THE READ ============ -->
     <h2 style="margin-top:22px">The consolidated read &mdash; every input, and what it is worth</h2>
     <div class="card scroll"><table id="inputs"></table></div>
@@ -156,6 +163,8 @@ function readEngine(W){
       sectorOf:Object.fromEntries(cands.map(s=>[s,(PROFILES[s]&&PROFILES[s].sector)||null])),
       sectorEtf:SECTOR_ETF,
       maxTotal:(typeof S!=='undefined'&&S.maxTotal)?S.maxTotal:12,
+      cohortSleeve:COHORT_SLEEVE, sleeveNames:Object.keys(SLEEVES),
+      cohortsOf:UNIVERSE.cohorts,
       universeStatus:UNIVERSE.status,
       universeTickers:Object.keys(UNIVERSE.cohorts).length,
       geigerTs:Math.max(0,...Object.values(COMPOSITE).map(r=>r.updated_ts||0))
@@ -204,49 +213,47 @@ function chip(name,state,detail){
     const secRows = today ? await g('sector_rankings?select=sector,sector_name,rank,score&date=eq.'+today+'&order=rank.asc&limit=20') : [];
     const secByEtf = Object.fromEntries(secRows.map(r=>[r.sector,r]));
 
-    const ind = await gPaged('ticker_membership?select=ticker,group_key&kind=eq.industry&order=ticker.asc');
-    const indOf = Object.fromEntries(ind.map(r=>[r.ticker,r.group_key]));
+    /* ticker_cohorts (the view) flattens EVERY membership kind — cohort, industry, size,
+       sector, sector_ext — so a "cohort" read from it can actually be LARGE_CAP or TECH.
+       Pull the real cohort keys so the fix list below talks about cohorts and nothing else. */
+    const cohRows = await gPaged('ticker_membership?select=ticker,group_key&kind=eq.cohort&order=ticker.asc');
+    const TRUE_COHORTS = new Set(cohRows.map(r=>r.group_key));
+    /* Real cohort membership per ticker. Names alone are not enough to filter the view:
+       TECH exists as a cohort (4 names) AND as an industry (70), and the view flattens
+       both under the same label — reading the view would have reported TECH as 70. */
+    const cohOf={}; for(const r of cohRows) (cohOf[r.ticker]=cohOf[r.ticker]||[]).push(r.group_key);
 
     const rr = await gPaged('ratios_history?select=ticker,fiscal_date,pe,ps,net_margin,debt_to_equity&fiscal_date=gte.2025-09-01&order=ticker.asc,fiscal_date.desc');
     const ratio={}; for(const r of rr) if(!ratio[r.ticker]) ratio[r.ticker]=r;   // first = newest per ticker
 
-    /* cheapness = percentile INSIDE the name's own industry (the 93-industry peer axis).
-       Lower P/E and P/S is cheaper. Only positive ratios are comparable — a negative P/E
-       means the company loses money, which is not "cheap", so it scores neutral, never best. */
-    const byInd={};
-    for(const [t,r] of Object.entries(ratio)){ const i=indOf[t]; if(!i) continue; (byInd[i]=byInd[i]||[]).push(r) }
+    /* CHEAPNESS — measured against the name's own COHORT, not its industry.
+       Alan: "PRICE VS INDUSTRY IN 79? WHY? VS COHORT? COHORT IS OURS."
+       He is right and the numbers agree: industry shatters 112 priced names across 40
+       groups (2.8 peers each, so most fail any sane peer minimum), while cohort groups
+       the same names into 8 (about 14 peers each). Industry is borrowed and thin;
+       cohort is ours and complete. A company losing money is never "cheap" — it is
+       excluded from the comparison rather than scored best. */
+    const byCoh={};
+    for(const t of Object.keys(ratio)){
+      const r=ratio[t]; if(!(r.pe>0)) continue;
+      for(const c of (E.cohortsOf[t]||[])) (byCoh[c]=byCoh[c]||[]).push(r.pe);
+    }
     function cheap(sym){
-      const r=ratio[sym], i=indOf[sym]; if(!r||!i) return null;
-      const peers=(byInd[i]||[]).filter(p=>p.pe!=null&&p.pe>0);
-      if(!r.pe||r.pe<=0||peers.length<3) return null;
-      const below=peers.filter(p=>p.pe> r.pe).length;
-      return below/(peers.length-1||1);              // 1 = cheapest in its industry
+      const r=ratio[sym]; if(!r||!(r.pe>0)) return null;
+      let best=null;
+      for(const c of (cohOf[sym]||[])){
+        const peers=byCoh[c]; if(!peers||peers.length<4) continue;
+        const below=peers.filter(p=>p>r.pe).length;
+        const pctile=below/(peers.length-1);
+        if(best==null||pctile>best) best=pctile;      // cheapest read among its cohorts
+      }
+      return best;                                     // 1 = cheapest in its own cohort
     }
     function sectorPull(sym){
       const sec=E.sectorOf[sym]; if(!sec) return null;
       const etf=E.sectorEtf[sec]; if(!etf) return null;
       const s=secByEtf[etf]; if(!s) return null;
       return {etf, rank:s.rank, name:s.sector_name};   // rank 1..11; each philosophy reads it its own way
-    }
-
-    /* ANALYST UPSIDE — how far the street thinks the name can run from here.
-       (target_avg / live price) − 1. This is the closest thing we hold to a stored
-       intrinsic value; the DCF tool computes its own in-page and stores nothing, so
-       this stands in for it until a DCF output table exists. */
-    const pt = await gPaged('price_target_consensus?select=ticker,target_avg,num_analysts&order=ticker.asc');
-    const tgt = Object.fromEntries(pt.filter(r=>r.target_avg>0).map(r=>[r.ticker,r]));
-    const lq = await gPaged('live_quotes?select=ticker,price&order=ticker.asc');
-    const px = Object.fromEntries(lq.filter(r=>r.price>0).map(r=>[r.ticker,r.price]));
-    let staleTargets=0;
-    function upside(sym){
-      const t=tgt[sym], p=px[sym]; if(!t||!p) return null;
-      const u=t.target_avg/p - 1;                      // +0.25 = street sees 25% more
-      /* A target implying more than +200% is not a forecast, it is a stale target sitting
-         against a price that has since collapsed — BYND printed +8467% on this data.
-         Treated as NO READING rather than shown as signal. Never silently: the count of
-         these is reported on the page. */
-      if(u>2 || u<-0.95){ staleTargets++; return null }
-      return u;
     }
 
     /* FEAR. Not excluded, not hidden — it is the input that decides how hard to lean.
@@ -272,14 +279,14 @@ function chip(name,state,detail){
        best, quality is preferred to cheapness, and fear is a reason to step back. */
     const PHIL={
       CONTRARIAN:{
-        w:{tape:.40, sector:.20, cheap:.25, upside:.15},
+        w:{tape:.45, sector:.20, cheap:.35},
         tape:g=>(1-g)/2,                       // washed out (−1) → 1.0
         sector:r=>(r-1)/10,                    // LAST of 11 → 1.0 (buy the unloved sector)
         fear:v=>Math.min(.10, Math.max(-.05,(v-18)/100)),   // VIX up → put MORE to work
         line:'Buy what nobody wants. A washed-out tape, an out-of-favour sector and a cheap price score best, and rising fear is treated as an invitation rather than a warning.'
       },
       ORTHODOX:{
-        w:{tape:.35, sector:.30, cheap:.15, upside:.20},
+        w:{tape:.40, sector:.35, cheap:.25},
         tape:g=>(g+1)/2,                       // strong (+1) → 1.0
         sector:r=>(11-r)/10,                   // FIRST of 11 → 1.0 (ride the leaders)
         fear:v=>Math.min(.05, Math.max(-.12,(18-v)/100)),   // VIX up → step BACK
@@ -296,17 +303,17 @@ function chip(name,state,detail){
         if(PROXY.has(s)) return null;
         const sl=E.sleeves[s]||[];
         const gg=E.gv[s]; if(gg==null) return null;
-        const sp=sectorPull(s), cv=cheap(s), up=upside(s);
+        const sp=sectorPull(s), cv=cheap(s);
         let num=P.w.tape*P.tape(gg), den=P.w.tape;
         if(sp){ num+=P.w.sector*P.sector(sp.rank); den+=P.w.sector }
         if(cv!=null){ num+=P.w.cheap*cv; den+=P.w.cheap }
-        if(up!=null){ num+=P.w.upside*Math.max(0,Math.min(1,up/.6)); den+=P.w.upside }
-        return {sym:s, g:gg, sec:sp, val:cv, up, score:num/den,
-                axes:1+(sp?1:0)+(cv!=null?1:0)+(up!=null?1:0), sleeves:sl, unbucketed:!sl.length};
+
+        return {sym:s, g:gg, sec:sp, val:cv, score:num/den,
+                axes:1+(sp?1:0)+(cv!=null?1:0), sleeves:sl, unbucketed:!sl.length};
       }).filter(Boolean).sort((a,b)=>b.score-a.score);
 
       const nCheap=scored.filter(x=>x.val!=null).length;
-      const nUp=scored.filter(x=>x.up!=null).length;
+      const nUp=0;
       const nSec=scored.filter(x=>x.sec).length;
       const tilt=P.fear(vix);
       const finalInv=Math.max(0,Math.min(1,inv+tilt));
@@ -324,8 +331,8 @@ function chip(name,state,detail){
           <div class="n">of ${cands.length} on the list · ${cands.length-scored.length} set aside (index proxies, or no reading yet)</div></div>
         <div class="stat"><div class="k">Names to hold</div><div class="v">${top.length}</div>
           <div class="n">your cap is ${cap} — this is a ranked shortlist, you still choose</div></div>
-        <div class="stat"><div class="k">Signals per name</div><div class="v">${(scored.reduce((t,x)=>t+x.axes,0)/(scored.length||1)).toFixed(1)}<span style="font-size:15px;color:var(--ink3)">/4</span></div>
-          <div class="n">tape ${scored.length} · sector ${nSec} · cheap ${nCheap} · upside ${nUp}</div></div>`;
+        <div class="stat"><div class="k">Signals per name</div><div class="v">${(scored.reduce((t,x)=>t+x.axes,0)/(scored.length||1)).toFixed(1)}<span style="font-size:15px;color:var(--ink3)">/3</span></div>
+          <div class="n">tape ${scored.length} · sector ${nSec} · cheap ${nCheap}</div></div>`;
 
       const topS=Object.entries(shares).sort((a,b)=>b[1]-a[1]).slice(0,3)
         .map(([k,v])=>`<b>${esc(k)}</b> ${pct(v*finalInv,0)}`).join(', ');
@@ -333,7 +340,7 @@ function chip(name,state,detail){
         `<b>The read, in plain words.</b> The tape is ${esc((label||'').toLowerCase())} (heat ${f2(h)}), which on the model alone puts <span class="num">${pct(inv,0)}</span> of the book to work. `+
         `The VIX is <span class="num">${vix==null?'—':vix.toFixed(1)}</span> — ${esc(fearWord(vix))} — so a ${PH.toLowerCase()} book ${tilt>0?`leans in and takes it to <span class="num acc">${pct(finalInv,0)}</span>`:tilt<0?`pulls back to <span class="num acc">${pct(finalInv,0)}</span>`:`stays at <span class="num acc">${pct(finalInv,0)}</span>`}. `+
         `The biggest buckets are ${topS} of everything you own. `+
-        `Underneath, ${scored.length} names are ranked on four readings — how the tape is treating them, whether their sector is ${PH==='CONTRARIAN'?'out of favour':'leading'}, how cheap they are next to their own industry, and how far analysts think they can run. `+
+        `Underneath, ${scored.length} names are ranked on four readings — how the tape is treating them, whether their sector is ${PH==='CONTRARIAN'?'out of favour':'leading'}, how cheap they are next to their own industry, `+
         `Where a reading does not exist for a name we score it on the ones that do and say so, rather than inventing a number.`;
 
       document.getElementById('sleeves').innerHTML=
@@ -345,22 +352,21 @@ function chip(name,state,detail){
         `<tr><td class="t">CASH</td><td>—</td><td>—</td><td>${pct(1-finalInv)}</td><td>—</td></tr>`;
 
       document.getElementById('rankhow').innerHTML=
-        `<b>${PH}</b> weights: tape <b>${pct(P.w.tape,0)}</b> · sector <b>${pct(P.w.sector,0)}</b> · cheapness <b>${pct(P.w.cheap,0)}</b> · analyst upside <b>${pct(P.w.upside,0)}</b>. `+
+        `<b>${PH}</b> weights: tape <b>${pct(P.w.tape,0)}</b> · sector <b>${pct(P.w.sector,0)}</b> · cheapness <b>${pct(P.w.cheap,0)}</b>. `+
         `${PH==='CONTRARIAN'?'Beaten-down and out-of-favour score highest.':'Strong and leading score highest.'} `+
         `If a reading is missing for a name, the other weights simply share it out, so nothing is punished for a number we do not have yet — <b>SIGNALS</b> tells you how many of the four were real. `+
         `A company losing money is never counted as “cheap”. `+
         `<span class="gap">Names marked NO BUCKET are ranked but the model has no home for them yet: it hands money to buckets, and they are not in one — so decide those by hand.</span>`;
 
       document.getElementById('ranked').innerHTML=
-        '<tr><th>#</th><th>Ticker</th><th>Bucket</th><th>Tape</th><th>Sector today</th><th>Cheap vs its industry</th><th>Analyst upside</th><th>Signals</th><th>Score</th></tr>'+
+        '<tr><th>#</th><th>Ticker</th><th>Bucket</th><th>Tape</th><th>Sector today</th><th>Cheap vs its industry</th><th>Signals</th><th>Score</th></tr>'+
         top.map((x,i)=>`<tr>
           <td>${i+1}</td><td class="t">${esc(x.sym)}</td>
           <td class="w" style="font-size:11px">${x.unbucketed?'<span class="warn">NO BUCKET</span>':esc(x.sleeves.join(' / '))}</td>
           <td class="${x.g<0?'ok':''}">${f2(x.g)}</td>
           <td>${x.sec?`#${x.sec.rank} ${esc(x.sec.etf)}`:'<span class="bad">—</span>'}</td>
           <td>${x.val==null?'<span class="bad">—</span>':(x.val*100).toFixed(0)+'%'}</td>
-          <td class="${x.up>0?'ok':''}">${x.up==null?'<span class="bad">—</span>':(x.up*100).toFixed(0)+'%'}</td>
-          <td class="${x.axes>=3?'ok':x.axes===2?'warn':'bad'}">${x.axes}/4</td>
+          <td class="${x.axes>=3?'ok':x.axes===2?'warn':'bad'}">${x.axes}/3</td>
           <td><span class="bar" style="width:${Math.round(x.score*54)}px"></span> ${x.score.toFixed(3)}</td>
         </tr>`).join('');
 
@@ -371,16 +377,51 @@ function chip(name,state,detail){
          ['Fear (VIX)','how hard this book leans in or steps back','vix_term',`VIX ${vix==null?'—':vix.toFixed(1)} — ${fearWord(vix)}`],
          ['Sector standing','which corner of the market is in or out of favour','sector_rankings, published daily',`${nSec} of ${scored.length}`],
          ['Cheapness','the price against its own industry peers','ratios_history + the 93-industry map',`${nCheap} of ${scored.length}`],
-         ['Analyst upside','how far the street thinks it can run','price_target_consensus vs live price',`${nUp} of ${scored.length}`+(staleTargets?` · ${staleTargets} ignored as stale`:'')],
+
          ['The buckets','how much money each corner gets','the allocation module, live',`${Object.keys(shares).length} buckets`]
         ].map(r=>`<tr><td class="t">${esc(r[0])}</td><td class="w">${esc(r[1])}</td><td class="w" style="font-size:11px">${esc(r[2])}</td><td>${esc(r[3])}</td></tr>`).join('');
+
+      /* ===== WHAT NEEDS FIXING =====
+         Alan: "IF THERES NAME WITH NO BUCKET WE FIX. IF BUCKETS ARE LIGHT IN NAMES WE
+         ADD. NEED YOUR HELP WITH CALLING THAT OUT." So it is called out here, with counts,
+         rather than left for someone to notice. */
+      const unmapped={};
+      for(const [t,cs] of Object.entries(cohOf))
+        for(const c of cs) if(!E.cohortSleeve[c]) (unmapped[c]=unmapped[c]||new Set()).add(t);
+      const unmappedRows=Object.entries(unmapped).sort((a,b)=>b[1].size-a[1].size);
+      const homeless=scored.filter(x=>x.unbucketed);
+      const perSleeve=Object.keys(shares).map(k=>[k,scored.filter(x=>x.sleeves.includes(k)).length])
+                        .sort((a,b)=>a[1]-b[1]);
+      const light=perSleeve.filter(([,n])=>n<12), heavy=perSleeve.filter(([,n])=>n>60);
+
+      document.getElementById('fixnote').innerHTML=
+        `<b>${unmappedRows.length} of your cohorts have no bucket to feed.</b> A cohort is your own grouping of names; a bucket is where the model actually sends money. `+
+        `When a cohort has no bucket, its names fall back to a size rule — small ones land in SMALL, big ones land in BROAD — so they are still ranked, but they are being placed by market cap rather than by what they actually are. `+
+        `That is why <b>BROAD</b> is carrying ${(perSleeve.find(p=>p[0]==='BROAD')||[,0])[1]} names while ${light.map(([k])=>k).join(' and ')||'the smaller buckets'} carry few. `+
+        `<span class="gap">Adding or re-pointing a bucket changes what the allocation means, so it is your call, not mine — the sizes are here so you can make it.</span>`;
+
+      document.getElementById('fix').innerHTML=
+        '<tr><th>What</th><th>Names</th><th>Where they land today</th><th>What it costs you</th></tr>'+
+        unmappedRows.map(([c,set])=>`<tr>
+            <td class="t">${esc(c)}</td><td>${set.size}</td>
+            <td class="w" style="font-size:11px">size fallback — SMALL or BROAD</td>
+            <td class="w">no bucket of its own, so it can never win share on its own merits</td></tr>`).join('')+
+        (homeless.length?`<tr><td class="t warn">NO BUCKET AT ALL</td><td>${homeless.length}</td>
+            <td class="w" style="font-size:11px">${esc(homeless.slice(0,8).map(x=>x.sym).join(', '))}${homeless.length>8?'…':''}</td>
+            <td class="w">ranked, but the model has nowhere to pay them from</td></tr>`:'')+
+        light.map(([k,n])=>`<tr><td class="t">${esc(k)} is light</td><td>${n}</td>
+            <td class="w" style="font-size:11px">bucket exists and is funded</td>
+            <td class="w">too few names to spread its share across — add candidates here</td></tr>`).join('')+
+        heavy.map(([k,n])=>`<tr><td class="t">${esc(k)} is crowded</td><td>${n}</td>
+            <td class="w" style="font-size:11px">catches every unmapped large name</td>
+            <td class="w">acting as a dumping ground rather than a real theme</td></tr>`).join('');
 
       document.getElementById('spine').innerHTML=
         chip('tape','LIVE',`${scored.length} names`)+
         chip('universe', E.universeStatus==='ok'?'LIVE':'DOWN', E.universeTickers+' tickers')+
         chip('sector', nSec?'LIVE':'DOWN', today||'')+
         chip('cheapness', nCheap===0?'DOWN':(nCheap<scored.length?'PARTIAL':'LIVE'), `${nCheap}/${scored.length}`)+
-        chip('upside', nUp===0?'DOWN':(nUp<scored.length?'PARTIAL':'LIVE'), `${nUp}/${scored.length}`)+
+
         chip('fear','LIVE', vix==null?'—':'VIX '+vix.toFixed(1));
     }
     document.querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{
