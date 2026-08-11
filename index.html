@@ -274,7 +274,7 @@ async function sbGetPaged(path, pageSize=1000, maxPages=12){
   }
   throw new Error('paged read exceeded '+maxPages+' pages');
 }
-let MKTINT=null;   // market_internals — the real advance/decline line
+let MKTINT=null, MKTBREADTH={};   // broad-market series — sourced OUTSIDE the hub universe   // market_internals — the real advance/decline line
 let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={};   // industry = the sub-sector axis (93 groups, 317 names)   // ticker -> our sector key ; sector key -> the rotation read
 /* SECTOR ROTATION, ACTUALLY WIRED IN (2026-08-11).
    Until now the only thing sector did in this module was the XLP+XLU defensives voter and
@@ -428,6 +428,18 @@ async function refreshSSOT(){
     spineSet('ticker_cohorts',null,'LIVE',rows.length+' rows · '+Object.keys(m).length+' tickers — THE universe');
   }).catch(e=>{UNIVERSE.status='error';spineSet('ticker_cohorts',null,'FALLBACK','read failed ('+e.message+') — hardcoded TICKER_STYLES in use');}));
   // BREADTH — the advance/decline line the database computes across 22,925 issues.
+  /* BROAD-MARKET BREADTH. These describe the WHOLE market and cannot be computed from
+     Alan's 387 names — a watchlist statistic is not a market statistic. Read from
+     market_breadth if the table exists; absent it every voter below abstains rather than
+     falling back to something that merely looks like breadth.
+     Confirmed available on TradingView 2026-08-11 and read live child-by-child during
+     setup: USI:PCC 0.797 · INDEX:S5TH 71.17 · INDEX:S5FI 63.22 · USI:ADD +73.
+     TradingView is the SETUP source. It is chart-driven, one symbol per read, so it is not
+     the live-hub source — that needs a REST provider (Polygon / Barchart / CBOE DataShop).
+     This wiring is deliberately source-agnostic: land the rows, the voters light up. */
+  J.push(sbGet('market_breadth?select=*&order=asof.desc&limit=1').then(rows=>{
+    if(rows[0]){ MKTBREADTH=rows[0]; spineSet('market_breadth',null,'LIVE','broad-market series'); }
+  }).catch(()=>spineSet('market_breadth',null,'FALLBACK','no market_breadth table — breadth voters abstaining')));
   J.push(sbGet('market_internals?select=asof,advancers,decliners,add_line,trin,universe,adv_volume,dec_volume&order=asof.desc&limit=2').then(rows=>{
     if(rows[0]){ MKTINT=rows[0];
       spineSet('market_internals',null,'LIVE','A/D '+MKTINT.advancers+'/'+MKTINT.decliners+' · '+MKTINT.universe+' issues'); }
@@ -913,6 +925,24 @@ function voters(){
   v.push({key:'CREDIT', name:'CREDIT (HYG)', speed:0.85, sub:gH!=null?'high yield · composite_staged':'—', val:gH});
   v.push({key:'DURATION', name:'DURATION (TLT)', speed:0.85, sub:gT!=null?'long treasuries · composite_staged':'—', val:gT});
   v.push({key:'HAVEN', name:'GOLD (inv)', speed:0.15, sub:gG!=null?'haven bid · composite_staged':'—', val:gG!=null?clamp(-gG):null});
+  /* Broad-market breadth voters. Each abstains when its series is absent. */
+  const mb=(k)=>{ const x=MKTBREADTH&&MKTBREADTH[k]; return (x==null||x==='')?null:+x };
+  const s200=mb('pct_above_200d'), s50=mb('pct_above_50d'), pcc=mb('put_call'), tick=mb('tick'), addv=mb('advance_decline');
+  v.push({key:'M_200D', name:'MARKET % ABOVE 200-DAY', speed:0.85,
+          sub:s200==null?'— no source (TV INDEX:S5TH read 71.17 on 2026-08-11)':s200.toFixed(1)+'% of the S&P above its 200-day',
+          val:s200==null?null:clamp((s200/100-0.5)*2)});
+  v.push({key:'M_50D', name:'MARKET % ABOVE 50-DAY', speed:0.6,
+          sub:s50==null?'— no source (TV INDEX:S5FI read 63.22 on 2026-08-11)':s50.toFixed(1)+'% above its 50-day',
+          val:s50==null?null:clamp((s50/100-0.5)*2)});
+  v.push({key:'M_PCC', name:'PUT / CALL (CBOE)', speed:0.7,
+          sub:pcc==null?'— no source (TV USI:PCC read 0.797 on 2026-08-11)':pcc.toFixed(3)+' · above 1.00 = puts bid, fear',
+          val:pcc==null?null:clamp((pcc-0.9)*3)});
+  v.push({key:'M_TICK', name:'NYSE TICK', speed:0.05,
+          sub:tick==null?'— no source (ordinary TICK, kept separate from cumulative)':String(tick),
+          val:tick==null?null:clamp(tick/800)});
+  v.push({key:'M_ADD', name:'NYSE ADVANCE / DECLINE', speed:0.3,
+          sub:addv==null?'— no source (TV USI:ADD read +73 on 2026-08-11)':String(addv),
+          val:addv==null?null:clamp(addv/1500)});
   const gp2 = gv('XLP'), gu2 = gv('XLU');
   v.push({key:'DEF', speed:0.85, name:'DEFENSIVES (inv)', sub:'XLP+XLU · '+(COMPOSITE['XLP']?'db':'fallback'), val: (gp2!=null && gu2!=null) ? clamp(-(gp2+gu2)/2) : null});
   return v;
