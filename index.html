@@ -297,23 +297,57 @@ function sectorRead(sym){
   const r=SECTOR_READ[k]; if(!r) return null;
   return r;
 }
-/* THE TOGGLES THAT COME FROM SECTOR ROTATION */
-let SSTANCE = localStorage.getItem('alloc-sstance') || 'leaders';  // off | leaders | improving
-let SWEIGHT = +(localStorage.getItem('alloc-sweight') ?? 50);      // 0-100, how hard it re-ranks
-let SAVOID  = localStorage.getItem('alloc-savoid') || 'on';        // on | off — skip LAGGING
-function setSstance(v){ SSTANCE=v; localStorage.setItem('alloc-sstance',v); render(); }
+/* WHAT TO BUY — coldness is not a reason on its own.
+   Alan: "ride leaders would be recommending buying green. doesnt make sense... it would
+   recommend buying overbought" and "weve discussed coldness with the trend and momentum".
+   So intent is expressed as coldness COMBINED with what trend and momentum are doing,
+   which is the thing that separates a dip from a falling knife. */
+let INTENT = localStorage.getItem('alloc-intent') || 'dip';   // dip | turn | strength | pure
+let KNIFE  = localStorage.getItem('alloc-knife')  || 'on';    // on = skip breakdowns
+let VMODE  = localStorage.getItem('alloc-vmode')  || 'tilt';  // off | tilt | require
+let SWEIGHT= +(localStorage.getItem('alloc-sweight') ?? 50);
+function setIntent(v){ INTENT=v; localStorage.setItem('alloc-intent',v); render(); }
+function setKnife(v){ KNIFE=v; localStorage.setItem('alloc-knife',v); render(); }
+function setVmode(v){ VMODE=v; localStorage.setItem('alloc-vmode',v); render(); }
 function setSweight(v){ SWEIGHT=+v; localStorage.setItem('alloc-sweight',v); render(); }
-function setSavoid(v){ SAVOID=v; localStorage.setItem('alloc-savoid',v); render(); }
-/* Re-rank delta. The candidate list sorts ASCENDING on adjusted coldness, so a favoured
-   sector must SUBTRACT (look colder, rank higher) and a disfavoured one must add. */
-function sectorAdj(sym){
-  if(SSTANCE==='off') return 0;
-  const r=sectorRead(sym); if(!r) return 0;
-  const w=SWEIGHT/100;
-  if(SSTANCE==='leaders')   return -w*0.5*(r.score??0);              // ride what is working
-  // 'improving' — reward the turn, not the peak: beaten-down sector with momentum turning up
-  const turning = (r.kind==='improve') ? 1 : (r.kind==='lag' ? 0.3 : (r.kind==='weak' ? -0.3 : -0.6));
-  return -w*0.5*turning;
+/* Regime fit: how well a name matches what you said you want to buy. 1 = exactly it. */
+function intentFit(sym){
+  const r=REGIME[sym]; if(!r||r.kind==='none') return 0.5;
+  if(INTENT==='pure')     return 0.5;                                  // coldness only, no regime view
+  if(INTENT==='dip')      return r.kind==='buy'?1 : r.kind==='go'?0.55 : r.kind==='care'?0.35 : 0.1;
+  if(INTENT==='turn')     return r.kind==='care'?1 : r.kind==='buy'?0.6 : r.kind==='go'?0.4 : 0.15;
+  /* strength */          return r.kind==='go'?1 : r.kind==='buy'?0.5 : r.kind==='care'?0.25 : 0.1;
+}
+/* VALUE — the fundamentals file\'s method: compare against a PEER SET and flag by IQR
+   outliers, not a percentile I invented. Peers = the name\'s sector when it has one,
+   otherwise its cohort. Below Q1 = cheap, above Q3 = expensive. Loss-makers excluded
+   from the peer distribution entirely rather than counted as cheap. */
+let PEERSTATS={};
+function buildPeerStats(){
+  const groups={};
+  for(const sym of Object.keys(COMPS)){
+    const pe=COMPS[sym] && COMPS[sym].pe; if(!(pe>0)) continue;
+    const g=SECTOR_OF[sym] || (UNIVERSE.cohorts[sym]||[])[0]; if(!g) continue;
+    (groups[g]=groups[g]||[]).push(pe);
+  }
+  const q=(a,p)=>{ const i=(a.length-1)*p, lo=Math.floor(i), hi=Math.ceil(i);
+                   return lo===hi?a[lo]:a[lo]+(a[hi]-a[lo])*(i-lo) };
+  PEERSTATS={};
+  for(const [g,arr] of Object.entries(groups)){
+    if(arr.length<4) continue; arr.sort((a,b)=>a-b);
+    PEERSTATS[g]={n:arr.length, q1:q(arr,.25), med:q(arr,.5), q3:q(arr,.75)};
+  }
+}
+function valueRead(sym){
+  const pe=COMPS[sym] && COMPS[sym].pe; if(!(pe>0)) return null;
+  const g=SECTOR_OF[sym] || (UNIVERSE.cohorts[sym]||[])[0];
+  const st=g && PEERSTATS[g]; if(!st) return null;
+  const iqr=st.q3-st.q1;
+  const tag = pe < st.q1 - 0.0*iqr ? 'CHEAP' : pe > st.q3 ? 'EXPENSIVE' : 'IN LINE';
+  const outlier = iqr>0 && (pe < st.q1 - 1.5*iqr || pe > st.q3 + 1.5*iqr);
+  // −1 cheapest … +1 most expensive, measured in IQRs off the median
+  const z = iqr>0 ? Math.max(-1,Math.min(1,(pe-st.med)/(1.5*iqr))) : 0;
+  return {pe, group:g, n:st.n, med:st.med, q1:st.q1, q3:st.q3, tag, outlier, z};
 }
 let REGIME={};   // ticker -> {trend, mom, label, kind}  from fan_daily + momentum_daily
 /* THE REGIME LAYER (2026-08-11). The geiger blends trend and momentum into one number;
@@ -877,6 +911,7 @@ function render(){
     ${scheduleNote}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">${sleeveMoves}</div>`;
 
+  buildPeerStats();
   renderSectorRot();
   drawDonut(sleeveShares(), inv);
   renderPickMix(sleeveShares(), inv);   // P2: the same numbers in words, under the pie
@@ -1001,24 +1036,27 @@ function drawDonut(shares, inv){
 /* The rotation read, on the page, with the toggles that act on it. */
 function renderSectorRot(){
   const el=document.getElementById('sectorrot'); if(!el) return;
+  const seg=(label,cur,opts,fn)=>'<div style="margin:0 16px 6px 0;display:inline-block"><span class="cls" style="margin-right:6px">'+label+'</span>'+opts.map(([v,t,tip])=>
+    `<button title="${tip||''}" onclick="${fn}('${v}')" style="background:${cur===v?'var(--gold)':'#14141f'};color:${cur===v?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:5px;padding:5px 11px;font-family:inherit;font-size:10px;letter-spacing:.06em;cursor:pointer;margin-right:4px">${t}</button>`).join('')+'</div>';
+  const rc={}; for(const k of Object.keys(REGIME)){const q=REGIME[k].label; rc[q]=(rc[q]||0)+1}
   const rs=Object.values(SECTOR_READ).sort((a,b)=>(b.score??0)-(a.score??0));
-  if(!rs.length){ el.innerHTML='<div class="note" style="color:var(--orange)">sector rotation unavailable — no read</div>'; return }
-  const col=k=>k==='lead'?'var(--green)':k==='improve'?'var(--cyan)':k==='weak'?'var(--gold)':'var(--orange)';
-  const chips=rs.map(r=>`<span title="${r.name} · ${r.etf} · trend ${(+r.trend).toFixed(2)} · momentum ${(+r.momentum).toFixed(2)}"
-     style="display:inline-block;margin:2px 5px 2px 0;padding:3px 8px;border:1px solid var(--line);border-radius:5px;font-size:10.5px">
-     <b style="color:${col(r.kind)}">${r.key}</b> <span style="color:var(--dim)">${r.q} ${(+r.score).toFixed(2)}</span></span>`).join('');
-  const seg=(label,cur,opts,fn)=>'<span class="cls" style="margin-right:6px">'+label+'</span>'+opts.map(([v,t])=>
-    `<button onclick="${fn}('${v}')" style="background:${cur===v?'var(--gold)':'#14141f'};color:${cur===v?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:5px;padding:4px 10px;font-family:inherit;font-size:10px;letter-spacing:.06em;cursor:pointer;margin-right:4px">${t}</button>`).join('');
+  const scol=k=>k==='lead'?'var(--green)':k==='improve'?'var(--cyan)':k==='weak'?'var(--gold)':'var(--orange)';
+  const chips=rs.map(r=>`<span title="${r.name} · trend ${(+r.trend).toFixed(2)} · momentum ${(+r.momentum).toFixed(2)}" style="display:inline-block;margin:2px 5px 2px 0;padding:2px 7px;border:1px solid var(--line);border-radius:5px;font-size:10px"><b style="color:${scol(r.kind)}">${r.key}</b> <span style="color:var(--dim)">${r.q}</span></span>`).join('');
   el.innerHTML=
-   '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin-bottom:4px">SECTOR ROTATION — the rotation tool\'s own read (sector_rankings · trend × momentum), now re-ranking this list</div>'+
-   '<div style="margin-bottom:8px">'+chips+'</div>'+
-   '<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:10px">'+
-     '<div>'+seg('STANCE',SSTANCE,[['leaders','RIDE LEADERS'],['improving','BUY THE TURN'],['off','IGNORE SECTORS']],'setSstance')+'</div>'+
-     '<div>'+seg('SKIP LAGGING',SAVOID,[['on','ON'],['off','OFF']],'setSavoid')+'</div>'+
-     '<div><span class="cls" style="margin-right:6px">HOW HARD</span>'+
-       `<input type="range" min="0" max="100" step="10" value="${SWEIGHT}" oninput="setSweight(this.value)" style="vertical-align:middle;width:110px">`+
-       `<span class="cls" style="margin-left:6px">${SWEIGHT}%</span></div>`+
-   '</div>';
+   '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin-bottom:6px">WHAT TO BUY — coldness on its own is not a reason. This is coldness combined with what trend and momentum are doing.</div>'+
+   seg('INTENT',INTENT,[['dip','DIPS IN UPTRENDS','cold, but the trend is still up — a pullback'],
+                        ['turn','TURNS','beaten down and momentum has crossed up'],
+                        ['strength','CONFIRMED STRENGTH','trend and momentum both up — this is buying strength, not value'],
+                        ['pure','PURE COLDNESS','ignore regime, coldest first (the old behaviour)']],'setIntent')+
+   seg('FALLING KNIVES',KNIFE,[['on','SKIP'],['off','ALLOW']],'setKnife')+
+   seg('VALUE vs PEERS',VMODE,[['tilt','TILT','cheap vs peer set nudges it up the list'],
+                               ['require','CHEAP ONLY','drop anything not below the peer Q1'],
+                               ['off','IGNORE','']],'setVmode')+
+   '<div style="display:inline-block;margin-bottom:6px"><span class="cls" style="margin-right:6px">HOW HARD</span>'+
+     `<input type="range" min="0" max="100" step="10" value="${SWEIGHT}" oninput="setSweight(this.value)" style="vertical-align:middle;width:100px"><span class="cls" style="margin-left:6px">${SWEIGHT}%</span></div>`+
+   '<div class="note" style="margin:6px 0 4px;font-size:11px">NAME REGIMES · '+Object.entries(rc).map(([k,v])=>k+' '+v).join(' · ')+'</div>'+
+   '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 3px">SECTORS — a separate axis from the sleeves. A name has both.</div>'+
+   '<div style="margin-bottom:8px">'+chips+'</div>';
 }
 function renderPickMix(shares, inv){
   const el=document.getElementById('pickmix'); if(!el) return;
@@ -1189,7 +1227,20 @@ function renderComps(){
   // suggested = anything currently ADD-tagged (top-3 coldest per sleeve), gathered from the last cohort render
   const SPR = styleSpreads();
   const ranked = candidateSyms().filter(s=>!['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
-    .map(s=>{ const tg=tickerG(s); if(!tg) return null; if(SAVOID==='on'&&(sectorRead(s)||{}).kind==='lag') return null; return {sym:s, adj:tg.g+styleAdj(s,SPR)+sectorAdj(s), sleeves:tickerSleeves(s)}; }).filter(Boolean);
+    .map(s=>{ const tg=tickerG(s); if(!tg) return null; const rg=REGIME[s]||{};
+            if(KNIFE==='on' && rg.kind==='avoid') return null;              // no falling knives
+            const vr=valueRead(s);
+            if(VMODE==='require' && (!vr || vr.tag!=='CHEAP')) return null;  // cheap or nothing
+            const w=SWEIGHT/100;
+            /* Coldness alone was swamping everything — an additive nudge left all three
+               intents returning the same names, which is the "too basic" failure. Intent is
+               MULTIPLICATIVE instead: a name that is cold for the wrong reason loses most of
+               its score no matter how cold it is. At HOW HARD = 0 this collapses back to
+               pure coldness, so the old behaviour is still reachable. */
+            let attract = (1 - (tg.g + styleAdj(s,SPR))) / 2;            // 0..1, 1 = coldest
+            attract *= (1 - w) + w*(0.15 + 1.7*intentFit(s));            // intent can cut or lift it hard
+            if(VMODE!=='off' && vr) attract *= 1 - w*0.5*vr.z;           // cheap vs peers lifts, dear cuts
+            return {sym:s, adj:-attract, sleeves:tickerSleeves(s), rg, vr}; }).filter(Boolean);
   const suggested = new Set();
   for (const sl of Object.keys(SLEEVES)) ranked.filter(r=>r.sleeves.includes(sl)).sort((a,b)=>a.adj-b.adj).slice(0,3).forEach(r=>suggested.add(r.sym));
   // category switcher — which sleeves have suggestions
