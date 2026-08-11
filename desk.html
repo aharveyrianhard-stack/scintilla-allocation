@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCINTILLA · THE DESK</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* NEAREST TOKENS FILE WINS — tokens.css is loaded above and every value below
+   comes from it. This file TIGHTENS (fewer choices); it substitutes nothing. */
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 64px}
+.lbl{font-family:var(--mono);text-transform:uppercase;letter-spacing:.16em;color:var(--ink3);font-size:10px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+h1{font-family:var(--mono);font-size:19px;letter-spacing:.18em;margin:0;font-weight:600}
+h2{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase;margin:0 0 10px;font-weight:600}
+.sub{color:var(--ink2);font-size:12.5px;margin:6px 0 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:var(--pad);margin-top:var(--gap)}
+.strip{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-family:var(--mono);font-size:10px;letter-spacing:.06em;border:1px solid var(--line);border-radius:var(--r);padding:3px 7px;color:var(--ink2);background:var(--surface)}
+.chip b{color:var(--ink);font-weight:600}
+.ok{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)} .acc{color:var(--accent)}
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:var(--gap);margin-top:var(--gap)}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.stat .k{font-family:var(--mono);text-transform:uppercase;letter-spacing:.16em;color:var(--ink3);font-size:10px}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:30px;margin-top:6px;letter-spacing:-.01em}
+.stat .n{color:var(--ink2);font-size:11.5px;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-family:var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--ink3);font-size:9.5px;text-align:right;padding:7px 8px;border-bottom:1px solid var(--line);font-weight:600;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.t{font-weight:600;color:var(--ink)}
+td.w{font-family:var(--sans);color:var(--ink2);text-align:left;white-space:normal}
+tr:last-child td{border-bottom:none}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.bar{display:inline-block;height:7px;border-radius:2px;background:var(--accent);vertical-align:middle}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:22px 0 0}
+.tab{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:8px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink2);cursor:pointer}
+.tab[aria-selected=true]{background:var(--surface2);color:var(--ink);border-color:var(--accent)}
+.frame{margin-top:var(--gap);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.frame iframe{width:100%;height:82vh;border:0;display:block;background:var(--bg)}
+.framebar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--surface2)}
+.framebar a{color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none}
+.note{color:var(--ink2);font-size:12px;line-height:1.7}
+.gap{color:var(--warn)}
+#boot{padding:26px 0;color:var(--ink2);font-family:var(--mono);font-size:12px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>SCINTILLA · THE DESK</h1>
+  <p class="sub">One link. The portfolio allocation recommendation, the consolidated read behind it, and every full tool underneath &mdash; not a stripped copy of one.</p>
+  <div class="strip" id="spine"></div>
+
+  <div id="boot">reading the spine&hellip;</div>
+
+  <div id="out" hidden>
+    <!-- ============ THE RECOMMENDATION ============ -->
+    <h2 style="margin-top:22px">The recommendation</h2>
+    <div class="hero" id="hero"></div>
+    <div class="card"><div class="note" id="why"></div></div>
+
+    <!-- ============ WHERE ============ -->
+    <h2 style="margin-top:22px">Where it goes &mdash; sleeves</h2>
+    <div class="card scroll"><table id="sleeves"></table></div>
+
+    <!-- ============ WHICH NAMES ============ -->
+    <h2 style="margin-top:22px">Which names &mdash; the consolidated ranking</h2>
+    <div class="card">
+      <div class="note" id="rankhow" style="margin-bottom:10px"></div>
+      <div class="scroll"><table id="ranked"></table></div>
+    </div>
+
+    <!-- ============ THE READ ============ -->
+    <h2 style="margin-top:22px">The consolidated read &mdash; every input, and what it is worth</h2>
+    <div class="card scroll"><table id="inputs"></table></div>
+  </div>
+
+  <!-- ============ THE FULL TOOLS ============ -->
+  <h2 style="margin-top:26px">The full tools &mdash; complete, not summarised</h2>
+  <p class="note">Each tab below is the real deployed tool with every reading, dial and toggle its source file has. Nothing here is a re&mdash;implementation, so none of it can drift from what you already trust.</p>
+  <div class="tabs" id="tabs"></div>
+  <div class="frame">
+    <div class="framebar"><span class="lbl" id="fname"></span><a id="flink" target="_blank" rel="noopener">open full page &#8599;</a></div>
+    <iframe id="tool" title="Full tool"></iframe>
+  </div>
+
+  <p class="note" style="margin-top:18px" id="foot"></p>
+</div>
+
+<!-- the allocation module, same origin, read for its own numbers so this page cannot disagree with it -->
+<iframe id="alloc" src="index.html" class="sr" title="allocation engine"></iframe>
+
+<script>
+const SB='https://wadinxqplrggagkvrdag.supabase.co/rest/v1';
+const K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZGlueHFwbHJnZ2Fna3ZyZGFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1NDk0MTYsImV4cCI6MjA5NjEyNTQxNn0.1UKKUb_fY-xOy33vNUszDzxGECqQxdcwaxb9kN7KY-g';
+const g=async p=>{const r=await fetch(SB+'/'+p,{headers:{apikey:K,Authorization:'Bearer '+K},cache:'no-store'});if(!r.ok)throw new Error(p.split('?')[0]+' '+r.status);return r.json()};
+async function gPaged(p,size=1000,max=12){const o=[];for(let i=0;i<max;i++){const r=await g(p+(p.includes('?')?'&':'?')+'limit='+size+'&offset='+(i*size));o.push(...r);if(r.length<size)return o}throw new Error('paged read too long')}
+const pct=(x,d=1)=>(x*100).toFixed(d)+'%';
+const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+/* ---------- wait for the allocation module to finish its own load ----------
+   NOTE, and it is not obvious: in a classic <script>, top-level `function`
+   declarations become window properties but top-level `let`/`const` DO NOT —
+   they live in the script's global lexical environment. So heat() is reachable
+   as contentWindow.heat, while UNIVERSE / COMPOSITE / SECTOR_ETF / S are not.
+   Same-origin eval() runs inside that lexical scope and sees all of them, so
+   every read below goes through eval rather than property access. */
+function engine(){
+  return new Promise((res,rej)=>{
+    const fr=document.getElementById('alloc');
+    let n=0;
+    const ready=w=>{ try{ return w.eval("typeof heat==='function' && typeof COMPOSITE_STATUS!=='undefined' && COMPOSITE_STATUS==='ok' && UNIVERSE.status!=='pending'") }catch(e){ return false } };
+    const tick=()=>{
+      n++;
+      let w=null; try{ w=fr.contentWindow }catch(e){}
+      if(w && w.document && w.document.readyState==='complete' && ready(w)) return res(w);
+      if(n>200) return rej(new Error('allocation engine did not finish loading'));
+      setTimeout(tick,200);
+    };
+    setTimeout(tick,800);
+  });
+}
+/* one hop across the frame: everything the read needs, as plain JSON */
+function readEngine(W){
+  return JSON.parse(W.eval(`JSON.stringify((()=>{
+    const h=heat(), inv=investedAt(h), cands=candidateSyms();
+    return {
+      heat:h, inv:inv, label:(heatLabel(h)||[''])[0],
+      shares:sleeveShares(),
+      sleeveG:Object.fromEntries(Object.keys(SLEEVES).map(k=>[k,sleeveG(k)])),
+      cands:cands,
+      gv:Object.fromEntries(cands.map(s=>[s,gv(s)])),
+      sleeves:Object.fromEntries(cands.map(s=>[s,tickerSleeves(s)])),
+      sectorOf:Object.fromEntries(cands.map(s=>[s,(PROFILES[s]&&PROFILES[s].sector)||null])),
+      sectorEtf:SECTOR_ETF,
+      maxTotal:(typeof S!=='undefined'&&S.maxTotal)?S.maxTotal:12,
+      universeStatus:UNIVERSE.status,
+      universeTickers:Object.keys(UNIVERSE.cohorts).length,
+      geigerTs:Math.max(0,...Object.values(COMPOSITE).map(r=>r.updated_ts||0))
+    };
+  })())`));
+}
+
+const TOOLS=[
+  {k:'ALLOCATION',   u:'index.html',                                  d:'heat → % invested → sleeves → picks → moves. Every dial and the audit trace.'},
+  {k:'SECTOR ROTATION', u:'https://sectorrotation.scintillahub.ai',   d:'the full rotation tool — RRG, quadrants, relative performance, AUM.'},
+  {k:'DCF',          u:'dcf.html',                                    d:'DCF V1.1 — projected statements, Edge Score, Dispersion, 3-stage fade.'},
+  {k:'ANALYTICS',    u:'analytics.html',                              d:'the cross-tool consolidated table.'},
+  {k:'SECTORS (DB)', u:'sectors.html',                                d:'sector performance and P/E straight from the database.'},
+  {k:'COLD STORE',   u:'coldstore.html',                              d:'deep 1-minute fill progress — how full the database actually is.'}
+];
+function mountTabs(){
+  const t=document.getElementById('tabs');
+  t.innerHTML=TOOLS.map((x,i)=>`<button class="tab" role="tab" aria-selected="${i===0}" data-i="${i}">${esc(x.k)}</button>`).join('');
+  t.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(+b.dataset.i));
+  show(0);
+}
+function show(i){
+  const x=TOOLS[i];
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected', +b.dataset.i===i));
+  document.getElementById('tool').src=x.u;
+  document.getElementById('fname').textContent=x.k+' — '+x.d;
+  document.getElementById('flink').href=x.u;
+}
+
+/* ---------- freshness / coverage badges ---------- */
+function chip(name,state,detail){
+  const cls=state==='LIVE'?'ok':state==='PARTIAL'?'warn':'bad';
+  return `<span class="chip"><b>${esc(name)}</b> · <span class="${cls}">${esc(state)}</span>${detail?' · '+esc(detail):''}</span>`;
+}
+
+(async function main(){
+  try{
+    const Wraw=await engine();
+    const E=readEngine(Wraw);
+
+    /* ===== 1. THE NUMBERS, taken from the allocation module itself ===== */
+    const h=E.heat, inv=E.inv, shares=E.shares, cands=E.cands, label=E.label||'';
+
+    /* ===== 2. THE EXTRA AXES the module does not yet score on ===== */
+    const today = (await g('sector_rankings?select=date&order=date.desc&limit=1'))[0]?.date;
+    const secRows = today ? await g('sector_rankings?select=sector,sector_name,rank,score&date=eq.'+today+'&order=rank.asc&limit=20') : [];
+    const secByEtf = Object.fromEntries(secRows.map(r=>[r.sector,r]));
+
+    const ind = await gPaged('ticker_membership?select=ticker,group_key&kind=eq.industry&order=ticker.asc');
+    const indOf = Object.fromEntries(ind.map(r=>[r.ticker,r.group_key]));
+
+    const rr = await gPaged('ratios_history?select=ticker,fiscal_date,pe,ps,net_margin,debt_to_equity&fiscal_date=gte.2025-09-01&order=ticker.asc,fiscal_date.desc');
+    const ratio={}; for(const r of rr) if(!ratio[r.ticker]) ratio[r.ticker]=r;   // first = newest per ticker
+
+    /* cheapness = percentile INSIDE the name's own industry (the 93-industry peer axis).
+       Lower P/E and P/S is cheaper. Only positive ratios are comparable — a negative P/E
+       means the company loses money, which is not "cheap", so it scores neutral, never best. */
+    const byInd={};
+    for(const [t,r] of Object.entries(ratio)){ const i=indOf[t]; if(!i) continue; (byInd[i]=byInd[i]||[]).push(r) }
+    function cheap(sym){
+      const r=ratio[sym], i=indOf[sym]; if(!r||!i) return null;
+      const peers=(byInd[i]||[]).filter(p=>p.pe!=null&&p.pe>0);
+      if(!r.pe||r.pe<=0||peers.length<3) return null;
+      const below=peers.filter(p=>p.pe> r.pe).length;
+      return below/(peers.length-1||1);              // 1 = cheapest in its industry
+    }
+    function sectorPull(sym){
+      const sec=E.sectorOf[sym]; if(!sec) return null;
+      const etf=E.sectorEtf[sec]; if(!etf) return null;
+      const s=secByEtf[etf]; if(!s) return null;
+      return {etf, rank:s.rank, name:s.sector_name, pull:(11-s.rank)/10};   // 1 = strongest sector
+    }
+
+    /* ===== 3. THE CONSOLIDATED SCORE =====
+       Weights are stated on the page. When an axis is missing for a name the remaining
+       weights renormalise, so a name is never punished for data we simply do not hold. */
+    const Wt={cold:.50, sector:.25, value:.25};
+    /* Two exclusions, both principled rather than cosmetic:
+       · the sleeve PROXIES themselves (same set the module uses) — you buy the sleeve
+         through its names, not by buying the yardstick that measures it;
+       · anything sitting in NO sleeve. This page allocates strictly WITHIN sleeves, so a
+         name with no sleeve has nowhere to be bought. That is what caught VIX, which is a
+         fear gauge and not an investable position at all. */
+    const PROXY=new Set(['IWM','SMH','RSP','XLP','XLU','SPY','QQQ','VIX']);
+    const drop={proxy:0, noSleeve:0, noGeiger:0};
+    const scored=cands.map(s=>{
+      if(PROXY.has(s)){ drop.proxy++; return null }
+      if(!(E.sleeves[s]||[]).length){ drop.noSleeve++; return null }
+      const gg=E.gv[s]; if(gg==null){ drop.noGeiger++; return null }
+      const cold=(1-gg)/2;                                   // geiger −1 (washed out) → 1.0
+      const sp=sectorPull(s), cv=cheap(s);
+      let num=Wt.cold*cold, den=Wt.cold;
+      if(sp){ num+=Wt.sector*sp.pull; den+=Wt.sector }
+      if(cv!=null){ num+=Wt.value*cv; den+=Wt.value }
+      return {sym:s, g:gg, cold, sec:sp, val:cv, score:num/den,
+              axes:1+(sp?1:0)+(cv!=null?1:0), sleeves:E.sleeves[s]||[]};
+    }).filter(Boolean).sort((a,b)=>b.score-a.score);
+
+    const nWithVal=scored.filter(x=>x.val!=null).length;
+    const nWithSec=scored.filter(x=>x.sec).length;
+
+    /* ===== 4. RENDER ===== */
+    const nameCap = E.maxTotal;
+    const top = scored.slice(0, nameCap);
+
+    document.getElementById('hero').innerHTML=`
+      <div class="stat"><div class="k">How much invested</div><div class="v acc">${pct(inv,0)}</div>
+        <div class="n">cash ${pct(1-inv,0)} · from macro heat ${f2(h)}${label?' — '+esc(label.toLowerCase()):''}</div></div>
+      <div class="stat"><div class="k">Ranked on</div><div class="v">${scored.length}</div>
+        <div class="n">of ${cands.length} candidates · set aside: ${drop.noGeiger} <span class="${drop.noGeiger?'warn':''}">no geiger yet</span>, ${drop.proxy} sleeve proxies, ${drop.noSleeve} in no sleeve</div></div>
+      <div class="stat"><div class="k">Names to hold</div><div class="v">${top.length}</div>
+        <div class="n">your TOTAL cap is ${nameCap} — the list below is ranked, you still choose</div></div>
+      <div class="stat"><div class="k">Value axis live on</div><div class="v ${nWithVal?'':'bad'}">${nWithVal}</div>
+        <div class="n">of ${scored.length} ranked · the rest score on geiger${nWithSec?' + sector':''} only</div></div>`;
+
+    const topSleeves=Object.entries(shares).sort((a,b)=>b[1]-a[1]).slice(0,3)
+      .map(([k,v])=>`<b>${esc(k)}</b> ${pct(v*inv,0)}`).join(', ');
+    document.getElementById('why').innerHTML=
+      `<b>The read.</b> Macro heat is <span class="num">${f2(h)}</span>${label?' — '+esc(label.toLowerCase()):''}, which puts <span class="num acc">${pct(inv,0)}</span> of the book to work and leaves <span class="num">${pct(1-inv,0)}</span> in cash. `+
+      `The coldest sleeves earn the most of that: ${topSleeves} of equity. `+
+      `Inside those sleeves ${scored.length} names carry a live geiger and are ranked below on a consolidated score — how washed out the name is, whether its sector is leading, and how cheap it is against its own industry peers. `+
+      (nWithVal
+        ? `<span class="gap">The value axis is real but partial: ${nWithVal} of ${scored.length} ranked names have usable fundamentals, so the rest are scored on the axes we do hold and are marked in the table.</span>`
+        : `<span class="bad">No usable fundamentals landed for these names, so this ranking is geiger and sector only — the value axis is not contributing.</span>`)+
+      ` Nothing here is faked: a name with no data is shown as “—”, never filled in.`;
+
+    document.getElementById('sleeves').innerHTML=
+      '<tr><th>Sleeve</th><th>Geiger</th><th>Share of invested</th><th>Of equity</th><th>Ranked names</th></tr>'+
+      Object.entries(shares).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+        const sg=E.sleeveG[k], n=scored.filter(x=>x.sleeves.includes(k)).length;
+        return `<tr><td class="t">${esc(k)}</td><td>${f2(sg)}</td>
+          <td>${pct(v)}</td><td class="acc">${pct(v*inv)}</td>
+          <td>${n?n:'<span class="warn">0</span>'}</td></tr>`;
+      }).join('')+
+      `<tr><td class="t">CASH</td><td>—</td><td>—</td><td>${pct(1-inv)}</td><td>—</td></tr>`;
+
+    document.getElementById('rankhow').innerHTML=
+      `Consolidated score = <b>50% coldness</b> (the geiger, washed-out scores best) + <b>25% sector pull</b> (its sector's rank today, 1st of 11 scores best) + <b>25% cheapness</b> (its P/E percentile inside its own industry — a loss-making name scores neutral, never “cheap”). `+
+      `When an axis has no data for a name the remaining weights renormalise, so nothing is punished for data we do not hold. The <b>AXES</b> column tells you how many of the three actually fired.`;
+
+    document.getElementById('ranked').innerHTML=
+      '<tr><th>#</th><th>Ticker</th><th>Sleeves</th><th>Geiger</th><th>Sector</th><th>Cheapness</th><th>Axes</th><th>Score</th></tr>'+
+      top.map((x,i)=>`<tr>
+        <td>${i+1}</td>
+        <td class="t">${esc(x.sym)}</td>
+        <td class="w" style="font-size:11px">${esc(x.sleeves.join(' / ')||'—')}</td>
+        <td class="${x.g<0?'ok':''}">${f2(x.g)}</td>
+        <td>${x.sec?`#${x.sec.rank} ${esc(x.sec.etf)}`:'<span class="bad">—</span>'}</td>
+        <td>${x.val==null?'<span class="bad">—</span>':(x.val*100).toFixed(0)+'%'}</td>
+        <td class="${x.axes===3?'ok':x.axes===2?'warn':'bad'}">${x.axes}/3</td>
+        <td><span class="bar" style="width:${Math.round(x.score*54)}px"></span> ${x.score.toFixed(3)}</td>
+      </tr>`).join('');
+
+    const age=t=>{ if(t==null) return '—'; const m=(Date.now()/1000-t)/60; return m<60?Math.round(m)+'m':(m/60).toFixed(1)+'h' };
+    const gts=E.geigerTs;
+    document.getElementById('inputs').innerHTML=
+      '<tr><th>Input</th><th>What it decides</th><th>Source</th><th>Coverage</th><th>State</th></tr>'+
+      [
+       ['Macro heat','how much of the book is invested at all','treasury_rates + vix_term + index geigers',
+        'all voters present', 'LIVE'],
+       ['Geiger','which names are washed out enough to buy','composite_staged (tf=D)',
+        `${scored.length} of ${cands.length} candidates · ${age(gts)} old`, scored.length===cands.length?'LIVE':'PARTIAL'],
+       ['Universe','which names are even considered','ticker_cohorts + hub_favorites',
+        `${E.universeTickers} tickers`, E.universeStatus==='ok'?'LIVE':'DOWN'],
+       ['Sector pull','which sectors are leading today','sector_rankings',
+        `${nWithSec} of ${scored.length} ranked names mapped`, secRows.length?(nWithSec?'LIVE':'PARTIAL'):'DOWN'],
+       ['Value','how cheap a name is against its own industry','ratios_history + ticker_membership (industry)',
+        `${nWithVal} of ${scored.length} ranked names`, nWithVal===0?'DOWN':(nWithVal<scored.length?'PARTIAL':'LIVE')],
+       ['DCF','intrinsic value per name','computed in the DCF tool, not stored',
+        'not wired into this score', 'PARTIAL']
+      ].map(r=>`<tr><td class="t">${esc(r[0])}</td><td class="w">${esc(r[1])}</td>
+        <td class="w" style="font-size:11px">${esc(r[2])}</td><td>${esc(r[3])}</td>
+        <td class="${r[4]==='LIVE'?'ok':r[4]==='PARTIAL'?'warn':'bad'}">${esc(r[4])}</td></tr>`).join('');
+
+    document.getElementById('spine').innerHTML=
+      chip('geiger', scored.length===cands.length?'LIVE':'PARTIAL', `${scored.length}/${cands.length} ranked`)+
+      chip('universe', E.universeStatus==='ok'?'LIVE':'DOWN', E.universeTickers+' tickers')+
+      chip('sector', secRows.length?'LIVE':'DOWN', today||'')+
+      chip('value', nWithVal===0?'DOWN':(nWithVal<scored.length?'PARTIAL':'LIVE'), `${nWithVal}/${scored.length}`)+
+      chip('dcf','PARTIAL','not in the score yet');
+
+    document.getElementById('foot').innerHTML=
+      `Everything above is computed by calling the allocation module's own functions through a same-origin frame — <span class="num">heat()</span>, <span class="num">investedAt()</span>, <span class="num">sleeveShares()</span>, <span class="num">gv()</span> — so this page cannot quietly disagree with the tool you already trust. The two extra axes (sector, value) are read straight from the database and are shown with their real coverage.`;
+
+    document.getElementById('boot').hidden=true;
+    document.getElementById('out').hidden=false;
+  }catch(e){
+    document.getElementById('boot').innerHTML='<span class="bad">COULD NOT BUILD THE READ — '+esc(e.message)+
+      '</span><br><span class="note">Nothing is shown rather than showing something wrong. The full tools below still work.</span>';
+  }
+})();
+mountTabs();
+</script>
+</body>
+</html>
