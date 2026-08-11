@@ -158,6 +158,7 @@
   <div class="panel">
     <h2>2 · TARGET MIX — where the money goes</h2>
     <div class="note">Heat sets HOW MUCH is invested; the sleeves' coldness sets WHERE. Big picture first, detail on demand.</div>
+    <div id="sectorrot"></div>
     <canvas id="donut" width="640" height="300"></canvas>
     <div id="pickmix"></div>
     <div id="targets"></div>
@@ -273,6 +274,47 @@ async function sbGetPaged(path, pageSize=1000, maxPages=12){
   }
   throw new Error('paged read exceeded '+maxPages+' pages');
 }
+let SECTOR_OF={}, SECTOR_READ={};   // ticker -> our sector key ; sector key -> the rotation read
+/* SECTOR ROTATION, ACTUALLY WIRED IN (2026-08-11).
+   Until now the only thing sector did in this module was the XLP+XLU defensives voter and
+   a display chip — Alan: "its just defensives. nothing of sectors." The module's own doc
+   promised this and never built it: "Sector geigers will re-rank by sector the same way —
+   integrates with the hub sectorrotation tool."
+   sector_rankings carries TREND and MOMENTUM per sector, so the rotation tool's own reading
+   — the RRG quadrant — is reproducible here exactly, on the same trend x momentum logic the
+   name-level regime uses. Nothing is re-derived from prices. */
+const SECTOR_ETF_OF={TECH:'XLK',HEALTH:'XLV',FINANCIALS:'XLF',DISCRET:'XLY',INDUSTRIAL:'XLI',
+  MATERIALS:'XLB',ENERGY:'XLE',STAPLES:'XLP',UTILITIES:'XLU',REAL_ESTATE:'XLRE',COMMS:'XLC'};
+function rrg(t,m){
+  if(t==null||m==null) return {q:'NO READ', kind:'none'};
+  if(t>0  && m>0)  return {q:'LEADING',   kind:'lead'};    // strong and still gaining
+  if(t>0  && m<=0) return {q:'WEAKENING', kind:'weak'};    // still strong, losing steam
+  if(t<=0 && m>0)  return {q:'IMPROVING', kind:'improve'}; // beaten down, turning up
+  return {q:'LAGGING', kind:'lag'};                        // beaten down, still falling
+}
+function sectorRead(sym){
+  const k=SECTOR_OF[sym]; if(!k) return null;
+  const r=SECTOR_READ[k]; if(!r) return null;
+  return r;
+}
+/* THE TOGGLES THAT COME FROM SECTOR ROTATION */
+let SSTANCE = localStorage.getItem('alloc-sstance') || 'leaders';  // off | leaders | improving
+let SWEIGHT = +(localStorage.getItem('alloc-sweight') ?? 50);      // 0-100, how hard it re-ranks
+let SAVOID  = localStorage.getItem('alloc-savoid') || 'on';        // on | off — skip LAGGING
+function setSstance(v){ SSTANCE=v; localStorage.setItem('alloc-sstance',v); render(); }
+function setSweight(v){ SWEIGHT=+v; localStorage.setItem('alloc-sweight',v); render(); }
+function setSavoid(v){ SAVOID=v; localStorage.setItem('alloc-savoid',v); render(); }
+/* Re-rank delta. The candidate list sorts ASCENDING on adjusted coldness, so a favoured
+   sector must SUBTRACT (look colder, rank higher) and a disfavoured one must add. */
+function sectorAdj(sym){
+  if(SSTANCE==='off') return 0;
+  const r=sectorRead(sym); if(!r) return 0;
+  const w=SWEIGHT/100;
+  if(SSTANCE==='leaders')   return -w*0.5*(r.score??0);              // ride what is working
+  // 'improving' — reward the turn, not the peak: beaten-down sector with momentum turning up
+  const turning = (r.kind==='improve') ? 1 : (r.kind==='lag' ? 0.3 : (r.kind==='weak' ? -0.3 : -0.6));
+  return -w*0.5*turning;
+}
 let REGIME={};   // ticker -> {trend, mom, label, kind}  from fan_daily + momentum_daily
 /* THE REGIME LAYER (2026-08-11). The geiger blends trend and momentum into one number;
    blending hides the thing that matters most for a buy. A name pulling back inside an
@@ -324,6 +366,21 @@ async function refreshSSOT(){
     UNIVERSE.cohorts=m; UNIVERSE.status='ok';
     spineSet('ticker_cohorts',null,'LIVE',rows.length+' rows · '+Object.keys(m).length+' tickers — THE universe');
   }).catch(e=>{UNIVERSE.status='error';spineSet('ticker_cohorts',null,'FALLBACK','read failed ('+e.message+') — hardcoded TICKER_STYLES in use');}));
+  // SECTOR ROTATION — membership + the rotation tool's own published read
+  J.push((async()=>{
+    const mem=await sbGetPaged('ticker_membership?select=ticker,group_key&kind=eq.sector&order=ticker.asc');
+    const m={}; for(const r of mem) m[r.ticker]=r.group_key; SECTOR_OF=m;
+    const d=(await sbGet('sector_rankings?select=date&order=date.desc&limit=1'))[0]?.date;
+    const rows=d?await sbGet('sector_rankings?select=sector,sector_name,rank,score,trend,momentum&date=eq.'+d+'&limit=20'):[];
+    const byEtf={}; for(const r of rows) byEtf[r.sector]=r;
+    const out={};
+    for(const [key,etf] of Object.entries(SECTOR_ETF_OF)){
+      const r=byEtf[etf]; if(!r) continue;
+      out[key]={key,etf,name:r.sector_name,rank:r.rank,score:r.score,trend:r.trend,momentum:r.momentum,...rrg(r.trend,r.momentum)};
+    }
+    SECTOR_READ=out;
+    spineSet('sector_rotation',null,'LIVE',Object.keys(out).length+' sectors · '+Object.keys(m).length+' names mapped · '+(d||''));
+  })().catch(e=>spineSet('sector_rotation',null,'FALLBACK','read failed ('+e.message+')')));
   // REGIME — trend and momentum kept apart, latest bar only
   J.push((async()=>{
     const [fa,mo]=await Promise.all([
@@ -790,11 +847,22 @@ function render(){
   urgency += (h < -0.15 ? 1 : h > 0.15 ? -1 : 0); factors.push('heat ' + (h<-0.15?'cold':h>0.15?'hot':'neutral'));
   if (breadthAvg != null) { urgency += (breadthAvg < -0.15 ? 1 : 0); factors.push('breadth ' + (breadthAvg<-0.15?'washed':'intact')); }
   const deepDisc = Object.values(SPR).some(v => v < -0.35); if (deepDisc) { urgency += 1; factors.push('deep style discount'); }
-  const tranchePlan = urgency >= 2 ? [[0.5,'NOW'],[0.5,'on confirmation']]
-    : urgency >= 0 ? [[0.5,'NOW'],[0.5,'on −3% / vol spike']]
-    : [[0.34,'NOW'],[0.33,'on −3% pullback'],[0.33,'on vol spike']];
-  const cadence = urgency>=2?'URGENT — front-load':urgency>=0?'BALANCED — halves':'PATIENT — thirds (cheap without fear tends to get cheaper)';
-  const scheduleNote = dTot > .005 ? `<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">CADENCE <b style="color:var(--txt)">${cadence}</b> — [${factors.join(' · ')}]. Each BUILD below is split into these tranches.</div>` : dTot < -.005 ? '<div style="color:var(--orange);font-size:11px;margin:2px 0 6px">Trims execute immediately — de-risking does not wait.</div>' : '';
+  /* CADENCE — no thirds, no halves. Alan: "i dont want any deployments in 1/3 rounds.
+     we use the information to decide in detail." The size of the first clip is computed
+     from the readings themselves and the remainder waits on a NAMED trigger, not a round
+     number. Sector rotation is part of that read now: buying into sectors that are still
+     falling earns a smaller first clip. */
+  const lagShare = (()=>{ const rs=Object.values(SECTOR_READ); if(!rs.length) return 0;
+    return rs.filter(r=>r.kind==='lag'||r.kind==='weak').length/rs.length })();
+  let nowFrac = 0.5 + urgency*0.14 - lagShare*0.25;
+  nowFrac = Math.max(0.2, Math.min(0.85, nowFrac));
+  const trigger = (vixVote && vixVote.val!=null && vixVote.val<0) ? 'on the next volatility spike'
+                : lagShare>0.4 ? 'once the lagging sectors turn up (momentum crosses zero)'
+                : 'on a −3% pullback or a volatility spike';
+  const tranchePlan = [[nowFrac,'NOW'],[1-nowFrac,trigger]];
+  const cadence = `${Math.round(nowFrac*100)}% NOW, the rest ${trigger}`;
+  factors.push(`${Math.round(lagShare*100)}% of sectors lagging or weakening`);
+  const scheduleNote = dTot > .005 ? `<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">CADENCE <b style="color:var(--txt)">${cadence}</b> — [${factors.join(' · ')}]. The first clip is sized by the readings, not by a round number.</div>` : dTot < -.005 ? '<div style="color:var(--orange);font-size:11px;margin:2px 0 6px">Trims execute immediately — de-risking does not wait.</div>' : '';
   const sleeveMoves = Object.entries(SH2).sort((a,b)=>b[1]-a[1]).map(([k,sh]) => {
     const d = sh * inv;
     const col = SLEEVE_COLOR[k];
@@ -809,6 +877,7 @@ function render(){
     ${scheduleNote}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">${sleeveMoves}</div>`;
 
+  renderSectorRot();
   drawDonut(sleeveShares(), inv);
   renderPickMix(sleeveShares(), inv);   // P2: the same numbers in words, under the pie
   renderBrief(h, inv, lc, dTot, dLC, dSC);
@@ -876,7 +945,7 @@ function pickMix(shares, inv){
       if(SPLIT==='cold'){ const g=gv(s); return g==null?0.5:Math.max(0.05,(1-g)/2) }   // colder earns more
       if(SPLIT==='cheap'){ const c=COMPS[s]; const pe=c&&c.pe>0?c.pe:null;
                            return pe==null?0.5:Math.max(0.05,Math.min(1,20/pe)) }      // cheaper earns more
-      return 1;                                                                         // equal
+      const g2=gv(s); return g2==null?0.5:Math.max(0.05,(1-g2)/2);
     };
     const ws=mine.map(wOf), tot=ws.reduce((a,b)=>a+b,0)||1;
     for(let i=0;i<mine.length;i++){ const f=eq*ws[i]/tot; perName[mine[i]]=(perName[mine[i]]||0)+f }
@@ -929,6 +998,28 @@ function drawDonut(shares, inv){
     ly+=30; }
 }
 /* The per-name readout under the pie — the "flows downstream" half of P2 in words. */
+/* The rotation read, on the page, with the toggles that act on it. */
+function renderSectorRot(){
+  const el=document.getElementById('sectorrot'); if(!el) return;
+  const rs=Object.values(SECTOR_READ).sort((a,b)=>(b.score??0)-(a.score??0));
+  if(!rs.length){ el.innerHTML='<div class="note" style="color:var(--orange)">sector rotation unavailable — no read</div>'; return }
+  const col=k=>k==='lead'?'var(--green)':k==='improve'?'var(--cyan)':k==='weak'?'var(--gold)':'var(--orange)';
+  const chips=rs.map(r=>`<span title="${r.name} · ${r.etf} · trend ${(+r.trend).toFixed(2)} · momentum ${(+r.momentum).toFixed(2)}"
+     style="display:inline-block;margin:2px 5px 2px 0;padding:3px 8px;border:1px solid var(--line);border-radius:5px;font-size:10.5px">
+     <b style="color:${col(r.kind)}">${r.key}</b> <span style="color:var(--dim)">${r.q} ${(+r.score).toFixed(2)}</span></span>`).join('');
+  const seg=(label,cur,opts,fn)=>'<span class="cls" style="margin-right:6px">'+label+'</span>'+opts.map(([v,t])=>
+    `<button onclick="${fn}('${v}')" style="background:${cur===v?'var(--gold)':'#14141f'};color:${cur===v?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:5px;padding:4px 10px;font-family:inherit;font-size:10px;letter-spacing:.06em;cursor:pointer;margin-right:4px">${t}</button>`).join('');
+  el.innerHTML=
+   '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin-bottom:4px">SECTOR ROTATION — the rotation tool\'s own read (sector_rankings · trend × momentum), now re-ranking this list</div>'+
+   '<div style="margin-bottom:8px">'+chips+'</div>'+
+   '<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:10px">'+
+     '<div>'+seg('STANCE',SSTANCE,[['leaders','RIDE LEADERS'],['improving','BUY THE TURN'],['off','IGNORE SECTORS']],'setSstance')+'</div>'+
+     '<div>'+seg('SKIP LAGGING',SAVOID,[['on','ON'],['off','OFF']],'setSavoid')+'</div>'+
+     '<div><span class="cls" style="margin-right:6px">HOW HARD</span>'+
+       `<input type="range" min="0" max="100" step="10" value="${SWEIGHT}" oninput="setSweight(this.value)" style="vertical-align:middle;width:110px">`+
+       `<span class="cls" style="margin-left:6px">${SWEIGHT}%</span></div>`+
+   '</div>';
+}
 function renderPickMix(shares, inv){
   const el=document.getElementById('pickmix'); if(!el) return;
   const PM=pickMix(shares,inv), cap=S.maxTotal??12;
@@ -941,7 +1032,7 @@ function renderPickMix(shares, inv){
   const seg=(id,cur,opts,fn)=>'<span class="lbl" style="margin-right:6px">'+id+'</span>'+opts.map(([v,t])=>
     `<button onclick="${fn}('${v}')" style="background:${cur===v?'var(--gold)':'#14141f'};color:${cur===v?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:5px;padding:4px 10px;font-family:inherit;font-size:10px;letter-spacing:.06em;cursor:pointer;margin-right:4px">${t}</button>`).join('');
   const toggles='<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:8px 0 10px">'+
-    '<div>'+seg('SPLIT WITHIN SLEEVE',SPLIT,[['equal','EQUAL'],['cold','COLDER FIRST'],['cheap','CHEAPER FIRST']],'setSplit')+'</div>'+
+    '<div>'+seg('SPLIT WITHIN SLEEVE',SPLIT,[['cold','COLDER FIRST'],['cheap','CHEAPER FIRST']],'setSplit')+'</div>'+
     '<div>'+seg('REGIME GATE',RGATE,[['off','OFF'],['warn','WARN'],['exclude','EXCLUDE BREAKDOWNS']],'setRgate')+'</div></div>';
   const rows=Object.entries(PM.sleeves).sort((a,b)=>b[1].share-a[1].share).map(([k,info])=>{
     if(info.share<=0.001) return '';
@@ -996,7 +1087,7 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const SHB = sleeveShares();
   const topSleeves = Object.entries(SHB).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,sh])=>k+' '+Math.round(sh*inv*100)+'%').join(', ');
   const p2 = `The model wants ${pct(inv)} invested — biggest sleeves by coldness: ${topSleeves} of equity — ${Math.abs(dTot)<.005?'and you are on target.':dTot>0?'you are under-invested by '+spct(dTot)+' of equity.':'you are over-invested by '+spct(-dTot)+' of equity.'}`;
-  const p3 = dTot>.005 ? (complacent?'Discipline: cheapness without fear tends to get cheaper — stage the adds in thirds, favor the style-discounted names the list ranks on top, and let a vol spike buy the last tranche at better prices.':'Fear is present — adds can be executed faster, front-half now.') : dTot<-.005 ? 'Trims execute now; de-risking is never staged.' : 'No action required — re-read when the score crosses a band.';
+  const p3 = dTot>.005 ? (complacent?'Discipline: cheapness without fear tends to get cheaper — size the first clip from the readings rather than a round number, favour the names the list ranks on top, and let the named trigger buy the rest at better prices.':'Fear is present — adds can be executed faster, front-half now.') : dTot<-.005 ? 'Trims execute now; de-risking is never staged.' : 'No action required — re-read when the score crosses a band.';
   el.innerHTML = p1 + '<br><br>' + p2 + ' ' + p3;
 }
 function renderInputMap(h){
@@ -1084,7 +1175,7 @@ let PICKS = new Set(JSON.parse(localStorage.getItem('alloc-picks')||'[]'));
    ignores that the tool already knows which of two names is colder or cheaper.
    REGIME GATE — a name's regime decides whether its cheapness is merited. Cheap inside a
    pullback is an opportunity; cheap inside a breakdown is the market telling you why. */
-let SPLIT = localStorage.getItem('alloc-split') || 'cold';    // equal | cold | cheap
+let SPLIT = localStorage.getItem('alloc-split') || 'cold';    // cold | cheap — never equal, an equal split throws away what the tool already knows
 let RGATE = localStorage.getItem('alloc-rgate') || 'warn';    // off | warn | exclude
 function setSplit(v){ SPLIT=v; localStorage.setItem('alloc-split',v); render(); }
 function setRgate(v){ RGATE=v; localStorage.setItem('alloc-rgate',v); render(); }
@@ -1098,7 +1189,7 @@ function renderComps(){
   // suggested = anything currently ADD-tagged (top-3 coldest per sleeve), gathered from the last cohort render
   const SPR = styleSpreads();
   const ranked = candidateSyms().filter(s=>!['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
-    .map(s=>{ const tg=tickerG(s); return tg ? {sym:s, adj:tg.g+styleAdj(s,SPR), sleeves:tickerSleeves(s)} : null; }).filter(Boolean);
+    .map(s=>{ const tg=tickerG(s); if(!tg) return null; if(SAVOID==='on'&&(sectorRead(s)||{}).kind==='lag') return null; return {sym:s, adj:tg.g+styleAdj(s,SPR)+sectorAdj(s), sleeves:tickerSleeves(s)}; }).filter(Boolean);
   const suggested = new Set();
   for (const sl of Object.keys(SLEEVES)) ranked.filter(r=>r.sleeves.includes(sl)).sort((a,b)=>a.adj-b.adj).slice(0,3).forEach(r=>suggested.add(r.sym));
   // category switcher — which sleeves have suggestions
