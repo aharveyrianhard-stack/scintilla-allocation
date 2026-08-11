@@ -274,7 +274,7 @@ async function sbGetPaged(path, pageSize=1000, maxPages=12){
   }
   throw new Error('paged read exceeded '+maxPages+' pages');
 }
-let SECTOR_OF={}, SECTOR_READ={};   // ticker -> our sector key ; sector key -> the rotation read
+let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={};   // industry = the sub-sector axis (93 groups, 317 names)   // ticker -> our sector key ; sector key -> the rotation read
 /* SECTOR ROTATION, ACTUALLY WIRED IN (2026-08-11).
    Until now the only thing sector did in this module was the XLP+XLU defensives voter and
    a display chip — Alan: "its just defensives. nothing of sectors." The module's own doc
@@ -323,31 +323,50 @@ function intentFit(sym){
    otherwise its cohort. Below Q1 = cheap, above Q3 = expensive. Loss-makers excluded
    from the peer distribution entirely rather than counted as cheap. */
 let PEERSTATS={};
+/* PEER SET — blended, because each axis alone has gaps.
+   SUB-SECTOR (industry, 93 groups / 317 names) is the tightest comparison and is tried
+   first; SECTOR (11) is the fallback when a sub-sector has too few priced names; COHORT
+   is the last resort so crypto and commodities still get a peer set at all.
+   MEASURE — P/E where the company earns money, P/S where it does not. A loss-maker has no
+   meaningful P/E, but dropping it means 41 names carry no value reading at all. Comparing
+   it on sales against peers measured the same way keeps it in the system honestly, and the
+   measure used is shown so the two are never silently mixed. */
+function peerKeys(sym){
+  return [INDUSTRY_OF[sym] && 'i:'+INDUSTRY_OF[sym],
+          SECTOR_OF[sym]   && 's:'+SECTOR_OF[sym],
+          (UNIVERSE.cohorts[sym]||[])[0] && 'c:'+(UNIVERSE.cohorts[sym]||[])[0]].filter(Boolean);
+}
+function measureOf(sym){
+  const c=COMPS[sym]; if(!c) return null;
+  if(c.pe>0) return {m:'P/E', v:c.pe};
+  if(c.ps>0) return {m:'P/S', v:c.ps};      // loss-maker: priced on sales, not dropped
+  return null;
+}
 function buildPeerStats(){
   const groups={};
   for(const sym of Object.keys(COMPS)){
-    const pe=COMPS[sym] && COMPS[sym].pe; if(!(pe>0)) continue;
-    const g=SECTOR_OF[sym] || (UNIVERSE.cohorts[sym]||[])[0]; if(!g) continue;
-    (groups[g]=groups[g]||[]).push(pe);
+    const mv=measureOf(sym); if(!mv) continue;
+    for(const k of peerKeys(sym)) (groups[k+'|'+mv.m]=groups[k+'|'+mv.m]||[]).push(mv.v);
   }
   const q=(a,p)=>{ const i=(a.length-1)*p, lo=Math.floor(i), hi=Math.ceil(i);
                    return lo===hi?a[lo]:a[lo]+(a[hi]-a[lo])*(i-lo) };
   PEERSTATS={};
-  for(const [g,arr] of Object.entries(groups)){
+  for(const [k,arr] of Object.entries(groups)){
     if(arr.length<4) continue; arr.sort((a,b)=>a-b);
-    PEERSTATS[g]={n:arr.length, q1:q(arr,.25), med:q(arr,.5), q3:q(arr,.75)};
+    PEERSTATS[k]={n:arr.length,q1:q(arr,.25),med:q(arr,.5),q3:q(arr,.75)};
   }
 }
 function valueRead(sym){
-  const pe=COMPS[sym] && COMPS[sym].pe; if(!(pe>0)) return null;
-  const g=SECTOR_OF[sym] || (UNIVERSE.cohorts[sym]||[])[0];
-  const st=g && PEERSTATS[g]; if(!st) return null;
+  const mv=measureOf(sym); if(!mv) return null;
+  let st=null, used=null;
+  for(const k of peerKeys(sym)){ const c=PEERSTATS[k+'|'+mv.m]; if(c){ st=c; used=k; break } }
+  if(!st) return null;
   const iqr=st.q3-st.q1;
-  const tag = pe < st.q1 - 0.0*iqr ? 'CHEAP' : pe > st.q3 ? 'EXPENSIVE' : 'IN LINE';
-  const outlier = iqr>0 && (pe < st.q1 - 1.5*iqr || pe > st.q3 + 1.5*iqr);
-  // −1 cheapest … +1 most expensive, measured in IQRs off the median
-  const z = iqr>0 ? Math.max(-1,Math.min(1,(pe-st.med)/(1.5*iqr))) : 0;
-  return {pe, group:g, n:st.n, med:st.med, q1:st.q1, q3:st.q3, tag, outlier, z};
+  const tag = mv.v<st.q1 ? 'CHEAP' : mv.v>st.q3 ? 'EXPENSIVE' : 'IN LINE';
+  const outlier = iqr>0 && (mv.v < st.q1-1.5*iqr || mv.v > st.q3+1.5*iqr);
+  const z = iqr>0 ? Math.max(-1,Math.min(1,(mv.v-st.med)/(1.5*iqr))) : 0;
+  const lvl = used.startsWith('i:')?'sub-sector':used.startsWith('s:')?'sector':'cohort';
+  return {measure:mv.m, val:mv.v, group:used.slice(2), level:lvl, n:st.n, med:st.med, q1:st.q1, q3:st.q3, tag, outlier, z};
 }
 let REGIME={};   // ticker -> {trend, mom, label, kind}  from fan_daily + momentum_daily
 /* THE REGIME LAYER (2026-08-11). The geiger blends trend and momentum into one number;
@@ -404,6 +423,8 @@ async function refreshSSOT(){
   J.push((async()=>{
     const mem=await sbGetPaged('ticker_membership?select=ticker,group_key&kind=eq.sector&order=ticker.asc');
     const m={}; for(const r of mem) m[r.ticker]=r.group_key; SECTOR_OF=m;
+    const ind=await sbGetPaged('ticker_membership?select=ticker,group_key&kind=eq.industry&order=ticker.asc');
+    const im={}; for(const r of ind) im[r.ticker]=r.group_key; INDUSTRY_OF=im;
     const d=(await sbGet('sector_rankings?select=date&order=date.desc&limit=1'))[0]?.date;
     const rows=d?await sbGet('sector_rankings?select=sector,sector_name,rank,score,trend,momentum&date=eq.'+d+'&limit=20'):[];
     const byEtf={}; for(const r of rows) byEtf[r.sector]=r;
@@ -473,6 +494,18 @@ async function refreshSSOT(){
     OPW={rows:rows.length}; spineSet('operator_weights',null,'LIVE',rows.length+' rows — applied upstream by the hub inside composite_staged');
   }).catch(e=>spineSet('operator_weights',null,'FALLBACK','read failed')));
   await Promise.all(J);
+  /* CRYPTO, METALS and OIL are sectors too — they are simply not State Street ones, so
+     no SPDR publishes them. Computed here the same way the sector tool computes the
+     others: from the constituents we already hold, on the same trend x momentum logic.
+     No new table, and the same quadrant vocabulary applies to every sleeve. */
+  for(const [key,coh] of [['CRYPTO','CRYPTO'],['METALS','METALS'],['OIL','ENERGY']]){
+    const names=Object.keys(UNIVERSE.cohorts).filter(t=>(UNIVERSE.cohorts[t]||[]).includes(coh));
+    const T=names.map(t=>(REGIME[t]||{}).trend).filter(v=>v!=null);
+    const M=names.map(t=>(REGIME[t]||{}).mom).filter(v=>v!=null);
+    if(T.length<2||M.length<2) continue;
+    const avg=a=>a.reduce((x,y)=>x+y,0)/a.length, tr=avg(T), mo=avg(M);
+    SECTOR_READ[key]={key,etf:'(constituents)',name:key,rank:null,score:(tr+mo)/2,trend:tr,momentum:mo,...rrg(tr,mo),n:names.length};
+  }
   renderSpine();
 }
 // THE geiger accessor: composite_staged first, client Yahoo geiger strictly as flagged fallback
@@ -1076,10 +1109,11 @@ function renderPickMix(shares, inv){
     if(info.share<=0.001) return '';
     const col=SLEEVE_COLOR[k]||'#444';
     const inner=info.names.length
-      ? info.names.map(n=>{const rg=REGIME[n.sym]||{};
+      ? info.names.map(n=>{const rg=REGIME[n.sym]||{}; const vr=valueRead(n.sym);
           const rc=rg.kind==='avoid'?'var(--orange)':rg.kind==='buy'?'var(--green)':'#8a8aa0';
           return '<span style="display:inline-block;margin:2px 10px 2px 0"><b style="color:'+col+'">'+n.sym+'</b> <span style="color:#8a8aa0">'+(n.frac*100).toFixed(1)+'%</span>'+
-            (rg.label?' <span style="color:'+rc+';font-size:10px">'+rg.label+'</span>':'')+'</span>'}).join('')
+            (rg.label?' <span style="color:'+rc+';font-size:10px">'+rg.label+'</span>':'')+
+            (vr?' <span style="font-size:10px;color:'+(vr.tag==='CHEAP'?'var(--green)':vr.tag==='EXPENSIVE'?'var(--orange)':'#8a8aa0')+'" title="'+vr.measure+' '+(+vr.val).toFixed(1)+' vs '+vr.level+' '+vr.group+' (n='+vr.n+') · Q1 '+(+vr.q1).toFixed(1)+' med '+(+vr.med).toFixed(1)+' Q3 '+(+vr.q3).toFixed(1)+'">'+vr.tag+' '+vr.measure+' vs '+vr.level+'</span>':'')+'</span>'}).join('')
         + (info.blocked&&info.blocked.length?'<div style="color:var(--orange);margin-top:4px">held out by the regime gate — breaking down, not on sale: '+info.blocked.join(', ')+'</div>':'')
       : '<span style="color:var(--orange)">nothing picked here — this '+(info.share*100).toFixed(1)+'% stays UNASSIGNED (it is not given to the other sleeves)</span>';
     return '<div class="move"><div class="mname" style="color:'+col+'">'+k+'</div><div class="mval" style="font-size:12px">'+
