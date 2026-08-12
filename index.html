@@ -159,6 +159,7 @@
     <h2>2 · TARGET MIX — where the money goes</h2>
     <div class="note">Heat sets HOW MUCH is invested; the sleeves' coldness sets WHERE. Big picture first, detail on demand.</div>
     <div id="sectorrot"></div>
+    <div id="rotationtpl"></div>
     <canvas id="donut" width="640" height="300"></canvas>
     <div id="pickmix"></div>
     <div id="targets"></div>
@@ -1198,6 +1199,7 @@ function render(){
   Object.assign(E_SECREAD, SECTOR_READ);
   buildPeerStats();
   renderSectorRot();
+  renderRotationTemplate();
   drawDonut(sleeveShares(), inv);
   renderPickMix(sleeveShares(), inv);   // P2: the same numbers in words, under the pie
   renderBrief(h, inv, lc, dTot, dLC, dSC);
@@ -1353,6 +1355,79 @@ function renderSectorRot(){
    '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 3px">SECTORS — a separate axis from the sleeves. A name has both.</div>'+
    '<div style="margin-bottom:8px">'+chips+'</div>';
 }
+/* ===== SECTOR ROTATION TEMPLATE, BROUGHT INTO ALLOCATION (2026-08-11) =====
+   Alan: "i asked for templates to begin with". The full sector-rotation template carries
+   Leaders, Sector Heatmap, Relative Performance, Quadrant Positions, Rotation Map (RRG) and
+   Regime Read. The allocation tool had none of them — only a chip strip. These are those
+   sections, drawn from SECTOR_READ, which already holds trend, momentum, score and rank per
+   sector. Same numbers the rotation tool publishes, same readOf() vocabulary, no new method. */
+function renderRotationTemplate(){
+  const el=document.getElementById('rotationtpl'); if(!el) return;
+  const rs=Object.entries(SECTOR_READ).map(([k,r])=>({k,...r})).filter(r=>r.score!=null);
+  if(!rs.length){ el.innerHTML=''; return }
+  rs.sort((a,b)=>b.score-a.score);
+  const col=k=>k==='go'?'var(--green)':k==='improve'?'var(--cyan)':k==='buy'?'var(--gold)':'var(--orange)';
+  const f2s=x=>(x>=0?'+':'')+(+x).toFixed(2);
+
+  // LEADERS — ranked, with the reading that produced the rank
+  const leaders='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:10px 0 4px">LEADERS — ranked by their own trend and momentum</div>'+
+    '<table class="imap" style="font-size:11.5px"><tr><th style="text-align:left">#</th><th style="text-align:left">SECTOR</th>'+
+    '<th>TREND</th><th>MOM</th><th>SCORE</th><th style="text-align:left">READ</th><th>NAMES</th></tr>'+
+    rs.map((r,i)=>`<tr><td>${i+1}</td><td><b>${esc2(r.k)}</b></td><td>${f2s(r.trend)}</td><td>${f2s(r.momentum)}</td>
+      <td><b>${f2s(r.score)}</b></td><td style="color:${col(r.kind)}">${esc2(r.q)}</td><td>${r.n||'—'}</td></tr>`).join('')+'</table>';
+
+  // SECTOR HEATMAP — one cell per sector, shaded by score
+  const heat='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:14px 0 4px">SECTOR HEATMAP</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:4px">'+rs.map(r=>{
+      const t=Math.max(0,Math.min(1,(r.score+1)/2));
+      const bg=r.score>=0?`rgba(56,224,123,${(0.12+t*0.55).toFixed(2)})`:`rgba(255,140,66,${(0.12+(1-t)*0.55).toFixed(2)})`;
+      return `<div style="background:${bg};border:1px solid var(--line);border-radius:4px;padding:6px 9px;min-width:88px">
+        <div style="font-size:10.5px;font-weight:700">${esc2(r.k)}</div>
+        <div style="font-size:13px;font-family:var(--mono,monospace)">${f2s(r.score)}</div></div>`}).join('')+'</div>';
+
+  // QUADRANT POSITIONS — the four RRG boxes, populated
+  const byKind={go:[],buy:[],improve:[],avoid:[]};
+  rs.forEach(r=>{ if(byKind[r.kind]) byKind[r.kind].push(r.k) });
+  const qbox=(t,kind,note)=>`<div style="flex:1;min-width:150px;border:1px solid var(--line);border-radius:4px;padding:8px">
+      <div class="cls" style="font-size:9.5px;color:${col(kind)}">${t}</div>
+      <div style="font-size:11.5px;margin-top:3px">${byKind[kind].length?byKind[kind].map(esc2).join(' · '):'<span style="color:var(--dim)">none</span>'}</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:3px">${note}</div></div>`;
+  const quads='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:14px 0 4px">QUADRANT POSITIONS</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
+      qbox('LEADING','go','trend up, momentum up')+qbox('WEAKENING','buy','trend up, momentum rolling over')+
+      qbox('IMPROVING','improve','trend down, momentum turning up')+qbox('LAGGING','avoid','trend down, momentum down')+'</div>';
+
+  // ROTATION MAP (RRG) — trend on x, momentum on y, the actual scatter
+  const rrgSvg=(()=>{const W=560,H=260,P=34;
+    const X=v=>P+((v+1)/2)*(W-2*P), Y=v=>H-P-((v+1)/2)*(H-2*P);
+    return `<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:14px 0 4px">ROTATION MAP — trend across, momentum up</div>
+    <div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;height:auto">
+      <rect x="${P}" y="${P}" width="${W-2*P}" height="${H-2*P}" fill="none" stroke="var(--line)"/>
+      <line x1="${X(0)}" y1="${P}" x2="${X(0)}" y2="${H-P}" stroke="var(--line)" stroke-dasharray="3 3"/>
+      <line x1="${P}" y1="${Y(0)}" x2="${W-P}" y2="${Y(0)}" stroke="var(--line)" stroke-dasharray="3 3"/>
+      <text x="${W-P-4}" y="${Y(0)-6}" fill="#67707e" font-size="9" text-anchor="end">LEADING</text>
+      <text x="${P+4}" y="${Y(0)-6}" fill="#67707e" font-size="9">IMPROVING</text>
+      <text x="${P+4}" y="${H-P-5}" fill="#67707e" font-size="9">LAGGING</text>
+      <text x="${W-P-4}" y="${H-P-5}" fill="#67707e" font-size="9" text-anchor="end">WEAKENING</text>
+      ${rs.map(r=>`<g><circle cx="${X(r.trend).toFixed(1)}" cy="${Y(r.momentum).toFixed(1)}" r="4.5" fill="${col(r.kind)}"/>
+        <text x="${(X(r.trend)+7).toFixed(1)}" y="${(Y(r.momentum)+3.5).toFixed(1)}" fill="var(--txt)" font-size="9.5">${esc2(r.k)}</text></g>`).join('')}
+    </svg></div>`})();
+
+  // REGIME READ — the template's summary line, from the same numbers
+  const lead=byKind.go.length, lag=byKind.avoid.length, imp=byKind.improve.length, weak=byKind.buy.length;
+  const breadthWord = lead>=rs.length*0.6?'broad — most of the market is participating'
+                    : lag>=rs.length*0.4?'narrow — most sectors are still falling'
+                    : 'mixed — leadership is split';
+  const regime='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:14px 0 4px">REGIME READ</div>'+
+    `<div class="note" style="font-size:11.5px;line-height:1.7">${lead} of ${rs.length} sectors are LEADING, ${weak} WEAKENING, ${imp} IMPROVING and ${lag} LAGGING — ${breadthWord}. `+
+    `Strongest ${esc2(rs[0].k)} at ${f2s(rs[0].score)}, weakest ${esc2(rs[rs.length-1].k)} at ${f2s(rs[rs.length-1].score)}. `+
+    (imp?`Turning up from below: <b>${byKind.improve.map(esc2).join(', ')}</b>. `:'')+
+    (weak?`Losing momentum while still above water: <b>${byKind.buy.map(esc2).join(', ')}</b>.`:'')+'</div>';
+
+  el.innerHTML='<details style="margin-top:10px"><summary>SECTOR ROTATION — leaders, heatmap, quadrants, rotation map and regime read</summary>'+
+    leaders+heat+quads+rrgSvg+regime+'</details>';
+}
+function esc2(x){ return String(x).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) }
 function renderPickMix(shares, inv){
   const el=document.getElementById('pickmix'); if(!el) return;
   const PM=pickMix(shares,inv), cap=S.maxTotal??12;
