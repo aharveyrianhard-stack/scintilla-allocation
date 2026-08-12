@@ -959,22 +959,45 @@ function voters(){
   v.push({key:'DURATION', name:'DURATION (TLT)', speed:0.85, sub:gT!=null?'long treasuries · composite_staged':'—', val:gT});
   v.push({key:'HAVEN', name:'GOLD (inv)', speed:0.15, sub:gG!=null?'haven bid · composite_staged':'—', val:gG!=null?clamp(-gG):null});
   /* Broad-market breadth voters. Each abstains when its series is absent. */
-  const mb=(k)=>{ const x=MKTBREADTH&&MKTBREADTH[k]; return (x==null||x==='')?null:+x };
+  /* SNAPSHOT SEED (2026-08-11). Alan: "for the moment you need to pull from tradingview.
+     just chart by chart, so you have data. you can finish this code that's pending and we see
+     where that leaves us... it doesn't need to be wired to be live. not yet."
+     These are the values TradingView returned this evening, read one symbol at a time after the
+     MCP was unquarantined. They are a DATED SNAPSHOT, not a feed — the badge says so and the
+     date is shown, so nothing here can be mistaken for live. The moment market_breadth carries
+     rows they win outright and this seed is ignored. */
+  const BREADTH_SNAPSHOT = {
+    asof:'2026-08-11',
+    pct_above_200d: 71.17,   // INDEX:S5TH  — S&P 500 above its 200-day
+    pct_above_50d : 63.22,   // INDEX:S5FI  — S&P 500 above its 50-day
+    put_call      : 0.797,   // USI:PCC     — CBOE put/call, equities + indices
+    advance_decline: 73      // USI:ADD     — NYSE advance/decline
+    /* TICK deliberately absent: INDEX:TICK returned 9787 (range 9441-10426), which is
+       cumulative behaviour, not the ordinary series that oscillates near zero. Rather than
+       vote the wrong measure it abstains until the right symbol is confirmed. */
+  };
+  const mb=(k)=>{
+    let x = MKTBREADTH && MKTBREADTH[k];
+    if(x==null||x==='') x = BREADTH_SNAPSHOT[k];   // live table wins; snapshot only fills a hole
+    return (x==null||x==='')?null:+x;
+  };
+  const mbSrc=(k)=> (MKTBREADTH && MKTBREADTH[k]!=null && MKTBREADTH[k]!=='') ? 'live'
+                  : (BREADTH_SNAPSHOT[k]!=null ? 'TradingView snapshot '+BREADTH_SNAPSHOT.asof : null);
   const s200=mb('pct_above_200d'), s50=mb('pct_above_50d'), pcc=mb('put_call'), tick=mb('tick'), addv=mb('advance_decline');
   v.push({key:'M_200D', name:'MARKET % ABOVE 200-DAY', speed:0.85,
-          sub:s200==null?'— no source (TV INDEX:S5TH read 71.17 on 2026-08-11)':s200.toFixed(1)+'% of the S&P above its 200-day',
+          sub:s200==null?'— no source':s200.toFixed(1)+'% of the S&P above its 200-day · '+mbSrc('pct_above_200d'),
           val:s200==null?null:clamp((s200/100-0.5)*2)});
   v.push({key:'M_50D', name:'MARKET % ABOVE 50-DAY', speed:0.6,
-          sub:s50==null?'— no source (TV INDEX:S5FI read 63.22 on 2026-08-11)':s50.toFixed(1)+'% above its 50-day',
+          sub:s50==null?'— no source':s50.toFixed(1)+'% above its 50-day · '+mbSrc('pct_above_50d'),
           val:s50==null?null:clamp((s50/100-0.5)*2)});
   v.push({key:'M_PCC', name:'PUT / CALL (CBOE)', speed:0.7,
-          sub:pcc==null?'— no source (TV USI:PCC read 0.797 on 2026-08-11)':pcc.toFixed(3)+' · above 1.00 = puts bid, fear',
+          sub:pcc==null?'— no source':pcc.toFixed(3)+' · above 1.00 = puts bid, fear · '+mbSrc('put_call'),
           val:pcc==null?null:clamp((pcc-0.9)*3)});
   v.push({key:'M_TICK', name:'NYSE TICK', speed:0.05,
-          sub:tick==null?'— no source (ordinary TICK, kept separate from cumulative)':String(tick),
+          sub:tick==null?'— abstaining: INDEX:TICK returns a cumulative series, not ordinary TICK':String(tick),
           val:tick==null?null:clamp(tick/800)});
   v.push({key:'M_ADD', name:'NYSE ADVANCE / DECLINE', speed:0.3,
-          sub:addv==null?'— no source (TV USI:ADD read +73 on 2026-08-11)':String(addv),
+          sub:addv==null?'— no source':String(addv)+' · '+mbSrc('advance_decline'),
           val:addv==null?null:clamp(addv/1500)});
   const gp2 = gv('XLP'), gu2 = gv('XLU');
   v.push({key:'DEF', speed:0.85, name:'DEFENSIVES (inv)', sub:'XLP+XLU · '+(COMPOSITE['XLP']?'db':'fallback'), val: (gp2!=null && gu2!=null) ? clamp(-(gp2+gu2)/2) : null});
