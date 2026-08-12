@@ -315,7 +315,6 @@ function sectorRead(sym){
      4. RISK   a breakdown is down-weighted hard rather than excluded, so nothing is hidden */
 const METHOD = {
   regimeFit: {buy:1.0, go:0.62, improve:0.45, avoid:0.12, none:0.5},  // pullback > trend > bounce > breakdown
-  nameVsSector: 0.7,       // the name leads, its neighbourhood confirms
   regimeWeight: 0.55,      // how much the regime moves a name against pure coldness
   valueWeight: 0.22        // how much cheapness against peers tilts it
 };
@@ -1361,6 +1360,44 @@ function renderSectorRot(){
    Regime Read. The allocation tool had none of them — only a chip strip. These are those
    sections, drawn from SECTOR_READ, which already holds trend, momentum, score and rank per
    sector. Same numbers the rotation tool publishes, same readOf() vocabulary, no new method. */
+/* ===== IMPLIED PRICE — the fundamentals template's method on top of the peer set =====
+   fundamentals.html: "implied price = PX x peerMultiple / subjectMultiple, peers
+   outlier-cleaned (Tukey-style)". Being cheap against peers is a colour; what that is WORTH
+   is a price. This asks, per multiple: if this name traded at its peers' median multiple,
+   what would the price be?
+   LOSS-MAKERS ARE HANDLED HERE, which they could not be on P/E alone — a company with no
+   earnings still has sales and book value, so P/S and P/B carry it. Every multiple that can
+   be computed is shown; the ones that cannot say so. */
+function impliedPrices(sym){
+  const c=COMPS[sym]; const px=(QUOTES[sym]&&QUOTES[sym].price)||null;
+  if(!c||!px) return null;
+  const pg=peerGroupOf(sym); if(!pg) return null;
+  const members = pg.mode==='fmp_peers' ? pg.members
+                : Object.keys(COMPS).filter(o=>o!==sym && peerKeys(o)[0]===pg.key);
+  const tukeyMedian=(vals)=>{
+    const v=vals.filter(x=>x!=null&&isFinite(x)&&x>0).sort((a,b)=>a-b);
+    if(v.length<4) return null;
+    const q=p=>{const i=(v.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?v[lo]:v[lo]+(v[hi]-v[lo])*(i-lo)};
+    const q1=q(.25),q3=q(.75),iqr=q3-q1;
+    const clean=v.filter(x=>x>=q1-1.5*iqr&&x<=q3+1.5*iqr);   // Tukey fences, per the template
+    if(clean.length<3) return null;
+    return {med:q(.5), n:clean.length, dropped:v.length-clean.length};
+  };
+  const out=[];
+  for(const [key,label] of [['pe','P/E'],['ps','P/S'],['pb','P/B'],['fwd_pe','FWD P/E']]){
+    const subj=c[key];
+    if(!(subj>0)){ out.push({label, implied:null, why:key==='pe'||key==='fwd_pe'?'no earnings':'not held'}); continue }
+    const st=tukeyMedian(members.map(m=>COMPS[m]&&COMPS[m][key]));
+    if(!st){ out.push({label, implied:null, why:'too few peers'}); continue }
+    out.push({label, implied: px*st.med/subj, peerMed:st.med, subj, n:st.n, dropped:st.dropped});
+  }
+  const usable=out.filter(o=>o.implied!=null);
+  if(!usable.length) return null;
+  const lo=Math.min(...usable.map(o=>o.implied)), hi=Math.max(...usable.map(o=>o.implied));
+  const mid=usable.reduce((t,o)=>t+o.implied,0)/usable.length;
+  return {px, rows:out, lo, hi, mid, upside:mid/px-1, basis:pg.mode, usable:usable.length};
+}
+window.impliedPrices=impliedPrices;
 function renderRotationTemplate(){
   const el=document.getElementById('rotationtpl'); if(!el) return;
   const rs=Object.entries(SECTOR_READ).map(([k,r])=>({k,...r})).filter(r=>r.score!=null);
@@ -1612,8 +1649,10 @@ function renderComps(){
                adjustment bolted onto allocation — it is the same question asked one level up. */
             const secR = (AXIS==='sector' ? (E_SECREAD[SECTOR_OF[s]]||null) : null) || sectorReadOf(s);
             const fitName = intentFit(s);
-            const fitSect = secR ? intentFitKind(secR.kind) : 0.5;
-            const fit = METHOD.nameVsSector*fitName + (1-METHOD.nameVsSector)*fitSect;
+                      /* The name's own regime decides. Its sector is shown beside it and sets how much
+               money the sector gets, but it does not dilute the name's own reading — the 70/30
+               blend that used to sit here was mine, not asked for, and is gone. */
+            const fit = fitName;
             attract *= (1 - w) + w*(0.15 + 1.7*fit);
             if(vr) attract *= 1 - METHOD.valueWeight*vr.z;                // cheap vs peers lifts, dear cuts
             return {sym:s, adj:-attract, sleeves:tickerSleeves(s), rg, vr}; }).filter(Boolean);
@@ -1633,6 +1672,18 @@ function renderComps(){
     ['pe','P/E',v=>v.toFixed(1),-1],['fwd_pe','FWD P/E',v=>v.toFixed(1),-1],['ps','P/S',v=>v.toFixed(1),-1],['pb','P/B',v=>v.toFixed(1),-1],
     ['rev_growth','REV g',v=>(v*100).toFixed(0)+'%',1],['gross_m','GROSS',v=>(v*100).toFixed(0)+'%',1],['net_m','NET',v=>(v*100).toFixed(0)+'%',1],
     ['de','D/E',v=>v.toFixed(2),-1],['div_yld','DIV',v=>(v*100).toFixed(2)+'%',0]];
+  /* IMPLIED — what the name would be worth at its peers' multiples, per the template's
+     football field. Works for loss-makers via P/S and P/B when P/E cannot be computed. */
+  const impCell=(sym)=>{
+    const ip=impliedPrices(sym);
+    if(!ip) return '<td class="r"><span class="cls">—</span></td>';
+    const up=ip.upside, col=up>0.15?'var(--green)':up<-0.15?'var(--orange)':'var(--dim)';
+    const detail=ip.rows.map(r=>r.implied!=null
+        ? r.label+' $'+r.implied.toFixed(2)+' (peer med '+r.peerMed.toFixed(1)+' vs '+(+r.subj).toFixed(1)+', n='+r.n+(r.dropped?', '+r.dropped+' outliers dropped':'')+')'
+        : r.label+' — '+r.why).join(' | ');
+    return '<td class="r" title="'+detail.replace(/"/g,'')+' · basis '+ip.basis+'" style="color:'+col+'">$'+ip.mid.toFixed(0)+
+           ' <span style="font-size:9.5px;color:var(--dim)">'+(up>=0?'+':'')+(up*100).toFixed(0)+'%</span></td>';
+  };
   const RATIO=new Set(['pe','fwd_pe','ps','pb']);
   const valid=(key,v)=> v!=null && isFinite(v) && !(RATIO.has(key) && v<=0);
   // peer medians for conditional formatting (only non-excluded, valid)
@@ -1671,7 +1722,7 @@ function renderComps(){
   const cellTitle=(c,v,sym)=>{ const st=statFor(c[0],sym); if(!st||!valid(c[0],v)) return '';
     const iqr=st.q3-st.q1, out=iqr>0&&(v<st.q1-1.5*iqr||v>st.q3+1.5*iqr);
     return c[1]+' '+(+v).toFixed(2)+' vs '+st.n+' peers ('+st.mode+') — Q1 '+st.q1.toFixed(2)+' · median '+st.med.toFixed(2)+' · Q3 '+st.q3.toFixed(2)+(out?' — IQR OUTLIER':''); };
-  let html = '<tr><th></th><th>NAME</th>'+cols.map(c=>'<th class="r">'+c[1]+'</th>').join('')+'<th></th></tr>';
+  let html = '<tr><th></th><th>NAME</th>'+cols.map(c=>'<th class="r">'+c[1]+'</th>').join('')+'<th class="r" title="What the name would be worth at its peers\' median multiples — the template\'s football field. Uses P/S and P/B when there are no earnings.">IMPLIED</th>'+'<th></th></tr>';
   for (const d of data) {
     const picked = PICKS.has(d.sym);
     const rmLbl = d.excl ? '↺ restore' : '✕ drop';
@@ -1679,7 +1730,7 @@ function renderComps(){
     const pickBtn = `<button class="compick" data-sym="${d.sym}" style="background:${picked?'rgba(56,224,123,.15)':'#14141f'};color:${picked?'var(--green)':'var(--cyan)'};border:1px solid ${picked?'var(--green)':'var(--line)'};border-radius:5px;padding:2px 10px;font-size:11px;cursor:pointer">${picked?'✓ picked':'pick'}</button>`;
     const rowStyle = d.excl ? 'opacity:.35;text-decoration:line-through' : (picked?'background:rgba(56,224,123,.06)':'');
     html += `<tr style="${rowStyle}"><td>${rmBtn}</td><td><b>${d.sym}</b>${d.manual?' <span class="cls">(added)</span>':' <span class="tag add" style="margin:0">suggested</span>'}</td>`+
-      cols.map(c=>{ const v=d.k[c[0]]; const ok=valid(c[0],v); return '<td class="r" title="'+(ok?cellTitle(c,v,d.sym).replace(/"/g,'')+'" ':'" ')+'style="'+(d.excl?'':cellColor(c,v,d.sym))+'">'+(ok?c[2](v):'<span class="cls">NA</span>')+'</td>'; }).join('')+`<td class="r">${pickBtn}</td></tr>`;
+      cols.map(c=>{ const v=d.k[c[0]]; const ok=valid(c[0],v); return '<td class="r" title="'+(ok?cellTitle(c,v,d.sym).replace(/"/g,'')+'" ':'" ')+'style="'+(d.excl?'':cellColor(c,v,d.sym))+'">'+(ok?c[2](v):'<span class="cls">NA</span>')+'</td>'; }).join('')+impCell(d.sym)+`<td class="r">${pickBtn}</td></tr>`;
   }
   // stat rows
   const stat = (fn,label,color)=>{ let row=`<tr><td></td><td class="cls" style="color:${color}">${label}</td>`; for(const c of cols){ const vals=active.map(d=>d.k[c[0]]).filter(v=>valid(c[0],v)); row+='<td class="r" style="color:'+color+'">'+(vals.length?c[2](fn(vals)):'NA')+'</td>'; } return row+'<td></td></tr>'; };
