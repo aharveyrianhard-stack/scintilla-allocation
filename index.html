@@ -1638,8 +1638,39 @@ function renderComps(){
   // peer medians for conditional formatting (only non-excluded, valid)
   const data = syms.map(sym=>{ const k=Object.assign({}, COMPS[sym]||{}); k.g = gv(sym); return {sym, k, manual:COMPARE.has(sym) && !suggested.has(sym), excl:EXCLUDED.has(sym)}; });
   const active=data.filter(d=>!d.excl);
-  const med={}; for(const c of cols){ const vs=active.map(d=>d.k[c[0]]).filter(v=>valid(c[0],v)); if(vs.length){ const b=[...vs].sort((x,y)=>x-y); med[c[0]]=b.length%2?b[b.length>>1]:(b[(b.length>>1)-1]+b[b.length>>1])/2; } }
-  const cellColor=(c,v)=>{ if(!valid(c[0],v)||c[3]===0||med[c[0]]==null) return ''; const better=(v-med[c[0]])*c[3]; return better>0?'color:var(--green)':better<0?'color:var(--orange)':''; };
+  /* THE TEMPLATE'S METHOD (fundamentals-spec.html §1): compare against a PEER SET and flag
+     cheap/expensive AND IQR OUTLIERS. Previously this compared each name to the median of
+     whatever happened to be on screen — a different number every time the selection changed,
+     and no outlier flagging at all. Now the distribution is built from the name's peer set
+     (FMP peers where held, else sub-sector -> sector -> cohort) so the comparison is stable
+     and means the same thing on every row. Loss-makers are excluded from the distribution
+     rather than counted as cheap. */
+  function peerStat(key, sym){
+    const pg=peerGroupOf(sym); if(!pg) return null;
+    let members = pg.mode==='fmp_peers' ? pg.members
+                : Object.keys(COMPS).filter(o=>peerKeys(o)[0]===pg.key);
+    const vs=members.map(m=>COMPS[m]&&COMPS[m][key]).filter(v=>valid(key,v));
+    if(vs.length<4) return null;
+    vs.sort((a,b)=>a-b);
+    const q=(p)=>{const i=(vs.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?vs[lo]:vs[lo]+(vs[hi]-vs[lo])*(i-lo)};
+    return {q1:q(.25), med:q(.5), q3:q(.75), n:vs.length, mode:pg.mode};
+  }
+  const PSTAT={};
+  const statFor=(key,sym)=>{ const kk=key+'|'+sym; if(!(kk in PSTAT)) PSTAT[kk]=peerStat(key,sym); return PSTAT[kk] };
+  const cellColor=(c,v,sym)=>{
+    if(!valid(c[0],v)||c[3]===0) return '';
+    const st=statFor(c[0],sym); if(!st) return '';
+    const iqr=st.q3-st.q1;
+    const cheapSide = c[3]===-1 ? v<st.q1 : v>st.q3;      // better than three quarters of its peers
+    const dearSide  = c[3]===-1 ? v>st.q3 : v<st.q1;
+    const outlier = iqr>0 && (v<st.q1-1.5*iqr || v>st.q3+1.5*iqr);
+    if(cheapSide) return 'color:var(--green)'+(outlier?';font-weight:700':'');
+    if(dearSide)  return 'color:var(--orange)'+(outlier?';font-weight:700':'');
+    return 'color:var(--dim)';                             // in line with its peers
+  };
+  const cellTitle=(c,v,sym)=>{ const st=statFor(c[0],sym); if(!st||!valid(c[0],v)) return '';
+    const iqr=st.q3-st.q1, out=iqr>0&&(v<st.q1-1.5*iqr||v>st.q3+1.5*iqr);
+    return c[1]+' '+(+v).toFixed(2)+' vs '+st.n+' peers ('+st.mode+') — Q1 '+st.q1.toFixed(2)+' · median '+st.med.toFixed(2)+' · Q3 '+st.q3.toFixed(2)+(out?' — IQR OUTLIER':''); };
   let html = '<tr><th></th><th>NAME</th>'+cols.map(c=>'<th class="r">'+c[1]+'</th>').join('')+'<th></th></tr>';
   for (const d of data) {
     const picked = PICKS.has(d.sym);
@@ -1648,7 +1679,7 @@ function renderComps(){
     const pickBtn = `<button class="compick" data-sym="${d.sym}" style="background:${picked?'rgba(56,224,123,.15)':'#14141f'};color:${picked?'var(--green)':'var(--cyan)'};border:1px solid ${picked?'var(--green)':'var(--line)'};border-radius:5px;padding:2px 10px;font-size:11px;cursor:pointer">${picked?'✓ picked':'pick'}</button>`;
     const rowStyle = d.excl ? 'opacity:.35;text-decoration:line-through' : (picked?'background:rgba(56,224,123,.06)':'');
     html += `<tr style="${rowStyle}"><td>${rmBtn}</td><td><b>${d.sym}</b>${d.manual?' <span class="cls">(added)</span>':' <span class="tag add" style="margin:0">suggested</span>'}</td>`+
-      cols.map(c=>{ const v=d.k[c[0]]; const ok=valid(c[0],v); return '<td class="r" style="'+(d.excl?'':cellColor(c,v))+'">'+(ok?c[2](v):'<span class="cls">NA</span>')+'</td>'; }).join('')+`<td class="r">${pickBtn}</td></tr>`;
+      cols.map(c=>{ const v=d.k[c[0]]; const ok=valid(c[0],v); return '<td class="r" title="'+(ok?cellTitle(c,v,d.sym).replace(/"/g,'')+'" ':'" ')+'style="'+(d.excl?'':cellColor(c,v,d.sym))+'">'+(ok?c[2](v):'<span class="cls">NA</span>')+'</td>'; }).join('')+`<td class="r">${pickBtn}</td></tr>`;
   }
   // stat rows
   const stat = (fn,label,color)=>{ let row=`<tr><td></td><td class="cls" style="color:${color}">${label}</td>`; for(const c of cols){ const vals=active.map(d=>d.k[c[0]]).filter(v=>valid(c[0],v)); row+='<td class="r" style="color:'+color+'">'+(vals.length?c[2](fn(vals)):'NA')+'</td>'; } return row+'<td></td></tr>'; };
