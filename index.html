@@ -534,14 +534,22 @@ async function refreshSSOT(){
     PROFILES=m; spineSet('company_profile',null,'LIVE',rows.length+' profiles (sector · mcap · avg_volume)');
   }).catch(e=>spineSet('company_profile',null,'FALLBACK','read failed — RVOL/sector chips unavailable')));
   // macro truth
+  /* Every outcome lands a badge — a row, NO row, or a failed read. The zero-row branch
+     used to set nothing, so an empty table dropped silently out of the spine and the page
+     showed no coverage state at all for the input it was missing. The Yahoo fallback these
+     notes used to promise was removed on 2026-08-11 (ingest() is no longer called, MACRO
+     stays empty), so no badge may claim ^TNX/VIX "in use" — when the read is empty or
+     fails, the voter is simply silent and the badge must say so. */
   J.push(sbGet('treasury_rates?select=date,y2,y10,updated_ts&order=date.desc&limit=1').then(rows=>{
     if(rows[0]){TREAS=rows[0]; const age=(Date.now()-Date.parse(TREAS.date))/864e5;
-      spineSet('treasury_rates',TREAS.updated_ts,age>5?'STALE':'LIVE','10Y '+TREAS.y10+'% @ '+TREAS.date);}
-  }).catch(e=>spineSet('treasury_rates',null,'FALLBACK','read failed — Yahoo ^TNX in use')));
+      spineSet('treasury_rates',TREAS.updated_ts,age>5?'STALE':'LIVE','10Y '+TREAS.y10+'% @ '+TREAS.date+(age>5?' — '+Math.round(age)+'d old and STILL VOTING: the 10Y has no freshness gate (vix_term has one)':''));}
+    else spineSet('treasury_rates',null,'STALE','table returned no rows — 10Y not read, the US10Y voter is silent');
+  }).catch(e=>spineSet('treasury_rates',null,'FALLBACK','read failed ('+e.message+') — 10Y not read, the US10Y voter is silent')));
   J.push(sbGet('vix_term?select=date,vix,vix3m,ratio,skew,vvix,vix9d,updated_ts&order=date.desc&limit=1').then(rows=>{
     if(rows[0]){VIXDB=rows[0]; VIXDB.fresh=(Date.now()-Date.parse(VIXDB.date))/864e5<=3;
-      spineSet('vix_term',null,VIXDB.fresh?'LIVE':'STALE','VIX '+VIXDB.vix+' @ '+VIXDB.date+(VIXDB.fresh?'':' — stale, Yahoo VIX voting instead (flagged)'));}
-  }).catch(e=>spineSet('vix_term',null,'FALLBACK','read failed — Yahoo VIX in use')));
+      spineSet('vix_term',null,VIXDB.fresh?'LIVE':'STALE','VIX '+VIXDB.vix+' @ '+VIXDB.date+(VIXDB.fresh?'':' — stale, the VIX voter is silent'));}
+    else spineSet('vix_term',null,'STALE','table returned no rows — VIX not read, the VIX voter is silent');
+  }).catch(e=>spineSet('vix_term',null,'FALLBACK','read failed ('+e.message+') — VIX not read, the VIX voter is silent')));
   // published sector rotation (written by the sector tool from the same composite_staged)
   J.push(sbGet('sector_rankings?select=date,sector,sector_name,rank,score,method,updated_at&order=date.desc,rank.asc&limit=22').then(rows=>{
     if(rows.length){const d0=rows[0].date; const list=rows.filter(r=>r.date===d0);
