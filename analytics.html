@@ -121,7 +121,7 @@ async function boot(){
     cohorts:'ticker_cohorts?select=ticker,cohort,is_primary&limit=1000',
     fav:'hub_favorites?select=ticker&limit=1000',
     geiger:'composite_staged?select=ticker,trend,momentum,composite,core,updated_ts&tf=eq.D&limit=1000',
-    quotes:'live_quotes?select=ticker,price,chg_pct,prev_close,volume,updated_ts&limit=1000',
+    quotes:'live_quotes?select=ticker,price,chg_pct,prev_close,updated_ts&limit=1000', // no `volume`: the column is gone and naming it 400s the whole read (2026-09-21)
     funda:'fundamentals?select=ticker,price,market_cap,trailing_pe,adjusted_pe,eps_ttm,revenue_ttm,dcf,updated_ts&limit=1000',
     prof:'company_profile?select=ticker,name,sector,beta,is_etf&limit=1000',
     sect:'sector_rankings?select=rank,sector,sector_name,score,trend,momentum,method,updated_at,date&order=rank.asc&limit=100',

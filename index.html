@@ -523,11 +523,18 @@ async function refreshSSOT(){
     spineSet('composite_staged',mx,ageMode(mx,45*60),rows.length+' tickers tf=D — THE geiger (0.5×trend+0.5×momentum, hub equalizer output)');
   }).catch(e=>{COMPOSITE_STATUS='error';spineSet('composite_staged',null,'FALLBACK','read failed ('+e.message+') — client Yahoo geiger in use');}));
   // quote + RVOL inputs
-  J.push(sbGet('live_quotes?select=ticker,price,chg_pct,volume,prev_close,updated_ts&limit=1000').then(rows=>{
+  /* live_quotes no longer has a `volume` column (read-verified 2026-09-21: select=volume -> HTTP 400,
+     select=* -> ticker,price,change,updated_ts,prev_close,chg_pct,price_source). Naming it made
+     PostgREST reject the WHOLE read, so every PRICE and DAY cell went blank and impliedPrices()
+     returned null for every name — an empty product built on a table that holds ~390 rows.
+     Read only the columns the table has. RVOL needs a volume source; rvolTxt() says so instead
+     of printing a bare dash. The cohort-feed fallback the old failure note promised was removed
+     on 2026-08-11, so a failed read now states what is actually missing. */
+  J.push(sbGet('live_quotes?select=ticker,price,chg_pct,prev_close,updated_ts&limit=1000').then(rows=>{
     if(rows.length>=1000) throw new Error('truncated at PostgREST cap');
     const m={}; let mx=null; for(const r of rows){m[r.ticker]=r; const es=Date.parse(r.updated_ts)/1000; if(!mx||es>mx)mx=es;}
-    QUOTES=m; spineSet('live_quotes',mx,ageMode(mx,30*60),rows.length+' quotes');
-  }).catch(e=>spineSet('live_quotes',null,'FALLBACK','read failed — cohort-feed prices in use')));
+    QUOTES=m; spineSet('live_quotes',mx,ageMode(mx,30*60),rows.length+' quotes · price + day % (the table carries no volume column, so RVOL is not read)');
+  }).catch(e=>spineSet('live_quotes',null,'FALLBACK','read failed ('+e.message+') — prices, day % and implied prices not read')));
   J.push(sbGet('company_profile?select=ticker,sector,market_cap,avg_volume,is_etf&limit=1000').then(rows=>{
     if(rows.length>=1000) throw new Error('truncated at PostgREST cap');
     const m={}; for(const r of rows)m[r.ticker]=r;
@@ -596,6 +603,7 @@ function sectorChip(sym){
 }
 function rvolTxt(sym){
   const q=QUOTES[sym],p=PROFILES[sym];
+  if(q&&q.volume==null) return '<span class="cls" title="RVOL not read — live_quotes carries no volume column (dropped upstream); company_profile.avg_volume alone is not a ratio">—</span>';
   if(!q||!p||!q.volume||!p.avg_volume) return '<span class="cls">—</span>';
   const rv=q.volume/p.avg_volume;
   const col=rv>=1.5?'var(--gold)':rv>=1?'var(--txt)':'var(--dim)';
