@@ -67,15 +67,15 @@
   </div>
 </div>
 
-<h2>BREADTH vs CAP-WEIGHTED <span class="hint">equal-weighted sector breadth (this page) against the sector ETF's live quote + Geiger (composite_staged) · divergence = mega-cap carrying, or breadth carrying</span></h2>
+<h2>BREADTH vs CAP-WEIGHTED <span class="hint">equal-weighted sector breadth (this page) against the sector ETF's live quote + Geiger (chart API /quotes + /geiger, the Hub's own) · divergence = mega-cap carrying, or breadth carrying</span></h2>
 <div class="card" style="overflow-x:auto"><div id="cross"></div></div>
 
 <h2>INDEX COMPOSITION <span class="hint">FMP ETF sector weightings — current snapshot only, no history served</span></h2>
 <div class="card" style="overflow-x:auto"><div id="weights"></div></div>
 
 <footer>
-  <b>PROVENANCE</b> · sector_perf_daily / sector_pe_daily / etf_sector_weights ← edge fn <b>sector-feeds-refresh</b> (cron 203, weekdays 07:25 UTC, instrumented to fmp_bandwidth_log) · composite_staged ← Geiger RPCs · live_quotes ← live-quote-batch.<br>
-  <b>PRICE BASIS</b> · this page reports vendor-computed sector aggregates (equal-weighted % change, P/E), which carry no adjusted/raw choice. The ETF cross-check column uses <b>live_quotes</b> = raw prints (LIVE lens). Daily bar surfaces elsewhere in SCINTILLA run on the ADJUSTED basis per app_config.price_basis.<br>
+  <b>PROVENANCE</b> · sector_perf_daily / sector_pe_daily / etf_sector_weights ← edge fn <b>sector-feeds-refresh</b> (cron 203, weekdays 07:25 UTC, instrumented to fmp_bandwidth_log) · sector-ETF Geiger ← chart API /geiger (the Hub Geiger) · live_quotes ← live-quote-batch.<br>
+  <b>PRICE BASIS</b> · this page reports vendor-computed sector aggregates (equal-weighted % change, P/E), which carry no adjusted/raw choice. The ETF cross-check column uses <b>chart API /quotes</b> = raw prints (LIVE lens). Daily bar surfaces elsewhere in SCINTILLA run on the ADJUSTED basis per app_config.price_basis.<br>
   Receipt CC-MEGA-002-WS2 · SCINTILLA Command (Cowork cloud) · hosted on scintilla-allocation (git auto-deploy).
 </footer>
 
@@ -85,6 +85,9 @@ const KEY='sb_publishable_AutibLpFtTns-WHAg67Pvw_I0HmjqE9';
 const H={'apikey':KEY,'Authorization':'Bearer '+KEY};
 const $=id=>document.getElementById(id);
 async function j(p){const r=await fetch(SB+'/'+p,{headers:H,cache:'no-store'});if(!r.ok)throw new Error(p.split('?')[0]+' HTTP '+r.status);return r.json()}
+/* ONE SOURCE (22 Sep 2026): the sector-ETF Geiger and quotes come from the chart API the Hub reads, through the
+   same-origin /chart-api rewrite (vercel.json) — not from composite_staged / live_quotes, frozen for equities. */
+async function cj(t){const r=await fetch('/chart-api'+t.chart,{cache:'no-store'});if(!r.ok)throw new Error('chart API '+t.chart.split('?')[0]+' HTTP '+r.status);return t.map(await r.json())}
 const fN=(x,d=2)=>x==null||!isFinite(x)?'—':(+x).toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:d});
 const fP=x=>x==null||!isFinite(x)?'—':(x>0?'+':'')+(+x).toFixed(2)+'%';
 const cls=x=>x==null||!isFinite(x)?'mut':(x>=0?'up':'dn');
@@ -108,11 +111,12 @@ async function boot(){
     tasks['p:'+s]='sector_perf_daily?select=date,average_change&sector=eq.'+encodeURIComponent(s)+'&exchange=eq.'+exc+'&order=date.desc&limit=300';
     tasks['e:'+s]='sector_pe_daily?select=date,pe&sector=eq.'+encodeURIComponent(s)+'&exchange=eq.'+exc+'&order=date.desc&limit=1000';
   });
-  tasks['geiger']='composite_staged?select=ticker,trend,momentum,composite,updated_ts&tf=eq.D&limit=1000';
-  tasks['quotes']='live_quotes?select=ticker,price,chg_pct,updated_ts&limit=1000';
+  const etfs=Object.values(ETF).join(',');
+  tasks['geiger']={chart:'/geiger?symbols='+etfs,map:b=>Object.entries(b.symbols||{}).filter(([,g])=>g&&g.composite!=null).map(([t,g])=>({ticker:t,trend:g.trend,momentum:g.momentum,composite:g.composite,updated_ts:b.computed_utc}))};
+  tasks['quotes']={chart:'/quotes?symbols='+etfs,map:b=>Object.entries(b.quotes||{}).filter(([,q])=>q&&q.price!=null).map(([t,q])=>({ticker:t,price:q.price,chg_pct:q.change_pct,updated_ts:q.price_observation_utc}))};
   tasks['weights']='etf_sector_weights?select=as_of,etf,sector,weight_pct&limit=1000';
   const keys=Object.keys(tasks);
-  const res=await Promise.allSettled(keys.map(k=>j(tasks[k])));
+  const res=await Promise.allSettled(keys.map(k=>typeof tasks[k]==='string'?j(tasks[k]):cj(tasks[k])));
   keys.forEach((k,i)=>{S[k]=res[i].status==='fulfilled'?res[i].value:{err:res[i].reason}});
   const ok=keys.filter(k=>!S[k].err).length;
   $('dot').className='dot '+(ok===keys.length?'live':(ok>keys.length*0.6?'stale':'err'));
@@ -197,7 +201,12 @@ function renderCross(){
        '<td class="'+cls(r.etfChg)+'">'+fP(r.etfChg)+'</td><td class="'+cls(r.breadth1D)+'">'+fP(r.breadth1D)+'</td><td class="'+cls(r.breadth1M)+'">'+fP(r.breadth1M)+'</td>'+
        '<td class="'+cls(div)+'">'+fP(div)+'</td></tr>';
   });
-  el.innerHTML=h+'</table><div class="small" style="margin-top:6px">DIVERGENCE = cap-weighted ETF move minus equal-weighted breadth, same day. <b>Positive</b> = the big names are pulling the sector up while the average constituent lags (narrow leadership). <b>Negative</b> = broad participation the ETF is not showing. Geiger is the one SSOT reading for that ETF (composite_staged tf=D) — no recomputation here.</div>';
+  const etfList=SECTORS.map(x=>ETF[x]);
+  const qt=etfList.filter(t=>q[t]).map(t=>Date.parse(q[t].updated_ts)).filter(Number.isFinite).sort((a,b)=>a-b);
+  const gt=etfList.filter(t=>g[t]).map(t=>Date.parse(g[t].updated_ts)).filter(Number.isFinite);
+  const ago=t=>{const m=(Date.now()-t)/60000;return m<60?Math.round(m)+'m':m<2880?(m/60).toFixed(1)+'h':Math.round(m/1440)+'d'};
+  const fresh='<div class="small" style="margin-top:6px">SOURCES · Geiger: chart API /geiger, '+etfList.filter(t=>g[t]).length+' of '+SECTORS.length+' ETFs'+(gt.length?', computed '+ago(Math.min(...gt))+' ago':'')+' · quotes: chart API /quotes, '+qt.length+' of '+SECTORS.length+' ETFs'+(qt.length?', oldest '+ago(qt[0])+' ago, median '+ago(qt[Math.floor((qt.length-1)/2)])+' ago':'')+(S.geiger&&S.geiger.err?' · GEIGER READ FAILED ('+S.geiger.err.message+')':'')+(S.quotes&&S.quotes.err?' · QUOTE READ FAILED ('+S.quotes.err.message+')':'')+'</div>';
+  el.innerHTML=h+'</table>'+fresh+'<div class="small" style="margin-top:6px">DIVERGENCE = cap-weighted ETF move minus equal-weighted breadth, same day. <b>Positive</b> = the big names are pulling the sector up while the average constituent lags (narrow leadership). <b>Negative</b> = broad participation the ETF is not showing. Geiger is the one SSOT reading for that ETF (chart API /geiger, the Hub Geiger) — no recomputation here.</div>';
 }
 
 function renderWeights(){

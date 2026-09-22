@@ -101,3 +101,17 @@ test('desk: Geiger age from every row, sector standing from the engine, VIX by t
     assert.ok(vix && /order=date\.desc/.test(vix.path), 'VIX is the newest trading date, not the newest updated_ts: ' + (vix && vix.path));
   } finally { await h.close(); }
 });
+
+test('sectors.html: the sector-ETF Geiger and quotes come from the chart API, with their own row ages', async () => {
+  const h = await openPage('sectors.html', { waitFor: () => /feeds/.test((document.getElementById('asof') || {}).textContent || '') && /SOURCES/.test((document.getElementById('cross') || {}).innerText || ''), settleMs: 600 });
+  try {
+    assert.deepEqual(h.errors, [], 'the page threw');
+    assert.ok(!h.reads.some(r => r.path.startsWith('composite_staged') || r.path.startsWith('live_quotes')), 'no frozen equity table is read: ' + h.reads.map(r => r.path.split('?')[0]).join(','));
+    assert.ok(h.chartReads.some(r => r.path.startsWith('/chart-api/geiger?symbols=') && r.status === 200));
+    assert.ok(h.chartReads.some(r => r.path.startsWith('/chart-api/quotes?symbols=') && r.status === 200));
+    const t = await h.page.evaluate(() => document.getElementById('cross').innerText);
+    assert.match(t, /Technology\s+XLK\s+0\.500/, 'XLK Geiger = (0.60 + 0.40) / 2 from the chart fixture');
+    assert.match(t, /Consumer Defensive\s+XLP[\s\S]*?\+0\.75%/, 'XLP ETF change from /quotes change_pct');
+    assert.match(t, /SOURCES · Geiger: chart API \/geiger, 11 of 11 ETFs.* quotes: chart API \/quotes, 2 of 11 ETFs, oldest \d+m ago/);
+  } finally { await h.close(); }
+});

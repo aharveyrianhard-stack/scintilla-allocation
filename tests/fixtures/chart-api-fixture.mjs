@@ -36,7 +36,12 @@ export function quotesBody(syms, now) {
 }
 export function chartRoute(pathname, search, now, opts = {}) {
   const fail = opts.chartFail || [];
-  if (pathname === '/geiger') return fail.includes('geiger') ? { status: 503, body: { error: 'fixture: geiger down' } } : { status: 200, body: geigerBody(now, opts) };
+  if (pathname === '/geiger') {
+    if (fail.includes('geiger')) return { status: 503, body: { error: 'fixture: geiger down' } };
+    const body = geigerBody(now, opts), want = (new URLSearchParams(search).get('symbols') || '').split(',').filter(Boolean);
+    if (want.length) body.symbols = Object.fromEntries(Object.entries(body.symbols).filter(([k]) => want.includes(k)));  // the live API filters by ?symbols=
+    return { status: 200, body };
+  }
   if (pathname === '/quotes') {
     if (fail.includes('quotes')) return { status: 503, body: { error: 'fixture: quotes down' } };
     const syms = (new URLSearchParams(search).get('symbols') || '').split(',').filter(Boolean);
