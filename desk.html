@@ -167,7 +167,12 @@ function readEngine(W){
       cohortsOf:UNIVERSE.cohorts,
       universeStatus:UNIVERSE.status,
       universeTickers:Object.keys(UNIVERSE.cohorts).length,
-      geigerTs:Math.max(0,...Object.values(COMPOSITE).map(r=>r.updated_ts||0))
+      /* every row's age, never max(updated_ts): /geiger rows carry an ISO time, composite_staged rows epoch seconds */
+      geigerAges:(()=>{ const es=Object.values(COMPOSITE).map(r=>typeof r.updated_ts==='number'?r.updated_ts:Date.parse(r.updated_ts)/1000).filter(Number.isFinite).sort((a,b)=>a-b);
+        return es.length?{oldest:es[0],median:es[Math.floor((es.length-1)/2)],n:es.length}:null })(),
+      geigerSources:Object.values(COMPOSITE).reduce((a,r)=>{ const k=r.src||'db'; a[k]=(a[k]||0)+1; return a },{}),
+      /* the engine's live sector ranking (the /geiger sector ETFs) — one source with the page it frames */
+      sectorRanks:(typeof SECTOR_RANKS!=='undefined'&&SECTOR_RANKS)?{date:SECTOR_RANKS.date,list:SECTOR_RANKS.list.map(r=>({sector:r.sector,sector_name:r.sector_name,rank:r.rank,score:r.score}))}:null
     };
   })())`));
 }
@@ -209,8 +214,10 @@ function chip(name,state,detail){
     const h=E.heat, inv=E.inv, shares=E.shares, cands=E.cands, label=E.label||'';
 
     /* ===== 2. THE EXTRA AXES the module does not yet score on ===== */
-    const today = (await g('sector_rankings?select=date&order=date.desc&limit=1'))[0]?.date;
-    const secRows = today ? await g('sector_rankings?select=sector,sector_name,rank,score&date=eq.'+today+'&order=rank.asc&limit=20') : [];
+    /* sector standing = the allocation engine's own live ranking (chart API /geiger sector ETFs), not the
+       sector_rankings table whose nightly job re-stamps frozen inputs as today's */
+    const today = E.sectorRanks ? E.sectorRanks.date : null;
+    const secRows = E.sectorRanks ? E.sectorRanks.list : [];
     const secByEtf = Object.fromEntries(secRows.map(r=>[r.sector,r]));
 
     /* ticker_cohorts (the view) flattens EVERY membership kind — cohort, industry, size,
@@ -259,7 +266,8 @@ function chip(name,state,detail){
     /* FEAR. Not excluded, not hidden — it is the input that decides how hard to lean.
        VIX is a reading on the market, never a position, so it is kept out of the
        name ranking and used here instead. */
-    const vixRow = (await g('vix_term?select=vix,updated_ts&order=updated_ts.desc&limit=1'))[0];
+    /* newest trading DATE — updated_ts is shared by dozens of rows (82 on 21 Sep), so ordering by it picked an arbitrary day */
+    const vixRow = (await g('vix_term?select=date,vix,updated_ts&order=date.desc&limit=1'))[0];
     const vix = vixRow ? +vixRow.vix : null;
 
     /* Index proxies are the yardsticks the buckets are measured with — you buy a bucket
@@ -373,9 +381,9 @@ function chip(name,state,detail){
       const age=t=>{ if(!t) return '—'; const m=(Date.now()/1000-t)/60; return m<60?Math.round(m)+'m':(m/60).toFixed(1)+'h' };
       document.getElementById('inputs').innerHTML=
         '<tr><th>Reading</th><th>What it decides</th><th>Where it comes from</th><th>How many names it covers</th></tr>'+
-        [['Tape (the geiger)','whether a name is beaten down or running','composite_staged, daily',`${scored.length} of ${scored.length} · ${age(E.geigerTs)} old`],
+        [['Tape (the geiger)','whether a name is beaten down or running','chart API /geiger (equities) · composite_staged (non-equities)',`${scored.length} of ${scored.length} · oldest row ${age(E.geigerAges&&E.geigerAges.oldest)} · median ${age(E.geigerAges&&E.geigerAges.median)}`],
          ['Fear (VIX)','how hard this book leans in or steps back','vix_term',`VIX ${vix==null?'—':vix.toFixed(1)} — ${fearWord(vix)}`],
-         ['Sector standing','which corner of the market is in or out of favour','sector_rankings, published daily',`${nSec} of ${scored.length}`],
+         ['Sector standing','which corner of the market is in or out of favour','chart API /geiger sector ETFs, live',`${nSec} of ${scored.length}`],
          ['Cheapness','the price against its own industry peers','ratios_history + the 93-industry map',`${nCheap} of ${scored.length}`],
 
          ['The buckets','how much money each corner gets','the allocation module, live',`${Object.keys(shares).length} buckets`]

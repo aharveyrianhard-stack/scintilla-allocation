@@ -87,3 +87,17 @@ test('regimes use the /geiger trend and momentum for equities, the daily tables 
     assert.match(st.b.note, /equities from chart API \/geiger \+ \d+ from fan_daily\/momentum_daily/);
   } finally { await h.close(); }
 });
+
+test('desk: Geiger age from every row, sector standing from the engine, VIX by trading date', async () => {
+  const h = await openPage('desk.html', { waitFor: () => /Tape \(the geiger\)/.test(document.body.innerText) && /oldest row|—/.test(document.body.innerText), settleMs: 1500 });
+  try {
+    assert.deepEqual(h.errors, [], 'the desk threw');
+    const txt = await h.page.evaluate(() => document.body.innerText);
+    assert.doesNotMatch(txt, /NaN/, 'no NaN from mixing ISO and epoch row times');
+    assert.match(txt, /chart API \/geiger \(equities\) · composite_staged \(non-equities\)/);
+    assert.match(txt, /oldest row \d+m · median \d+m/, 'the tape badge states oldest and median row age, never the newest row');
+    assert.ok(!h.reads.some(r => r.path.startsWith('sector_rankings')), 'the desk no longer reads sector_rankings');
+    const vix = h.reads.find(r => r.path.startsWith('vix_term'));
+    assert.ok(vix && /order=date\.desc/.test(vix.path), 'VIX is the newest trading date, not the newest updated_ts: ' + (vix && vix.path));
+  } finally { await h.close(); }
+});
