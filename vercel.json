@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/chart-api/:path*",
+      "destination": "https://scintilla-massive-chart-api.fly.dev/:path*"
+    }
+  ]
+}

@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildTables, restGet, compsCsv } from './fixtures/supabase-fixture.mjs';
+import { chartRoute } from './fixtures/chart-api-fixture.mjs';
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -23,11 +24,18 @@ export async function openPage(file, { waitFor, fixtureOpts = {}, settleMs = 400
   const tables = buildTables(Date.now(), fixtureOpts);
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
-  const escaped = [], reads = [], errors = [];
+  const escaped = [], reads = [], chartReads = [], errors = [];
+  const now = Date.now();
   page.on('pageerror', e => errors.push(String(e)));
   await page.route('**/*', async route => {
     const req = route.request(), u = new URL(req.url());
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
+    // the same-origin /chart-api rewrite (vercel.json) -> the offline chart API fixture
+    if (u.origin === PAGE_ORIGIN && u.pathname.startsWith('/chart-api/')) {
+      const r = chartRoute(u.pathname.slice('/chart-api'.length), u.search, now, fixtureOpts);
+      chartReads.push({ path: u.pathname + u.search, status: r.status });
+      return route.fulfill({ status: r.status, headers: { 'content-type': 'application/json' }, body: JSON.stringify(r.body) });
+    }
     if (u.origin === PAGE_ORIGIN) {
       const p = path.join(ROOT, decodeURIComponent(u.pathname === '/' ? '/index.html' : u.pathname));
       if (!p.startsWith(ROOT) || !fs.existsSync(p)) return route.fulfill({ status: 404, body: 'not in worktree' });
@@ -50,5 +58,5 @@ export async function openPage(file, { waitFor, fixtureOpts = {}, settleMs = 400
   await page.goto(PAGE_ORIGIN + '/' + file, { waitUntil: 'load' });
   if (waitFor) await page.waitForFunction(waitFor, null, { timeout: 20000 });
   await page.waitForTimeout(settleMs);
-  return { browser, page, escaped, reads, errors, close: () => browser.close() };
+  return { browser, page, escaped, reads, chartReads, errors, close: () => browser.close() };
 }

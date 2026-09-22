@@ -61,8 +61,8 @@ export function buildTables(now = Date.now(), opts = {}) {
     ...NAMES.map(n => ({ ticker: n[0], group_key: n[3], kind: 'cohort' })),
   ];
   T.hub_favorites = [{ ticker: 'NVDA', added_at: isoTs }, { ticker: 'MU', added_at: isoTs }];
-  T.composite_staged = [...NAMES.map(n => ({ ticker: n[0], trend: n[5], momentum: n[5], composite: n[5], core: n[5], updated_ts: sec, tf: 'D' })),
-    ...PROXIES.map(p => ({ ticker: p[0], trend: p[1], momentum: p[1], composite: p[1], core: p[1], updated_ts: sec, tf: 'D' }))];
+  T.composite_staged = [...NAMES.map(n => ({ ticker: n[0], trend: n[5], momentum: n[5], composite: n[5], core: n[5], updated_ts: sec - (opts.compositeAgeSec || 0), tf: 'D' })),
+    ...PROXIES.map(p => ({ ticker: p[0], trend: p[1], momentum: p[1], composite: p[1], core: p[1], updated_ts: sec - (opts.compositeAgeSec || 0), tf: 'D' }))];
   T.live_quotes = [...NAMES, ...PROXIES.map(p => [p[0], null, null, null, 100 + p[1] * 10])].map(n => ({
     ticker: n[0], price: n[4], change: 1.0, updated_ts: isoTs, prev_close: +(n[4] - 1).toFixed(2), chg_pct: 1.25, price_source: null }));
   T.company_profile = NAMES.filter(n => n[1] === 'TECH').map(n => ({ ticker: n[0], name: n[0] + ' (fixture)', sector: 'Technology', beta: 1.2, is_etf: false, market_cap: 2e11, avg_volume: 1e7 }));

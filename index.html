@@ -439,8 +439,39 @@ function renderSpine(){
   el.innerHTML=Object.entries(SPINE).map(([k,v])=>
     `<span style="border:1px solid ${col[v.mode]||'var(--line)'};color:${col[v.mode]||'var(--dim)'};border-radius:5px;padding:2px 8px;font-size:10px;letter-spacing:.04em" title="${(v.note||'').replace(/"/g,'&quot;')}">${k}${v.ts?' · '+freshTxt(v.ts):''} · ${v.mode}</span>`).join('');
 }
+/* ONE SOURCE (22 Sep 2026, APPROVAL-20260922-PRODUCTION-BATCH job 4). The equity Geiger, trend and
+   momentum, the sector-ETF reads and the prices come from the chart API the Hub itself reads, through
+   this project's same-origin /chart-api rewrite (vercel.json) — no second copy of the numbers.
+   composite_staged, fan_daily/momentum_daily and live_quotes stay only for names the chart API does
+   not carry (crypto, futures, rates), each row dated by its own timestamp. */
+const CHART_API='/chart-api';
+let GEIGER_META=null;
+const SECTOR_ETF_NAME={XLB:'Materials',XLC:'Communication Services',XLE:'Energy',XLF:'Financials',XLI:'Industrials',
+  XLK:'Technology',XLP:'Consumer Staples',XLRE:'Real Estate',XLU:'Utilities',XLV:'Health Care',XLY:'Consumer Discretionary'};
+async function chartGet(path,timeoutMs=25000){
+  const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),timeoutMs);
+  try{
+    const r=await fetch(CHART_API+path,{cache:'no-store',signal:ctl.signal});
+    if(!r.ok) throw new Error('chart API '+path.split('?')[0]+' HTTP '+r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+const epochOf=ts=>typeof ts==='number'?ts:Date.parse(ts)/1000;
+/* Freshness from EVERY row, never the newest one: 22 current rows must not hide 364 frozen ones.
+   The badge carries the OLDEST row's age and a mode that turns STALE if any row is stale; the note
+   adds the median age and the stale count. */
+function spineRows(k,tsList,staleSec,note,forceStale){
+  const es=tsList.map(epochOf).filter(Number.isFinite).sort((a,b)=>a-b);
+  if(!es.length){ spineSet(k,null,'STALE',note+' · no dated rows'); return; }
+  const now=Date.now()/1000, stale=tsList.length-es.filter(e=>now-e<=staleSec).length;
+  const oldest=es[0], median=es[Math.floor((es.length-1)/2)];
+  spineSet(k,oldest,(forceStale||stale)?'STALE':'LIVE',
+    note+' · oldest row '+freshTxt(oldest)+' · median '+freshTxt(median)+' · '+(stale?stale+' of '+tsList.length+' rows stale':'all '+tsList.length+' rows current'));
+}
 async function refreshSSOT(){
   const J=[];
+  /* one /geiger read, shared by the Geiger, regime, sector and quote loaders below */
+  const gP=chartGet('/geiger'); gP.catch(()=>{});
   // THE universe
   /* ticker_cohorts is a VIEW over ticker_membership and emits EVERY membership kind
      (cohort + industry + size + sector + sector_ext) — 1285 rows on 2026-08-10, past the
@@ -485,43 +516,84 @@ async function refreshSSOT(){
     const im={}; for(const r of ind) im[r.ticker]=r.group_key; INDUSTRY_OF=im;
     const ck=await sbGetPaged('ticker_membership?select=group_key&kind=eq.cohort&order=group_key.asc');
     TRUE_COHORT_SET=new Set(ck.map(r=>r.group_key));
-    const d=(await sbGet('sector_rankings?select=date&order=date.desc&limit=1'))[0]?.date;
-    const rows=d?await sbGet('sector_rankings?select=sector,sector_name,rank,score,trend,momentum&date=eq.'+d+'&limit=20'):[];
-    const byEtf={}; for(const r of rows) byEtf[r.sector]=r;
+    /* Sector reads come live from the sector ETFs in /geiger — the same trend × momentum the rotation
+       tool used — not from sector_rankings, whose nightly job re-stamps frozen inputs as today's. */
+    const g=await gP;
+    const d=(g.computed_utc||'').slice(0,10);
+    const byEtf={};
+    for(const etf of new Set(Object.values(SECTOR_ETF_OF))){
+      const s=g.symbols&&g.symbols[etf]; if(!s||s.trend==null||s.momentum==null) continue;
+      byEtf[etf]={sector:etf,sector_name:SECTOR_ETF_NAME[etf]||etf,trend:s.trend,momentum:s.momentum,score:(s.trend+s.momentum)/2,method:'chart API /geiger sector ETF'};
+    }
+    Object.values(byEtf).sort((a,b)=>b.score-a.score).forEach((r,i)=>{ r.rank=i+1; });
     const out={};
     for(const [key,etf] of Object.entries(SECTOR_ETF_OF)){
       const r=byEtf[etf]; if(!r) continue;
       out[key]={key,etf,name:r.sector_name,rank:r.rank,score:r.score,trend:r.trend,momentum:r.momentum,...rrg(r.trend,r.momentum)};
     }
     SECTOR_READ=out;
-    spineSet('sector_rotation',null,'LIVE',Object.keys(out).length+' sectors · '+Object.keys(m).length+' names mapped · '+(d||''));
+    const list=Object.values(byEtf).sort((a,b)=>a.rank-b.rank);
+    SECTOR_RANKS=list.length?{date:d,list,bySector:byEtf,updated_at:g.computed_utc}:null;
+    spineRows('sector_rotation',list.length?[g.computed_utc]:[],3*3600,Object.keys(out).length+' sectors live from the chart API /geiger sector ETFs · '+Object.keys(m).length+' names mapped');
   })().catch(e=>spineSet('sector_rotation',null,'FALLBACK','read failed ('+e.message+')')));
-  // REGIME — trend and momentum kept apart, latest bar only
+  // REGIME — trend and momentum kept apart. Equities: the live /geiger trend and momentum (the Hub's own
+  // numbers; regimeOf() reads only their signs). fan_daily/momentum_daily only for names /geiger does not
+  // carry, each row dated by its own asof.
   J.push((async()=>{
-    const [fa,mo]=await Promise.all([
-      sbGet('fan_daily?select=ticker,asof,read&order=asof.desc&limit=1000'),
-      sbGet('momentum_daily?select=ticker,asof,read&order=asof.desc&limit=1000')
+    const [g,fa,mo]=await Promise.all([
+      gP.catch(()=>null),
+      sbGet('fan_daily?select=ticker,asof,read&order=asof.desc&limit=1000').catch(()=>[]),
+      sbGet('momentum_daily?select=ticker,asof,read&order=asof.desc&limit=1000').catch(()=>[])
     ]);
+    const out={}, ts=[];
+    if(g&&g.symbols){
+      for(const [t,s] of Object.entries(g.symbols)){
+        if(s==null||(s.trend==null&&s.momentum==null)) continue;
+        out[t]={trend:s.trend??null, mom:s.momentum??null, ...regimeOf(s.trend??null, s.momentum??null), src:'chart API /geiger'}; ts.push(g.computed_utc);
+      }
+    }
     const newest=a=>{const d=a.length?a[0].asof:null; return a.filter(r=>r.asof===d)};
-    const T={}, M={};
-    for(const r of newest(fa)) if(T[r.ticker]===undefined) T[r.ticker]=r.read;
-    for(const r of newest(mo)) if(M[r.ticker]===undefined) M[r.ticker]=r.read;
-    const out={}; for(const k of new Set([...Object.keys(T),...Object.keys(M)]))
-      out[k]={trend:T[k]??null, mom:M[k]??null, ...regimeOf(T[k]??null, M[k]??null)};
+    const T={}, M={}, A={};
+    for(const r of newest(fa)) if(T[r.ticker]===undefined){ T[r.ticker]=r.read; A[r.ticker]=r.asof; }
+    for(const r of newest(mo)) if(M[r.ticker]===undefined){ M[r.ticker]=r.read; A[r.ticker]=A[r.ticker]||r.asof; }
+    let nDb=0;
+    for(const k of new Set([...Object.keys(T),...Object.keys(M)])){
+      if(out[k]) continue;
+      out[k]={trend:T[k]??null, mom:M[k]??null, ...regimeOf(T[k]??null, M[k]??null), src:'fan_daily/momentum_daily'}; ts.push(A[k]+'T21:00:00Z'); nDb++;
+    }
+    if(!Object.keys(out).length) throw new Error(g?'no rows':'chart API /geiger unreadable and no daily rows');
     REGIME=out;
-    spineSet('regimes',null,'LIVE',Object.keys(out).length+' names · trend + momentum apart');
+    spineRows('regimes',ts,4*86400,(Object.keys(out).length-nDb)+' equities from chart API /geiger + '+nDb+' from fan_daily/momentum_daily · trend + momentum apart');
   })().catch(e=>spineSet('regimes',null,'FALLBACK','read failed ('+e.message+')')));
   J.push(sbGet('hub_favorites?select=ticker,added_at&limit=1000').then(rows=>{
     UNIVERSE.favs=new Set(rows.map(r=>r.ticker));
     spineSet('hub_favorites',null,'LIVE',rows.length+' favorites');
   }).catch(e=>spineSet('hub_favorites',null,'FALLBACK','read failed')));
-  // THE geiger — composite_staged tf=D (~211 rows, guarded well under the 1000 cap)
-  J.push(sbGet('composite_staged?select=ticker,trend,momentum,composite,updated_ts&tf=eq.D&limit=1000').then(rows=>{
-    if(rows.length>=1000) throw new Error('truncated at PostgREST cap');
-    const m={}; let mx=0; for(const r of rows){m[r.ticker]=r; if(r.updated_ts>mx)mx=r.updated_ts;}
+  // THE geiger — chart API /geiger: the Hub's own artifact for every equity (0.5×trend+0.5×momentum across
+  // the equalizer curve). composite_staged tf=D only for names /geiger does not carry.
+  J.push((async()=>{
+    const [g,rows]=await Promise.all([gP, sbGet('composite_staged?select=ticker,trend,momentum,composite,updated_ts&tf=eq.D&limit=1000').catch(()=>[])]);
+    if(rows.length>=1000) throw new Error('composite_staged truncated at PostgREST cap');
+    const m={}, ts=[];
+    for(const [t,s] of Object.entries(g.symbols||{})){
+      if(s==null||s.composite==null) continue;
+      m[t]={ticker:t,trend:s.trend,momentum:s.momentum,composite:s.composite,updated_ts:g.computed_utc,src:'chart API /geiger'}; ts.push(g.computed_utc);
+    }
+    const nEq=Object.keys(m).length; let nDb=0;
+    for(const r of rows){ if(m[r.ticker]) continue; m[r.ticker]={...r,src:'composite_staged'}; ts.push(r.updated_ts); nDb++; }
+    const pt=g.per_timeframe||{}, staleTf=Object.keys(pt).filter(k=>pt[k]&&pt[k].stale);
+    GEIGER_META={label:(g.verification&&g.verification.label)||null, computed_utc:g.computed_utc, stale_timeframes:staleTf};
     COMPOSITE=m; COMPOSITE_STATUS='ok';
-    spineSet('composite_staged',mx,ageMode(mx,45*60),rows.length+' tickers tf=D — THE geiger (0.5×trend+0.5×momentum, hub equalizer output)');
-  }).catch(e=>{COMPOSITE_STATUS='error';spineSet('composite_staged',null,'FALLBACK','read failed ('+e.message+') — client Yahoo geiger in use');}));
+    spineRows('geiger',ts,45*60,nEq+' equities from chart API /geiger ('+(GEIGER_META.label||'unlabelled')+(staleTf.length?', stale timeframes '+staleTf.join('/'):'')+') + '+nDb+' non-equity rows from composite_staged',staleTf.length>0);
+  })().catch(async e=>{
+    /* /geiger unreadable: composite_staged alone, dated row by row, so the badge says how old it is */
+    try{
+      const rows=await sbGet('composite_staged?select=ticker,trend,momentum,composite,updated_ts&tf=eq.D&limit=1000');
+      const m={}; for(const r of rows) m[r.ticker]={...r,src:'composite_staged'};
+      COMPOSITE=m; COMPOSITE_STATUS='ok';
+      spineRows('geiger',rows.map(r=>r.updated_ts),45*60,'chart API /geiger unreadable ('+e.message+') — composite_staged only',true);
+    }catch(e2){ COMPOSITE_STATUS='error'; spineSet('geiger',null,'FALLBACK','read failed ('+e.message+'; '+e2.message+') — client Yahoo geiger in use'); }
+  }));
   // quote + RVOL inputs
   /* live_quotes no longer has a `volume` column (read-verified 2026-09-21: select=volume -> HTTP 400,
      select=* -> ticker,price,change,updated_ts,prev_close,chg_pct,price_source). Naming it made
@@ -530,11 +602,39 @@ async function refreshSSOT(){
      Read only the columns the table has. RVOL needs a volume source; rvolTxt() says so instead
      of printing a bare dash. The cohort-feed fallback the old failure note promised was removed
      on 2026-08-11, so a failed read now states what is actually missing. */
-  J.push(sbGet('live_quotes?select=ticker,price,chg_pct,prev_close,updated_ts&limit=1000').then(rows=>{
-    if(rows.length>=1000) throw new Error('truncated at PostgREST cap');
-    const m={}; let mx=null; for(const r of rows){m[r.ticker]=r; const es=Date.parse(r.updated_ts)/1000; if(!mx||es>mx)mx=es;}
-    QUOTES=m; spineSet('live_quotes',mx,ageMode(mx,30*60),rows.length+' quotes · price + day % (the table carries no volume column, so RVOL is not read)');
-  }).catch(e=>spineSet('live_quotes',null,'FALLBACK','read failed ('+e.message+') — prices, day % and implied prices not read')));
+  /* PRICES — chart API /quotes (the Hub board's own quotes, change_pct in percent units like chg_pct) for
+     every /geiger equity; live_quotes only for names the chart API does not quote. Every row is dated by
+     its own observation time. */
+  J.push((async()=>{
+    const [g,lq]=await Promise.all([gP.catch(()=>null), sbGet('live_quotes?select=ticker,price,chg_pct,prev_close,updated_ts&limit=1000').catch(e=>({error:e}))]);
+    const m={}, ts=[]; let chartErr=null;
+    if(g&&g.symbols){
+      const syms=Object.keys(g.symbols), CH=120;
+      for(let i=0;i<syms.length;i+=CH){
+        try{
+          const r=await chartGet('/quotes?symbols='+encodeURIComponent(syms.slice(i,i+CH).join(',')));
+          for(const [t,q] of Object.entries(r.quotes||{})){
+            if(!q||q.price==null) continue;
+            m[t]={ticker:t,price:q.price,chg_pct:q.change_pct,prev_close:q.previous_close,updated_ts:q.price_observation_utc,volume:null,src:'chart API /quotes'};
+            ts.push(q.price_observation_utc);
+          }
+        }catch(e){ chartErr=e; }
+      }
+    } else chartErr=new Error('chart API /geiger unreadable, so there is no equity list to quote');
+    const lqErr=(lq&&lq.error)?lq.error:null; let nDb=0;
+    if(!lqErr){
+      if(lq.length>=1000) throw new Error('live_quotes truncated at PostgREST cap');
+      for(const r of lq){ if(m[r.ticker]) continue; m[r.ticker]={...r,src:'live_quotes'}; ts.push(r.updated_ts); nDb++; }
+    }
+    QUOTES=m;
+    if(!Object.keys(m).length){
+      spineSet('quotes',null,'FALLBACK','read failed ('+[chartErr,lqErr].filter(Boolean).map(e=>e.message).join('; ')+') — prices, day % and implied prices not read');
+      return;
+    }
+    spineRows('quotes',ts,30*60,(Object.keys(m).length-nDb)+' equity prices from chart API /quotes'+(chartErr?' (incomplete: '+chartErr.message+')':'')+
+      ' + '+nDb+' from live_quotes'+(lqErr?' (live_quotes read failed ('+lqErr.message+') — non-equity prices not read)':'')+
+      ' · price + day % (no volume source, so RVOL is not read)',!!chartErr);
+  })().catch(e=>spineSet('quotes',null,'FALLBACK','read failed ('+e.message+') — prices, day % and implied prices not read')));
   J.push(sbGet('company_profile?select=ticker,sector,market_cap,avg_volume,is_etf&limit=1000').then(rows=>{
     if(rows.length>=1000) throw new Error('truncated at PostgREST cap');
     const m={}; for(const r of rows)m[r.ticker]=r;
@@ -557,16 +657,10 @@ async function refreshSSOT(){
       spineSet('vix_term',null,VIXDB.fresh?'LIVE':'STALE','VIX '+VIXDB.vix+' @ '+VIXDB.date+(VIXDB.fresh?'':' — stale, the VIX voter is silent'));}
     else spineSet('vix_term',null,'STALE','table returned no rows — VIX not read, the VIX voter is silent');
   }).catch(e=>spineSet('vix_term',null,'FALLBACK','read failed ('+e.message+') — VIX not read, the VIX voter is silent')));
-  // published sector rotation (written by the sector tool from the same composite_staged)
-  J.push(sbGet('sector_rankings?select=date,sector,sector_name,rank,score,method,updated_at&order=date.desc,rank.asc&limit=22').then(rows=>{
-    if(rows.length){const d0=rows[0].date; const list=rows.filter(r=>r.date===d0);
-      SECTOR_RANKS={date:d0,list,bySector:Object.fromEntries(list.map(r=>[r.sector,r])),updated_at:rows[0].updated_at};
-      spineSet('sector_rankings',rows[0].updated_at,ageMode(rows[0].updated_at,3*3600),list.length+' sectors @ '+d0+' — published by the sector-rotation tool');}
-    else spineSet('sector_rankings',null,'STALE','table empty');
-  }).catch(e=>spineSet('sector_rankings',null,'FALLBACK','read failed — sector lens off')));
+  // sector ranking: computed above from the /geiger sector ETFs (sector_rankings re-stamps frozen inputs nightly)
   // operator weights (hub applies these upstream inside composite_staged; read for transparency)
   J.push(sbGet('operator_weights?select=dim,key,weight,enabled&limit=100').then(rows=>{
-    OPW={rows:rows.length}; spineSet('operator_weights',null,'LIVE',rows.length+' rows — applied upstream by the hub inside composite_staged');
+    OPW={rows:rows.length}; spineSet('operator_weights',null,'LIVE',rows.length+' rows — applied upstream by the Hub inside its Geiger (chart API /geiger)');
   }).catch(e=>spineSet('operator_weights',null,'FALLBACK','read failed')));
   await Promise.all(J);
   /* CRYPTO, METALS and OIL are sectors too — they are simply not State Street ones, so
@@ -603,7 +697,7 @@ function sectorChip(sym){
 }
 function rvolTxt(sym){
   const q=QUOTES[sym],p=PROFILES[sym];
-  if(q&&q.volume==null) return '<span class="cls" title="RVOL not read — live_quotes carries no volume column (dropped upstream); company_profile.avg_volume alone is not a ratio">—</span>';
+  if(q&&q.volume==null) return '<span class="cls" title="RVOL not read — no volume source: chart API /quotes and live_quotes carry no volume; company_profile.avg_volume alone is not a ratio">—</span>';
   if(!q||!p||!q.volume||!p.avg_volume) return '<span class="cls">—</span>';
   const rv=q.volume/p.avg_volume;
   const col=rv>=1.5?'var(--gold)':rv>=1?'var(--txt)':'var(--dim)';
@@ -766,16 +860,16 @@ const DEFAULTS = {
   wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25, BREADTH_EW:0.5, BREADTH_SC:0.25, VIX_TERM:0.25, CURVE:0.5, PCC:0, SKEW:0.25, ADLINE:0.5, TRIN:0.25, B_VOL:0.25, CONC:0.5, CREDIT:0.5, DURATION:0.25, HAVEN:0.25}
 };
 const VOTER_DESC = {
-  SPY: 'PROXY: SPY (composite_staged · db; Yahoo fallback). The approved geiger on the S&P across your full equalizer curve (2h→1w): ribbon order 50% + momentum 50% (RSI 60 / W%R 40, straight 23→77 map — every level in between feeds, per GOOGL_GEIGER_v2). WHEN it reads positive the market is stretched and it pushes the score UP toward Overbought; negative = washed out, pushes DOWN toward Oversold.',
-  QQQ: 'PROXY: QQQ (composite_staged · db; Yahoo fallback). Same geiger on the Nasdaq-100. When growth is the stretched side it pushes the score UP; when growth is the beaten-down side (like now) it pulls the score DOWN. Watch it vs SPY: the gap says which side is discounted.',
-  IWM: 'PROXY: IWM (composite_staged · db; Yahoo fallback). Same geiger on small caps. As a voter it adds breadth: a rally without small caps reads cooler. NOTE: whether weighted or not, IWM-vs-SPY always drives the LC/SC split in panel 2.',
-  SMH: 'PROXY: SMH (composite_staged · db; Yahoo fallback). Same geiger on semis, the current leadership. Weighted in, a stretched semi complex pushes the score UP (leadership froth) and a broken one drags it DOWN.',
+  SPY: 'PROXY: SPY (chart API /geiger; Yahoo fallback). The approved geiger on the S&P across your full equalizer curve (2h→1w): ribbon order 50% + momentum 50% (RSI 60 / W%R 40, straight 23→77 map — every level in between feeds, per GOOGL_GEIGER_v2). WHEN it reads positive the market is stretched and it pushes the score UP toward Overbought; negative = washed out, pushes DOWN toward Oversold.',
+  QQQ: 'PROXY: QQQ (chart API /geiger; Yahoo fallback). Same geiger on the Nasdaq-100. When growth is the stretched side it pushes the score UP; when growth is the beaten-down side (like now) it pulls the score DOWN. Watch it vs SPY: the gap says which side is discounted.',
+  IWM: 'PROXY: IWM (chart API /geiger; Yahoo fallback). Same geiger on small caps. As a voter it adds breadth: a rally without small caps reads cooler. NOTE: whether weighted or not, IWM-vs-SPY always drives the LC/SC split in panel 2.',
+  SMH: 'PROXY: SMH (chart API /geiger; Yahoo fallback). Same geiger on semis, the current leadership. Weighted in, a stretched semi complex pushes the score UP (leadership froth) and a broken one drags it DOWN.',
   VIX: 'PROXY: VIX level (vix_term · db when fresh; Yahoo fallback flagged when stale), not a geiger. HOW IT VOTES: below ~21 it votes hot (+) — calm/complacency, pushes the score UP; above ~21 it votes cold (−) — fear, pulls it DOWN; at 12 it maxes at +1, at your cold endpoint (30) it floors at −1, clamped beyond. Today 18.8 → +0.25: mildly complacent. KNOWN LIMIT: level-only is v1-simplistic — term structure (VIX vs VIX3M) and rate-of-change are roadmap upgrades.',
   US10Y: 'PROXY: US 10Y yield (treasury_rates.y10 · db; Yahoo fallback), not a geiger. HOW IT VOTES: below ~4.15% yields are fuel — pushes the score UP; above ~4.15% they are a headwind — pulls it DOWN; +1 at 3.5%, −1 at 4.8%. Today 4.54% → −0.60: rates are a drag. Same v1-simplistic caveat as VIX — a yield-trend geiger is a roadmap upgrade.',
   OIL: 'PROXY: CLUSD crude (composite_staged · db; Yahoo fallback), its own independent voter — never lumped with other commodities. INVERTED geiger: oil trending hot = inflation pressure = pulls the score DOWN; oil breaking down = relief = pushes UP. Base weight 0.5 because it matters now; dial to 0 the day it stops.',
-  VALUE: 'PROXY: RSP equal-weight S&P (composite_staged · db). The value/breadth style. Straight geiger: a hot equal-weight tape = broad strength pushes the score UP; a cold one = narrow market, pulls DOWN. Base weight 0 — reading only for now; as a STYLE it will re-rank candidates rather than vote, per the roadmap.',
+  VALUE: 'PROXY: RSP equal-weight S&P (chart API /geiger). The value/breadth style. Straight geiger: a hot equal-weight tape = broad strength pushes the score UP; a cold one = narrow market, pulls DOWN. Base weight 0 — reading only for now; as a STYLE it will re-rank candidates rather than vote, per the roadmap.',
   CRYPTO: 'PROXY: BTCUSD (composite_staged · db). The risk-appetite tell. Straight geiger: BTC running hot = speculative appetite = pushes the score UP; BTC breaking = risk coming off = pulls DOWN. Base weight 0.25 — a tell, not a driver.',
-  DEF: 'PROXY: XLP+XLU average (composite_staged · db), INVERTED. When defensives are the hot trade, money is hiding — that is risk-off, so it pulls the score DOWN; defensives cold = nobody paying up for safety = pushes UP. Base weight 0.25.'
+  DEF: 'PROXY: XLP+XLU average (chart API /geiger), INVERTED. When defensives are the hot trade, money is hiding — that is risk-off, so it pulls the score DOWN; defensives cold = nobody paying up for safety = pushes UP. Base weight 0.25.'
 };
 let S = JSON.parse(localStorage.getItem('alloc-module-v1') || 'null') || structuredClone(DEFAULTS);
 S.wts = Object.assign(structuredClone(DEFAULTS.wts), S.wts || {});
@@ -886,7 +980,7 @@ function f2v(x){return x==null?'—':(x>=0?'+':'')+(+x).toFixed(2)}
 function voters(){
   const v = [];
   const idx = sym => gv(sym);                                            // SSOT: composite_staged
-  const gsrc = sym => COMPOSITE[sym] ? 'composite_staged · db' : (COHORT[sym] ? 'FALLBACK client geiger (yahoo)' : '—');
+  const gsrc = sym => COMPOSITE[sym] ? (COMPOSITE[sym].src || 'db') : (COHORT[sym] ? 'FALLBACK client geiger (yahoo)' : '—');
   v.push({key:'SPY', speed:0.15, name:'SPY GEIGER', sub:gsrc('SPY'), val:idx('SPY')});
   v.push({key:'QQQ', speed:0.15, name:'QQQ GEIGER', sub:gsrc('QQQ'), val:idx('QQQ')});
   v.push({key:'IWM', speed:0.15, name:'IWM GEIGER', sub:'small caps · '+gsrc('IWM'), val:idx('IWM')});
@@ -971,9 +1065,9 @@ function voters(){
           val:(gM!=null&&gS3!=null)?clamp(-(gM-gS3)):null});
   /* CREDIT and DURATION — the two transmission channels Station asks for. */
   const gH=gv('HYG'), gT=gv('TLT'), gG=gv('GCUSD');
-  v.push({key:'CREDIT', name:'CREDIT (HYG)', speed:0.85, sub:gH!=null?'high yield · composite_staged':'—', val:gH});
-  v.push({key:'DURATION', name:'DURATION (TLT)', speed:0.85, sub:gT!=null?'long treasuries · composite_staged':'—', val:gT});
-  v.push({key:'HAVEN', name:'GOLD (inv)', speed:0.15, sub:gG!=null?'haven bid · composite_staged':'—', val:gG!=null?clamp(-gG):null});
+  v.push({key:'CREDIT', name:'CREDIT (HYG)', speed:0.85, sub:gH!=null?'high yield · chart API /geiger':'—', val:gH});
+  v.push({key:'DURATION', name:'DURATION (TLT)', speed:0.85, sub:gT!=null?'long treasuries · chart API /geiger':'—', val:gT});
+  v.push({key:'HAVEN', name:'GOLD (inv)', speed:0.15, sub:gG!=null?'haven bid · chart API /geiger':'—', val:gG!=null?clamp(-gG):null});
   /* Broad-market breadth voters. Each abstains when its series is absent. */
   /* SNAPSHOT SEED (2026-08-11). Alan: "for the moment you need to pull from tradingview.
      just chart by chart, so you have data. you can finish this code that's pending and we see
@@ -1245,9 +1339,9 @@ function render(){
   renderCohort(dLC, dSC);
   renderComps();
   renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot, dLC, dSC);
-  const csFresh = SPINE['composite_staged'] && SPINE['composite_staged'].ts ? freshTxt(SPINE['composite_staged'].ts) : '—';
-  document.getElementById('stamp').textContent = 'MACRO HEAT MODULE · geiger SSOT composite_staged (' + csFresh + ') · universe ticker_cohorts+hub_favorites · % only, never dollars';
-  document.getElementById('cohstamp').textContent = 'SSOT: composite_staged + ticker_cohorts/hub_favorites + live_quotes + sector_rankings (db) · comps: fundamentals/ratios_history/analyst_estimates · fallback feeds flagged in the badge strip';
+  const csFresh = SPINE['geiger'] && SPINE['geiger'].ts ? 'oldest row ' + freshTxt(SPINE['geiger'].ts) : '—';
+  document.getElementById('stamp').textContent = 'MACRO HEAT MODULE · geiger SSOT chart API /geiger (' + csFresh + ') · universe ticker_cohorts+hub_favorites · % only, never dollars';
+  document.getElementById('cohstamp').textContent = 'SSOT: chart API /geiger + /quotes (equities and sector ETFs) · composite_staged + live_quotes for non-equities only · ticker_cohorts/hub_favorites · comps: fundamentals/ratios_history/analyst_estimates · fallback feeds flagged in the badge strip';
   renderSpine(); renderSectorStrip();
   save();
 }
@@ -1788,11 +1882,11 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   const L = [];
   const gTrace = sym => {
     const r = COMPOSITE[sym];
-    if (r) return `${sym}  composite_staged (tf=D, db): trend ${f2(r.trend)}×0.5 + momentum ${f2(r.momentum)}×0.5 = ${f2(r.composite)}   [${freshTxt(r.updated_ts)}]`;
+    if (r) return `${sym}  ${r.src || 'db'}: trend ${f2(r.trend)}×0.5 + momentum ${f2(r.momentum)}×0.5 = ${f2(r.composite)}   [${freshTxt(r.updated_ts)}]`;
     const c = COHORT[sym]; if (!c || !c.tf) return sym+': no data';
     return `${sym}  FALLBACK client geiger (cohort-feed Yahoo primitives, equalizer curve local) = ${f2(geiger(c))}`;
   };
-  L.push('STEP A · GEIGER VOTERS (SSOT: composite_staged — the hub equalizer output; client geiger math retired to fallback)');
+  L.push('STEP A · GEIGER VOTERS (SSOT: chart API /geiger for equities, composite_staged only for non-equities — the hub equalizer output; client geiger math retired to fallback)');
   for (const s of ['SPY','QQQ','IWM','SMH']) L.push('  ' + gTrace(s));
   const vix = (VIXDB && VIXDB.fresh) ? VIXDB.vix : MACRO['VIX']?.value, ten = (TREAS && TREAS.y10!=null) ? TREAS.y10 : MACRO['US10Y']?.value;
   const vv = voters();
