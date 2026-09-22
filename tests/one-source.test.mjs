@@ -115,3 +115,16 @@ test('sectors.html: the sector-ETF Geiger and quotes come from the chart API, wi
     assert.match(t, /SOURCES · Geiger: chart API \/geiger, 11 of 11 ETFs.* quotes: chart API \/quotes, 2 of 11 ETFs, oldest \d+m ago/);
   } finally { await h.close(); }
 });
+
+test('analytics.html: Geiger, sectors and prices from the chart API; freshness cards date every row', async () => {
+  const h = await openPage('analytics.html', { waitFor: () => /feeds/.test((document.getElementById('asof') || {}).textContent || ''), settleMs: 800 });
+  try {
+    assert.deepEqual(h.errors, [], 'the page threw');
+    assert.ok(!h.reads.some(r => r.path.startsWith('sector_rankings')), 'sector_rankings is not read');
+    const out = await h.page.evaluate(() => ({ strip: document.getElementById('macroStrip').innerText, sect: document.getElementById('sectors').innerText, head: document.getElementById('secHead').innerText, nvda: S.map.NVDA && S.map.NVDA.g && S.map.NVDA.g.src, btc: S.map.BTCUSD && S.map.BTCUSD.g && S.map.BTCUSD.g.src }));
+    assert.equal(out.nvda, 'chart API /geiger'); assert.equal(out.btc, 'composite_staged');
+    assert.match(out.strip, /GEIGER — OLDEST ROW[\s\S]*median[\s\S]*from chart API \/geiger \(COMPLETE_UNSTAMPED\) \+ \d+ composite_staged/);
+    assert.match(out.sect, /^\s*#[\s\S]*?\n1\s+Technology\s+0\.500/m, 'XLK (Technology) ranks first, score (0.60+0.40)/2');
+    assert.match(out.head, /live from the chart API \/geiger sector ETFs/i);  // the heading is uppercased by CSS
+  } finally { await h.close(); }
+});

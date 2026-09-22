@@ -66,9 +66,10 @@ test('analytics.html: quotes load, so DCF vs PRICE is drawn from the populated f
     const lq = h.reads.find(r => r.path.startsWith('live_quotes'));
     assert.equal(lq.status, 200, 'the live_quotes read is accepted — ' + lq.path);
     const out = await h.page.evaluate(() => ({ strip: document.getElementById('macroStrip').innerText, dcf: document.getElementById('dcfGaps').innerText }));
-    assert.doesNotMatch(out.strip, /QUOTES FRESH\s*ERR/, 'QUOTES FRESH reads the table instead of ERR');
+    assert.doesNotMatch(out.strip, /QUOTES — OLDEST ROW\s*ERR/, 'the quotes card reads its rows instead of ERR');
+    assert.match(out.strip, /from chart API \/quotes \+ \d+ live_quotes/, 'equity prices from /quotes, the rest from live_quotes (22 Sep one source)');
     assert.doesNotMatch(out.dcf, /no dcf data/, 'the DCF panel is not reported empty when fundamentals.dcf is populated');
-    assert.match(out.dcf, /NVDA\s+150\.00\s+181\.25\s+-17\.24%/, 'FMP-DCF 150 vs live 181.25 → gap −17.24% (synthetic fixture)');
+    assert.match(out.dcf, /NVDA\s+150\.00\s+181\.75\s+-17\.47%/, 'FMP-DCF 150 vs the chart API price 181.75 → gap −17.47% (synthetic fixture)');
   } finally { await h.close(); }
 });
 

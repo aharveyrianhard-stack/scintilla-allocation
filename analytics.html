@@ -59,17 +59,17 @@
   <span class="pill">M-1 CONSOLIDATED</span>
   <span class="conn"><span class="dot" id="connDot"></span><span id="asof">booting…</span></span>
 </h1>
-<div class="banner"><b>ONE SYSTEM, DOCUMENTED SSOTs:</b> Geiger = <b>composite_staged</b> (0.5×Trend + 0.5×Momentum, tf=D) · Universe = <b>ticker_cohorts + hub_favorites</b> · Value = <b>fundamentals + ratios_history + analyst_estimates</b> · Macro = <b>treasury_rates / vix_term / operator_weights</b> · Bars: <b>eod_adjusted</b> <span class="pill basis">ADJ</span> + <b>ohlcv_history</b> <span class="pill raw">RAW</span> · This page never calls FMP or Yahoo — anon PostgREST reads only, per-ticker fetches on demand (1000-row cap respected). Every number states its basis.</div>
+<div class="banner"><b>ONE SYSTEM, DOCUMENTED SSOTs:</b> Geiger = <b>chart API /geiger</b> (the Hub Geiger; composite_staged only for non-equities) · Universe = <b>ticker_cohorts + hub_favorites</b> · Value = <b>fundamentals + ratios_history + analyst_estimates</b> · Macro = <b>treasury_rates / vix_term / operator_weights</b> · Bars: <b>eod_adjusted</b> <span class="pill basis">ADJ</span> + <b>ohlcv_history</b> <span class="pill raw">RAW</span> · This page never calls FMP or Yahoo — anon PostgREST reads only, per-ticker fetches on demand (1000-row cap respected). Every number states its basis.</div>
 
 <div class="strip" id="macroStrip"></div>
 
-<h2>GEIGER &amp; SECTOR ROTATION <span class="hint">W4 — sector_rankings (method shown verbatim) + cohort rollup of composite_staged · retires per-module Yahoo geigers</span></h2>
+<h2>GEIGER &amp; SECTOR ROTATION <span class="hint">W4 — sector ranking live from the chart API /geiger sector ETFs + cohort rollup of the same Geiger · retires per-module Yahoo geigers</span></h2>
 <div class="grid2">
   <div class="card"><div class="k" id="secHead">SECTOR RANKINGS</div><div id="sectors"></div></div>
-  <div class="card"><div class="k">COHORT GEIGER ROLLUP <span class="small">(avg composite by cohort — client-side over composite_staged tf=D)</span></div><div id="cohortGeiger"></div></div>
+  <div class="card"><div class="k">COHORT GEIGER ROLLUP <span class="small">(avg composite by cohort — client-side over the chart API /geiger)</span></div><div id="cohortGeiger"></div></div>
 </div>
 
-<h2>VALUE LAYER <span class="hint">W3 — fundamentals + live_quotes + composite_staged joined; row click → ratios &amp; estimates &amp; ADJ/RAW spark (per-ticker fetch)</span>
+<h2>VALUE LAYER <span class="hint">W3 — fundamentals + chart API /quotes + /geiger joined; row click → ratios &amp; estimates &amp; ADJ/RAW spark (per-ticker fetch)</span>
   <span style="margin-left:auto"><select id="cohortSel"></select></span></h2>
 <div class="card" style="overflow-x:auto"><div id="valueTable"></div></div>
 
@@ -114,17 +114,39 @@ const cls=x=>x==null?'mut':(x>=0?'up':'dn');
 const agoS=e=>{if(!e)return '—';const s=Math.floor(Date.now()/1000-e);return s<90?s+'s':s<5400?Math.round(s/60)+'m':s<172800?Math.round(s/3600)+'h':Math.round(s/86400)+'d'};
 const agoD=iso=>{if(!iso)return '—';const d=Math.round((Date.now()-new Date(iso+(iso.length<=10?'T00:00:00Z':'')).getTime())/86400000);return d+'d'};
 const fPS=x=>x==null?'—':fP(Math.abs(x)>1.5?x:x*100); // ratio fields: fraction-or-percent tolerant
+/* ONE SOURCE (22 Sep 2026): the equity Geiger, sector-ETF reads and equity prices come from the chart API the
+   Hub reads, through the same-origin /chart-api rewrite (vercel.json). composite_staged and live_quotes stay only
+   for names the chart API does not carry. Freshness cards date every row (oldest / median), never the newest. */
+async function cj(path){const r=await fetch('/chart-api'+path,{cache:'no-store'});if(!r.ok)throw new Error('chart API '+path.split('?')[0]+' HTTP '+r.status);return r.json()}
+const SECTOR_ETF_NAME={XLB:'Materials',XLC:'Communication Services',XLE:'Energy',XLF:'Financials',XLI:'Industrials',XLK:'Technology',XLP:'Consumer Staples',XLRE:'Real Estate',XLU:'Utilities',XLV:'Health Care',XLY:'Consumer Discretionary'};
+function rowAgeStats(es){es=es.filter(Number.isFinite).sort((a,b)=>a-b);return es.length?{oldest:es[0],median:es[Math.floor((es.length-1)/2)],n:es.length}:null}
+async function oneSource(){
+  const g=await cj('/geiger');
+  const at=Date.parse(g.computed_utc)/1000, rows=[];
+  for(const [t,v] of Object.entries(g.symbols||{})) if(v&&v.composite!=null) rows.push({ticker:t,trend:v.trend,momentum:v.momentum,composite:v.composite,core:null,updated_ts:at,src:'chart API /geiger'});
+  const syms=rows.map(r=>r.ticker), quotes=[]; let qErr=null;
+  const chunks=[]; for(let i=0;i<syms.length;i+=120) chunks.push(syms.slice(i,i+120));
+  /* ONE AT A TIME: the chart API sheds concurrent /quotes load (parallel chunks all got HTTP 503 on 22 Sep) */
+  const got=[]; for(const c of chunks){ try{ got.push({status:'fulfilled',value:await cj('/quotes?symbols='+encodeURIComponent(c.join(',')))}); }catch(e){ got.push({status:'rejected',reason:e}); } }
+  for(const r of got){
+    if(r.status!=='fulfilled'){ qErr=r.reason; continue; }
+    for(const [t,q] of Object.entries(r.value.quotes||{})) if(q&&q.price!=null) quotes.push({ticker:t,price:q.price,chg_pct:q.change_pct,prev_close:q.previous_close,updated_ts:q.price_observation_utc,src:'chart API /quotes'});
+  }
+  const sect=Object.keys(SECTOR_ETF_NAME).filter(t=>g.symbols&&g.symbols[t]&&g.symbols[t].trend!=null&&g.symbols[t].momentum!=null)
+    .map(t=>({sector:t,sector_name:SECTOR_ETF_NAME[t],trend:g.symbols[t].trend,momentum:g.symbols[t].momentum,score:(g.symbols[t].trend+g.symbols[t].momentum)/2,method:'live from the chart API /geiger sector ETFs, (trend+momentum)/2',updated_at:g.computed_utc,date:g.computed_utc.slice(0,10)}))
+    .sort((a,b)=>b.score-a.score).map((r,i)=>Object.assign(r,{rank:i+1}));
+  return {geiger:rows, quotes, qErr, sect, label:(g.verification&&g.verification.label)||null};
+}
 function errBox(el,e){el.innerHTML='<div class="err-box">FEED ERROR — '+e.message+' (shown, never faked)</div>'}
 
 async function boot(){
   const q={
     cohorts:'ticker_cohorts?select=ticker,cohort,is_primary&limit=1000',
     fav:'hub_favorites?select=ticker&limit=1000',
-    geiger:'composite_staged?select=ticker,trend,momentum,composite,core,updated_ts&tf=eq.D&limit=1000',
-    quotes:'live_quotes?select=ticker,price,chg_pct,prev_close,updated_ts&limit=1000', // no `volume`: the column is gone and naming it 400s the whole read (2026-09-21)
+    geigerDb:'composite_staged?select=ticker,trend,momentum,composite,core,updated_ts&tf=eq.D&limit=1000',   // non-equities only (see oneSource)
+    quotesDb:'live_quotes?select=ticker,price,chg_pct,prev_close,updated_ts&limit=1000', // non-equities only; no `volume`: the column is gone and naming it 400s the whole read (2026-09-21)
     funda:'fundamentals?select=ticker,price,market_cap,trailing_pe,adjusted_pe,eps_ttm,revenue_ttm,dcf,updated_ts&limit=1000',
     prof:'company_profile?select=ticker,name,sector,beta,is_etf&limit=1000',
-    sect:'sector_rankings?select=rank,sector,sector_name,score,trend,momentum,method,updated_at,date&order=rank.asc&limit=100',
     y10:'treasury_rates?select=date,y10&order=date.desc&limit=1',
     vix:'vix_term?select=date,vix,vix3m,ratio&order=date.desc&limit=1',
     wts:'operator_weights?select=dim,key,weight,enabled&limit=100'
@@ -132,6 +154,22 @@ async function boot(){
   const keys=Object.keys(q);
   const res=await Promise.allSettled(keys.map(k=>j(q[k])));
   keys.forEach((k,i)=>{S[k]=res[i].status==='fulfilled'?res[i].value:{err:res[i].reason}});
+  /* equities from the chart API; the database rows only for names it does not carry */
+  try{
+    const o=await oneSource();
+    const gDb=S.geigerDb.err?[]:S.geigerDb, qDb=S.quotesDb.err?[]:S.quotesDb;
+    const gSeen=new Set(o.geiger.map(r=>r.ticker)), qSeen=new Set(o.quotes.map(r=>r.ticker));
+    S.geiger=o.geiger.concat(gDb.filter(r=>!gSeen.has(r.ticker)).map(r=>Object.assign({},r,{src:'composite_staged'})));
+    S.quotes=o.quotes.concat(qDb.filter(r=>!qSeen.has(r.ticker)).map(r=>Object.assign({},r,{src:'live_quotes'})));
+    S.sect=o.sect.length?o.sect:{err:new Error('no sector ETF in /geiger')};
+    S.geigerLabel=o.label; S.quotesNote=o.qErr?'incomplete: '+o.qErr.message:'';
+  }catch(e){
+    /* chart API unreachable: say so, and show the database rows with their real ages */
+    S.chartErr=e;
+    S.geiger=S.geigerDb.err?{err:e}:S.geigerDb.map(r=>Object.assign({},r,{src:'composite_staged'}));
+    S.quotes=S.quotesDb.err?{err:e}:S.quotesDb.map(r=>Object.assign({},r,{src:'live_quotes'}));
+    S.sect={err:new Error('chart API unreachable ('+e.message+') — sector ranking not computed')};
+  }
   S.map={};(S.geiger.err?[]:S.geiger).forEach(r=>S.map[r.ticker]=Object.assign(S.map[r.ticker]||{},{g:r}));
   (S.quotes.err?[]:S.quotes).forEach(r=>S.map[r.ticker]=Object.assign(S.map[r.ticker]||{},{q:r}));
   (S.funda.err?[]:S.funda).forEach(r=>S.map[r.ticker]=Object.assign(S.map[r.ticker]||{},{f:r}));
@@ -152,10 +190,12 @@ function renderMacro(){
   h+='<div class="card"><div class="k">VIX / VIX3M</div><div class="v" style="font-size:22px">'+(v?fN(v.vix,1)+' / '+fN(v.vix3m,1):'ERR')+'</div><div class="small">ratio '+(v?fN(v.ratio,3):'—')+' · '+(v?v.date:'')+' '+(v&&parseInt(vStale)>3?'<span class="pill stale">STALE '+vStale+'</span>':'')+'</div></div>';
   const nT=Object.keys(S.map).length;
   h+='<div class="card"><div class="k">UNIVERSE</div><div class="v" style="font-size:22px">'+nT+'</div><div class="small">'+Object.keys(S.cohortMap).length+' cohorts · FAV '+S.favSet.size+' · ticker_cohorts+hub_favorites</div></div>';
-  const gMax=S.geiger.err?null:Math.max(...S.geiger.map(r=>r.updated_ts||0));
-  h+='<div class="card"><div class="k">GEIGER FRESH</div><div class="v" style="font-size:22px">'+(gMax?agoS(gMax):'ERR')+'</div><div class="small">composite_staged tf=D · '+(S.geiger.err?'feed error':S.geiger.length+' tickers')+'</div></div>';
-  const qMax=S.quotes.err?null:Math.max(...S.quotes.map(r=>new Date(r.updated_ts).getTime()));
-  h+='<div class="card"><div class="k">QUOTES FRESH</div><div class="v" style="font-size:22px">'+(qMax?Math.round((Date.now()-qMax)/1000)+'s':'ERR')+'</div><div class="small">live_quotes · LIVE lens (raw prints)</div></div>';
+  /* every row's age: the oldest row is the headline, the median beside it — never the newest row */
+  const eps=r=>typeof r.updated_ts==='number'?r.updated_ts:Date.parse(r.updated_ts)/1000;
+  const gA=S.geiger.err?null:rowAgeStats(S.geiger.map(eps)), qA=S.quotes.err?null:rowAgeStats(S.quotes.map(eps));
+  const nSrc=(rows,src)=>rows.err?0:rows.filter(r=>r.src===src).length;
+  h+='<div class="card"><div class="k">GEIGER — OLDEST ROW</div><div class="v" style="font-size:22px">'+(gA?agoS(gA.oldest):'ERR')+'</div><div class="small">median '+(gA?agoS(gA.median):'—')+' · '+nSrc(S.geiger,'chart API /geiger')+' from chart API /geiger'+(S.geigerLabel?' ('+S.geigerLabel+')':'')+' + '+nSrc(S.geiger,'composite_staged')+' composite_staged'+(S.chartErr?' · CHART API UNREACHABLE: '+S.chartErr.message:'')+'</div></div>';
+  h+='<div class="card"><div class="k">QUOTES — OLDEST ROW</div><div class="v" style="font-size:22px">'+(qA?agoS(qA.oldest):'ERR')+'</div><div class="small">median '+(qA?agoS(qA.median):'—')+' · '+nSrc(S.quotes,'chart API /quotes')+' from chart API /quotes + '+nSrc(S.quotes,'live_quotes')+' live_quotes'+(S.quotesNote?' · '+S.quotesNote:'')+'</div></div>';
   el.innerHTML=h;
 }
 
@@ -206,7 +246,7 @@ function renderValue(){
   let h='<table><tr><th onclick="setSort(\'t\')">TICKER</th><th>NAME</th>'+th('px','PRICE·LIVE')+th('chg','CHG%')+th('geig','GEIGER')+th('pe','PE')+th('ape','ADJ-PE')+th('eps','EPS-TTM')+th('rev','REV-TTM')+th('mcap','MCAP')+th('dcf','FMP-DCF')+th('beta','β')+'<th>AGE</th></tr>';
   rows.forEach(r=>{
     h+='<tr class="click" onclick="drawer(\''+r.t+'\')"><td class="t"><b>'+r.t+'</b>'+(S.favSet.has(r.t)?' <span class="small">★</span>':'')+'</td><td class="t small">'+(r.name||'').slice(0,22)+'</td><td>'+fN(r.px)+'</td><td class="'+cls(r.chg)+'">'+fP(r.chg)+'</td><td class="'+cls(r.geig)+'">'+fN(r.geig,3)+'</td><td>'+fN(r.pe,1)+'</td><td>'+fN(r.ape,1)+'</td><td>'+fN(r.eps)+'</td><td>'+fB(r.rev)+'</td><td>'+fB(r.mcap)+'</td><td>'+fN(r.dcf)+'</td><td>'+fN(r.beta,2)+'</td><td class="mut">'+agoS(r.fAge)+'</td></tr>'});
-  el.innerHTML=h+'</table><div class="small" style="margin-top:6px">'+rows.length+' tickers · PRICE = live_quotes (LIVE, raw print lens) · fundamentals age in last column · click a row for ratios / estimates / ADJ-vs-RAW spark.</div>';
+  el.innerHTML=h+'</table><div class="small" style="margin-top:6px">'+rows.length+' tickers · PRICE = chart API /quotes for equities, live_quotes for the rest (LIVE, raw print lens) · fundamentals age in last column · click a row for ratios / estimates / ADJ-vs-RAW spark.</div>';
 }
 
 function renderDcf(){

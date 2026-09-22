@@ -610,15 +610,16 @@ async function refreshSSOT(){
     const m={}, ts=[]; let chartErr=null;
     if(g&&g.symbols){
       const syms=Object.keys(g.symbols), CH=120;
-      for(let i=0;i<syms.length;i+=CH){
-        try{
-          const r=await chartGet('/quotes?symbols='+encodeURIComponent(syms.slice(i,i+CH).join(',')));
-          for(const [t,q] of Object.entries(r.quotes||{})){
-            if(!q||q.price==null) continue;
-            m[t]={ticker:t,price:q.price,chg_pct:q.change_pct,prev_close:q.previous_close,updated_ts:q.price_observation_utc,volume:null,src:'chart API /quotes'};
-            ts.push(q.price_observation_utc);
-          }
-        }catch(e){ chartErr=e; }
+      const chunks=[]; for(let i=0;i<syms.length;i+=CH) chunks.push(syms.slice(i,i+CH));
+      /* ONE AT A TIME: the chart API sheds concurrent /quotes load (parallel chunks all got HTTP 503 on 22 Sep) */
+      const got=[]; for(const c of chunks){ try{ got.push({status:'fulfilled',value:await chartGet('/quotes?symbols='+encodeURIComponent(c.join(',')))}); }catch(e){ got.push({status:'rejected',reason:e}); } }
+      for(const r of got){
+        if(r.status!=='fulfilled'){ chartErr=r.reason; continue; }
+        for(const [t,q] of Object.entries(r.value.quotes||{})){
+          if(!q||q.price==null) continue;
+          m[t]={ticker:t,price:q.price,chg_pct:q.change_pct,prev_close:q.previous_close,updated_ts:q.price_observation_utc,volume:null,src:'chart API /quotes'};
+          ts.push(q.price_observation_utc);
+        }
       }
     } else chartErr=new Error('chart API /geiger unreadable, so there is no equity list to quote');
     const lqErr=(lq&&lq.error)?lq.error:null; let nDb=0;
