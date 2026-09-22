@@ -167,7 +167,7 @@
 const DATA_ASOF = '2026-07-24 (FMP quote/DCF/treasury/ERP pull)';   // STATIC BASELINE vintage — DB overlay below supersedes what it can
 /* ===================== C7 DB WIRING (2026-08-05) =====================
    Live overlay from Supabase scintilla-live (anon read-only key — publishable). The page NEVER calls FMP.
-   DB-sourced per ticker: price (live_quotes) · revenue_ttm + market_cap (fundamentals) · beta + shares_out
+   DB-sourced per ticker: price (chart API /quotes; live_quotes only as fallback) · revenue_ttm + market_cap (fundamentals) · beta + shares_out
    (company_profile; shares fallback = market_cap ÷ price) · consensus revenue path (analyst_estimates,
    annual, next 5 future fiscal years) · risk-free (treasury_rates.y10, uniform).
    STATIC BASELINE (flagged, as-of DATA_ASOF): netDebt, D&A%, capex%, ΔNWC%, margin/tax defaults, MRP,
@@ -182,6 +182,7 @@ async function sbGet(path){
 const SPINE={}, DB_SRC={};
 let RF_DB=null;
 function spineSet(k,ts,mode,note){ SPINE[k]={ts,mode,note}; }
+let QUOTE_ERR=null;
 function freshTxt(ts){
   if(ts==null) return '';
   const es=(typeof ts==='number')?ts:(Date.parse(ts)/1000);
@@ -203,11 +204,21 @@ async function refreshDB(){
     if(r[0]&&r[0].y10!=null){ RF_DB=r[0]; for(const s of syms) TICKERS[s].rf=+r[0].y10;
       spineSet('treasury_rates',r[0].updated_ts,'LIVE','10Y '+r[0].y10+'% @ '+r[0].date+' → risk-free slider (uniform)'); }
   }).catch(e=>spineSet('treasury_rates',null,'FALLBACK','read failed — static rf '+DATA_ASOF)));
+  /* ONE SOURCE (22 Sep 2026): prices from the chart API the Hub reads — ONE /chart-api/quotes call for all names
+     (same-origin rewrite, vercel.json); live_quotes (equity rows frozen since 18 Aug) only for a name it does not return. */
+  J.push((async()=>{
+    let got={};
+    try{ const r=await fetch('/chart-api/quotes?symbols='+encodeURIComponent(syms.join(',')),{cache:'no-store'});
+      if(r.ok) got=(await r.json()).quotes||{}; else QUOTE_ERR='chart API /quotes HTTP '+r.status; }catch(e){ QUOTE_ERR='chart API /quotes '+e.message; }
+    await Promise.all(syms.map(async s=>{
+      const q=got[s];
+      if(q&&q.price!=null){ TICKERS[s].price=+q.price; (DB_SRC[s]=DB_SRC[s]||{}).price=q.price_observation_utc; DB_SRC[s].priceSrc='chart API /quotes'; ok.price++; return; }
+      try{ const r=await sbGet(`live_quotes?select=price,updated_ts&ticker=eq.${s}&limit=1`);
+        if(r[0]&&r[0].price!=null){ TICKERS[s].price=+r[0].price; (DB_SRC[s]=DB_SRC[s]||{}).price=r[0].updated_ts; DB_SRC[s].priceSrc='live_quotes'; ok.price++; } }catch(_){}
+    }));
+  })());
   for(const s of syms){
-    // per-ticker limited fetches, run in parallel — PostgREST-cap-safe by construction
-    J.push(sbGet(`live_quotes?select=price,updated_ts&ticker=eq.${s}&limit=1`).then(r=>{
-      if(r[0]&&r[0].price!=null){ TICKERS[s].price=+r[0].price; (DB_SRC[s]=DB_SRC[s]||{}).price=r[0].updated_ts; ok.price++; }
-    }).catch(()=>{}));
+    // per-ticker limited fetches, run in parallel — PostgREST-cap-safe by construction (prices: see ONE SOURCE below)
     J.push(sbGet(`fundamentals?select=revenue_ttm,market_cap,updated_ts&ticker=eq.${s}&limit=1`).then(r=>{
       if(r[0]&&r[0].revenue_ttm){ TICKERS[s].rev=r[0].revenue_ttm/1e9; (DB_SRC[s]=DB_SRC[s]||{}).rev=true; ok.fund++; }
       if(r[0]&&r[0].market_cap) TICKERS[s]._mcap=r[0].market_cap;
@@ -232,7 +243,12 @@ async function refreshDB(){
       TICKERS[s].shares=TICKERS[s]._mcap/TICKERS[s].price/1e9; (DB_SRC[s]=DB_SRC[s]||{}).shares='mcap/price';
     }
   }
-  spineSet('live_quotes',null,ok.price?'LIVE':'FALLBACK',ok.price+'/'+syms.length+' prices live');
+  { /* every row's own time: oldest row on the badge, median in the note — never the newest row */
+    const es=syms.map(s=>DB_SRC[s]&&DB_SRC[s].price).filter(Boolean).map(t=>typeof t==='number'?t:Date.parse(t)/1000).filter(Number.isFinite).sort((a,b)=>a-b);
+    const nC=syms.filter(s=>DB_SRC[s]&&DB_SRC[s].priceSrc==='chart API /quotes').length, stale=es.filter(e=>Date.now()/1000-e>30*60).length;
+    spineSet('quotes',es.length?es[0]:null,!es.length?'FALLBACK':((stale||QUOTE_ERR)?'STALE':'LIVE'),
+      ok.price+'/'+syms.length+' prices · '+nC+' from chart API /quotes, '+(ok.price-nC)+' from live_quotes'+(QUOTE_ERR?' ('+QUOTE_ERR+')':'')+
+      (es.length?' · oldest row '+freshTxt(es[0])+' · median '+freshTxt(es[Math.floor((es.length-1)/2)]):'')); }
   spineSet('fundamentals',null,ok.fund?'LIVE':'FALLBACK',ok.fund+'/'+syms.length+' revenue_ttm/mcap live');
   spineSet('company_profile',null,ok.prof?'LIVE':'FALLBACK',ok.prof+'/'+syms.length+' beta/shares live (MU broken-beta guard active)');
   spineSet('analyst_estimates',null,ok.est?'LIVE':'FALLBACK',ok.est+'/'+syms.length+' tickers with ≥5 future-FY consensus revenue');
@@ -333,7 +349,7 @@ function setTicker(sym){
   document.getElementById('ebiG').value = 9;
   document.getElementById('investR').value = 30;
   const _src=DB_SRC[sym]||{};
-  document.getElementById('tickerStat').textContent = BASE.name+' · $'+BASE.price.toFixed(2)+(_src.price?' (live_quotes '+freshTxt(_src.price)+')':' (static '+DATA_ASOF.slice(0,10)+')')+' · β '+BASE.beta.toFixed(2)+(_src.beta?' (db)':' (static)')+(_src.consensus?' · consensus: analyst_estimates':'');
+  document.getElementById('tickerStat').textContent = BASE.name+' · $'+BASE.price.toFixed(2)+(_src.price?' ('+(_src.priceSrc||'live_quotes')+' '+freshTxt(_src.price)+')':' (static '+DATA_ASOF.slice(0,10)+')')+' · β '+BASE.beta.toFixed(2)+(_src.beta?' (db)':' (static)')+(_src.consensus?' · consensus: analyst_estimates':'');
   document.getElementById('dcfTitle').textContent = 'Fair value — 1-stage vs 3-stage · '+sym;
   render();
 }

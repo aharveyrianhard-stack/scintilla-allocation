@@ -128,3 +128,17 @@ test('analytics.html: Geiger, sectors and prices from the chart API; freshness c
     assert.match(out.head, /live from the chart API \/geiger sector ETFs/i);  // the heading is uppercased by CSS
   } finally { await h.close(); }
 });
+
+test('dcf.html: prices from ONE chart API /quotes call; live_quotes only for names it does not return', async () => {
+  const h = await openPage('dcf.html', { waitFor: () => /\$\d/.test((document.getElementById('tickerStat') || {}).textContent || '') && typeof SPINE !== 'undefined' && SPINE.quotes, settleMs: 600 });
+  try {
+    assert.deepEqual(h.errors, [], 'the page threw');
+    const q = h.chartReads.filter(r => r.path.startsWith('/chart-api/quotes'));
+    assert.equal(q.length, 1, 'one request for all ten names'); assert.equal(q[0].status, 200);
+    assert.ok(!h.reads.some(r => r.path.startsWith('live_quotes') && /ticker=eq\.NVDA/.test(r.path)), 'NVDA is not read from live_quotes');
+    const st = await h.page.evaluate(() => ({ stat: document.getElementById('tickerStat').textContent, badge: SPINE.quotes, old: SPINE.live_quotes }));
+    assert.match(st.stat, /\$181\.75 \(chart API \/quotes /, 'NVDA priced from the chart API (fixture 181.25 + 0.50)');
+    assert.match(st.badge.note, /from chart API \/quotes, \d+ from live_quotes · oldest row/);
+    assert.equal(st.old, undefined, 'no badge claims live_quotes is the price source');
+  } finally { await h.close(); }
+});
