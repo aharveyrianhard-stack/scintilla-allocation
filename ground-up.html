@@ -138,6 +138,7 @@ tr:last-child td{border-bottom:none}
           <div class="stat"><div class="k">Z against its own history</div><div class="v num" id="zNum">—</div><div class="n" id="zNote">—</div></div>
         </div>
         <div class="chart" id="hChart"><div class="tip" id="hTip"></div></div>
+        <div class="ref" id="hGuides"></div>
         <div class="ref" id="refLine">—</div>
       </div>
 
@@ -403,9 +404,10 @@ function drawHeat(R){
   const glist = R.basis==='own' ? q.map(([k,v,l])=>({v,t:l+' '+f2(v)})) : [-0.5,-0.2,0.2,0.5].map(v=>({v,t:'fixed '+f2(v)}));
   glist.forEach(g=>g.ly=Y(g.v)); glist.sort((a,b)=>a.ly-b.ly);
   for(let i=1;i<glist.length;i++) if(glist[i].ly-glist[i-1].ly<11) glist[i].ly=glist[i-1].ly+11;
-  const glabel=(g)=> narrow ? `<text x="${pl+4}" y="${g.ly-3}" fill="var(--ink3)" font-size="9" font-family="var(--mono)">${g.t}</text>`
-                            : `<text x="${W-pr+6}" y="${g.ly+3.5}" fill="var(--ink3)" font-size="9.5" font-family="var(--mono)">${g.t}</text>`;
+  // on a phone the labels would sit on the data, so the lines stay and the words move to a caption under the chart
+  const glabel=(g)=> narrow ? '' : `<text x="${W-pr+6}" y="${g.ly+3.5}" fill="var(--ink3)" font-size="9.5" font-family="var(--mono)">${g.t}</text>`;
   const guides = glist.map(g=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(g.v)}" y2="${Y(g.v)}" stroke="var(--line)" stroke-width="1"/>${glabel(g)}`).join('');
+  $('hGuides').textContent = narrow ? 'guide lines: '+glist.slice().sort((a,b)=>a.v-b.v).map(g=>g.t).join(' · ') : '';
   const ticks=[-1,0,1].map(v=>`<text x="${pl-8}" y="${Y(v)+3.5}" text-anchor="end" fill="var(--ink3)" font-size="10" font-family="var(--mono)">${f2(v)}</text>`).join('');
   const d0=hist[0].date, d1=hist[hist.length-1].date;
   const todayX=X(hist.length), todayY=R.H==null?null:Y(R.H);
