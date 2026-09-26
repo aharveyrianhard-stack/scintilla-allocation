@@ -257,11 +257,23 @@ export function computeRead(state) {
 }
 
 /* ---------- 7 · SENTENCES ---------- */
-export function voterSentence(v) {
+/* Where a value sits in ITS OWN range, in words. The raw sign is not the condition (Alan, 26 Sep). */
+export function ownWord(p, edges = DEFAULT_EDGES) {
+  if (p == null) return null;
+  if (p <= edges.deepCold) return 'at the cold end of its own range';
+  if (p <= edges.cold) return 'cooler than its usual';
+  if (p >= edges.deepHot) return 'at the hot end of its own range';
+  if (p >= edges.hot) return 'hotter than its usual';
+  return 'around its usual';
+}
+export function voterSentence(v, edges = DEFAULT_EDGES) {
   if (v.val == null) return `${v.name}: no reading today (weight ${v.w}); it abstains.`;
-  const own = v.pct == null ? 'not enough of its own history to place it' : `${Math.round(v.pct * 100)}th percentile of its own history` + (v.z == null ? '' : `, Z ${f2(v.z)}`);
   const weight = v.w ? `weight ${v.w}` : 'weight 0, reading only';
-  return `${v.name} reads ${f2(v.val)} (${weight}): ${v.says} — ${own}.`;
+  if (v.pct == null) return `${v.name} reads ${f2(v.val)} (${weight}): ${v.says}; not enough of its own history to place it.`;
+  const ow = ownWord(v.pct, edges);
+  const rawHot = v.val > 0.05, rawCold = v.val < -0.05, ownHot = v.pct >= edges.hot, ownCold = v.pct <= edges.cold;
+  const clash = (rawHot && ownCold) ? ' — the raw sign says hot, its own history says cool' : (rawCold && ownHot) ? ' — the raw sign says cold, its own history says warm' : '';
+  return `${v.name} reads ${f2(v.val)} (${weight}): ${ow}, ${Math.round(v.pct * 100)}th percentile of its own history, Z ${f2(v.z)}${clash}. ${cap(v.says)}.`;
 }
 export function outputSentence(o) {
   if (o.H == null) return 'Heat cannot be read: no voter has a value.';

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Allocation · Ground Up — what was built on 26 Sep 2026</title>
+<link rel="stylesheet" href="../../../tokens.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.65}
+.wrap{max-width:960px;margin:0 auto;padding:24px 16px 80px}
+h1{font-family:var(--mono);font-size:19px;letter-spacing:.16em;margin:0 0 4px;font-weight:600}
+h2{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--accent);text-transform:uppercase;margin:34px 0 10px;font-weight:600}
+h3{font-size:15px;margin:18px 0 6px;color:var(--ink)}
+p{margin:0 0 10px;color:var(--ink2)}
+p b,li b{color:var(--ink);font-weight:600}
+ul,ol{margin:0 0 10px 20px;color:var(--ink2)}
+li{margin:4px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin:10px 0}
+.k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.sent{font-size:16px;color:var(--ink);border-left:3px solid var(--accent);padding:10px 14px;background:var(--bg);border-radius:var(--r);margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0 12px}
+th{font-family:var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--ink3);font-size:9.5px;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:6px 8px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td.n{font-family:var(--mono);color:var(--ink);white-space:nowrap}
+.warn{color:var(--warn)} .good{color:var(--good)} .bad{color:var(--bad)}
+figure{margin:12px 0 20px}
+figure img{width:100%;border:1px solid var(--line);border-radius:var(--r);display:block}
+figcaption{font-size:12.5px;color:var(--ink3);margin-top:6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.two{grid-template-columns:1fr}}
+code{font-family:var(--mono);font-size:12.5px;color:var(--ink);background:var(--bg);padding:1px 5px;border-radius:3px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>ALLOCATION · GROUND UP</h1>
+<p class="k">Deliverable · 26 Sep 2026 · branch allocation/ground-up-20260926 · repo aharveyrianhard-stack/scintilla-allocation</p>
+<p>A new sub-tab inside the allocation tool. The old tool is untouched; it now has a two-tab strip under its title, <b>THE TOOL</b> and <b>GROUND UP</b>. The new tab builds the condition read from the beginning, in the order you asked for: the one-sentence voters first, then the heat, then the heat placed against its own history, then how much is invested, then the large / small split. Nothing after that yet: no names, no sleeves, no moves, no knockout.</p>
+
+<h2>What the page shows, top to bottom</h2>
+<div class="card">
+<ol>
+<li><b>The voters, one sentence each.</b> The same 22 voters and the same formulas the tool uses today, with the tool's default weights (or your saved weights if the tool has them in this browser). Each row gives the value, the weight, where that value sits in the voter's <b>own</b> history (a percentile and a Z), a grey strip of its own range with today as a dot, what the reading says in words, and what the heat would do if you muted that voter.</li>
+<li><b>Heat.</b> The weighted average of the voters, exactly as the tool computes it. Beside it: the condition word, the percentile of the heat's own history, the Z, and a chart of the reconstructed heat over the window with today marked.</li>
+<li><b>How much is invested.</b> Your Cockpit grid A (Conservative 60/40/20 · Balanced 80/50/30 · Aggressive 100/70/40) extended to five anchors, read at today's position on the condition axis, for the risk level on the dial.</li>
+<li><b>Large / small.</b> Your Cockpit grid B (Conservative 50/60/75 · Balanced 25/30/50 · Aggressive 15/20/40), plus a rotation tilt of 25 points per 1.0 of the IWM-minus-SPY geiger spread, capped 10 to 90.</li>
+<li><b>The read in one breath.</b> One sentence with the numbers.</li>
+<li><b>Any instrument against its own history.</b> Type a ticker; it is placed on its own geiger history, not on a universal band.</li>
+<li><b>Where every number comes from.</b> The table, the newest row, its age, and what it feeds.</li>
+</ol>
+<p>On the right (or below on a phone): the <b>equalizer</b> with three dials and a line that says what changed when you moved one, and the <b>operator inputs</b>, the conditions the maths cannot see.</p>
+</div>
+
+<h2>The read on 26 Sep, on the defaults</h2>
+<div class="sent">Heat +0.01 — oversold (25th percentile of its own history). Balanced policy: 80% invested. Small and large read alike (IWM +0.19 vs SPY +0.18), so the split sits on the grid: 25 / 75.</div>
+<p>The same heat on the old fixed bands would read <b>neutral</b>, and the tool's own Brief says exactly that ("Heat reads +0.01 — neutral"). The difference is the whole point of your correction: this heat has spent most of the last two years above +0.01 (its mean is +0.14, its range −0.52 to +0.60), so +0.01 is on the cool side of <i>its own</i> normal. Whether that should move 80% of the money is a policy question, and it is on the dials, not baked in.</p>
+<figure><img src="shots/ground-up-1680.png" alt="The Ground Up page at 1680 wide"><figcaption>The whole page at 1680 wide, real browser, live database. Every number here was rendered by the page, not typed.</figcaption></figure>
+
+<h2>How the numbers are blended, and the default for each</h2>
+<div class="card">
+<h3>Voters → heat</h3>
+<p>Heat = Σ (voter value × weight) ÷ Σ weight, over the voters that have a value today. A voter with no reading abstains; it never votes zero. This is the tool's formula, unchanged. Weights: SPY 1 · QQQ 1 · IWM 0.5 · SMH 0.5 · VIX 0.5 · US 10Y 0.5 · OIL 0.5 · CRYPTO 0.25 · DEF 0.25 · equal-weight-vs-index 0.5 · small-vs-large 0.25 · VIX term 0.25 · curve 0.5 · SKEW 0.25 · A/D 0.5 · TRIN 0.25 · up/down volume 0.25 · concentration 0.5 · credit 0.5 · duration 0.25 · gold 0.25. VALUE and PUT/CALL are wired at 0, as in the tool.</p>
+<h3>Heat → condition (dial 3: how heat is read · default "own history", 2 years)</h3>
+<p>No universal bands. The page rebuilds the heat for every day in the window from the same voters and the same weights, then places today's heat as a <b>percentile</b> of that series and reports a Z. The condition word comes from the percentile: at or below the 10th = deep oversold, at or below the 30th = oversold, 70th and above = overbought, 90th and above = deep overbought, otherwise neutral. Those four edges are editable. The old −0.5 / −0.2 / +0.2 / +0.5 bands are shown only as a labelled reference, and the dial can switch to them so you can see what they would do.</p>
+<h3>Condition → % invested (dial 1: risk level · default Balanced)</h3>
+<p>The condition axis runs 0 (most washed out) to 100 (most stretched). Under the default reading, today's percentile <i>is</i> the position on that axis. Grid A is read at that position by straight-line interpolation between five anchors at 0 / 25 / 50 / 75 / 100:</p>
+<table><thead><tr><th>Row</th><th>0 (−1)</th><th>25 (oversold)</th><th>50 (neutral)</th><th>75 (overbought)</th><th>100 (+1)</th></tr></thead><tbody>
+<tr><td>Conservative</td><td class="n">75*</td><td class="n">60</td><td class="n">40</td><td class="n">20</td><td class="n">10*</td></tr>
+<tr><td>Balanced</td><td class="n">100</td><td class="n">80</td><td class="n">50</td><td class="n">30</td><td class="n">15</td></tr>
+<tr><td>Aggressive</td><td class="n">100*</td><td class="n">100</td><td class="n">70</td><td class="n">40</td><td class="n">25*</td></tr>
+</tbody></table>
+<p>The middle three columns are your Cockpit. Balanced's two ends are the MODEL's (100 at −1, 15 at +1). The four starred numbers are mine, chosen to sit outside the Cockpit rows in the same proportion; they are defaults, not findings. The risk dial is continuous: between two rows the page blends them, so a setting of 1.5 is half Balanced, half Aggressive.</p>
+<h3>Condition → large / small (dial 2: rotation tilt · default 25)</h3>
+<p>Grid B is read the same way (Cockpit rows in the middle, extended to the ends: Conservative 40/50/60/75/85, Balanced 20/25/30/50/60, Aggressive 10/15/20/40/50). Then the tilt: large-cap share += 25 × (geiger IWM − geiger SPY). Small caps hotter than large pushes toward large, and the other way round. The result is capped between 10 and 90. Today the spread is +0.01, so the tilt is +0.3 points and the split stays on the grid.</p>
+<h3>Operator inputs (ship OFF)</h3>
+<p>Each input has a name, a reason, a target (large-cap points, invested points, or heat units) and an amount. It is applied after the grids and inside the caps, and the row shows what it would do before you turn it on ("If turned on: split 25 / 75 → 35 / 65"). Two examples from your words are pre-filled and off: "AI is leadership" (+10 large) and "Rates are a headwind" (−5 invested). They are placeholders for you to rename, reprice or delete.</p>
+</div>
+
+<h2>The dials, and what moving them did</h2>
+<div class="two">
+<figure><img src="shots/ground-up-1680-aggressive.png" alt="Risk dial moved to aggressive"><figcaption>Risk dial Balanced → Aggressive. The "what changed" line read: invested 80% → 100% · split 25 / 75 → 15 / 85.</figcaption></figure>
+<figure><img src="shots/ground-up-1680-fixed-scale.png" alt="Reading switched to the fixed scale"><figcaption>Reading switched to the fixed reference scale. The line read: condition OVERSOLD → NEUTRAL · invested 80% → 50% · split 25 / 75 → 31 / 69.</figcaption></figure>
+</div>
+<figure><img src="shots/ground-up-1680-lookup.png" alt="NVDA placed against its own history"><figcaption>Any instrument: NVDA reads +0.19, the 45th percentile of its own two-year history (range −0.86 to +1.00), so on its own scale it is neutral. Its row is 33 days old, and the page says so.</figcaption></figure>
+<figure><img src="shots/ground-up-390.png" alt="The page at phone width" style="max-width:390px;margin:0 auto"><figcaption>The same page at 390 wide: one column, the read first, the dials after it. It is long; it is meant to be read top to bottom once.</figcaption></figure>
+
+<h2>Where each number comes from</h2>
+<table><thead><tr><th>Input</th><th>Table (Supabase, anon read, same as the tool)</th><th>Newest row on 26 Sep</th><th>History used</th></tr></thead><tbody>
+<tr><td class="n">SPY QQQ IWM SMH RSP XLP XLU MAGS HYG TLT geigers</td><td>composite_staged, tf = D</td><td class="warn">2026-08-24 · 33 days old · STALE</td><td>fan_daily + momentum_daily, which stop on 2026-08-20 for these</td></tr>
+<tr><td class="n">BTCUSD CLUSD GCUSD geigers</td><td>composite_staged, tf = D</td><td class="good">2026-09-26 · fresh</td><td>fan_daily + momentum_daily to 2026-09-25</td></tr>
+<tr><td class="n">VIX · VIX/3m ratio · SKEW</td><td>vix_term</td><td class="good">2026-09-25</td><td>517 days in the 2-year window (SKEW is null on the newest row, so that voter abstains today)</td></tr>
+<tr><td class="n">2y · 10y</td><td>treasury_rates</td><td class="good">2026-09-25</td><td>500 days</td></tr>
+<tr><td class="n">advancers · decliners · volumes · TRIN</td><td>market_internals</td><td class="good">2026-09-24</td><td>393 days</td></tr>
+</tbody></table>
+<p>The heat history is rebuilt from those daily tables: for each day the geiger composite is 0.5 × trend (fan_daily) + 0.5 × momentum (momentum_daily), which is the composite_staged recipe (checked on BTCUSD: 0.5 × 0.8865 + 0.5 × 0.4171 = 0.6518, the stored composite). A day is kept only when at least 60% of the active weight had a value; 522 such days sit in the 2-year window, the last on 2026-08-20.</p>
+
+<h2>What could be wrong</h2>
+<div class="card">
+<ul>
+<li><b class="warn">The tool's equity geigers are a month old, and the tool hides it.</b> composite_staged rows for SPY, QQQ, IWM, SMH, RSP, XLP, XLU, MAGS, HYG and TLT were last written on 24 Aug (only 22 of 386 rows in that table are fresh: crypto, futures, rates, VIX, the dollar). The live tool's badge says "composite_staged · just now · LIVE" because it looks at the newest row in the table, not at the rows it votes with. So the tool's heat of +0.01, and this page's, are voting on 33-day-old values for the ten equity voters. This page marks each one STALE. The pipeline that writes equity composites needs looking at; that is upstream of this repo.</li>
+<li><b>The daily histories for the equity ETFs also stop on 20 Aug</b> (fan_daily), and momentum_daily for SPY has printed −0.01 every day since. So the reconstructed heat ends on 20 Aug, and today's point is compared with a history that ends five weeks ago.</li>
+<li><b>Two recipes, one comparison.</b> Today's geiger values come from composite_staged, a multi-timeframe blend; the history comes from the daily tables. For the macro set they are identical by construction; for the equity ETFs they can differ. The page says so in section 7 rather than hiding it.</li>
+<li><b>The chart API cannot be used from this page.</b> It only answers the Hub's origin, so a page on allocation.scintillahub.ai or a Vercel preview cannot read it in the browser. Fresh SPY geigers exist there (as of 26 Sep) but are unreachable from here without a proxy. That is a decision for you, below.</li>
+<li><b>Percentile edges and the four outer grid anchors are my defaults.</b> They are dials, and they are labelled as defaults on the page.</li>
+<li><b>Grid B's Balanced row is 25/30/50 large-cap</b>, which means 70% small caps at neutral. That is what the Cockpit sheet says per the brief; I did not have the Drive connector to read the sheet myself. Worth a glance.</li>
+</ul>
+</div>
+
+<h2>What I did not do</h2>
+<ul>
+<li>No names, sleeves, moves, knockout or state. Those come later, as you said.</li>
+<li>No change to the tool's own numbers, weights or saved state. The tool's localStorage key is read (to pick up your saved equalizer weights) and never written. This page keeps its dials under its own key.</li>
+<li>No production deploy. The branch was pushed so Vercel builds a <b>preview</b>; the preview link is in the return message. Production still serves the old tool without the tab strip until the coordinator merges.</li>
+<li>No fix to the stale composite pipeline; it is not in this repo.</li>
+<li>Did not read the three Google Sheets directly (no Drive connector in this session); the grids come from the brief's summary of them.</li>
+</ul>
+
+<h2>Tests</h2>
+<p><code>node --test tests/</code> in the repo: 31 tests, 31 pass. They cover the five-anchor interpolation, both grids at the Cockpit's points and the blend between rows, the rotation tilt and its 10–90 cap, the percentile and Z (including a flat series), the condition words on both scales, every voter formula against the tool's, abstention, the coverage gate on the reconstructed history, the day builder, the operator inputs, the whole read end to end, and the "what changed" sentence.</p>
+
+<h2>Files</h2>
+<ul>
+<li><code>ground-up.html</code> — the page.</li>
+<li><code>ground-up-math.mjs</code> — the arithmetic, imported by both the page and the tests.</li>
+<li><code>tests/ground-up.test.mjs</code> — the tests.</li>
+<li><code>index.html</code> — three lines added under the title: the tab strip. Nothing else.</li>
+<li><code>deliverables/20260926/allocation-ground-up/</code> — this document and the screenshots.</li>
+</ul>
+</div>
+</body>
+</html>
