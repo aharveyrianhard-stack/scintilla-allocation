@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCINTILLA · ALLOCATION · GROUND UP</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* NEAREST TOKENS FILE WINS — tokens.css is loaded above; this file tightens, substitutes nothing. */
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.55}
+.wrap{max-width:1560px;margin:0 auto;padding:18px 16px 72px}
+h1{font-family:var(--mono);font-size:19px;letter-spacing:.18em;margin:0;font-weight:600}
+h1 span{color:var(--accent)}
+.sub{color:var(--ink2);font-size:12.5px;margin:6px 0 0;max-width:900px}
+.lbl{font-family:var(--mono);text-transform:uppercase;letter-spacing:.16em;color:var(--ink3);font-size:10px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.scn-tabs{display:flex;gap:6px;margin:14px 0 0}
+.scn-tabs a{font-family:var(--mono);font-size:10px;letter-spacing:.18em;padding:7px 13px;border:1px solid var(--line);border-radius:var(--r);color:var(--ink2);text-decoration:none;background:var(--surface)}
+.scn-tabs a.on{color:var(--ink);border-color:var(--accent);background:var(--surface2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-family:var(--mono);font-size:10px;letter-spacing:.04em;border:1px solid var(--line);border-radius:var(--r);padding:3px 8px;color:var(--ink2);background:var(--surface)}
+.chip b{color:var(--ink);font-weight:600}
+.ok{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)} .acc{color:var(--accent)} .dim{color:var(--ink3)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;margin-top:16px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin-top:var(--gap)}
+.card h2{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase;margin:0 0 6px;font-weight:600;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.card h2 .step{color:var(--accent)}
+.note{color:var(--ink2);font-size:12.5px;line-height:1.65}
+.note b{color:var(--ink);font-weight:600}
+.small{font-size:11.5px}
+/* voters */
+.voter{display:grid;grid-template-columns:170px 150px 1fr;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.voter:last-child{border-bottom:none}
+.voter .n{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.voter .n small{display:block;color:var(--ink3);font-size:10px;letter-spacing:.04em;margin-top:2px}
+.voter .s{font-size:12.5px;color:var(--ink2)}
+.voter .s b{color:var(--ink);font-weight:600}
+.voter .s .w{font-family:var(--mono);color:var(--ink3);font-size:11px}
+.voter.mute .n,.voter.mute .s{opacity:.55}
+.strip{display:block;width:150px;height:22px}
+/* hero */
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--gap);margin-top:8px}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.stat .k{font-family:var(--mono);text-transform:uppercase;letter-spacing:.16em;color:var(--ink3);font-size:10px}
+.stat .v{font-family:var(--sans);font-weight:600;font-variant-numeric:tabular-nums;font-size:30px;margin-top:4px;letter-spacing:-.01em;line-height:1.1}
+.stat .v.big{font-size:48px}
+.stat .n{color:var(--ink2);font-size:11.5px;margin-top:4px}
+.chart{position:relative;margin-top:10px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:var(--surface2);border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;font-family:var(--mono);font-size:11px;color:var(--ink);white-space:nowrap;display:none;z-index:2}
+.sentence{font-size:16px;line-height:1.6;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r);padding:12px 16px;margin-top:8px}
+.ref{font-family:var(--mono);font-size:11px;color:var(--ink3);margin-top:8px}
+/* equalizer */
+.eq{position:sticky;top:12px}
+.dial{padding:10px 0;border-bottom:1px solid var(--line)}
+.dial:last-child{border-bottom:none}
+.dial .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.dial .t .lbl{color:var(--ink2)}
+.dial .t .val{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.dial .t .val .def{color:var(--ink3);font-size:10px;margin-left:6px}
+.dial input[type=range]{width:100%;margin:8px 0 2px;accent-color:var(--accent)}
+.ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase}
+.ticks .d{color:var(--accent)}
+.seg{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.seg button{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:6px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--ink2);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--surface2);color:var(--ink);border-color:var(--accent)}
+.seg button .def{color:var(--ink3);font-size:9px;margin-left:4px}
+.dial .why{color:var(--ink3);font-size:11px;margin-top:4px;line-height:1.5}
+.changed{font-family:var(--mono);font-size:11.5px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;margin-top:8px;min-height:34px;line-height:1.5}
+.changed .k{color:var(--ink3);letter-spacing:.14em;font-size:9.5px;text-transform:uppercase;display:block;margin-bottom:2px}
+.btn{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--ink2);cursor:pointer}
+.btn:hover{color:var(--ink);border-color:var(--accent)}
+.edges{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.edges label{font-family:var(--mono);font-size:9.5px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase}
+.edges input{width:100%;font-family:var(--mono);font-size:12px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);padding:4px 6px}
+/* operator inputs */
+.op{border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;margin-top:8px;background:var(--bg)}
+.op .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.op input[type=text],.op input[type=number],.op select,.op textarea{font-family:var(--sans);font-size:12.5px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);padding:5px 7px}
+.op input[type=text]{flex:1;min-width:120px}
+.op input[type=number]{width:74px;font-family:var(--mono)}
+.op textarea{width:100%;margin-top:6px;resize:vertical;min-height:34px}
+.op .eff{font-family:var(--mono);font-size:11px;color:var(--ink2);margin-top:6px}
+.op .eff b{color:var(--ink);font-weight:600}
+.op .del{margin-left:auto}
+.split{display:flex;height:34px;border-radius:var(--r);overflow:hidden;margin-top:10px;gap:2px;background:var(--surface)}
+.split div{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:#0b0f14;font-weight:600;min-width:0}
+.split .lc{background:var(--accent)} .split .sc{background:var(--ink2)}
+.legend{display:flex;gap:14px;margin-top:6px;font-family:var(--mono);font-size:10.5px;color:var(--ink2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:5px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+th{font-family:var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--ink3);font-size:9.5px;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-weight:600}
+td{padding:6px 8px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td.num{color:var(--ink)}
+tr:last-child td{border-bottom:none}
+.lookup{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.lookup input{font-family:var(--mono);font-size:13px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);padding:7px 9px;width:130px;text-transform:uppercase}
+#boot{padding:20px 0;color:var(--ink2);font-family:var(--mono);font-size:12px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:1100px){.cols{grid-template-columns:1fr}.eq{position:static}}
+@media (max-width:640px){
+  .wrap{padding:14px 16px 60px}
+  .voter{grid-template-columns:1fr;gap:6px;padding:10px 0}
+  .strip{width:100%}
+  .stat .v.big{font-size:40px}
+  .sentence{font-size:14.5px}
+  .edges{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SCINTILLA <span>·</span> ALLOCATION <span>·</span> GROUND UP</h1>
+  <div class="sub">The condition read, built again from the beginning. Voters → heat → the heat against its <b>own</b> history → condition → how much is invested → the large / small split. Nothing else yet: no names, no sleeves, no moves. Defaults are marked on every dial; the original tool is untouched under THE TOOL.</div>
+  <div class="scn-tabs" role="tablist"><a href="index.html">THE TOOL</a><a class="on" href="ground-up.html" aria-selected="true">GROUND UP · new read</a></div>
+  <div class="chips" id="chips"><span class="chip">reading the database…</span></div>
+  <div id="boot">reading composite_staged · fan_daily · momentum_daily · vix_term · treasury_rates · market_internals…</div>
+
+  <div class="cols" id="cols" style="display:none">
+    <div>
+      <!-- 1 VOTERS -->
+      <div class="card">
+        <h2><span class="step">1</span> The voters — one sentence each</h2>
+        <div class="note">Every voter is on one scale, −1 washed out to +1 stretched, using the tool's exact formulas. The grey strip is that voter's <b>own</b> history over the window: the faint band is its 10th–90th percentile, the dot is today. Weights are <span id="wsrc">the tool's defaults</span>; the tool's own weight sliders stay under THE TOOL.</div>
+        <div id="voters"></div>
+      </div>
+
+      <!-- 2 HEAT -->
+      <div class="card">
+        <h2><span class="step">2</span> Heat — and where it sits in its own history</h2>
+        <div class="hero">
+          <div class="stat"><div class="k">Heat today</div><div class="v big num" id="hNum">—</div><div class="n" id="hNote">weighted average of the voters</div></div>
+          <div class="stat"><div class="k">Condition</div><div class="v" id="cond" style="font-size:22px;margin-top:10px">—</div><div class="n" id="condNote">—</div></div>
+          <div class="stat"><div class="k">Percentile of its own history</div><div class="v num" id="pNum">—</div><div class="n" id="pNote">—</div></div>
+          <div class="stat"><div class="k">Z against its own history</div><div class="v num" id="zNum">—</div><div class="n" id="zNote">—</div></div>
+        </div>
+        <div class="chart" id="hChart"><div class="tip" id="hTip"></div></div>
+        <div class="ref" id="refLine">—</div>
+      </div>
+
+      <!-- 3 INVESTED -->
+      <div class="card">
+        <h2><span class="step">3</span> How much is invested</h2>
+        <div class="hero">
+          <div class="stat"><div class="k">Invested</div><div class="v big num" id="invNum">—</div><div class="n" id="invNote">—</div></div>
+          <div class="stat"><div class="k">Policy</div><div class="v" id="riskWord" style="font-size:22px;margin-top:10px">—</div><div class="n" id="riskNote">grid A: Cockpit rows, extended to five anchors</div></div>
+        </div>
+        <div class="chart" id="aChart"><div class="tip" id="aTip"></div></div>
+        <div class="note small" id="invExplain" style="margin-top:8px">—</div>
+      </div>
+
+      <!-- 4 SPLIT -->
+      <div class="card">
+        <h2><span class="step">4</span> Large caps / small caps</h2>
+        <div class="hero">
+          <div class="stat"><div class="k">Large / small</div><div class="v big num" id="splitNum">—</div><div class="n" id="splitNote">—</div></div>
+          <div class="stat"><div class="k">Rotation tilt</div><div class="v num" id="tiltNum">—</div><div class="n" id="tiltNote">—</div></div>
+        </div>
+        <div class="split" id="splitBar"><div class="lc">LC</div><div class="sc">SC</div></div>
+        <div class="legend"><span><i style="background:var(--accent)"></i>large caps</span><span><i style="background:var(--ink2)"></i>small caps</span></div>
+        <div class="note small" id="splitExplain" style="margin-top:8px">—</div>
+      </div>
+
+      <!-- 5 SENTENCE -->
+      <div class="card">
+        <h2><span class="step">5</span> The read, in one breath</h2>
+        <div class="sentence" id="sentence">—</div>
+        <div class="ref" id="opsLine"></div>
+      </div>
+
+      <!-- 6 ANY INSTRUMENT -->
+      <div class="card">
+        <h2><span class="step">6</span> Any instrument against its own history</h2>
+        <div class="note">Micron never goes as red as Bitcoin; NVIDIA never as red as Nebius. Type a ticker and it is placed against <b>its own</b> geiger history over the same window, not against a universal band.</div>
+        <div class="lookup"><input id="lk" placeholder="NVDA" maxlength="10" aria-label="ticker"><button class="btn" id="lkGo">place it</button><span class="dim small" id="lkState"></span></div>
+        <div id="lkOut"></div>
+      </div>
+
+      <!-- 7 METHOD -->
+      <div class="card">
+        <h2><span class="step">7</span> Where every number comes from</h2>
+        <table id="srcTable"><thead><tr><th>Input</th><th>Table</th><th>Newest row</th><th>Used for</th></tr></thead><tbody></tbody></table>
+        <div class="note small" style="margin-top:10px" id="method"></div>
+      </div>
+    </div>
+
+    <!-- EQUALIZER -->
+    <div class="eq">
+      <div class="card">
+        <h2>The equalizer — three dials, defaults marked</h2>
+        <div class="changed" id="changed"><span class="k">What changed when you moved a dial</span>nothing yet — the read above is on the defaults.</div>
+
+        <div class="dial">
+          <div class="t"><span class="lbl">Risk level</span><span class="val"><span id="riskVal">balanced</span><span class="def">default balanced</span></span></div>
+          <input type="range" id="risk" min="0" max="2" step="0.05" value="1" list="riskTicks" aria-label="risk level">
+          <datalist id="riskTicks"><option value="0"></option><option value="1"></option><option value="2"></option></datalist>
+          <div class="ticks"><span>conservative</span><span class="d">balanced ·</span><span>aggressive</span></div>
+          <div class="why">Picks the row of the Cockpit grids. Between detents the two rows are blended. Balanced at neutral: 50% invested, 30% of it large-cap.</div>
+        </div>
+
+        <div class="dial">
+          <div class="t"><span class="lbl">Rotation tilt</span><span class="val"><span id="tiltVal">25</span> pts per 1.0 spread<span class="def">default 25</span></span></div>
+          <input type="range" id="tilt" min="0" max="50" step="1" value="25" aria-label="rotation tilt">
+          <div class="ticks"><span>0 · grid only</span><span class="d">25 ·</span><span>50</span></div>
+          <div class="why">Large-cap share += tilt × (geiger IWM − geiger SPY). Small caps hotter than large → lean large. Capped 10–90.</div>
+        </div>
+
+        <div class="dial">
+          <div class="t"><span class="lbl">How heat is read</span><span class="val"><span id="basisVal">own history</span><span class="def">default own history · 2 years</span></span></div>
+          <div class="seg" id="basisSeg">
+            <button data-b="own" aria-pressed="true">own history<span class="def">default</span></button>
+            <button data-b="fixed" aria-pressed="false">fixed scale<span class="def">reference</span></button>
+          </div>
+          <div class="seg" id="winSeg">
+            <button data-w="1" aria-pressed="false">1 year</button>
+            <button data-w="2" aria-pressed="true">2 years<span class="def">default</span></button>
+            <button data-w="5" aria-pressed="false">5 years</button>
+          </div>
+          <div class="why">Own history: today's heat is a percentile of the heat's own past, and that percentile walks the grids. Fixed scale: the old −0.5 / −0.2 / +0.2 / +0.5 bands, kept only as a reference.</div>
+          <details style="margin-top:8px"><summary class="lbl" style="cursor:pointer">percentile edges (defaults 10 · 30 · 70 · 90)</summary>
+            <div class="edges">
+              <div><label>deep oversold ≤</label><input type="number" id="eDeepCold" min="0" max="100" step="1" value="10"></div>
+              <div><label>oversold ≤</label><input type="number" id="eCold" min="0" max="100" step="1" value="30"></div>
+              <div><label>overbought ≥</label><input type="number" id="eHot" min="0" max="100" step="1" value="70"></div>
+              <div><label>deep overbought ≥</label><input type="number" id="eDeepHot" min="0" max="100" step="1" value="90"></div>
+            </div>
+          </details>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"><button class="btn" id="reset">reset dials to defaults</button></div>
+      </div>
+
+      <div class="card">
+        <h2>Operator inputs — what the maths cannot see</h2>
+        <div class="note small">Name the condition, say why, and say what it changes. Each one shows exactly what it does to the read. The two below are examples from Alan's words and ship <b>off</b>.</div>
+        <div id="ops"></div>
+        <div style="display:flex;gap:6px;margin-top:10px"><button class="btn" id="opAdd">+ add an input</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import * as M from './ground-up-math.mjs';
+
+/* ---------- data: the same anon PostgREST reads the tool makes ---------- */
+const SB_REST='https://wadinxqplrggagkvrdag.supabase.co/rest/v1';
+const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZGlueHFwbHJnZ2Fna3ZyZGFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1NDk0MTYsImV4cCI6MjA5NjEyNTQxNn0.1UKKUb_fY-xOy33vNUszDzxGECqQxdcwaxb9kN7KY-g';
+async function sbGet(path){
+  const r=await fetch(SB_REST+'/'+path,{headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON},cache:'no-store'});
+  if(!r.ok) throw new Error(path.split('?')[0]+' '+r.status);
+  return r.json();
+}
+async function sbPaged(path,pageSize=1000,maxPages=8){
+  const out=[];
+  for(let p=0;p<maxPages;p++){
+    const rows=await sbGet(path+(path.includes('?')?'&':'?')+'limit='+pageSize+'&offset='+(p*pageSize));
+    out.push(...rows); if(rows.length<pageSize) return out;
+  }
+  return out;
+}
+const $=id=>document.getElementById(id);
+const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ordinal=p=>{const n=Math.round(p*100); const s=['th','st','nd','rd'], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]);};
+const ageWords=sec=>{ if(sec==null) return '—'; const d=sec/86400; if(d<1) return Math.round(sec/3600)+' h old'; return Math.round(d)+' days old'; };
+const isoDaysAgo=n=>{const d=new Date(Date.now()-n*864e5); return d.toISOString().slice(0,10);};
+
+/* ---------- state: this page's own key. The tool's key is READ, never written. ---------- */
+const KEY='alloc-ground-up-v1';
+const DEF_DIALS={risk:1,tiltCoef:25,basis:'own',years:2,edges:{...M.DEFAULT_EDGES}};
+let UI=Object.assign(structuredClone(DEF_DIALS),JSON.parse(localStorage.getItem(KEY)||'null')||{});
+UI.edges=Object.assign({...M.DEFAULT_EDGES},UI.edges||{});
+if(!Array.isArray(UI.operator)) UI.operator=structuredClone(M.OPERATOR_TEMPLATES);
+const saveUI=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(UI)); }catch(e){} };
+let TOOL=null; try{ TOOL=JSON.parse(localStorage.getItem('alloc-module-v1')||'null'); }catch(e){}
+const WTS=Object.assign({...M.TOOL_DEFAULTS.wts}, (TOOL&&TOOL.wts)||{});
+const DIALS={vixCold:+(TOOL?.vixCold??M.TOOL_DEFAULTS.vixCold), tenCold:+(TOOL?.tenCold??M.TOOL_DEFAULTS.tenCold)};
+$('wsrc').textContent = TOOL&&TOOL.wts ? 'your saved weights from THE TOOL (read, never changed here)' : "the tool's defaults (no saved equalizer in this browser)";
+
+/* ---------- load ---------- */
+let TODAY=null, HISTORY=[], SRC=[], LOADED_YEARS=0, LAST=null, READ=null;
+async function load(years){
+  const start=isoDaysAgo(Math.round(years*365.25));
+  const syms=M.GEIGER_SYMS;
+  SRC=[];
+  const [comp,vix,treas,intern,...fm]=await Promise.all([
+    sbGet('composite_staged?select=ticker,trend,momentum,composite,updated_ts&tf=eq.D&ticker=in.('+syms.join(',')+')'),
+    sbPaged('vix_term?select=date,vix,vix3m,ratio,skew&date=gte.'+start+'&order=date.asc'),
+    sbPaged('treasury_rates?select=date,y2,y10,updated_ts&date=gte.'+start+'&order=date.asc'),
+    sbPaged('market_internals?select=asof,advancers,decliners,adv_volume,dec_volume,trin,universe&asof=gte.'+start+'&order=asof.asc'),
+    ...syms.map(s=>sbPaged('fan_daily?select=asof,read&ticker=eq.'+s+'&asof=gte.'+start+'&order=asof.asc')),
+    ...syms.map(s=>sbPaged('momentum_daily?select=asof,read&ticker=eq.'+s+'&asof=gte.'+start+'&order=asof.asc'))
+  ]);
+  const fan={}, mom={};
+  syms.forEach((s,i)=>{ fan[s]=fm[i]; mom[s]=fm[syms.length+i]; });
+  HISTORY=M.buildHistoryDays({fan,mom,vix,treas,internals:intern});
+  // today: what the tool reads — composite_staged for the geigers, the latest row of each macro table
+  const g={}, gAge={}; for(const r of comp){ g[r.ticker]=r.composite; gAge[r.ticker]=r.updated_ts; }
+  const vl=vix[vix.length-1]||{}, tl=treas[treas.length-1]||{}, il=intern[intern.length-1]||{};
+  const vixFresh = vl.date ? (Date.now()-Date.parse(vl.date))/864e5<=3 : false;
+  TODAY={date:new Date().toISOString().slice(0,10), g, vix:vl.vix, vixRatio: vixFresh? vl.ratio : null, skew:vl.skew, y2:tl.y2, y10:tl.y10,
+         adv:il.advancers, dec:il.decliners, advVol:il.adv_volume, decVol:il.dec_volume, trin:il.trin};
+  const now=Date.now()/1000;
+  const last=(arr,k)=>arr.length?arr[arr.length-1][k]:null;
+  for(const s of syms){ SRC.push({input:s+' geiger', table:'composite_staged (tf=D)', newest:gAge[s]?new Date(gAge[s]*1000).toISOString().slice(0,10)+' · '+ageWords(now-gAge[s]):'no row', use:'today\'s value', ageSec:gAge[s]?now-gAge[s]:null,
+      hist:'fan_daily + momentum_daily to '+(last(fan[s],'asof')||'—')}); }
+  SRC.push({input:'VIX · term ratio · SKEW', table:'vix_term', newest:vl.date||'no row', use:'VIX, VIX TERM, SKEW voters', ageSec:vl.date?now-Date.parse(vl.date)/1000:null, hist:vix.length+' days'});
+  SRC.push({input:'2y · 10y yields', table:'treasury_rates', newest:tl.date||'no row', use:'US 10Y and CURVE voters', ageSec:tl.date?now-Date.parse(tl.date)/1000:null, hist:treas.length+' days'});
+  SRC.push({input:'advancers · decliners · volume · TRIN', table:'market_internals', newest:il.asof||'no row', use:'A/D, TRIN, up/down volume', ageSec:il.asof?now-Date.parse(il.asof)/1000:null, hist:intern.length+' days'});
+  LOADED_YEARS=years;
+}
+
+/* ---------- render ---------- */
+function stateFor(){ return {today:TODAY, history:HISTORY, wts:WTS, dials:DIALS, risk:UI.risk, tiltCoef:UI.tiltCoef, basis:UI.basis, edges:UI.edges, operator:UI.operator}; }
+function recompute(what){
+  const prev=READ; READ=M.computeRead(stateFor());
+  render(READ);
+  if(what){ $('changed').innerHTML='<span class="k">What changed when you moved a dial</span>'+esc(M.diffSentence(prev,READ,what)); }
+}
+function stripSVG(st, val, pct){
+  // one voter's own scale: track = min..max of its history, band = p10..p90, dot = today
+  const W=150,H=22, lo=-1, hi=1, x=v=>((v-lo)/(hi-lo))*W;
+  if(!st||!st.n) return `<svg class="strip" viewBox="0 0 ${W} ${H}" aria-hidden="true"><line x1="0" y1="11" x2="${W}" y2="11" stroke="var(--line)" stroke-width="1"/><text x="0" y="8" fill="var(--ink3)" font-size="8" font-family="var(--mono)">no history</text></svg>`;
+  const dot = val==null?'':`<circle cx="${x(val)}" cy="11" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`;
+  return `<svg class="strip" viewBox="0 0 ${W} ${H}" aria-hidden="true">
+    <line x1="${x(st.min)}" y1="11" x2="${x(st.max)}" y2="11" stroke="var(--line)" stroke-width="6" stroke-linecap="round"/>
+    <line x1="${x(st.p10)}" y1="11" x2="${x(st.p90)}" y2="11" stroke="var(--ink3)" stroke-width="6" stroke-linecap="round" opacity=".7"/>
+    <line x1="${x(0)}" y1="4" x2="${x(0)}" y2="18" stroke="var(--line)" stroke-width="1"/>
+    ${dot}</svg>`;
+}
+function render(R){
+  // 1 voters
+  $('voters').innerHTML = R.voters.map(v=>{
+    const src=SRC.find(s=>s.input.startsWith(v.key+' '));
+    const stale = src && src.ageSec!=null && src.ageSec>3*86400;
+    const age = src ? ` · ${src.newest.split(' · ').pop()}` : '';
+    const own = v.pct==null ? 'not enough of its own history' : `${ordinal(v.pct)} pct of its own history · Z ${f2(v.z)}`;
+    const mute = v.muteEffect==null? '' : ` Mute it → heat ${f2(R.H0)} → ${f2(v.muteEffect)}.`;
+    return `<div class="voter${v.w?'':' mute'}">
+      <div class="n">${esc(v.name)}<small>${esc(v.reading)}${age}${stale?' <span class="warn">STALE</span>':''}</small></div>
+      ${stripSVG(v.stats, v.val, v.pct)}
+      <div class="s"><b class="num">${v.val==null?'—':f2(v.val)}</b> <span class="w">w ${v.w}</span> — ${esc(v.val==null?'no reading today; it abstains':v.says)}. <span class="dim">${own}.${esc(mute)}</span></div>
+    </div>`;
+  }).join('');
+  // 2 heat
+  $('hNum').textContent=f2(R.H);
+  $('hNote').textContent = R.H==null ? 'no voter has a value' : `${Math.round(R.coverage*100)}% of the active weight voted` + (R.ops.dHeat?` · operator nudge ${f2(R.ops.dHeat)} on top of ${f2(R.H0)}`:'');
+  $('cond').textContent=R.condition||'—';
+  $('cond').style.color = /DEEP/.test(R.condition||'') ? 'var(--ink)' : 'var(--ink)';
+  $('condNote').textContent = R.basis==='own' ? `on the heat's own ${LOADED_YEARS}-year history (${R.hist.length} days)` : R.basis==='fixed' ? 'on the fixed reference scale' : 'fixed scale — not enough history to place it';
+  $('pNum').textContent = R.p==null?'—':ordinal(R.p);
+  $('pNote').textContent = R.p==null?'needs ≥ 20 days of reconstructed heat':`0 = the coldest day in the window · 100 = the hottest`;
+  $('zNum').textContent = R.z==null?'—':f2(R.z);
+  $('zNote').textContent = R.stats.n ? `mean ${f2(R.stats.p50!=null?(R.hist.reduce((a,b)=>a+b.H,0)/R.hist.length):null)} · range ${f2(R.stats.min)} to ${f2(R.stats.max)}` : '—';
+  $('refLine').textContent = `Reference only — on the old fixed bands (−0.5 / −0.2 / +0.2 / +0.5) this heat would read ${R.refCondition||'—'}. ${R.basis==='own'?'The read above does not use those bands.':'The read above IS using those bands.'}`;
+  drawHeat(R);
+  // 3 invested
+  $('invNum').textContent = R.invested==null?'—':Math.round(R.invested)+'%';
+  $('invNote').textContent = R.invested==null?'—':`grid says ${Math.round(R.invGrid)}%`+(R.ops.dInv?` · operator ${R.ops.dInv>0?'+':''}${R.ops.dInv} pts`:'')+` · x = ${(R.x*100).toFixed(0)} on the condition axis`;
+  $('riskWord').textContent = R.riskName;
+  $('invExplain').innerHTML = R.x==null?'—':`The condition axis runs 0 (most washed out) to 100 (most stretched). ${R.basis==='own'?`Today's heat is the <b>${ordinal(R.p)}</b> percentile of its own history, so x = ${(R.x*100).toFixed(0)}.`:`On the fixed scale x = (heat + 1) / 2 = ${(R.x*100).toFixed(0)}.`} The <b>${esc(R.riskName)}</b> row of grid A gives <b>${Math.round(R.invGrid)}%</b> at that x (anchors: ${gridRow(M.GRID_A,R.R)}).`;
+  drawGridA(R);
+  // 4 split
+  $('splitNum').textContent = R.lc==null?'—':`${Math.round(R.lc)} / ${Math.round(R.sc)}`;
+  $('splitNote').textContent = R.lc==null?'—':`large / small, of the ${Math.round(R.invested)}% invested`;
+  $('tiltNum').textContent = R.split? (R.split.tilt>=0?'+':'')+R.split.tilt.toFixed(1)+' pts' : '—';
+  $('tiltNote').textContent = R.spread==null ? 'no IWM-vs-SPY read' : `${UI.tiltCoef} × (IWM ${f2(TODAY.g.IWM)} − SPY ${f2(TODAY.g.SPY)} = ${f2(R.spread)})`;
+  if(R.lc!=null){ const l=$('splitBar').children[0], s=$('splitBar').children[1]; l.style.flex=R.lc; s.style.flex=R.sc; l.textContent=Math.round(R.lc)+'% LC'; s.textContent=Math.round(R.sc)+'% SC'; }
+  $('splitExplain').innerHTML = R.split==null?'—':`Grid B (${esc(R.riskName)} row: ${gridRow(M.GRID_B,R.R)}) says <b>${Math.round(R.split.base)}%</b> large at x = ${(R.x*100).toFixed(0)}. Rotation tilt ${(R.split.tilt>=0?'+':'')+R.split.tilt.toFixed(1)} pts${R.ops.dLc?`, operator ${R.ops.dLc>0?'+':''}${R.ops.dLc} pts`:''}, capped 10–90 → <b>${Math.round(R.lc)} / ${Math.round(R.sc)}</b>.`;
+  // 5 sentence
+  $('sentence').textContent = R.sentence;
+  const on=UI.operator.filter(o=>o.on);
+  $('opsLine').textContent = on.length? 'Operator inputs on: '+on.map(o=>`${o.name} (${o.target==='heat'?f2(o.amount)+' heat':(o.amount>0?'+':'')+o.amount+' pts '+(o.target==='lc'?'large':'invested')})`).join(' · ') : 'No operator inputs are on.';
+  renderOps();
+  renderSources(R);
+}
+function gridRow(grid,R){ const r=Math.round(R); const row=grid[M.RISK_LEVELS[Math.max(0,Math.min(2,r))]]; return row.join(' / ')+(Math.abs(R-r)>1e-9?' (blended)':''); }
+
+/* ---------- charts (single series each; accent = the series, ink3 = reference) ---------- */
+function drawHeat(R){
+  const host=$('hChart'); const tip=$('hTip'); host.querySelectorAll('svg').forEach(s=>s.remove());
+  const W=Math.max(320,host.clientWidth||900), Hh=240, pl=36, pr=70, pt=14, pb=26;
+  const hist=R.hist; if(!hist.length){ host.insertAdjacentHTML('beforeend',`<svg viewBox="0 0 ${W} 60" width="${W}" height="60"><text x="0" y="30" fill="var(--ink3)" font-size="11" font-family="var(--mono)">no reconstructed heat history in this window</text></svg>`); return; }
+  const xs=hist.map((_,i)=>i), n=hist.length+1; // +1 slot for today
+  const X=i=>pl+(i/(n-1))*(W-pl-pr), Y=v=>pt+((1-v)/2)*(Hh-pt-pb);
+  const path=hist.map((r,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(r.H).toFixed(1)).join(' ');
+  const area=path+` L${X(hist.length-1).toFixed(1)} ${Y(-1)} L${X(0).toFixed(1)} ${Y(-1)} Z`;
+  const st=R.stats, edges=UI.edges;
+  const q=[['p10',M.quantile(hist.map(r=>r.H),edges.deepCold),'deep oversold'],['p30',M.quantile(hist.map(r=>r.H),edges.cold),'oversold'],['p70',M.quantile(hist.map(r=>r.H),edges.hot),'overbought'],['p90',M.quantile(hist.map(r=>r.H),edges.deepHot),'deep overbought']];
+  const guides = R.basis==='own' ? q.map(([k,v,l])=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${W-pr+6}" y="${Y(v)+3.5}" fill="var(--ink3)" font-size="9.5" font-family="var(--mono)">${l} ${f2(v)}</text>`).join('')
+    : [-0.5,-0.2,0.2,0.5].map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${W-pr+6}" y="${Y(v)+3.5}" fill="var(--ink3)" font-size="9.5" font-family="var(--mono)">fixed ${f2(v)}</text>`).join('');
+  const ticks=[-1,0,1].map(v=>`<text x="${pl-8}" y="${Y(v)+3.5}" text-anchor="end" fill="var(--ink3)" font-size="10" font-family="var(--mono)">${f2(v)}</text>`).join('');
+  const d0=hist[0].date, d1=hist[hist.length-1].date;
+  const todayX=X(hist.length), todayY=R.H==null?null:Y(R.H);
+  const svg=`<svg viewBox="0 0 ${W} ${Hh}" width="${W}" height="${Hh}" role="img" aria-label="heat history with today marked">
+    <line x1="${pl}" x2="${W-pr}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line)" stroke-width="1"/>
+    ${guides}${ticks}
+    <path d="${area}" fill="var(--accent)" opacity=".10"/>
+    <path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${todayY==null?'':`<line x1="${X(hist.length-1)}" y1="${Y(hist[hist.length-1].H)}" x2="${todayX}" y2="${todayY}" stroke="var(--accent)" stroke-width="2" stroke-dasharray="3 3"/><circle cx="${todayX}" cy="${todayY}" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/><text x="${todayX}" y="${todayY-10}" text-anchor="middle" fill="var(--ink)" font-size="10.5" font-family="var(--mono)">today ${f2(R.H)}</text>`}
+    <text x="${pl}" y="${Hh-8}" fill="var(--ink3)" font-size="10" font-family="var(--mono)">${d0}</text>
+    <text x="${W-pr}" y="${Hh-8}" text-anchor="end" fill="var(--ink3)" font-size="10" font-family="var(--mono)">${d1} · last day with enough voters</text>
+    <rect id="hHit" x="${pl}" y="0" width="${W-pl-pr}" height="${Hh}" fill="transparent"/>
+    <line id="hCross" x1="0" x2="0" y1="${pt}" y2="${Hh-pb}" stroke="var(--ink3)" stroke-width="1" style="display:none"/>
+  </svg>`;
+  host.insertAdjacentHTML('beforeend',svg);
+  const s=host.querySelector('svg'), cross=s.querySelector('#hCross');
+  s.addEventListener('mousemove',e=>{ const b=s.getBoundingClientRect(); const px=(e.clientX-b.left)*(W/b.width); const i=Math.max(0,Math.min(hist.length-1,Math.round((px-pl)/(W-pl-pr)*(n-1)))); const r=hist[i]; cross.setAttribute('x1',X(i)); cross.setAttribute('x2',X(i)); cross.style.display='';
+    tip.style.display='block'; tip.style.left=Math.min(host.clientWidth-170,(X(i)/W)*b.width+10)+'px'; tip.style.top=(Y(r.H)/Hh)*b.height-30+'px'; tip.textContent=`${r.date} · heat ${f2(r.H)} · ${Math.round(r.coverage*100)}% voted`; });
+  s.addEventListener('mouseleave',()=>{ tip.style.display='none'; cross.style.display='none'; });
+}
+function drawGridA(R){
+  const host=$('aChart'); const tip=$('aTip'); host.querySelectorAll('svg').forEach(s=>s.remove());
+  const W=Math.max(320,host.clientWidth||900), Hh=200, pl=36, pr=96, pt=12, pb=26;
+  const X=x=>pl+x*(W-pl-pr), Y=v=>pt+((100-v)/100)*(Hh-pt-pb);
+  const line=(R_,cls)=>{ let d=''; for(let i=0;i<=40;i++){ const x=i/40; d+=(i?'L':'M')+X(x).toFixed(1)+' '+Y(M.investedPct(x,R_)).toFixed(1)+' '; } return d; };
+  const refs=[[0,'conservative'],[1,'balanced'],[2,'aggressive']].filter(([r])=>Math.abs(r-R.R)>1e-9);
+  const refPaths=refs.map(([r,l])=>`<path d="${line(r)}" fill="none" stroke="var(--ink3)" stroke-width="1.5" opacity=".7"/><text x="${W-pr+6}" y="${Y(M.investedPct(1,r))+3.5}" fill="var(--ink3)" font-size="9.5" font-family="var(--mono)">${l}</text>`).join('');
+  const ticks=[0,50,100].map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-8}" y="${Y(v)+3.5}" text-anchor="end" fill="var(--ink3)" font-size="10" font-family="var(--mono)">${v}%</text>`).join('');
+  const marker = R.x==null?'':`<line x1="${X(R.x)}" x2="${X(R.x)}" y1="${pt}" y2="${Hh-pb}" stroke="var(--line)" stroke-width="1"/><circle cx="${X(R.x)}" cy="${Y(R.invGrid)}" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/><text x="${X(R.x)+9}" y="${Y(R.invGrid)-8}" fill="var(--ink)" font-size="10.5" font-family="var(--mono)">today · x ${(R.x*100).toFixed(0)} → ${Math.round(R.invGrid)}%</text>`;
+  const svg=`<svg viewBox="0 0 ${W} ${Hh}" width="${W}" height="${Hh}" role="img" aria-label="percent invested along the condition axis">
+    ${ticks}${refPaths}
+    <path d="${line(R.R)}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/><text x="${W-pr+6}" y="${Y(M.investedPct(1,R.R))+3.5}" fill="var(--ink)" font-size="9.5" font-family="var(--mono)">${esc(M.RISK_LEVELS[Math.round(R.R)]||'')}${Math.abs(R.R-Math.round(R.R))>1e-9?' (blend)':''}</text>
+    ${marker}
+    <text x="${pl}" y="${Hh-8}" fill="var(--ink3)" font-size="10" font-family="var(--mono)">0 · most washed out</text>
+    <text x="${X(0.5)}" y="${Hh-8}" text-anchor="middle" fill="var(--ink3)" font-size="10" font-family="var(--mono)">50 · neutral</text>
+    <text x="${W-pr}" y="${Hh-8}" text-anchor="end" fill="var(--ink3)" font-size="10" font-family="var(--mono)">100 · most stretched</text>
+  </svg>`;
+  host.insertAdjacentHTML('beforeend',svg);
+  const s=host.querySelector('svg');
+  s.addEventListener('mousemove',e=>{ const b=s.getBoundingClientRect(); const px=(e.clientX-b.left)*(W/b.width); const x=Math.max(0,Math.min(1,(px-pl)/(W-pl-pr))); tip.style.display='block'; tip.style.left=Math.min(host.clientWidth-190,(X(x)/W)*b.width+10)+'px'; tip.style.top='8px'; tip.textContent=`x ${(x*100).toFixed(0)} → ${Math.round(M.investedPct(x,R.R))}% invested · LC ${Math.round(M.lcBasePct(x,R.R))}% (grid)`; });
+  s.addEventListener('mouseleave',()=>{ tip.style.display='none'; });
+}
+
+/* ---------- sources table + method ---------- */
+function renderSources(R){
+  const tb=$('srcTable').querySelector('tbody');
+  tb.innerHTML=SRC.map(s=>{ const stale=s.ageSec!=null&&s.ageSec>3*86400; return `<tr><td class="num">${esc(s.input)}</td><td>${esc(s.table)}</td><td class="${stale?'warn':'ok'}">${esc(s.newest)}${stale?' · STALE':''}</td><td>${esc(s.use)} · history: ${esc(s.hist)}</td></tr>`; }).join('');
+  const staleG=SRC.filter(s=>/geiger/.test(s.input)&&s.ageSec>3*86400).map(s=>s.input.replace(' geiger',''));
+  $('method').innerHTML = `<b>How the heat's history is built.</b> For each day in the window the same 22 voters are computed from that day's rows — the geiger composite as 0.5 × trend (fan_daily) + 0.5 × momentum (momentum_daily), which is the composite_staged recipe — and averaged with the same weights. A day counts only if at least 60% of the active weight had a value. Today's point is the tool's own inputs (composite_staged and the latest macro rows). `+
+    (staleG.length?`<b class="warn">What could be wrong today:</b> the composite_staged rows for ${esc(staleG.join(', '))} have not been updated for weeks (see the table), so those voters and the tool's heat are voting on old values; the daily histories for the equity ETFs also stop in August. The macro set (VIX, yields, internals, BTC, oil, gold) is current. `:'')+
+    `Reading a value against its own history assumes the history was produced by the same recipe; for the equity ETFs the multi-timeframe composite and the daily composite can differ, and that is stated here rather than hidden. Weights ${TOOL&&TOOL.wts?'are your saved tool weights':'are the tool defaults'}: ${esc(Object.entries(WTS).filter(([k,w])=>w>0).map(([k,w])=>k+' '+w).join(' · '))}. Voters wired at weight 0 in the tool (VALUE, PCC, the August TradingView snapshot set) do not vote here either.`;
+}
+
+/* ---------- operator inputs ---------- */
+function renderOps(){
+  const host=$('ops');
+  host.innerHTML = UI.operator.map((o,i)=>{
+    const alt=structuredClone(UI.operator); alt[i]={...o,on:!o.on};
+    const other=M.computeRead({...stateFor(),operator:alt});
+    const eff = M.diffSentence(READ, other, o.on?'If turned off':'If turned on');
+    return `<div class="op" data-i="${i}">
+      <div class="row"><label style="display:flex;gap:6px;align-items:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink2)"><input type="checkbox" data-k="on" ${o.on?'checked':''}> ${o.on?'ON':'OFF'}</label>
+        <input type="text" data-k="name" value="${esc(o.name)}" placeholder="name the condition">
+        <select data-k="target"><option value="lc" ${o.target==='lc'?'selected':''}>large-cap pts</option><option value="invested" ${o.target==='invested'?'selected':''}>invested pts</option><option value="heat" ${o.target==='heat'?'selected':''}>heat units</option></select>
+        <input type="number" data-k="amount" value="${o.amount}" step="${o.target==='heat'?'0.05':'1'}">
+        <button class="btn del" data-del="${i}" title="remove">×</button></div>
+      <textarea data-k="reason" placeholder="why — the reason the maths cannot see">${esc(o.reason||'')}</textarea>
+      <div class="eff">${esc(eff)}</div>
+    </div>`;
+  }).join('');
+  host.querySelectorAll('[data-k]').forEach(el=>{ el.onchange=e=>{ const i=+el.closest('.op').dataset.i, k=el.dataset.k; const o=UI.operator[i]; if(k==='on') o.on=el.checked; else if(k==='amount') o.amount=+el.value; else o[k]=el.value; saveUI(); recompute(`Operator input "${o.name||'unnamed'}" ${k==='on'?(o.on?'on':'off'):k+' changed'}`); }; });
+  host.querySelectorAll('[data-del]').forEach(b=>{ b.onclick=()=>{ const i=+b.dataset.del; const nm=UI.operator[i]?.name; UI.operator.splice(i,1); saveUI(); recompute(`Operator input "${nm||'unnamed'}" removed`); }; });
+}
+$('opAdd').onclick=()=>{ UI.operator.push({id:'op-'+Date.now(),name:'',reason:'',target:'invested',amount:0,on:false}); saveUI(); renderOps(); };
+
+/* ---------- dials ---------- */
+function syncDials(){
+  $('risk').value=UI.risk; $('riskVal').textContent=M.riskName(UI.risk);
+  $('tilt').value=UI.tiltCoef; $('tiltVal').textContent=UI.tiltCoef;
+  $('basisVal').textContent = (UI.basis==='own'?'own history':'fixed scale')+' · '+UI.years+' yr';
+  $('basisSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.b===UI.basis)));
+  $('winSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.w===+UI.years)));
+  $('eDeepCold').value=Math.round(UI.edges.deepCold*100); $('eCold').value=Math.round(UI.edges.cold*100); $('eHot').value=Math.round(UI.edges.hot*100); $('eDeepHot').value=Math.round(UI.edges.deepHot*100);
+}
+$('risk').oninput=e=>{ const prev=M.riskName(UI.risk); UI.risk=+e.target.value; saveUI(); syncDials(); recompute(`Risk ${prev} → ${M.riskName(UI.risk)}`); };
+$('tilt').oninput=e=>{ const prev=UI.tiltCoef; UI.tiltCoef=+e.target.value; saveUI(); syncDials(); recompute(`Rotation tilt ${prev} → ${UI.tiltCoef}`); };
+$('basisSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{ const prev=UI.basis; UI.basis=b.dataset.b; saveUI(); syncDials(); recompute(`Reading ${prev==='own'?'own history':'fixed scale'} → ${UI.basis==='own'?'own history':'fixed scale'}`); });
+$('winSeg').querySelectorAll('button').forEach(b=>b.onclick=async()=>{ const prev=UI.years; UI.years=+b.dataset.w; saveUI(); syncDials(); $('boot').style.display='block'; $('boot').textContent='re-reading '+UI.years+' years of history…'; await load(UI.years); $('boot').style.display='none'; recompute(`Window ${prev} yr → ${UI.years} yr`); });
+for(const [id,k] of [['eDeepCold','deepCold'],['eCold','cold'],['eHot','hot'],['eDeepHot','deepHot']]) $(id).onchange=e=>{ UI.edges[k]=Math.max(0,Math.min(100,+e.target.value))/100; saveUI(); recompute(`Percentile edge ${k} → ${e.target.value}`); };
+$('reset').onclick=()=>{ Object.assign(UI,structuredClone(DEF_DIALS)); saveUI(); syncDials(); recompute('Reset to defaults'); };
+
+/* ---------- any instrument ---------- */
+async function lookup(){
+  const t=($('lk').value||'').trim().toUpperCase(); if(!t) return;
+  $('lkState').textContent='reading '+t+'…'; $('lkOut').innerHTML='';
+  try{
+    const start=isoDaysAgo(Math.round(UI.years*365.25));
+    const [comp,fan,mom]=await Promise.all([
+      sbGet('composite_staged?select=ticker,trend,momentum,composite,updated_ts&tf=eq.D&ticker=eq.'+t),
+      sbPaged('fan_daily?select=asof,read&ticker=eq.'+t+'&asof=gte.'+start+'&order=asof.asc'),
+      sbPaged('momentum_daily?select=asof,read&ticker=eq.'+t+'&asof=gte.'+start+'&order=asof.asc')
+    ]);
+    const days=M.buildHistoryDays({fan:{[t]:fan},mom:{[t]:mom}});
+    const series=days.map(d=>d.g[t]).filter(v=>v!=null);
+    const row=comp[0]; const today=row?row.composite:(series.length?series[series.length-1]:null);
+    const src=row?`composite_staged · ${new Date(row.updated_ts*1000).toISOString().slice(0,10)} · ${ageWords(Date.now()/1000-row.updated_ts)}`:'no composite_staged row — using the last daily composite';
+    const p=M.percentileRank(series,today), z=M.zScore(series,today), st=M.seriesStats(series);
+    const fixed=M.conditionFromFixedScale(today), own=M.conditionFromPercentile(p,UI.edges);
+    $('lkState').textContent='';
+    if(today==null){ $('lkOut').innerHTML=`<div class="note" style="margin-top:8px">No geiger for ${esc(t)} in the database.</div>`; return; }
+    $('lkOut').innerHTML=`<div class="voter" style="margin-top:8px"><div class="n">${esc(t)} geiger<small>${esc(src)}</small></div>${stripSVG(st,today,p)}
+      <div class="s"><b class="num">${f2(today)}</b> — ${p==null?`not enough of its own history (${series.length} days)`:`<b>${ordinal(p)}</b> percentile of its own ${UI.years}-year history (${st.n} days, range ${f2(st.min)} to ${f2(st.max)}) · Z ${f2(z)} → on its own scale: <b>${own}</b>`}. <span class="dim">On the fixed bands it would say ${fixed} — reference only. History to ${esc(days.length?days[days.length-1].date:'—')}.</span></div></div>`;
+  }catch(e){ $('lkState').textContent='read failed: '+e.message; }
+}
+$('lkGo').onclick=lookup; $('lk').addEventListener('keydown',e=>{ if(e.key==='Enter') lookup(); });
+
+/* ---------- boot ---------- */
+(async()=>{
+  try{
+    await load(UI.years);
+    const now=Date.now()/1000, worst=Math.max(...SRC.filter(s=>/geiger/.test(s.input)).map(s=>s.ageSec||0));
+    $('chips').innerHTML=SRC.slice(0,0).concat([
+      {t:`heat history <b>${HISTORY.length}</b> days read`},
+      {t:`equity geigers <b class="${worst>3*86400?'warn':'ok'}">${worst>3*86400?'STALE · '+ageWords(worst):'fresh'}</b>`},
+      {t:`macro rows <b>${SRC.find(s=>s.table==='vix_term').newest}</b>`},
+      {t:`window <b>${UI.years} yr</b>`}
+    ]).map(c=>`<span class="chip">${c.t}</span>`).join('');
+    $('boot').style.display='none'; $('cols').style.display='';
+    syncDials(); recompute(null);
+    window.addEventListener('resize',()=>{ if(READ){ drawHeat(READ); drawGridA(READ); } });
+  }catch(e){ $('boot').textContent='read failed: '+e.message; $('chips').innerHTML=`<span class="chip bad">database read failed</span>`; }
+})();
+</script>
+</body>
+</html>
