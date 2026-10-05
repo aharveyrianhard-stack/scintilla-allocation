@@ -88,6 +88,49 @@
   #loading{position:fixed; inset:0; background:rgba(10,10,15,.92); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; z-index:9;}
   .spin{width:34px; height:34px; border:3px solid #1c1c28; border-top-color:var(--cyan); border-radius:50%; animation:sp 1s linear infinite;}
   @keyframes sp{to{transform:rotate(360deg)}}
+  /* PA4 — the fold (Alan: "it makes me scroll like crazy"): a sticky section bar, every section folded to one screen, the dials in a drawer */
+  .grid{max-width:1500px}
+  #secbar{position:sticky;top:0;z-index:150;background:rgba(10,10,15,.96);border-bottom:1px solid var(--line);display:flex;gap:4px;flex-wrap:wrap;align-items:center;padding:8px 0;margin:10px 0 0}
+  #secbar button{background:#14141f;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:5px 11px;font-family:inherit;font-size:10px;letter-spacing:.12em;cursor:pointer}
+  #secbar button.on{background:var(--cyan);color:#0a0a0f}
+  #secbar .sbnote{color:var(--dim);font-size:10px;margin-left:auto}
+  .panel.folded>.pbody{max-height:var(--foldh,calc(100vh - 210px));overflow:auto;position:relative}
+  .panel.folded>.pbody::after{content:"";position:sticky;bottom:0;display:block;height:26px;background:linear-gradient(transparent,var(--panel));pointer-events:none}
+  .pfold{float:right;background:none;border:1px solid var(--line);color:var(--dim);border-radius:5px;font-family:inherit;font-size:9px;letter-spacing:.1em;padding:2px 8px;cursor:pointer;margin-left:8px}
+  .pfold:hover{color:var(--cyan);border-color:var(--cyan)}
+  #p-inputs{position:fixed;top:0;right:0;height:100vh;width:min(620px,94vw);overflow:auto;transform:translateX(104%);transition:transform .22s ease;z-index:400;border-radius:0;box-shadow:-12px 0 40px rgba(0,0,0,.6)}
+  #p-inputs.open{transform:none}
+  #drawerShade{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:390;display:none} #drawerShade.on{display:block}
+  .brief2{display:grid;grid-template-columns:minmax(0,1fr) 680px;gap:18px;align-items:start}
+  @media(max-width:1300px){.brief2{grid-template-columns:1fr}}
+  .sc-pagespecs{margin:30px 0 0;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:11px;max-width:1500px;line-height:1.7}
+  .sc-pagespecs summary{cursor:pointer;letter-spacing:.2em;color:var(--dim);font-size:10px}
+  /* PA4 — the approved comps card (the Hub's allocation page, "the swipe", 24 Sep 2026): CSS copied, only the palette names mapped to this tool's */
+  .cardgrid{--mono:"SF Mono",ui-monospace,Menlo,monospace;--ink:var(--txt);--ink2:#c8c8d8;--mute:var(--dim);--line2:#2a2a3a;--sunk:#0d0d15;--panel2:#14141f;--bull:var(--green);--bear:var(--red);
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:10px;margin:6px 0 10px}
+  .cardgrid .swcard{width:auto}
+  .swcard{width:min(520px,94vw);border:1px solid var(--line2);background:var(--panel);transition:transform .14s ease,opacity .14s ease}
+  .cbody{padding:18px 18px 16px}
+  .chead{display:flex;align-items:baseline;gap:9px}
+  .chead b{font-family:var(--mono);font-size:26px;color:var(--ink);letter-spacing:.03em}
+  .chead .sec{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--mute)}
+  .chead .pos{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--mute)}
+  .ckinds{margin:10px 0 0;display:flex;gap:5px;flex-wrap:wrap}
+  .ckind{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink2);border:1px solid var(--line2);padding:2px 6px}
+  .ckind.on{color:var(--cyan);border-color:rgba(0,212,255,.45)} .ckind.up{color:var(--bull);border-color:rgba(56,224,123,.45)} .ckind.dn{color:var(--bear);border-color:rgba(255,84,112,.45)}
+  .cgeig{margin:14px 0 0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-family:var(--mono);font-size:12px}
+  .cgeig .k{color:var(--mute);letter-spacing:.12em}
+  .cgeig .v{color:var(--ink2);text-align:right} .cgeig .v i{font-style:normal;margin-left:6px} .cgeig .v i.up{color:var(--bull)} .cgeig .v i.dn{color:var(--bear)}
+  .cnums{display:flex;gap:2px;margin:14px 0 0}
+  .cnums div{flex:1;border:1px solid var(--line);background:var(--sunk);padding:9px 10px}
+  .cnums span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--mute)}
+  .cnums b{display:block;font-family:var(--mono);font-size:19px;color:var(--ink);margin-top:3px}
+  .cnums i{font-style:normal;font-size:11px;color:var(--mute)}
+  .cnums b.up{color:var(--bull)} .cnums b.dn{color:var(--bear)}
+  .cwhy{margin:14px 0 0;font-size:13px;color:var(--ink2);line-height:1.55}
+  .swbtns{display:flex;gap:2px;margin-top:2px}
+  .swbtns button{flex:1;padding:14px 4px;background:var(--panel2);border:1px solid var(--line2);font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink2);cursor:pointer}
+  .swbtns button:active{background:var(--line)}
 </style>
 </head>
 <body>
@@ -96,13 +139,16 @@
 <h1>SCINTILLA <span class="dot">·</span> ALLOCATION</h1>
 <div class="sub" id="stamp">—</div>
 <div id="dataspine" style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px"></div>
+<div id="secbar"></div>
+<div id="drawerShade"></div>
 
 <div class="grid">
 
   <!-- THE BRIEF -->
   <div class="panel">
     <h2>THE BRIEF — desk read, written by the model from the live numbers</h2>
-    <div id="brief" style="color:var(--txt); font-size:12.5px; line-height:1.8;"></div>
+    <div class="brief2"><div id="brief" style="color:var(--txt); font-size:12.5px; line-height:1.8;"></div>
+    <div><div class="cls" style="font-size:10px;letter-spacing:.08em;margin-bottom:2px">TARGET MIX — the same pie as section 2 · outer ring = sectors · inner = your picks</div><canvas id="donutTop" width="640" height="300"></canvas><div id="mixdialTop"></div></div></div>
   </div>
 
   <!-- 1 MACRO HEAT -->
@@ -204,10 +250,12 @@
   <div class="panel full">
     <h2>4b · COMPARABLES — study the suggestions by category</h2>
     <div class="note">The ADD names, lined up like a comps sheet with median/mean/min/max — judge relative value before acting. Each name is compared with its own named peers (FMP and Massive), far-out multiples dropped the way the Hub's comps tab does it; TARGET is the median of the checked analyst targets (one per firm, last 90 days) and UPSIDE is that against today's price. Cells are shaded vs the peer median: <span style="color:var(--green)">green = better than peers</span>, <span style="color:var(--orange)">orange = worse</span> (cheaper P/E, higher margins &amp; growth, lower debt = better). <b>Drop</b> greys a row and pulls it out of the stats without deleting it; <b>pick</b> marks your keepers (capped at your TOTAL-names hard cap). Star more names in the table above to add non-suggested candidates.</div>
+    <div id="cards"></div>
     <div id="pickNote" class="note" style="font-size:10px;min-height:12px"></div>
     <div id="compCat" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
     <table id="comps"></table>
     <div id="compRestore" style="margin-top:8px"></div>
+    <div id="guidance"></div>
   </div>
 
   <!-- 5 INPUT MAP -->
@@ -223,6 +271,7 @@
     <h2>6 · STATE &amp; ROADMAP</h2>
     <details><summary>read this first if you are a new session</summary>
     <div class="note" style="line-height:1.75">
+    <b style="color:var(--gold)">PA4 · 5 OCT 2026 (evening) — Alan's 14:15 additions, in his tool.</b> "This is the old version without our new stuff." Added: ADVANCE / DECLINE and CONCENTRATION as MACRO HEAT voters (computed here from the daily bars over the served set); the VIX votes live from the chart API's macro board and the VIX term says its date; TARGET MIX says which sector methodology it uses — a dial (State Street · Hub compare · market bow tie, live · tree) with a stated 40/20/20/20 mix; the tree's close tier is an input, rolled up by sector and cohort beside the fund readings; ADD TO COMPS is a short list in the approved cards with KEEP / DROP written to the comps decisions table; the allocation writes what goes on the Hub (control/ALLOCATION-HUB-GUIDANCE.json); and the page folds — one screen per section, a sticky bar, the dials in a drawer. Open from PA3, now decided: the July ladder stays; the three new voters count by default; an ADD tag needs two measured readings.<br><br>
     <b style="color:var(--gold)">PA3 · 5 OCT 2026 — strengthened in place, same look, same flow.</b> Alan: "it measured market regime, and from the regime it recommended what percentage of cash to deploy; then the sectors, to decide where to allocate between sectors; then the comps, down to actual companies." What changed underneath: the Geiger now comes from the chart API's /geiger (the Hub's own, fresh every cycle; composite_staged had the index rows 6 weeks old), prices from /quotes (live_quotes was 7 weeks old), each sector from its State Street fund's Geiger with the Invesco equal-weight twin giving the bow tie (sector_rankings was 3 days old), peers from peer_sources with C5's outlier rule (ticker_peers did not exist), analyst targets from A4's checked notes, soundness of each aggregate from B1. HOW MUCH is the July policy ladder (100 · 80 · 50 · 30 · 15 by condition; five dials under RISK POLICY). Three voters added to MACRO HEAT with dials: SECTOR COMPARE, SECTOR BOW TIE, MARKET BOW TIE. Names rank fundamentals first, then the Geiger for timing. The chart API answers only the Hub's origin in a browser, so vercel.json rewrites /geiger and /quotes on this site to it. Still stale and saying so: vix_term (2 Oct — VIX not voting), market_breadth (no table). Everything below this line is the history as it was.<br><br>
     <b style="color:var(--txt)">WHAT THIS IS.</b> The SCINTILLA allocation module: market heat → % invested → LC/SC split → moves in % of equity / class / position, with ★FAV candidates ranked by their own geigers. Percent-only, never dollars. Canonical source: GitHub aharveyrianhard-stack/scintilla-allocation (main auto-deploys here). Served at scintillahub.ai/allocation and allocation.scintillahub.ai — same page.<br><br>
     <b style="color:var(--txt)">DATA POLICY.</b> Test lane = YAHOO via Supabase functions macro-feed + cohort-feed (5-min server cache). Symbol map: BTCUSD→BTC-USD, GCUSD→GC=F, SIUSD→SI=F, CLUSD→CL=F. Proven voters graduate to the SCINTILLA database as primary with Yahoo as fallback. FMP is PROHIBITED everywhere in this module.<br><br>
@@ -433,7 +482,8 @@ function rankCandidates(){
   rows.sort((a,b)=> (fs(b)-fs(a)) || (b.timing-a.timing));
   const SH=sleeveShares(); const order=k=>{ const v=b1Verdict(k); return v==='sound'?0:v==='thin'?1:2; };
   RANK_GROUPS=Object.entries(SH).sort((a,b)=> order(a[0])-order(b[0]) || b[1]-a[1]).map(([k,sh])=>({key:k,share:sh,verdict:b1Verdict(k)}));
-  for(const g of RANK_GROUPS){ let i=0; for(const r of rows){ if(!r.sleeves.includes(g.key)) continue; i++; if(i>3) break; if(!r.tag) r.tag={group:g.key,rank:i}; } }
+  /* PA4: an ADD tag needs at least two measured fundamentals — never on a name with none (the coordinator's call on PA3's open decision) */
+  for(const g of RANK_GROUPS){ let i=0; for(const r of rows){ if(!r.sleeves.includes(g.key)) continue; if((r.fund.n||0)<2) continue; i++; if(i>3) break; if(!r.tag) r.tag={group:g.key,rank:i}; } }
   RANKED=rows; return rows;
 }
 /* PEER SET — blended, because each axis alone has gaps.
@@ -803,6 +853,7 @@ async function refreshSSOT(){
   J.push(sbGetPaged('ticker_industry?select=ticker,fmp_sector&order=ticker.asc').then(rows=>{ for(const r of rows){ const k=FMP_SECTOR_KEY[r.fmp_sector]; if(k&&!SECTOR_MAP[r.ticker]) SECTOR_MAP[r.ticker]=k; } }).catch(()=>{}));
   J.push(fetch('https://scintillahub.ai/deliverables/20260928/coverage-tree/data/holdings.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{ if(!j||!j.data) return;
     for(const [k,etf] of Object.entries(SECT_CW)){ const f=j.data[etf]; if(!f||!Array.isArray(f.h)) continue; SPDR_MEMBERS[etf]=f.h.map(x=>x[0]); for(const [t] of f.h) if(!SECTOR_MAP[t]) SECTOR_MAP[t]=k; } }).catch(()=>{}));
+  J.push(loadDecisions());
   // PA4 — the chart API's macro board (FMP ^VIX, ^TNX …): the live VIX for the VIX voter; the VIX table keeps the 3-month leg
   J.push(apiGet('/macro').then(j=>{ MACROAPI=j.macro||{}; const v=MACROAPI.VIX; const ts=j.generated_utc||null;
     spineSet('macro_api',ts,(v&&v.quote&&v.quote.price!=null)?'LIVE':'STALE','chart API /macro · VIX '+(v&&v.quote?v.quote.price:'—')+' ('+(v?v.state:'no VIX')+(v&&v.quote&&v.quote.session_et?', session '+v.quote.session_et:'')+')');
@@ -1629,7 +1680,9 @@ function render(){
   renderBrief(h, inv, lc, dTot, dLC, dSC);
   renderInputMap(h);
   renderCohort(dLC, dSC);
+  renderCards();
   renderComps();
+  renderGuidance();
   renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot, dLC, dSC);
   const csFresh = SPINE['composite_staged'] && SPINE['composite_staged'].ts ? freshTxt(SPINE['composite_staged'].ts) : '—';
   const gFresh = SPINE['geiger'] && SPINE['geiger'].ts ? freshTxt(SPINE['geiger'].ts) : (SPINE['geiger']?'not reached':'—');
@@ -1715,8 +1768,9 @@ function shade(hex,f){                                      // f<0 darken, f>0 l
   const n=parseInt(hex.slice(1),16), m=c=>f>=0?Math.round(c+(255-c)*f):Math.round(c*(1+f));
   return '#'+((1<<24)+(m((n>>16)&255)<<16)+(m((n>>8)&255)<<8)+m(n&255)).toString(16).slice(1);
 }
-function drawDonut(shares, inv){
-  const cv=document.getElementById('donut'); if(!cv) return;
+function drawDonut(shares, inv){ for(const id of ['donut','donutTop']) drawDonutOn(id, shares, inv); }
+function drawDonutOn(id, shares, inv){
+  const cv=document.getElementById(id); if(!cv) return;
   const dpr=window.devicePixelRatio||1; const CSSW=660, CSSH=340;
   cv.style.width=CSSW+'px'; cv.style.height=CSSH+'px';
   cv.width=CSSW*dpr; cv.height=CSSH*dpr;
@@ -1957,9 +2011,10 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const f = x => x==null?'—':(x>=0?'+':'')+x.toFixed(2);
   const st = policyStep(h);
   const gS=gv('SPY'), gQ=gv('QQQ'), gI=gv('IWM'), gR=gv('RSP');
-  const vix=(VIXDB&&VIXDB.fresh)?VIXDB.vix:null, ten=(TREAS&&TREAS.y10!=null)?+TREAS.y10:null;
+  const vix=(MACROAPI&&MACROAPI.VIX&&MACROAPI.VIX.quote&&MACROAPI.VIX.quote.price!=null)?+MACROAPI.VIX.quote.price:((VIXDB&&VIXDB.fresh)?VIXDB.vix:null), ten=(TREAS&&TREAS.y10!=null)?+TREAS.y10:null;
   const secs=Object.values(SECTOR_READ).filter(r=>r.score!=null).sort((a,b)=>b.score-a.score);
   const word=r=>groupWord(r.key);
+  const bl=BREADTH20&&BREADTH20.n>=50?' Across the '+BREADTH20.n+' served names the advance/decline line '+(BREADTH20.cum<0?'fell ':'rose ')+Math.abs(BREADTH20.cum)+' over the last 20 sessions'+(BREADTH20.today.n?' (today '+BREADTH20.today.up+' up, '+BREADTH20.today.down+' down)':'')+(CONC20&&CONC20.top10&&CONC20.top10.share!=null?', and '+Math.round(CONC20.top10.share*100)+'% of the set\'s move came from its ten largest names':'')+'.':'';
   const leading=secs.filter(r=>r.kind==='go'), lagging=secs.filter(r=>r.kind==='avoid'), turning=secs.filter(r=>r.kind==='improve');
   const bows=secs.filter(r=>r.bowtie!=null), bowAvg=bows.length?bows.reduce((t,r)=>t+r.bowtie,0)/bows.length:null;
   const narrow = gS!=null && gR!=null && (gS-gR)>0.3;
@@ -1968,7 +2023,7 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const sect = secs.length? ' '+leading.length+' of '+secs.length+' sectors lead'+(leading.length?' ('+leading.slice(0,3).map(word).join(', ')+')':'')+(lagging.length?', '+lagging.length+' lag'+(lagging.length<=4?' ('+lagging.map(word).join(', ')+')':''):'')+(turning.length?', '+turning.length+' turning up from below ('+turning.map(word).join(', ')+')':'')+'.':'';
   const bow = bowAvg==null?'': ' Inside the sectors the bow tie reads '+f(bowAvg)+(bowAvg<-0.1?': the big names carry each sector.':bowAvg>0.1?': the average stock leads its sector.':': even.');
   const macro = (ten!=null?(ten>4.15?' Rates are a headwind at '+ten.toFixed(2)+'%.':' Rates are supportive at '+ten.toFixed(2)+'%.'):'')+(vix!=null?(vix<21?' Volatility is calm (VIX '+vix.toFixed(1)+').':' Fear is on the tape (VIX '+vix.toFixed(1)+').'):' The VIX table is stale, so volatility is not voting.');
-  const p1 = 'The market reads '+st.cond+' (heat '+f(h)+'). '+idx+breadth+'.'+sect+bow+macro;
+  const p1 = 'The market reads '+st.cond+' (heat '+f(h)+'). '+idx+breadth+'.'+sect+bow+bl+macro;
   const SHB = sleeveShares();
   const top = Object.entries(SHB).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,sh])=>(SECT_WORD[k]||k)+' '+Math.round(sh*inv*100)+'%');
   const p2 = 'The sectors are read by '+methodWord().toLowerCase().replace('mix · ','a mix: ')+'. The policy for a '+st.cond.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?pct(dTot,0)+' of equity is to deploy':pct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in TARGET MIX).':'.');
@@ -1996,6 +2051,13 @@ function renderInputMap(h){
     ['Geiger', SRC, SPINE['geiger']?(SPINE['geiger'].mode+' · '+(SPINE['geiger'].note||'')):'—', 'Every Geiger on this page (voters, sectors, names): the chart API /geiger, the Hub\'s own, fresh every cycle. composite_staged only for CLUSD, BTCUSD, GCUSD, SIUSD, which the API does not carry. Nothing from Yahoo.'],
     ['Sector readings', SRC, SPINE['sector_compare']?(SPINE['sector_compare'].mode+' · '+(SPINE['sector_compare'].note||'')):'—', 'Each sector = its State Street fund\'s Geiger (trend, momentum, score) from the same /geiger call; the Invesco equal-weight twin minus it = the bow tie. The sector split, the SECTOR COMPARE and SECTOR BOW TIE voters and the sector chips all read this. sector_rankings is the fallback only.'],
     ['Whole-market bow tie', SRC, B1?('B1 · as of the '+B1.asof+' close · '+(B1.market&&B1.market.bowtie!=null?(+B1.market.bowtie).toFixed(2):'—')):'not read', 'B1\'s page on the Hub: every listed name, equal-weight minus cap-weight, and which sector and cohort aggregates are statistically sound (● sound · ◐ thin · ○ not yet). Dated; the date is shown wherever it is used.'],
+    ['Sector method', P, methodWord(), 'WHERE. Which reading of each sector TARGET MIX uses: State Street fund · Hub compare (fund + equal-weight twin) · market bow tie (average served stock, live) · tree (the close tier by sector), or the stated mix. The pie, the moves and the ranking follow it.'],
+    ['Advance / decline', SRC, SPINE['breadth_20d']?(SPINE['breadth_20d'].mode+' · '+(SPINE['breadth_20d'].note||'')):'—', 'The served set\'s 20-session advance/decline line from the chart API\'s daily bars (/candles-multi), plus today from /quotes. market_internals (whole market, dated) is the fallback.'],
+    ['Concentration', SRC, CONC20?('S&P 20-session '+(CONC20.spy*100).toFixed(1)+'% vs equal-weight '+(CONC20.rsp*100).toFixed(1)+'%'+(CONC20.top10&&CONC20.top10.share!=null?' · top ten carried '+Math.round(CONC20.top10.share*100)+'%':'')):'—', 'SPY and RSP closes over the same 20 sessions; the top-ten share from the served names\' market values (company_profile).'],
+    ['VIX · VIX term', SRC, (SPINE['macro_api']?SPINE['macro_api'].mode+' · '+(SPINE['macro_api'].note||''):'—')+' · '+(SPINE['vix_term']?SPINE['vix_term'].mode+' · '+(SPINE['vix_term'].note||''):'—'), 'The spot VIX from the chart API\'s macro board (FMP), live; the 3-month leg from the vix_term table\'s last close (no live 3-month VIX in the estate).'],
+    ['Tree close tier', SRC, SPINE['tree_close_tier']?(SPINE['tree_close_tier'].mode+' · '+(SPINE['tree_close_tier'].note||'')):'—', 'The chart API\'s /v1/scout-geiger (the off-Hub Geiger over every listed name), rolled up by sector (the Hub\'s membership, the industry table, the funds\' holdings, the profiles) and by cohort.'],
+    ['Market bow tie, live', SRC, SPINE['market_bowtie_live']?(SPINE['market_bowtie_live'].mode+' · '+(SPINE['market_bowtie_live'].note||'')):'—', 'Over the served names /geiger carries that have a market value: equal-weight average minus cap-weighted average, per sector and whole. B1\'s dated whole-market figure stays as the soundness verdicts.'],
+    ['Comps decisions', SRC, SPINE['comps_decisions']?(SPINE['comps_decisions'].mode+' · '+(SPINE['comps_decisions'].note||'')):'—', 'KEEP / DROP from the cards, appended to comps_decisions (public insert, the Hub\'s own path); read back at load, latest per company · peer.'],
     ['Prices', SRC, SPINE['quotes']?(SPINE['quotes'].mode+' · '+(SPINE['quotes'].note||'')):'—', 'The chart API /quotes: the live price and the change against the last settled close. live_quotes (database) is the fallback and is 7 weeks old for stocks.'],
     ['Peers', SRC, SPINE['peer_sources']?(SPINE['peer_sources'].mode+' · '+(SPINE['peer_sources'].note||'')):'—', 'peer_sources (FMP and Massive named peers); sub-sector → sector → cohort when a name has none. C5\'s rule drops a peer whose multiple sits more than 3 scaled MADs from the pack\'s log-median (at least 5 peers). Used by FUNDAMENTALS, VS PEERS, the comps colours and IMPLIED.'],
     ['Analyst targets', SRC, SPINE['analyst_targets']?(SPINE['analyst_targets'].mode+' · '+(SPINE['analyst_targets'].note||'')):'—', 'A4\'s checked notes: analyst_target_news, kind TARGET, quality ok, the checked target, last 90 days, one per firm; TARGET = the median, UPSIDE = median ÷ price − 1. Quarantined notes never count.'],
@@ -2062,6 +2124,112 @@ let PICKS = new Set(JSON.parse(localStorage.getItem('alloc-picks')||'[]'));
    pullback is an opportunity; cheap inside a breakdown is the market telling you why. */
 /* No split toggle either: the score that RANKS a name is the score that SIZES it. */
 
+/* ===== PA4 · ADD TO COMPS → A SHORT LIST NOW, IN THE APPROVED CARDS (Alan, 5 Oct 14:15) =====
+   For each sector the tool favours (at least 4% of what is invested, sound sectors first), the ADD names and, for each, the
+   three best of its C5 comps field (business-first peers from peer_sources, outliers out, ranked by fundamentals). One card per
+   name in the swipe look approved on 24 Sep (the stack's card CSS, copied): the reason in one line — fundamentals rank ·
+   Geiger timing · checked target. KEEP / DROP per card; every decision is appended to comps_decisions through the public
+   write path the Hub's comps tab uses (append-only, the latest row per company · peer is the state). */
+let DECISIONS = {};   // 'company|peer' -> {off, reason, set_at, saved}
+try { Object.assign(DECISIONS, JSON.parse(localStorage.getItem('alloc-decisions')||'{}')); } catch(e){}
+async function loadDecisions(){
+  try { const rows=await sbGet('comps_decisions?select=company,peer,off,reason,set_at&source=eq.allocation-pa4&measure=eq.ALL&order=set_at.asc&limit=1000');
+    for(const r of rows) DECISIONS[r.company+'|'+r.peer]={off:!!r.off, reason:r.reason||'', set_at:r.set_at, saved:true};
+    localStorage.setItem('alloc-decisions', JSON.stringify(DECISIONS));
+    spineSet('comps_decisions',rows.length?rows[rows.length-1].set_at:null,'LIVE',rows.length+' decisions on file from this tool (KEEP / DROP)'); }
+  catch(e){ spineSet('comps_decisions',null,'FALLBACK','read failed ('+e.message+') — decisions kept on this device'); }
+}
+/* the write path: the same public insert the Hub uses for its lists and its comps tab */
+async function writeDecision(row){
+  const body=[{company:row.company, peer:row.peer, measure:'ALL', off:!!row.off, reason:row.reason||'', set_by:'alan', source:row.source||'allocation-pa4'}];
+  const r=await fetch(SB_REST+'/comps_decisions',{method:'POST',headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error('comps_decisions '+r.status);
+  return true;
+}
+window.writeDecision=writeDecision;
+async function decide(company, peer, off, reason){
+  const k=company+'|'+peer; DECISIONS[k]={off, reason, set_at:new Date().toISOString(), saved:false};
+  localStorage.setItem('alloc-decisions', JSON.stringify(DECISIONS)); render();
+  try { await writeDecision({company, peer, off, reason}); DECISIONS[k].saved=true; }
+  catch(e){ DECISIONS[k].saved=false; DECISIONS[k].why=String(e.message||e); }
+  localStorage.setItem('alloc-decisions', JSON.stringify(DECISIONS)); render();
+}
+window.decide=decide;
+function decisionOf(company, peer){ return DECISIONS[company+'|'+peer]||null; }
+function reasonLine(sym, fund, g, rg, target){
+  const parts=[];
+  if(fund&&fund.score!=null){ const better=(fund.parts||[]).filter(p=>p[1]>=0.75).map(p=>p[0]); parts.push('fundamentals '+fund.score.toFixed(2)+' ('+fund.n+' of 4 readings'+(better.length?', better than its peers on '+better.join(', '):'')+')'); } else parts.push('no measured fundamentals');
+  if(g!=null){ const fit=intentFitKind(rg&&rg.kind); parts.push('Geiger '+(g>=0?'+':'')+g.toFixed(2)+(rg&&rg.label?', '+rg.label.toLowerCase():'')+(fit>=0.9?': timing favourable':fit>=0.6?': timing fair':fit>=0.4?': wait for the turn':': breaking down')); }
+  parts.push(target?'checked target $'+target.median.toFixed(0)+' ('+(target.up>=0?'+':'')+Math.round(target.up*100)+'%, '+target.n+' firms)':'no checked target');
+  return parts.join(' · ');
+}
+function shortList(){
+  const ranked=RANKED.length?RANKED:rankCandidates();
+  const out=[], seen=new Set();
+  const favoured=RANK_GROUPS.filter(g=>g.share>0).slice(0,5);
+  const capOf=s=>PROFILES[s]&&PROFILES[s].market_cap?+PROFILES[s].market_cap:null;
+  for(const g of favoured){
+    const picks=ranked.filter(r=>r.tag&&r.tag.group===g.key);
+    for(const p of picks){
+      if(!seen.has(p.sym)){ seen.add(p.sym); out.push({sym:p.sym, sector:g.key, of:null, rank:p.tag.rank, fund:p.fund, g:p.g, rg:p.rg, price:p.price, day:p.day, target:p.target, fav:p.fav, reason:reasonLine(p.sym,p.fund,p.g,p.rg,p.target)}); }
+      const pc=capOf(p.sym), ps=sectorKeyOfAny(p.sym);
+      const inBand=x=>{ const c=capOf(x), s=sectorKeyOfAny(x); if(s&&ps&&s!==ps) return false; if(c&&pc&&(c>pc*10||c<pc/10)) return false; return true; };   // C5: same business, within ÷10..×10 of the company's size
+      const peers=(PEERS[p.sym]||[]).filter(x=>COMPS[x]&&!seen.has(x)&&inBand(x)).map(x=>{ const tg=tickerG(x); const fund=fundScore(x); const q=QUOTES[x]||{}; const price=q.price!=null?+q.price:null; const t=TARGETS[x]; return {sym:x, sector:g.key, of:p.sym, rank:null, fund, g:tg?tg.g:null, rg:REGIME[x]||{}, price, day:q.chg_pct!=null?(+q.chg_pct)/100:null, target:(t&&price)?{median:t.median,n:t.n,up:t.median/price-1}:null, fav:UNIVERSE.favs.has(x)}; })
+        .filter(x=>x.fund.score!=null&&(x.fund.n||0)>=2).sort((a,b)=>b.fund.score-a.fund.score).slice(0,2);
+      for(const q of peers){ seen.add(q.sym); q.reason=reasonLine(q.sym,q.fund,q.g,q.rg,q.target); out.push(q); }
+    }
+  }
+  return out;
+}
+function renderCards(){
+  const el=document.getElementById('cards'); if(!el) return;
+  const list=shortList(); const nfav=Math.min(5,RANK_GROUPS.filter(g=>g.share>0).length);
+  const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
+  const cards=list.map((c,i)=>{
+    const company=c.of||c.sym, d=decisionOf(company,c.sym);
+    const state=d?(d.off?'DROPPED':'KEPT')+(d.saved?'':' · not saved — kept on this device'):'';
+    const kinds='<span class="ckind'+(c.of?'':' on')+'">'+(c.of?'COMPS PEER OF '+esc2(c.of):'ADD · '+esc2(groupWord(c.sector).toUpperCase())+' #'+c.rank)+'</span>'+(c.fav?'<span class="ckind">★ ON HIS LIST</span>':'')+(c.rg&&c.rg.label?'<span class="ckind">'+esc2(c.rg.label)+'</span>':'')+(d?'<span class="ckind '+(d.off?'dn':'up')+'">'+state+'</span>':'');
+    const fs=c.fund&&c.fund.score!=null?c.fund.score.toFixed(2):'—', fn=c.fund?c.fund.n+' of 4':'';
+    const up=c.target?((c.target.up>=0?'+':'')+Math.round(c.target.up*100)+'%'):'—';
+    return '<div class="swcard" data-i="'+i+'"><div class="cbody">'+
+      '<div class="chead"><b>'+esc2(c.sym)+'</b><span class="sec">'+esc2(groupWord(c.sector))+'</span><span class="pos">'+(i+1)+' / '+list.length+'</span></div>'+
+      '<div class="ckinds">'+kinds+'</div>'+
+      '<div class="cgeig"><span class="k">GEIGER</span><span class="v">'+f2(c.g)+'</span><span class="k">TREND</span><span class="v">'+f2(c.rg&&c.rg.trend)+'</span><span class="k">MOMENTUM</span><span class="v">'+f2(c.rg&&c.rg.mom)+'</span><span class="k">PRICE</span><span class="v">'+(c.price==null?'—':'$'+(+c.price).toLocaleString())+(c.day==null?'':' <i class="'+(c.day>=0?'up':'dn')+'">'+spct(c.day,2)+'</i>')+'</span></div>'+
+      '<div class="cnums"><div><span>FUNDAMENTALS</span><b>'+fs+'</b><i>'+fn+'</i></div><div><span>GEIGER TIMING</span><b>'+(c.g==null?'—':((1-c.g)/2).toFixed(2))+'</b><i>'+(c.rg&&c.rg.label?esc2(c.rg.label.toLowerCase()):'')+'</i></div><div><span>CHECKED TARGET</span><b class="'+(c.target?(c.target.up>=0?'up':'dn'):'')+'">'+up+'</b><i>'+(c.target?'$'+c.target.median.toFixed(0)+' · '+c.target.n+' firms':'none')+'</i></div></div>'+
+      '<div class="cwhy">'+esc2(c.reason)+'</div>'+
+      '</div><div class="swbtns"><button onclick="decide(\''+company+'\',\''+c.sym+'\',true,\'dropped in ALLOCATION — '+(c.of?'peer of '+c.of:'pick')+'\')">✕ DROP</button><button onclick="decide(\''+company+'\',\''+c.sym+'\',false,\'kept in ALLOCATION — '+(c.of?'peer of '+c.of:'pick')+'\')">✓ KEEP</button></div></div>';
+  }).join('');
+  const kept=list.filter(c=>{const d=decisionOf(c.of||c.sym,c.sym); return d&&!d.off;}).length, dropped=list.filter(c=>{const d=decisionOf(c.of||c.sym,c.sym); return d&&d.off;}).length;
+  el.innerHTML='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:6px 0 4px">ADD TO COMPS — THE SHORT LIST · '+list.length+' names from the '+nfav+' sectors the tool favours most (the ADD names and the two best of each one\'s comps field — same business, within ten times its size, C5\'s rule) · '+kept+' kept · '+dropped+' dropped · a decision is written to the comps decisions table the moment you make it</div>'+
+    '<div class="cardgrid">'+(cards||'<div class="note">no sector is funded yet — nothing to show</div>')+'</div>';
+}
+/* ===== PA4 · ALLOCATION GUIDES WHAT GOES ON THE HUB (Alan: "things we like go to the Hub; for their comps, do we need them on
+   the Hub? Maybe not — the comps portion is fundamental, we can relax there") ===== */
+function hubGuidance(){
+  const date=new Date().toISOString().slice(0,10); const names=[];
+  for(const c of shortList()){
+    const d=decisionOf(c.of||c.sym,c.sym); const kept=!!(d&&!d.off), dropped=!!(d&&d.off); const onList=!!c.fav;
+    let tag, reason;
+    if(!c.of){ tag='NEEDS THE LIVE HUB'; reason='recommended by the allocation — '+groupWord(c.sector)+' pick #'+c.rank+(onList?' · on his favourites':'')+(kept?' · kept in comps':dropped?' · dropped in comps':''); }
+    else if(onList||kept){ tag='NEEDS THE LIVE HUB'; reason='comps peer of '+c.of+(onList?' · on his favourites':'')+(kept?' · KEEP decision':''); }
+    else { tag='FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH'; reason='comps peer of '+c.of+(dropped?' · dropped in comps':'')+' — the fundamentals compare does not need the live Hub'; }
+    names.push({ticker:c.sym, tag, reason, date, sector:groupWord(c.sector), of:c.of||null});
+  }
+  const st=policyStep(heat());
+  return {what:'Allocation → Hub guidance (PA4, 5 Oct 2026): per recommended name, whether it needs the live Hub (Alan likes it or will trade it: a pick, on his lists, or a KEEP decision) or fundamentals only (a comps peer: off-Hub is enough). Read by U5\'s served-set decision.',
+    built_utc:new Date().toISOString(), regime:st.cond, invested_pct:st.pct, sector_method:methodWord(),
+    counts:{needs_live_hub:names.filter(n=>n.tag==='NEEDS THE LIVE HUB').length, fundamentals_only:names.filter(n=>n.tag!=='NEEDS THE LIVE HUB').length}, names};
+}
+window.hubGuidance=hubGuidance;
+function renderGuidance(){
+  const el=document.getElementById('guidance'); if(!el) return;
+  const g=hubGuidance();
+  const row=n=>'<span style="display:inline-block;margin:2px 8px 2px 0;padding:2px 7px;border:1px solid var(--line);border-radius:5px;font-size:10.5px" title="'+esc2(n.reason).replace(/"/g,'')+'"><b>'+esc2(n.ticker)+'</b> <span class="cls">'+esc2(n.sector)+(n.of?' · peer of '+esc2(n.of):'')+'</span></span>';
+  el.innerHTML='<details style="margin-top:10px"><summary>WHAT GOES ON THE HUB — '+g.counts.needs_live_hub+' need the live Hub · '+g.counts.fundamentals_only+' fundamentals only (off-Hub is enough)</summary>'+
+    '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 3px;color:var(--cyan)">NEEDS THE LIVE HUB — he likes it or will trade it</div><div>'+g.names.filter(n=>n.tag==='NEEDS THE LIVE HUB').map(row).join('')+'</div>'+
+    '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 3px;color:var(--gold)">FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH (a comps peer)</div><div>'+g.names.filter(n=>n.tag!=='NEEDS THE LIVE HUB').map(row).join('')+'</div>'+
+    '<div class="note" style="font-size:10px;margin-top:6px">A KEEP on a peer card moves it to "needs the live Hub". The list is written as control/ALLOCATION-HUB-GUIDANCE.json on the branch (ticker · tag · reason · date) for the served-set decision.</div></details>';
+}
 let EXCLUDED = new Set(); // session-only: a reload clears drops so nothing is ever lost
 let COMPCAT='ALL';
 function setCompCat(c){ COMPCAT=c; render(); }
@@ -2181,6 +2349,10 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   for (const r of secs) L.push(`  ${groupWord(r.key).padEnd(24)} ${r.etf} ${f2(r.score)} (trend ${f2(r.trend)}, momentum ${f2(r.momentum)}, ${r.q.toLowerCase()})${r.bowtie!=null?'  ·  bow tie '+r.ewEtf+' − '+r.etf+' = '+f2(r.ew)+' − '+f2(r.score)+' = '+f2(r.bowtie):''}${b1Verdict(r.key)?'  ·  aggregate '+b1Verdict(r.key):''}`);
   L.push(`  SECTOR COMPARE = average of the ${secs.length} fund scores → ${f2(V('SECTOR_CMP'))} · SECTOR BOW TIE = average of the bow ties → ${f2(V('BOWTIE'))} · MARKET BOW TIE (B1, ${B1?B1.asof:'—'}) → ${f2(V('MKT_BOWTIE'))}`);
   const used = vv.filter(v => v.val != null && (S.wts[v.key]??0) > 0);
+  L.push('STEP B3 · BREADTH, COMPUTED HERE (added 5 Oct)');
+  if(BREADTH20) L.push(`  ADVANCE / DECLINE: ${BREADTH20.n} served names · ${BREADTH20.sessions.length} completed sessions to ${BREADTH20.asof} · net advances per session ${BREADTH20.sessions.map(s=>(s.net>=0?'+':'')+s.net).join(' ')} · line ${BREADTH20.cum>=0?'+':''}${BREADTH20.cum} · today ${BREADTH20.today.up} up / ${BREADTH20.today.down} down → vote ${f2(V('ADLINE'))}`); else L.push('  ADVANCE / DECLINE: daily bars not reachable — market_internals fallback → '+f2(V('ADLINE')));
+  if(CONC20) L.push(`  CONCENTRATION: SPY ${(CONC20.spy*100).toFixed(2)}% vs RSP ${(CONC20.rsp*100).toFixed(2)}% over 20 sessions → spread ${(CONC20.spread*100).toFixed(2)} points ÷ 5 → vote ${f2(V('CONC'))}${CONC20.top10&&CONC20.top10.share!=null?' · top ten ('+CONC20.top10.names.join(' ')+') carried '+(CONC20.top10.share*100).toFixed(0)+'% of the set\'s cap-weighted move, holding '+(CONC20.top10.capShare*100).toFixed(0)+'% of its value':''}`);
+  L.push(`  VIX ${vix==null?'—':vix.toFixed(1)} (chart API macro, live) · VIX TERM → ${f2(V('VIX_TERM'))}`);
   L.push('STEP C · MACRO HEAT (weighted average of the voters you turned on)');
   L.push('  heat = ( ' + used.map(v => `${S.wts[v.key]}×${f2(v.val)} ${v.key}`).join(' + ') + ' ) / ' + used.reduce((t,v)=>t+(S.wts[v.key]??0),0) + ' = ' + f2(h));
   const st=policyStep(h);
@@ -2190,6 +2362,8 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   L.push(`  LC/SC lens = 50% + (IWM ${f2(gv('IWM'))} − SPY ${f2(gv('SPY'))})×50%${S.lcTilt?` + tilt ${S.lcTilt}×heat ${f2(h)}`:''} = ${pct(lc,0)} large / ${pct(1-lc,0)} small, capped 20–80%`);
   L.push('STEP E · YOUR STATE (from IBKR, adjusted by your sliders) → MOVES');
   L.push(`  current: invested ${pct(cInv,0)} · target ${pct(inv,0)} · TOTAL ${spct(dTot)} of equity`);
+  L.push('STEP F0 · THE SECTOR METHOD — '+methodWord());
+  for (const k of Object.keys(SECT_CW)) { const r=methodRead(k); if(!r||!r.parts) continue; const P=r.parts; L.push(`  ${groupWord(k).padEnd(24)} State Street ${f2(P.SPDR&&P.SPDR.score)} · Hub compare ${f2(P.HUBCMP&&P.HUBCMP.score)} · market bow tie ${f2(P.MKTBOW&&P.MKTBOW.score)}${P.MKTBOW&&P.MKTBOW.bowtie!=null?' (bow tie '+f2(P.MKTBOW.bowtie)+')':''} · tree ${f2(P.TREE&&P.TREE.score)}${P.TREE&&P.TREE.n?' ('+P.TREE.n+' names)':''} → used ${f2(r.score)}`); }
   L.push('STEP F · WHERE — each sector\'s share of the invested part (colder earns more; improving lifted ×1.35, weakening ×0.85, breakdown ×0.6; capped 2–35%)');
   const SH=sleeveShares();
   for (const [k,sh] of Object.entries(SH).sort((a,b)=>b[1]-a[1])) { const r=groupReadOf(k)||{}; L.push(`  ${groupWord(k).padEnd(24)} score ${f2(r.score)} → cold ${(Math.max(0.05,(1-(r.score??0))/2)).toFixed(2)} × turn (${r.kind||'—'}) → ${pct(sh,0)} of invested = ${pct(sh*inv)} of equity`); }
@@ -2208,7 +2382,39 @@ for (const o of ['SPDR','HUBCMP','MKTBOW','TREE']) { const el=document.getElemen
 document.getElementById('refresh').onclick = loadFeeds;
 if(localStorage.getItem('alloc-hidedesc')!=='0') document.body.classList.add('hidedesc');  // collapsed by default
 (function(){ const b=document.getElementById('descToggle'); const upd=()=>{ const hid=document.body.classList.contains('hidedesc'); b.textContent=(hid?'▸ ':'▾ ')+'what each voter is (proxy detail)'; }; upd(); b.onclick=()=>{ document.body.classList.toggle('hidedesc'); localStorage.setItem('alloc-hidedesc', document.body.classList.contains('hidedesc')?'1':'0'); upd(); }; })();
+/* ===== PA4 · THE FOLD ===== every section folds to one screen with a sticky bar at the top; INPUTS is a drawer over the page;
+   THE BRIEF and the TARGET MIX pie sit on the first screen. Nothing is removed. Fold state is remembered on this device. */
+const SECTIONS=[['p-brief','THE BRIEF'],['p-heat','1 HEAT'],['p-inputs','INPUTS'],['p-mix','2 MIX'],['p-moves','3 MOVES'],['p-options','4 OPTIONS'],['p-comps','4b COMPS'],['p-map','5 MAP'],['p-state','6 STATE'],['p-trace','7 TRACE']];
+let FOLDS={}; try{ FOLDS=JSON.parse(localStorage.getItem('alloc-folds')||'{}'); }catch(e){}
+function setFold(id, folded){ FOLDS[id]=folded?1:0; localStorage.setItem('alloc-folds',JSON.stringify(FOLDS)); applyFold(id); }
+function applyFold(id){ const p=document.getElementById(id); if(!p) return; const folded=(FOLDS[id]==null)?(id!=='p-brief'):!!FOLDS[id]; p.classList.toggle('folded',folded); const b=p.querySelector('.pfold'); if(b) b.textContent=folded?'ONE SCREEN · OPEN ▾':'OPEN · FOLD ▴'; }
+window.setFold=setFold;
+function openDrawer(on){ const d=document.getElementById('p-inputs'), s=document.getElementById('drawerShade'); if(!d) return; d.classList.toggle('open',on); s.classList.toggle('on',on); }
+window.openDrawer=openDrawer;
+(function buildFold(){
+  const panels=[...document.querySelectorAll('.grid > .panel')];
+  panels.forEach((p,i)=>{ const def=SECTIONS[i]; if(!def) return; p.id=def[0];
+    const h2=p.querySelector('h2'); const body=document.createElement('div'); body.className='pbody';
+    while(h2.nextSibling) body.appendChild(h2.nextSibling); p.appendChild(body);
+    if(def[0]==='p-inputs'){ const c=document.createElement('button'); c.className='pfold'; c.textContent='CLOSE ✕'; c.onclick=()=>openDrawer(false); h2.appendChild(c); return; }
+    const b=document.createElement('button'); b.className='pfold'; b.onclick=()=>setFold(def[0], !p.classList.contains('folded')); h2.appendChild(b); applyFold(def[0]); });
+  const bar=document.getElementById('secbar');
+  bar.innerHTML=SECTIONS.map(([id,t])=>'<button data-sec="'+id+'">'+t+'</button>').join('')+'<span class="sbnote">every section is one screen — open it from its corner · INPUTS opens over the page</span>';
+  bar.querySelectorAll('button').forEach(b=>b.onclick=()=>{ const id=b.getAttribute('data-sec'); if(id==='p-inputs'){ openDrawer(!document.getElementById('p-inputs').classList.contains('open')); return; } const p=document.getElementById(id); if(p) window.scrollTo({top:p.getBoundingClientRect().top+window.scrollY-56,behavior:'smooth'}); });
+  document.getElementById('drawerShade').onclick=()=>openDrawer(false);
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') openDrawer(false); });
+  const spy=()=>{ let best=null, bd=1e9; for(const [id] of SECTIONS){ if(id==='p-inputs') continue; const p=document.getElementById(id); if(!p) continue; const d=Math.abs(p.getBoundingClientRect().top-70); if(d<bd){ bd=d; best=id; } }
+    bar.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.getAttribute('data-sec')===best)); };
+  document.addEventListener('scroll', spy, {passive:true}); spy();
+})();
 loadFeeds();
 </script>
+<details class="sc-pagespecs"><summary>PAGE SPECS</summary>
+<p><b>What changed on 5 Oct (PA4).</b> Two breadth voters: ADVANCE / DECLINE is the line over the names the Hub serves to this tool — one up or down per name per completed session from the chart API's daily bars, summed over the last 20 sessions, plus today's session from the live quotes; the vote is that line's slope, scaled so two thirds of the names rising every day reads +1 (default weight 0.5). CONCENTRATION is the equal-weight twin (RSP) minus the cap-weight index (SPY) over the same 20 sessions, scaled so a five-point spread reads ±1, with the share of the served set's cap-weighted move that its ten largest names carried (default weight 0.5). The VIX votes live from the chart API's macro board; the VIX term structure (spot ÷ 3-month) uses the VIX table's last close for the 3-month leg because no live 3-month VIX exists in the estate, and says that date on its dial.</p>
+<p><b>The sector method dial.</b> TARGET MIX reads each sector one of four ways: STATE STREET SECTORS (the sector fund's own Geiger), HUB SECTOR COMPARE (the fund and its equal-weight twin, averaged), MARKET BOW TIE (the average served stock in the sector, every name equal-weight, live from the chart API, with the bow tie against the cap-weighted read), TREE READINGS (the tree's close tier, 5,316 common stocks and ADRs, rolled up by sector — 652 of them carry a sector in the estate today). The default is a mix, 40 / 20 / 20 / 20 in that order; the weights are dials in INPUTS. The pie, the moves and the ranking all follow the dial. Crypto, metals and oil have no fund, so every option reads them from their own constituents.</p>
+<p><b>The short list.</b> For the five sectors the tool favours most (sound sectors first, then by share), the ADD names and the two best of each one's comps field — the business-first peers from the peer table, same sector and within ten times its size (C5's rule), ranked by fundamentals — as the approved cards. KEEP / DROP appends one row to the comps decisions table through the public write path the Hub's comps tab uses; the latest row per company and peer is the state. An ADD tag needs at least two measured fundamentals.</p>
+<p><b>What goes on the Hub.</b> A pick, a name on his favourites, or a KEEP decision is tagged NEEDS THE LIVE HUB; a comps peer without those is FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH. The list is written as control/ALLOCATION-HUB-GUIDANCE.json (ticker · tag · reason · date) for the served-set decision.</p>
+<p><b>The fold.</b> Every section is folded to one screen (1680 × 1050: about 840 px of body, scrolling inside) with a sticky section bar; THE BRIEF and the TARGET MIX pie share the first screen; INPUTS opens as a drawer over the page. Nothing was removed; the fold state is remembered on this device.</p>
+</details>
 </body>
 </html>
