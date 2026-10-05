@@ -1,6 +1,24 @@
 {
   "rewrites": [
-    { "source": "/geiger", "destination": "https://scintilla-massive-chart-api.fly.dev/geiger" },
-    { "source": "/quotes", "destination": "https://scintilla-massive-chart-api.fly.dev/quotes" }
+    {
+      "source": "/geiger",
+      "destination": "https://scintilla-massive-chart-api.fly.dev/geiger"
+    },
+    {
+      "source": "/quotes",
+      "destination": "https://scintilla-massive-chart-api.fly.dev/quotes"
+    },
+    {
+      "source": "/candles-multi",
+      "destination": "https://scintilla-massive-chart-api.fly.dev/candles-multi"
+    },
+    {
+      "source": "/macro",
+      "destination": "https://scintilla-massive-chart-api.fly.dev/macro"
+    },
+    {
+      "source": "/v1/scout-geiger",
+      "destination": "https://scintilla-massive-chart-api.fly.dev/v1/scout-geiger"
+    }
   ]
 }

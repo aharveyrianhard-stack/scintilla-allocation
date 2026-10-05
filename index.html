@@ -144,6 +144,11 @@
     <div class="ctl"><label>Invested when oversold<small>heat −0.5 to −0.2</small></label><input type="range" id="invCold" min="0" max="100" step="5"><div class="v" id="invColdV"></div></div>
     <div class="ctl"><label>Invested when neutral<small>heat −0.2 to +0.2</small></label><input type="range" id="invMid" min="0" max="100" step="5"><div class="v" id="invMidV"></div></div>
     <div class="ctl"><label>Invested when overbought<small>heat +0.2 to +0.5</small></label><input type="range" id="invHot" min="0" max="100" step="5"><div class="v" id="invHotV"></div></div>
+    <div style="color:var(--cyan);font-size:10px;letter-spacing:.18em;margin:14px 0 2px">SECTOR METHOD MIX (TARGET MIX, when the dial says MIX)</div>
+    <div class="ctl"><label>State Street sectors<small>the fund's own Geiger</small></label><input type="range" id="mixSPDR" min="0" max="100" step="5"><div class="v" id="mixSPDRV"></div></div>
+    <div class="ctl"><label>Hub sector compare<small>fund + equal-weight twin</small></label><input type="range" id="mixHUBCMP" min="0" max="100" step="5"><div class="v" id="mixHUBCMPV"></div></div>
+    <div class="ctl"><label>Market bow tie<small>the average served stock, live</small></label><input type="range" id="mixMKTBOW" min="0" max="100" step="5"><div class="v" id="mixMKTBOWV"></div></div>
+    <div class="ctl"><label>Tree readings<small>the close tier by sector</small></label><input type="range" id="mixTREE" min="0" max="100" step="5"><div class="v" id="mixTREEV"></div></div>
     <div style="color:var(--cyan);font-size:10px;letter-spacing:.18em;margin:14px 0 2px">DIVERSIFICATION</div>
     <div class="ctl"><label>Mode<small>AUTO scales names with the market: names = 2 + (1−heat)/2 × 3, so heat −1 → 5 names (wide, catch the rebound), heat +1 → 2 names (concentrate in the best). Heat ~0 → ~4. MANUAL: you fix it.</small></label><div><button id="divToggle" style="background:#14141f;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:5px 14px;font-family:inherit;font-size:11px;cursor:pointer"></button></div><div class="v" id="divModeV"></div></div>
     <div class="ctl"><label>Hard cap — TOTAL names<small>your portfolio-wide ceiling on how many individual names you'll hold, all sleeves combined. This is the number that caps how many PICKS the comps table lets you keep — so your plan and your buy-list stay consistent.</small></label><input type="range" id="maxTotal" min="2" max="24" step="1"><div class="v" id="maxTotalV"></div></div>
@@ -165,6 +170,8 @@
     <div id="policy"></div>
     <div id="sectorrot"></div>
     <div id="rotationtpl"></div>
+    <div id="treeroll"></div>
+    <div id="mixdial"></div>
     <canvas id="donut" width="640" height="300"></canvas>
     <div id="pickmix"></div>
     <div id="targets"></div>
@@ -526,12 +533,133 @@ let QUOTES={}, PROFILES={}, TREAS=null, VIXDB=null, SECTOR_RANKS=null, OPW=null;
    The chart API answers only the Hub's origin in a browser, so vercel.json rewrites /geiger and /quotes on this
    site to it (same-origin); the direct address is tried second. */
 let GEIGER={}, GEIGER_META=null, TARGETS={}, B1=null, PEER_SRC='';
+/* PA4 (5 Oct 2026, Alan 14:15: "it does not have advance/decline line, concentration") — the breadth the tool
+   computes itself from the daily bars the Hub reads, over the names the Hub serves to this tool. */
+/* PA4 — TARGET MIX says which sector methodology it uses (Alan: "what is it considering? State Street, or a mix of all the
+   sector methodologies?"). Four readings per sector, one dial, a stated default mix:
+     SPDR    STATE STREET SECTORS — the sector fund's own Geiger (cap-weight), as PA3 read it
+     HUBCMP  HUB SECTOR COMPARE   — the Hub's compare strip: the sector fund and its equal-weight twin, averaged
+     MKTBOW  MARKET BOW TIE       — the average served stock in the sector (every name equal-weight, from /geiger), live, with the
+                                    bow tie against the cap-weighted read beside it (B1's dated whole-market figure stays as the verdicts)
+     TREE    TREE READINGS        — the tree's close tier (/v1/scout-geiger, 5,925 names) rolled up by sector, equal-weight */
+let SCOUT=null, TREE_ROLL=null, MKTBOW=null, SECTOR_MAP={}, SPDR_MEMBERS={};
+const MIX_OPTS=[['MIX','MIX'],['SPDR','STATE STREET SECTORS'],['HUBCMP','HUB SECTOR COMPARE'],['MKTBOW','MARKET BOW TIE'],['TREE','TREE READINGS']];
+const MIX_DEFAULT={SPDR:40,HUBCMP:20,MKTBOW:20,TREE:20};
+const FMP_SECTOR_KEY={'Technology':'TECH','Healthcare':'HEALTH','Financial Services':'FINANCIALS','Consumer Cyclical':'DISCRET','Industrials':'INDUSTRIAL','Basic Materials':'MATERIALS','Energy':'ENERGY','Consumer Defensive':'STAPLES','Utilities':'UTILITIES','Real Estate':'REAL_ESTATE','Communication Services':'COMMS'};
+function sectorKeyOfAny(sym){ return SECTOR_OF[sym] || SECTOR_MAP[sym] || (PROFILES[sym]&&FMP_SECTOR_KEY[PROFILES[sym].sector]) || null; }
+function rollup(rows){ const T=rows.map(r=>r.trend).filter(v=>v!=null), M=rows.map(r=>r.momentum).filter(v=>v!=null), C=rows.map(r=>r.composite).filter(v=>v!=null);
+  if(C.length<3) return null; const avg=a=>a.reduce((x,y)=>x+y,0)/a.length; return {n:C.length, score:avg(C), trend:T.length?avg(T):null, momentum:M.length?avg(M):null}; }
+/* the tree's close tier rolled up by sector (every name that carries a sector in the estate) and by cohort (the Hub's cohorts) */
+function buildTreeRoll(){
+  if(!SCOUT||!SCOUT.rows){ TREE_ROLL=null; return; }
+  const col=Object.fromEntries((SCOUT.row_columns||[]).map((c,i)=>[c,i]));
+  const rows=SCOUT.rows.map(r=>({ticker:r[col.ticker],composite:r[col.composite],trend:r[col.trend],momentum:r[col.momentum],kind:r[col.kind],session:r[col.last_session]})).filter(r=>r.composite!=null&&(r.kind==='CS'||r.kind==='ADR'));
+  const bySec={}, byCoh={}; let mapped=0;
+  for(const r of rows){ const k=sectorKeyOfAny(r.ticker); if(k){ mapped++; (bySec[k]=bySec[k]||[]).push(r); }
+    for(const c of (UNIVERSE.cohorts[r.ticker]||[])) if(TRUE_COHORT_SET.has(c)) (byCoh[c]=byCoh[c]||[]).push(r); }
+  const sectors={}; for(const [k,v] of Object.entries(bySec)){ const x=rollup(v); if(x) sectors[k]={key:k,...x,...rrg(x.trend??0,x.momentum??0)}; }
+  const cohorts={}; for(const [k,v] of Object.entries(byCoh)){ const x=rollup(v); if(x) cohorts[k]={key:k,...x,...rrg(x.trend??0,x.momentum??0)}; }
+  TREE_ROLL={asof:SCOUT.as_of, computed:SCOUT.computed_utc, names:rows.length, mapped, sectors, cohorts};
+  spineSet('tree_close_tier',SCOUT.computed_utc||null,'LIVE',rows.length+' names in the close tier (as of '+SCOUT.as_of+') · '+mapped+' carry a sector → '+Object.keys(sectors).length+' sector roll-ups · '+Object.keys(cohorts).length+' cohort roll-ups');
+}
+/* the market bow tie, live: per sector over the served names /geiger carries — equal-weight average minus the cap-weighted average */
+function buildMktBow(){
+  const bySec={}, all=[];
+  for(const [sym,g] of Object.entries(GEIGER)){ if(g.composite==null) continue; const p=PROFILES[sym]; if(!p||p.is_etf||!p.market_cap) continue;
+    const k=sectorKeyOfAny(sym); const row={sym,c:g.composite,t:g.trend,m:g.momentum,cap:+p.market_cap}; all.push(row); if(k) (bySec[k]=bySec[k]||[]).push(row); }
+  const read=rows=>{ if(rows.length<3) return null; const tot=rows.reduce((t,r)=>t+r.cap,0); const ew=rows.reduce((t,r)=>t+r.c,0)/rows.length, cw=rows.reduce((t,r)=>t+r.c*r.cap/tot,0);
+    const tr=rows.reduce((t,r)=>t+(r.t??0),0)/rows.length, mo=rows.reduce((t,r)=>t+(r.m??0),0)/rows.length; return {n:rows.length, ew, cw, bowtie:ew-cw, score:ew, trend:tr, momentum:mo, ...rrg(tr,mo)}; };
+  const sectors={}; for(const [k,v] of Object.entries(bySec)){ const x=read(v); if(x) sectors[k]={key:k,...x}; }
+  MKTBOW={market:read(all), sectors, n:all.length, ts:GEIGER_META&&(GEIGER_META.computed_utc||null)};
+  spineSet('market_bowtie_live',MKTBOW.ts,'LIVE',all.length+' served names with a market value · whole set equal-weight minus cap-weight = '+(MKTBOW.market?f2v(MKTBOW.market.bowtie):'—')+' · '+Object.keys(sectors).length+' sectors');
+}
+function mixWeights(){ const w=Object.assign({},MIX_DEFAULT,S.mixW||{}); return w; }
+/* one sector, read the way the dial says — every option's reading is kept so the page can show them side by side */
+function methodRead(k){
+  const base=SECTOR_READ[k]; if(!base||base.score==null) return base;
+  const parts={};
+  parts.SPDR = base.src==='geiger'||base.etf==='(constituents)' ? {score:base.score,trend:base.trend,momentum:base.momentum} : (base.score!=null?{score:base.score,trend:base.trend,momentum:base.momentum}:null);
+  parts.HUBCMP = (base.ew!=null) ? {score:(base.score+base.ew)/2, trend:(base.trend+(base.ewTrend??base.trend))/2, momentum:(base.momentum+(base.ewMom??base.momentum))/2} : parts.SPDR;
+  const mb=MKTBOW&&MKTBOW.sectors[k]; parts.MKTBOW = mb ? {score:mb.score,trend:mb.trend,momentum:mb.momentum,bowtie:mb.bowtie,n:mb.n} : parts.SPDR;
+  const tr=TREE_ROLL&&TREE_ROLL.sectors[k]; parts.TREE = tr ? {score:tr.score,trend:tr.trend??base.trend,momentum:tr.momentum??base.momentum,n:tr.n} : parts.SPDR;
+  const m=S.mixMethod||'MIX'; let score,trend,momentum;
+  if(m!=='MIX'){ const p=parts[m]||parts.SPDR; score=p.score; trend=p.trend; momentum=p.momentum; }
+  else { const w=mixWeights(); let ws=0,sc=0,tt=0,mm=0; for(const [o,p] of Object.entries(parts)){ if(!p||!(w[o]>0)) continue; ws+=w[o]; sc+=w[o]*p.score; tt+=w[o]*(p.trend??0); mm+=w[o]*(p.momentum??0); }
+    if(!ws){ score=base.score; trend=base.trend; momentum=base.momentum; } else { score=sc/ws; trend=tt/ws; momentum=mm/ws; } }
+  return {...base, score, trend, momentum, ...rrg(trend,momentum), parts, method:m, spdrScore:base.score};
+}
+function methodWord(){ const m=S.mixMethod||'MIX'; if(m!=='MIX') return MIX_OPTS.find(o=>o[0]===m)[1]; const w=mixWeights(); return 'MIX · State Street '+w.SPDR+' / Hub compare '+w.HUBCMP+' / market bow tie '+w.MKTBOW+' / tree '+w.TREE; }
+function setMixMethod(m){ S.mixMethod=m; save(); render(); }
+window.setMixMethod=setMixMethod;
+/* the shares TARGET MIX would give under each option — shown beside the dial so the choice is visible */
+function sharesUnder(method){ const keep=S.mixMethod; S.mixMethod=method; const sh=groupShares(); S.mixMethod=keep; return sh; }
+function renderMixDial(){
+  const html=(()=>{
+    const cur=S.mixMethod||'MIX';
+    const btns=MIX_OPTS.map(([v,t])=>`<button onclick="setMixMethod('${v}')" style="background:${cur===v?'var(--gold)':'#14141f'};color:${cur===v?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:5px;padding:5px 11px;font-family:inherit;font-size:10px;letter-spacing:.06em;cursor:pointer;margin:0 4px 4px 0">${t}</button>`).join('');
+    const w=mixWeights();
+    const opts=MIX_OPTS.map(([v])=>v);
+    const rows=opts.map(v=>{ const sh=sharesUnder(v); const top=Object.entries(sh).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,x])=>esc2(groupWord(k))+' '+Math.round(x*100)+'%').join(' · ');
+      return '<tr style="'+(v===cur?'color:var(--txt)':'color:var(--dim)')+'"><td style="white-space:nowrap">'+(v===cur?'▸ ':'')+MIX_OPTS.find(o=>o[0]===v)[1]+(v==='MIX'?' <span class="cls">'+w.SPDR+'/'+w.HUBCMP+'/'+w.MKTBOW+'/'+w.TREE+'</span>':'')+'</td><td>'+(top||'—')+'</td></tr>'; }).join('');
+    return '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 4px">SECTOR METHOD — what the pie is reading · today: <b style="color:var(--gold)">'+methodWord()+'</b></div>'+
+      '<div>'+btns+'</div>'+
+      '<table class="imap" style="font-size:10.5px;margin-top:4px"><tr><th style="text-align:left;width:34%">option</th><th style="text-align:left">the biggest shares of what is invested, under that option</th></tr>'+rows+'</table>'+
+      '<div class="note" style="font-size:10px;margin-top:4px">Crypto, metals and oil have no State Street fund, so every option reads them from their own constituents. The mix weights are dials in INPUTS.</div>';
+  })();
+  for(const id of ['mixdial','mixdialTop']){ const el=document.getElementById(id); if(el) el.innerHTML=html; }
+}
+/* the tree's reading beside the State Street reading — by sector and by cohort */
+function renderTreeRoll(){
+  const el=document.getElementById('treeroll'); if(!el) return;
+  if(!TREE_ROLL){ el.innerHTML='<div class="note" style="margin-top:8px">THE TREE — the close tier is not reachable; the sector step reads the funds only.</div>'; return; }
+  const f=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
+  const col=k=>k==='go'?'var(--green)':k==='improve'?'var(--cyan)':k==='buy'?'var(--gold)':'var(--orange)';
+  const secs=Object.keys(SECT_CW).map(k=>({k, spdr:SECTOR_READ[k], tree:TREE_ROLL.sectors[k], mb:MKTBOW&&MKTBOW.sectors[k]})).sort((a,b)=>((b.tree&&b.tree.score)??-9)-((a.tree&&a.tree.score)??-9));
+  const srows=secs.map(r=>'<tr><td><b>'+esc2(groupWord(r.k))+'</b></td><td>'+(r.spdr?f(r.spdr.score)+' <span class="cls">'+r.spdr.etf+'</span>':'—')+'</td><td>'+(r.spdr&&r.spdr.ew!=null?f(r.spdr.ew)+' <span class="cls">'+r.spdr.ewEtf+'</span>':'—')+'</td>'+
+    '<td>'+(r.mb?f(r.mb.score)+' <span class="cls">'+r.mb.n+' names · bow tie '+f(r.mb.bowtie)+'</span>':'—')+'</td>'+
+    '<td style="color:'+(r.tree?col(r.tree.kind):'var(--dim)')+'">'+(r.tree?'<b>'+f(r.tree.score)+'</b> <span class="cls">'+r.tree.n+' names · '+esc2(r.tree.q)+'</span>':'—')+'</td></tr>').join('');
+  const cohs=Object.values(TREE_ROLL.cohorts).sort((a,b)=>b.score-a.score);
+  const crows=cohs.map(c=>'<span style="display:inline-block;margin:2px 8px 2px 0;padding:2px 7px;border:1px solid var(--line);border-radius:5px;font-size:10px"><b>'+esc2(c.key.replace(/_/g,' '))+'</b> <span style="color:'+col(c.kind)+'">'+f(c.score)+'</span> <span class="cls">'+c.n+'</span>'+(b1Verdict(c.key)?' <span class="cls">· '+esc2(b1Verdict(c.key))+'</span>':'')+'</span>').join('');
+  el.innerHTML='<details open style="margin-top:10px"><summary>THE TREE IS AN INPUT — the close tier ('+TREE_ROLL.names.toLocaleString()+' names, as of '+TREE_ROLL.asof+') rolled up by sector and cohort, beside the fund readings</summary>'+
+    '<table class="imap" style="font-size:11px;margin-top:6px"><tr><th style="text-align:left">SECTOR</th><th style="text-align:left">STATE STREET</th><th style="text-align:left">EQUAL-WEIGHT TWIN</th><th style="text-align:left">MARKET BOW TIE (live, served names)</th><th style="text-align:left">TREE (close tier)</th></tr>'+srows+'</table>'+
+    '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 3px">THE TREE BY COHORT — '+cohs.length+' cohorts, equal-weight average of the close-tier Geiger · ● sound per B1</div><div>'+crows+'</div>'+
+    '<div class="note" style="font-size:10px;margin-top:4px">'+TREE_ROLL.mapped.toLocaleString()+' of the '+TREE_ROLL.names.toLocaleString()+' names carry a sector in the estate (the Hub\'s membership, the industry table, the State Street funds\' holdings and the company profiles); the rest count in no sector roll-up. The whole-market bow tie B1 computed on '+(B1?B1.asof:'—')+' reads '+(B1&&B1.market?f2v(B1.market.bowtie):'—')+'; the live served-set figure is '+(MKTBOW&&MKTBOW.market?f2v(MKTBOW.market.bowtie):'—')+'.</div></details>';
+}
+let MACROAPI=null;      // the chart API's /macro — VIX, rates and the futures as FMP serves them, live
+let BREADTH20=null;     // {n, sessions:[{date,up,down,net}], cum, today:{up,down,n}, dir:{sym:[...]}} — the advance/decline line
+let CONC20=null;        // {spy, rsp, spread, top10:{share, names}, n} — concentration: cap-weight vs equal-weight, the top ten's share
+/* ADVANCE / DECLINE over the served set — one up/down per name per session from the completed daily bars (close vs the close before),
+   cumulative over the last 20 sessions, plus today's session from the live quotes (price vs the last settled close). */
+function buildBreadth20(cands, closes){
+  const dir={}, dates=null; let n=0;
+  const byDate={};
+  for(const sym of cands){ const s=closes[sym]; if(!s||s.length<3) continue; n++;
+    const d=[]; for(let i=1;i<s.length;i++){ const up=s[i].c>s[i-1].c?1:s[i].c<s[i-1].c?-1:0; d.push(up); const k=s[i].t; (byDate[k]=byDate[k]||{date:k,up:0,down:0,n:0}); if(up>0)byDate[k].up++; else if(up<0)byDate[k].down++; byDate[k].n++; }
+    dir[sym]=d; }
+  // equity sessions only: a date where at least half the names printed a bar (crypto trades weekends; those days are not sessions)
+  const sessions=Object.values(byDate).filter(x=>x.n>=n*0.5).sort((a,b)=>a.date-b.date).slice(-20).map(x=>({...x,net:x.up-x.down}));
+  let cum=0; const line=sessions.map(x=>{ cum+=x.net; return {...x,cum}; });
+  let tu=0,td=0,tn=0; for(const sym of cands){ const q=QUOTES[sym]; if(!q||q.price==null||q.prev_close==null) continue; tn++; if(q.price>q.prev_close) tu++; else if(q.price<q.prev_close) td++; }
+  return {n, sessions:line, cum, today:{up:tu,down:td,n:tn}, dir, asof: sessions.length? new Date(sessions[sessions.length-1].date).toISOString().slice(0,10):null};
+}
+/* CONCENTRATION — how much of the index's move the biggest names carry. Two readings: the price bow tie (the cap-weight index
+   SPY against its equal-weight twin RSP over the same 20 sessions — when SPY beats RSP the big names carry it) and the share of
+   the served set's cap-weighted 20-session move that its ten largest names account for. */
+function buildConc20(closes, cands){
+  const ret=(s)=>{ if(!s||s.length<21) return null; const a=s[s.length-21].c, b=s[s.length-1].c; return a?b/a-1:null; };
+  const spy=ret(closes.SPY), rsp=ret(closes.RSP); if(spy==null||rsp==null) return null;
+  const rows=cands.map(sym=>{ const p=PROFILES[sym]; const r=ret(closes[sym]); if(!p||p.is_etf||!p.market_cap||r==null) return null; return {sym,cap:+p.market_cap,r}; }).filter(Boolean).sort((a,b)=>b.cap-a.cap);
+  let top10=null;
+  if(rows.length>=30){ const tot=rows.reduce((t,x)=>t+x.cap,0); const all=rows.reduce((t,x)=>t+x.cap/tot*x.r,0); const ten=rows.slice(0,10); const tenMove=ten.reduce((t,x)=>t+x.cap/tot*x.r,0); const tenCap=ten.reduce((t,x)=>t+x.cap,0)/tot;
+    top10={share: Math.abs(all)>1e-4? tenMove/all : null, move:tenMove, all, capShare:tenCap, names:ten.map(x=>x.sym), n:rows.length}; }
+  return {spy, rsp, spread: rsp-spy, top10, n:rows.length};
+}
 const CHART_API='https://scintilla-massive-chart-api.fly.dev';
 async function apiGet(path){
   let lastErr=null;
   for(const u of [path, CHART_API+path]){
     try{ const r=await fetch(u,{cache:'no-store'}); if(!r.ok) throw new Error(u.split('?')[0]+' '+r.status);
-         const j=await r.json(); if(j&&typeof j==='object'&&(j.symbols||j.quotes)) return j; throw new Error('not the chart API'); }
+         const j=await r.json(); if(j&&typeof j==='object'&&(j.symbols||j.quotes||j.candles||j.macro||j.rows)) return j; throw new Error('not the chart API'); }
     catch(e){ lastErr=e; }
   }
   throw lastErr||new Error('unreachable');
@@ -670,13 +798,22 @@ async function refreshSSOT(){
     PROFILES=m; spineSet('company_profile',mx||null,ageMode(mx||null,7*86400),rows.length+' profiles (sector · industry · market cap · average volume) — filled by F1');
   }).catch(e=>spineSet('company_profile',null,'FALLBACK','read failed — RVOL/sector chips unavailable')));
   // macro truth
+  // PA4 — the tree's close tier (the off-Hub Geiger over every listed name), the industry table and the State Street funds' holdings
+  J.push(apiGet('/v1/scout-geiger').then(j=>{ SCOUT=j; }).catch(e=>{ SCOUT=null; spineSet('tree_close_tier',null,'FALLBACK','close tier unreachable ('+e.message+') — the tree option reads the funds'); }));
+  J.push(sbGetPaged('ticker_industry?select=ticker,fmp_sector&order=ticker.asc').then(rows=>{ for(const r of rows){ const k=FMP_SECTOR_KEY[r.fmp_sector]; if(k&&!SECTOR_MAP[r.ticker]) SECTOR_MAP[r.ticker]=k; } }).catch(()=>{}));
+  J.push(fetch('https://scintillahub.ai/deliverables/20260928/coverage-tree/data/holdings.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{ if(!j||!j.data) return;
+    for(const [k,etf] of Object.entries(SECT_CW)){ const f=j.data[etf]; if(!f||!Array.isArray(f.h)) continue; SPDR_MEMBERS[etf]=f.h.map(x=>x[0]); for(const [t] of f.h) if(!SECTOR_MAP[t]) SECTOR_MAP[t]=k; } }).catch(()=>{}));
+  // PA4 — the chart API's macro board (FMP ^VIX, ^TNX …): the live VIX for the VIX voter; the VIX table keeps the 3-month leg
+  J.push(apiGet('/macro').then(j=>{ MACROAPI=j.macro||{}; const v=MACROAPI.VIX; const ts=j.generated_utc||null;
+    spineSet('macro_api',ts,(v&&v.quote&&v.quote.price!=null)?'LIVE':'STALE','chart API /macro · VIX '+(v&&v.quote?v.quote.price:'—')+' ('+(v?v.state:'no VIX')+(v&&v.quote&&v.quote.session_et?', session '+v.quote.session_et:'')+')');
+  }).catch(e=>{ MACROAPI=null; spineSet('macro_api',null,'FALLBACK','chart API /macro unreachable ('+e.message+') — VIX from the vix_term table only'); }));
   J.push(sbGet('treasury_rates?select=date,y2,y10,updated_ts&order=date.desc&limit=1').then(rows=>{
     if(rows[0]){TREAS=rows[0]; const age=(Date.now()-Date.parse(TREAS.date))/864e5;
       spineSet('treasury_rates',TREAS.updated_ts,age>5?'STALE':'LIVE','10Y '+TREAS.y10+'% @ '+TREAS.date);}
   }).catch(e=>spineSet('treasury_rates',null,'FALLBACK','read failed — Yahoo ^TNX in use')));
   J.push(sbGet('vix_term?select=date,vix,vix3m,ratio,skew,vvix,vix9d,updated_ts&order=date.desc&limit=1').then(rows=>{
     if(rows[0]){VIXDB=rows[0]; VIXDB.fresh=(Date.now()-Date.parse(VIXDB.date))/864e5<=3;
-      spineSet('vix_term',null,VIXDB.fresh?'LIVE':'STALE','VIX '+VIXDB.vix+' @ '+VIXDB.date+(VIXDB.fresh?'':' — stale, Yahoo VIX voting instead (flagged)'));}
+      spineSet('vix_term',null,VIXDB.fresh?'LIVE':'STALE','VIX '+VIXDB.vix+' · 3-month '+VIXDB.vix3m+' @ '+VIXDB.date+(VIXDB.fresh?'':' — last close; the spot VIX votes live from the chart API, the term structure uses this 3-month leg while it is within four days'));}
   }).catch(e=>spineSet('vix_term',null,'FALLBACK','read failed — Yahoo VIX in use')));
   // published sector rotation (written by the sector tool from the same composite_staged)
   J.push(sbGet('sector_rankings?select=date,sector,sector_name,rank,score,method,updated_at&order=date.desc,rank.asc&limit=22').then(rows=>{
@@ -724,6 +861,20 @@ async function refreshSSOT(){
       const med=v.length%2?v[v.length>>1]:(v[(v.length>>1)-1]+v[v.length>>1])/2; out[t]={median:med,n:v.length,low:v[0],high:v[v.length-1]}; }
     TARGETS=out; spineSet('analyst_targets',null,'LIVE',Object.keys(out).length+' names with checked targets · '+rows+' notes, last 90 days, one per firm (A4)');
   })().catch(e=>{ TARGETS={}; spineSet('analyst_targets',null,'FALLBACK','read failed ('+e.message+') — no target column'); }));
+  // PA4 — the last 22 completed daily bars for every served name (+ SPY and RSP) → ADVANCE/DECLINE and CONCENTRATION
+  K2.push((async()=>{
+    const cands=syms.filter(s=>!CMDTY_SYMS.has(s)&&!['SPY','QQQ','IWM','SMH','RSP','XLP','XLU'].includes(s)).sort();
+    const closes={}; let ts=null, refused=0;
+    for(const b of batches([...cands,'SPY','RSP'],60)){
+      const j=await apiGet('/candles-multi?symbols='+encodeURIComponent(b.join(','))+'&tf=1d&limit=22');
+      refused+=(j.refused_count||0); ts=j.generated_utc||ts;
+      for(const [sym,c] of Object.entries(j.candles||{})){ const s=(c&&Array.isArray(c.series))?c.series.filter(x=>x&&x.c!=null):null; if(s&&s.length) closes[sym]=s; }
+    }
+    BREADTH20=buildBreadth20(cands.filter(s=>closes[s]), closes);
+    CONC20=buildConc20(closes, cands);
+    const last=BREADTH20.sessions[BREADTH20.sessions.length-1];
+    spineSet('breadth_20d',ts,BREADTH20.n>=100?'LIVE':'STALE',BREADTH20.n+' served names · '+BREADTH20.sessions.length+' completed sessions to '+BREADTH20.asof+(last?' (last: '+last.up+' up / '+last.down+' down)':'')+' · today from the live quotes: '+BREADTH20.today.up+' up / '+BREADTH20.today.down+' down'+(refused?' · '+refused+' names not tracked':''));
+  })().catch(e=>{ BREADTH20=null; CONC20=null; spineSet('breadth_20d',null,'FALLBACK','daily bars unreachable ('+e.message+') — advance/decline from market_internals, concentration from the Geiger bow tie'); }));
   await Promise.all(K2);
   /* CRYPTO, METALS and OIL are sectors too — they are simply not State Street ones, so
      no SPDR publishes them. Computed here the same way the sector tool computes the
@@ -737,6 +888,7 @@ async function refreshSSOT(){
     const avg=a=>a.reduce((x,y)=>x+y,0)/a.length, tr=avg(T), mo=avg(M);
     SECTOR_READ[key]={key,etf:'(constituents)',name:key,rank:null,score:(tr+mo)/2,trend:tr,momentum:mo,...rrg(tr,mo),n:names.length};
   }
+  buildTreeRoll(); buildMktBow();
   renderSpine();
 }
 // THE geiger accessor: composite_staged first, client Yahoo geiger strictly as flagged fallback
@@ -851,7 +1003,7 @@ function buildGroupReads(){
   GROUP_READ=out;
 }
 /* Share = coldness, lifted or cut by what the group is actually doing. */
-function groupReadOf(g){ return (AXIS==='sector' && SECTOR_READ[g] && SECTOR_READ[g].score!=null) ? SECTOR_READ[g] : GROUP_READ[g]; }
+function groupReadOf(g){ return (AXIS==='sector' && SECTOR_READ[g] && SECTOR_READ[g].score!=null) ? methodRead(g) : GROUP_READ[g]; }
 function groupShares(){
   const raw={}; let tot=0;
   const keys=new Set(Object.keys(GROUP_READ)); if(AXIS==='sector') for(const k of Object.keys(SECTOR_READ)) keys.add(k);
@@ -941,6 +1093,9 @@ const VOTER_DESC = {
   SECTOR_CMP: 'PROXY: the eleven State Street sector funds (XLK XLV XLF XLY XLI XLB XLE XLP XLU XLRE XLC), each fund\'s own Geiger from the chart API — the same numbers the Hub\'s SECTOR COMPARE strip shows — averaged. Straight: when most sectors run hot the score goes UP; when most are washed out it goes DOWN. Weight 0.5, same as the other breadth voters; set it to 0 to read it without counting it.',
   BOWTIE: 'PROXY: the Hub\'s BOW TIE — for each sector, the Invesco equal-weight fund\'s Geiger minus the State Street cap-weight fund\'s (RSPT−XLK, RSPG−XLE …), averaged over the eleven. Above zero the average stock is stronger than its index (broad participation, hotter); below zero the biggest names carry the sector (narrow, colder). Enters straight, like EQUAL-WEIGHT vs INDEX. Weight 0.5.',
   MKT_BOWTIE: 'PROXY: B1\'s whole-market bow tie — every listed common stock we compute (about 4,600 read), equal-weight minus cap-weight, from the Hub\'s B1 page. It is a dated close (the date is shown), so it votes on the slow end. Weight 0.25.',
+  ADLINE: 'PROXY: the advance/decline line over the names the Hub serves to this tool — one up or down per name per completed session (close vs the close before, the chart API\'s daily bars), summed over the last 20 sessions, plus today from the live quotes. Straight: more names rising than falling pushes the score UP; the line falling while the index holds up is the classic narrow tape and pulls DOWN. Base weight 0.5.',
+  CONC: 'PROXY: concentration — the equal-weight twin (RSP) minus the cap-weight index (SPY) over the same 20 sessions, with the share of the served set\'s move its ten largest names carried. Above zero the average stock keeps up (broad, hotter); below zero the ten biggest names carry the tape, which reads colder for everything else. Base weight 0.5.',
+  VIX_TERM: 'PROXY: spot VIX ÷ 3-month VIX. Above 1.00 the market prices stress now (backwardation) — that is fear, so it pulls the score DOWN. The spot leg is the chart API\'s live VIX; the 3-month leg is the VIX table\'s last close (no live 3-month VIX exists in the estate yet), so the dial says that date. Weight 0.25.',
   DEF: 'PROXY: XLP+XLU average (the Hub\'s Geiger from the chart API), INVERTED. When defensives are the hot trade, money is hiding — that is risk-off, so it pulls the score DOWN; defensives cold = nobody paying up for safety = pushes UP. Base weight 0.25.'
 };
 let S = JSON.parse(localStorage.getItem('alloc-module-v1') || 'null') || structuredClone(DEFAULTS);
@@ -952,6 +1107,7 @@ if (S.divAuto==null) S.divAuto=1;
 if (S.maxTotal==null) S.maxTotal=12;
 if (S.maxNames==null) S.maxNames=6;
 if (S.concLean==null) S.concLean=0;
+if (!S.mixMethod) S.mixMethod='MIX'; if (!S.mixW) S.mixW=structuredClone(MIX_DEFAULT);   // PA4: the sector methodology dial and its default mix
 if (S.invCold==null) S.invCold=80; if (S.invMid==null) S.invMid=50; if (S.invHot==null) S.invHot=30;   // PA3: the policy ladder's middle steps
 function save(){ localStorage.setItem('alloc-module-v1', JSON.stringify(S)); }
 
@@ -1061,7 +1217,9 @@ function voters(){
   v.push({key:'IWM', speed:0.15, name:'IWM GEIGER', sub:'small caps · '+gsrc('IWM'), val:idx('IWM')});
   v.push({key:'SMH', speed:0.15, name:'SMH GEIGER', sub:'semis · '+gsrc('SMH'), val:idx('SMH')});
   let vix = null, vixSub = '—';
-  if (VIXDB && VIXDB.fresh && VIXDB.vix != null) { vix = VIXDB.vix; vixSub = vix.toFixed(1)+' · vix_term (db) '+VIXDB.date; }
+  const vixApi=(MACROAPI&&MACROAPI.VIX&&MACROAPI.VIX.quote&&MACROAPI.VIX.quote.price!=null)?MACROAPI.VIX:null;
+  if (vixApi) { vix = +vixApi.quote.price; vixSub = vix.toFixed(1)+' · chart API macro (FMP), live'+(vixApi.quote.session_et?' · session '+vixApi.quote.session_et:''); }
+  else if (VIXDB && VIXDB.fresh && VIXDB.vix != null) { vix = VIXDB.vix; vixSub = vix.toFixed(1)+' · vix_term (db) '+VIXDB.date; }
   else if (MACRO['VIX']) { vix = MACRO['VIX'].value; vixSub = vix.toFixed(1)+' · FALLBACK yahoo'+(VIXDB&&VIXDB.date?' (vix_term stale @ '+VIXDB.date+')':''); }
   v.push({key:'VIX', speed:0.15, name:'VIX (inv)', sub: vixSub, val: vix!=null ? clamp(((S.vixCold+12)/2 - vix) / ((S.vixCold-12)/2)) : null});
   let ten = null, tenSub = '—';
@@ -1099,10 +1257,16 @@ function voters(){
   // VIX TERM STRUCTURE — spot vs 3-month. Above 1 is backwardation, i.e. stress now.
   /* Only votes on a FRESH row. vix_term stopped on 2026-06-08, so today this reads
      stale and contributes nothing rather than voting on a two-month-old ratio. */
-  const vFresh=(VIXDB&&VIXDB.fresh), vr3=(VIXDB&&VIXDB.ratio!=null)?+VIXDB.ratio:null;
+  /* PA4: there is no live 3-month VIX anywhere in the estate (the chart API's macro board carries the spot VIX only, no VIX3M;
+     the Hub's functions none). So the term structure is the vix_term table's last close — it votes while that close is within
+     four days (a Friday row still votes on Monday), and the dial says the date. The spot leg is recomputed against the live VIX
+     when the chart API has it, so the ratio moves intraday. */
+  const vr3Date=VIXDB&&VIXDB.date, vAge=vr3Date?(Date.now()-Date.parse(vr3Date))/864e5:null, vOk=vAge!=null&&vAge<=4;
+  const v3m=(VIXDB&&VIXDB.vix3m!=null)?+VIXDB.vix3m:null;
+  const vr3=(v3m&&vix!=null)?vix/v3m:(VIXDB&&VIXDB.ratio!=null)?+VIXDB.ratio:(v3m&&VIXDB.vix!=null?+VIXDB.vix/v3m:null);
   v.push({key:'VIX_TERM', speed:0.85, name:'VIX TERM (spot ÷ 3m)',
-          sub:vr3==null?'— not read':(vFresh?vr3.toFixed(3)+' · above 1.00 = stress priced now':'STALE '+VIXDB.date+' — not voting'),
-          val:(vFresh&&vr3!=null)?clamp((1-vr3)*4):null});
+          sub:vr3==null?'— no 3-month VIX in the estate: not voting':(vOk?vr3.toFixed(3)+' · 3-month leg from the VIX table\'s '+vr3Date+' close'+(vixApi?', spot live':'')+' · above 1.00 = stress priced now':'3-month leg last written '+vr3Date+' — no live 3-month VIX in the estate, not voting'),
+          val:(vOk&&vr3!=null)?clamp((1-vr3)*4):null});
   // YIELD CURVE — 10y minus 2y. Inverted is the classic warning; we hold the whole curve.
   const c10=(TREAS&&TREAS.y10!=null)?+TREAS.y10:null, c2=(TREAS&&TREAS.y2!=null)?+TREAS.y2:null;
   v.push({key:'CURVE', speed:0.85, name:'YIELD CURVE (10y − 2y)',
@@ -1118,11 +1282,38 @@ function voters(){
           sub:skew!=null?skew.toFixed(1)+' · above ~135 means people are paying up for downside protection':'— not read',
           val:skew!=null?clamp((135-skew)/25):null});
   /* BREADTH — the real advance/decline line, computed across the whole market, not proxied. */
-  const ad=MKTINT&&MKTINT.advancers!=null&&MKTINT.decliners!=null
-           ? (MKTINT.advancers-MKTINT.decliners)/Math.max(1,MKTINT.advancers+MKTINT.decliners) : null;
-  v.push({key:'ADLINE', name:'ADVANCE / DECLINE', speed:0.85,
-          sub:ad!=null?(MKTINT.advancers+' up / '+MKTINT.decliners+' down across '+MKTINT.universe+' issues'):'— not read',
-          val:ad!=null?clamp(ad*2):null});
+  /* PA4 — THE ADVANCE/DECLINE LINE, computed here: over the served set, one up or down per name per session from the daily
+     bars, summed over the last 20 sessions (the line), plus today's session from the live quotes. The vote is the line's slope:
+     the 20-session net advances divided by (names × 20), with today's net added as a 21st reading, scaled so that two thirds of
+     the names up every day reads +1. Below zero more names fall than rise even when the index holds up. */
+  if(BREADTH20&&BREADTH20.n>=50){
+    const B=BREADTH20, k=B.sessions.length, nd=Math.max(1,B.n);
+    const slope=(B.cum+(B.today.n?(B.today.up-B.today.down)*nd/Math.max(1,B.today.n):0))/(nd*(k+(B.today.n?1:0)));
+    const last=B.sessions[k-1];
+    v.push({key:'ADLINE', name:'ADVANCE / DECLINE', speed:0.85,
+            sub:'served set, '+B.n+' names · line '+(B.cum>=0?'+':'')+B.cum+' over '+k+' sessions to '+B.asof+' · today '+B.today.up+' up / '+B.today.down+' down'+(last?' · last close '+last.up+' up / '+last.down+' down':''),
+            val:clamp(slope/0.33)});
+  } else {
+    const ad=MKTINT&&MKTINT.advancers!=null&&MKTINT.decliners!=null
+             ? (MKTINT.advancers-MKTINT.decliners)/Math.max(1,MKTINT.advancers+MKTINT.decliners) : null;
+    v.push({key:'ADLINE', name:'ADVANCE / DECLINE', speed:0.85,
+            sub:ad!=null?(MKTINT.advancers+' up / '+MKTINT.decliners+' down across '+MKTINT.universe+' issues · market_internals '+MKTINT.asof+' (dated) — the served-set line is not reachable'):'— not read',
+            val:ad!=null?clamp(ad*2):null});
+  }
+  /* PA4 — CONCENTRATION: the share of the index's move carried by its biggest names. The vote is the price bow tie over the
+     same 20 sessions — the equal-weight twin (RSP) minus the cap-weight index (SPY), scaled so a five-point spread reads ±1.
+     Negative = the big names carry the tape (narrow, reads colder for the average stock); positive = broad. The sub-line says
+     what share of the served set's cap-weighted move its ten largest names accounted for. */
+  if(CONC20){
+    const C=CONC20, t=C.top10, pc=x=>(x>=0?'+':'')+(x*100).toFixed(1)+'%';
+    const tenTxt=t? (t.share==null?'the set barely moved':(t.share*100).toFixed(0)+'% of the served set\'s 20-session move came from its ten largest names ('+t.names.slice(0,5).join(', ')+' …), which are '+(t.capShare*100).toFixed(0)+'% of its value'):'';
+    v.push({key:'CONC', name:'CONCENTRATION', speed:0.85,
+            sub:'20 sessions: S&P '+pc(C.spy)+' vs equal-weight '+pc(C.rsp)+' = '+pc(C.spread)+(C.spread<-0.01?' · the big names carry it':C.spread>0.01?' · broad':' · even')+(tenTxt?' · '+tenTxt:''),
+            val:clamp(C.spread/0.05)});
+  } else {
+    const gS2=gv('SPY'), gR2=gv('RSP');
+    v.push({key:'CONC', name:'CONCENTRATION', speed:0.85, sub:(gS2!=null&&gR2!=null)?'daily bars not reachable — Geiger bow tie RSP − SPY = '+f2v(gR2-gS2)+' in use':'— not read', val:(gS2!=null&&gR2!=null)?clamp(gR2-gS2):null});
+  }
   /* ===== BREADTH, PROPERLY ===== One advance/decline number was not breadth, it was a
      headline. Everything below is computed from data the tool already reads — the fan
      structure per name, the internals table, and the Station leadership instruments.
@@ -1147,8 +1338,8 @@ function voters(){
   /* CONCENTRATION — the Station leadership question: is the tape a few names or many?
      MAGS above SPY means mega-cap is carrying it. Inverted: concentration is fragility. */
   const gM=gv('MAGS'), gS3=gv('SPY');
-  v.push({key:'CONC', name:'CONCENTRATION (inv)', speed:0.85,
-          sub:(gM!=null&&gS3!=null)?'MAGS − SPY = '+f2v(gM-gS3)+' · positive means mega-caps are carrying the tape':'—',
+  v.push({key:'MAGS', name:'MEGA-CAPS vs INDEX (inv)', speed:0.85,
+          sub:(gM!=null&&gS3!=null)?'MAGS − SPY = '+f2v(gM-gS3)+' · positive means mega-caps are carrying the tape (Geiger; CONCENTRATION above is the price reading)':'—',
           val:(gM!=null&&gS3!=null)?clamp(-(gM-gS3)):null});
   /* CREDIT and DURATION — the two transmission channels Station asks for. */
   const gH=gv('HYG'), gT=gv('TLT'), gG=gv('GCUSD');
@@ -1430,6 +1621,9 @@ function render(){
   buildPeerStats();
   renderSectorRot();
   renderRotationTemplate();
+  renderTreeRoll();
+  { const w=mixWeights(); for(const o of ['SPDR','HUBCMP','MKTBOW','TREE']){ const e=document.getElementById('mix'+o); if(e){ e.value=w[o]; document.getElementById('mix'+o+'V').textContent=w[o]+' / '+(w.SPDR+w.HUBCMP+w.MKTBOW+w.TREE); } } }
+  renderMixDial();
   drawDonut(sleeveShares(), inv);
   renderPickMix(sleeveShares(), inv);   // P2: the same numbers in words, under the pie
   renderBrief(h, inv, lc, dTot, dLC, dSC);
@@ -1777,7 +1971,7 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const p1 = 'The market reads '+st.cond+' (heat '+f(h)+'). '+idx+breadth+'.'+sect+bow+macro;
   const SHB = sleeveShares();
   const top = Object.entries(SHB).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,sh])=>(SECT_WORD[k]||k)+' '+Math.round(sh*inv*100)+'%');
-  const p2 = 'The policy for a '+st.cond.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?pct(dTot,0)+' of equity is to deploy':pct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in TARGET MIX).':'.');
+  const p2 = 'The sectors are read by '+methodWord().toLowerCase().replace('mix · ','a mix: ')+'. The policy for a '+st.cond.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?pct(dTot,0)+' of equity is to deploy':pct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in TARGET MIX).':'.');
   const ranked = (typeof rankCandidates==='function') ? rankCandidates().filter(r=>r.tag).slice(0,5) : [];
   const p3 = ranked.length ? 'Inside those sectors the names that rank first — fundamentals first, then the Geiger for timing — are '+ranked.map(r=>r.sym+' ('+(SECT_WORD[r.sleeves[0]]||r.sleeves[0]||'')+(r.vr?', '+r.vr.tag.toLowerCase()+' vs peers':'')+(r.target?', target '+(r.target.up>=0?'+':'')+Math.round(r.target.up*100)+'%':'')+')').join(', ')+'. Their comparables and the checked analyst targets are in 4b.' : '';
   el.innerHTML = p1 + '<br><br>' + p2 + (p3?'<br><br>'+p3:'');
@@ -2010,6 +2204,7 @@ for (const id of ['dTrend','dRsi','vixCold','tenCold','maxInv','minInv','invCold
   const el=document.getElementById(id); if(!el) continue;
   document.getElementById(id).oninput = e => { S[id] = +e.target.value; save(); render(); };
 }
+for (const o of ['SPDR','HUBCMP','MKTBOW','TREE']) { const el=document.getElementById('mix'+o); if(el) el.oninput = e => { S.mixW=mixWeights(); S.mixW[o]=+e.target.value; save(); render(); }; }
 document.getElementById('refresh').onclick = loadFeeds;
 if(localStorage.getItem('alloc-hidedesc')!=='0') document.body.classList.add('hidedesc');  // collapsed by default
 (function(){ const b=document.getElementById('descToggle'); const upd=()=>{ const hid=document.body.classList.contains('hidedesc'); b.textContent=(hid?'▸ ':'▾ ')+'what each voter is (proxy detail)'; }; upd(); b.onclick=()=>{ document.body.classList.toggle('hidedesc'); localStorage.setItem('alloc-hidedesc', document.body.classList.contains('hidedesc')?'1':'0'); upd(); }; })();
