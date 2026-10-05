@@ -1551,12 +1551,12 @@ function drawDonut(shares, inv){
   ctx.fillStyle='#8a8aa0'; ctx.font='10px monospace'; ctx.fillText('OUTER RING = SLEEVE · INNER = YOUR PICKS', lx, ly-18);
   for(const [k,v] of segs){ if(v<=0.001) continue;
     ctx.fillStyle=(SLEEVE_COLOR[k]||groupColor(k)); ctx.beginPath(); ctx.roundRect(lx,ly-7,14,14,4); ctx.fill();
-    ctx.fillStyle='#e8e8f0'; ctx.font='13px monospace'; ctx.fillText(k==='CASH'?k:groupWord(k).toUpperCase(), lx+24, ly);
+    const lab=(k==='CASH'?k:groupWord(k).toUpperCase()).replace('CONSUMER ','CONS. ').slice(0,18); ctx.fillStyle='#e8e8f0'; ctx.font='12px monospace'; ctx.fillText(lab, lx+24, ly);
     const n=k==='CASH'?null:(PM.sleeves[k]?PM.sleeves[k].names.length:0);
     if(n!=null){ ctx.fillStyle=n?'#8a8aa0':'#ff8c42'; ctx.font='10px monospace';
-      ctx.fillText(n?n+(n===1?' name':' names'):'none picked', lx+24+ctx.measureText(k==='CASH'?k:groupWord(k).toUpperCase()).width+34, ly); }
-    ctx.fillStyle='#8a8aa0'; ctx.font='13px monospace'; ctx.textAlign='right'; ctx.fillText((v*100).toFixed(1)+'%', CSSW-8, ly); ctx.textAlign='left';
-    ly+=30; }
+      ctx.fillText(n?n+(n===1?' name':' names'):'none picked', lx+24+ctx.measureText(lab).width+14, ly); }
+    ctx.fillStyle='#8a8aa0'; ctx.font='12px monospace'; ctx.textAlign='right'; ctx.fillText((v*100).toFixed(1)+'%', CSSW-8, ly); ctx.textAlign='left';
+    ly+=Math.min(30, Math.floor((CSSH-50)/Math.max(1,segs.filter(x=>x[1]>0.001).length))); }
 }
 /* The per-name readout under the pie — the "flows downstream" half of P2 in words. */
 /* The rotation read, on the page, with the toggles that act on it. */
@@ -1824,6 +1824,8 @@ function renderCohort(dLC, dSC){
   if(tb) tb.innerHTML = liveCats.map(c=>{ const g=groups.find(x=>x.key===c); return `<button onclick="setCat('${c}')" style="background:${c===CATFILTER?'var(--cyan)':'#14141f'};color:${c===CATFILTER?'#0a0a0f':'var(--cyan)'};border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;font-weight:${c===CATFILTER?'700':'400'}">${c==='ALL'?'ALL':vword(g&&g.verdict)+groupWord(c)+' <span style="opacity:.7">'+Math.round(g.share*100)+'%</span>'}</button>`; }).join('')+
     '<span class="cls" style="font-size:10px;align-self:center;margin-left:6px">● sound · ◐ thin · ○ not yet (B1, '+(B1?B1.asof:'not read')+') · the share of invested each earns</span>';
   let rows = (CATFILTER!=='ALL') ? allrows.filter(r=>r.sleeves.includes(CATFILTER)) : allrows;
+  const total=rows.length;
+  if(!SHOW_ALL_NAMES && rows.length>40){ const tagged=rows.filter(r=>r.tag), rest=rows.filter(r=>!r.tag); rows=[...tagged, ...rest].slice(0, Math.max(40, tagged.length)); }
   const t = document.getElementById('cohort');
   let html = '<tr><th></th><th>TICKER</th><th>SECTOR</th><th>COHORTS</th><th class="r">PRICE</th><th class="r">DAY</th><th class="r" title="price, growth, margin and leverage against the name\'s own peer set (outliers out) — 1.00 = better than three quarters of its peers on every count">FUNDAMENTALS</th><th>VS PEERS</th><th>GEIGER</th><th>TIMING</th><th class="r">P/E</th><th class="r">P/S</th><th class="r">REV g</th><th class="r">NET</th><th class="r">D/E</th><th class="r" title="A4: the median of the checked analyst targets, one per firm, last 90 days">TARGET</th><th class="r">UPSIDE</th></tr>';
   const num = (x,d=1,suf='') => (x==null||!isFinite(x))?'<span class="cls">—</span>':(x.toFixed(d)+suf);
@@ -1850,9 +1852,12 @@ function renderCohort(dLC, dSC){
       <td class="r" style="color:${k.rev_growth>0?'var(--green)':k.rev_growth<0?'var(--red)':'var(--dim)'}">${k.rev_growth==null?'<span class=cls>—</span>':spct(k.rev_growth,0)}</td>
       <td class="r">${pctc(k.net_m)}</td><td class="r">${num(k.de,2)}</td><td class="r">${tgt}</td><td class="r">${up}</td></tr>`;
   }
+  if(total>rows.length) html += `<tr><td colspan="17" style="text-align:center;padding:8px"><button onclick="SHOW_ALL_NAMES=true;render()" style="background:#14141f;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:5px 14px;font-family:inherit;font-size:11px;cursor:pointer">show all ${total} names (${rows.length} shown: the ADD names first, then the next best)</button></td></tr>`;
+  else if(SHOW_ALL_NAMES && total>40) html += `<tr><td colspan="17" style="text-align:center;padding:8px"><button onclick="SHOW_ALL_NAMES=false;render()" style="background:#14141f;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:5px 14px;font-family:inherit;font-size:11px;cursor:pointer">show fewer</button></td></tr>`;
   t.innerHTML = html;
   t.querySelectorAll('.cmpstar').forEach(el => el.onclick = () => toggleCompare(el.getAttribute('data-sym')));
 }
+let SHOW_ALL_NAMES=false;
 let COMPARE = new Set(JSON.parse(localStorage.getItem('alloc-compare')||'[]'));
 function toggleCompare(sym){ if(COMPARE.has(sym)) COMPARE.delete(sym); else COMPARE.add(sym); localStorage.setItem('alloc-compare',JSON.stringify([...COMPARE])); render(); }
 let PICKS = new Set(JSON.parse(localStorage.getItem('alloc-picks')||'[]'));
