@@ -361,6 +361,73 @@ function intentFit(sym){
    otherwise its cohort. Below Q1 = cheap, above Q3 = expensive. Loss-makers excluded
    from the peer distribution entirely rather than counted as cheap. */
 let PEERSTATS={};
+/* C5's outlier rule (3 Oct): on the log of the peers' multiples, median m and MAD (×1.4826); a peer is out when
+   |log x − m| > 3 × MAD, and only when at least 5 peers carry the measure. Ratios only. */
+function c5Clean(vals){
+  const v=vals.filter(x=>x!=null&&isFinite(x)&&x>0); if(v.length<5) return {kept:v,out:[]};
+  const med=a=>{const b=[...a].sort((x,y)=>x-y);const m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2};
+  const logs=v.map(Math.log), m=med(logs), mad=med(logs.map(x=>Math.abs(x-m)))*1.4826;
+  if(!(mad>0)) return {kept:v,out:[]};
+  const lo=Math.exp(m-3*mad), hi=Math.exp(m+3*mad);
+  return {kept:v.filter(x=>x>=lo&&x<=hi), out:v.filter(x=>x<lo||x>hi), lo, hi};
+}
+const RATIO_KEYS=new Set(['pe','fwd_pe','ps','pb']);
+const PV_CACHE={};
+function peerMembers(sym){
+  const pg=peerGroupOf(sym); if(!pg) return {members:[],mode:null};
+  const members = pg.mode==='fmp_peers' ? pg.members.filter(m=>m!==sym) : Object.keys(COMPS).filter(o=>o!==sym && peerKeys(o)[0]===pg.key);
+  return {members, mode:pg.mode, key:pg.key||null};
+}
+/* The peers' values for one measure, outliers out (C5) for ratios, with quartiles. */
+function peerDist(sym,key){
+  const pm=peerMembers(sym); const ck=(pm.mode==='fmp_peers'?sym:pm.key)+'|'+key;
+  if(ck in PV_CACHE) return PV_CACHE[ck];
+  let vals=pm.members.map(m=>COMPS[m]&&COMPS[m][key]).filter(v=>v!=null&&isFinite(v));
+  let out=[];
+  if(RATIO_KEYS.has(key)){ const c=c5Clean(vals); vals=c.kept; out=c.out; }
+  let d=null;
+  if(vals.length>=4){ const b=[...vals].sort((x,y)=>x-y); const q=p=>{const i=(b.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?b[lo]:b[lo]+(b[hi]-b[lo])*(i-lo)};
+    d={n:b.length,q1:q(.25),med:q(.5),q3:q(.75),out:out.length,mode:pm.mode,members:pm.members.length}; }
+  PV_CACHE[ck]=d; return d;
+}
+/* 0..1 against the peers' quartiles: 1 = better than three quarters of them. dir −1: lower is better. */
+function vsPeers(v,d,dir){ if(v==null||!isFinite(v)||!d) return null; const lo=d.q1, hi=d.q3; if(hi<=lo) return 0.5;
+  let t=(v-lo)/(hi-lo); t=Math.max(0,Math.min(1,t)); return dir<0?1-t:t; }
+/* FUNDAMENTALS FIRST (Alan: "fundamentals tell what to buy, the Geiger tells when"). Four readings against the
+   name's own peer set, outliers out: price (P/E, or P/S for a loss-maker), growth, margin, leverage. */
+function fundScore(sym){
+  const c=COMPS[sym]; if(!c) return {score:null,parts:[],n:0};
+  const parts=[];
+  const pk = c.pe>0?'pe':(c.ps>0?'ps':null);
+  if(pk){ const d=peerDist(sym,pk); const t=vsPeers(c[pk],d,-1); if(t!=null) parts.push(['price',t,(pk==='pe'?'P/E ':'P/S ')+(+c[pk]).toFixed(1)+' vs median '+d.med.toFixed(1)]); }
+  for(const [key,label,dir] of [['rev_growth','growth',1],['net_m','margin',1],['de','leverage',-1]]){
+    if(c[key]==null) continue; const d=peerDist(sym,key); const t=vsPeers(c[key],d,dir); if(t!=null) parts.push([label,t,label+' '+(key==='de'?(+c[key]).toFixed(2):((+c[key])*100).toFixed(0)+'%')+' vs median '+(key==='de'?d.med.toFixed(2):(d.med*100).toFixed(0)+'%')]);
+  }
+  if(!parts.length) return {score:null,parts,n:0};
+  return {score:(parts.reduce((t,p)=>t+p[1],0) + 0.5*(4-parts.length))/4, parts, n:parts.length};   // a missing reading counts as neutral
+}
+let RANKED=[], RANK_GROUPS=[];
+function groupWord(k){ return SECT_WORD[k] || k.replace(/_/g,' '); }
+/* THE RANKING, one place: fundamentals first, then the Geiger for timing (washed out, and merited by the regime). */
+function rankCandidates(){
+  const PROXY_EXCLUDE = new Set(['IWM','SMH','RSP','XLP','XLU','SPY','QQQ']);
+  const rows = candidateSyms().filter(s => !PROXY_EXCLUDE.has(s) && !(PROFILES[s]&&PROFILES[s].is_etf) && !CMDTY_SYMS.has(s))
+    .map(s => { const tg=tickerG(s); if(!tg) return null;
+      const rg=REGIME[s]||{}; const vr=valueRead(s);
+      const q=QUOTES[s]||{}; const price=q.price!=null?+q.price:null; const day=q.chg_pct!=null?(+q.chg_pct)/100:null;
+      const tg2=TARGETS[s]; const target=(tg2&&price)?{median:tg2.median,n:tg2.n,up:tg2.median/price-1}:null;
+      const fund=fundScore(s);
+      const timing=((1-tg.g)/2) * ((1-METHOD.regimeWeight) + METHOD.regimeWeight*2*intentFitKind(rg.kind));
+      const sleeves=tickerSleeves(s);
+      return {sym:s, g:tg.g, gsrc:tg.src, gstate:tg.state, rg, vr, price, day, target, fund, timing, sleeves, fav:UNIVERSE.favs.has(s), cls:tickerCls(s)||'?', k:COMPS[s]||{}, tag:null}; })
+    .filter(Boolean);
+  const fs=r=>r.fund.score==null?-1:r.fund.score;
+  rows.sort((a,b)=> (fs(b)-fs(a)) || (b.timing-a.timing));
+  const SH=sleeveShares(); const order=k=>{ const v=b1Verdict(k); return v==='sound'?0:v==='thin'?1:2; };
+  RANK_GROUPS=Object.entries(SH).sort((a,b)=> order(a[0])-order(b[0]) || b[1]-a[1]).map(([k,sh])=>({key:k,share:sh,verdict:b1Verdict(k)}));
+  for(const g of RANK_GROUPS){ let i=0; for(const r of rows){ if(!r.sleeves.includes(g.key)) continue; i++; if(i>3) break; if(!r.tag) r.tag={group:g.key,rank:i}; } }
+  RANKED=rows; return rows;
+}
 /* PEER SET — blended, because each axis alone has gaps.
    SUB-SECTOR (industry, 93 groups / 317 names) is the tightest comparison and is tried
    first; SECTOR (11) is the fallback when a sub-sector has too few priced names; COHORT
@@ -396,10 +463,12 @@ function buildPeerStats(){
   const q=(a,p)=>{ const i=(a.length-1)*p, lo=Math.floor(i), hi=Math.ceil(i);
                    return lo===hi?a[lo]:a[lo]+(a[hi]-a[lo])*(i-lo) };
   PEERSTATS={};
-  for(const [k,arr] of Object.entries(groups)){
+  for(const [k,arr0] of Object.entries(groups)){
+    const arr=c5Clean(arr0).kept;   // C5: outliers out before the quartiles
     if(arr.length<4) continue; arr.sort((a,b)=>a-b);
-    PEERSTATS[k]={n:arr.length,q1:q(arr,.25),med:q(arr,.5),q3:q(arr,.75)};
+    PEERSTATS[k]={n:arr.length,q1:q(arr,.25),med:q(arr,.5),q3:q(arr,.75),out:arr0.length-arr.length};
   }
+  for(const k of Object.keys(PV_CACHE)) delete PV_CACHE[k];
 }
 function valueRead(sym){
   const mv=measureOf(sym); if(!mv) return null;
@@ -698,7 +767,7 @@ function renderSectorStrip(){
   const chips=rs.map(r=>{
     const col=r.kind==='go'?'var(--green)':r.kind==='avoid'?'var(--orange)':r.kind==='improve'?'var(--cyan)':'var(--gold)';
     const vd=b1Verdict(r.key);
-    return '<span style="border:1px solid var(--line);border-radius:5px;padding:3px 8px;font-size:11px;color:'+col+'" title="'+(r.name||r.key)+' · '+(r.etf||'')+' trend '+(+r.trend).toFixed(2)+' momentum '+(+r.momentum).toFixed(2)+(r.bowtie!=null?' · bow tie '+(r.bowtie>=0?'+':'')+r.bowtie.toFixed(2):'')+(vd?' · aggregate '+vd:'')+'">'+(r.rank?'#'+r.rank+' ':'')+(r.name||r.key)+' '+(r.score>=0?'+':'')+(+r.score).toFixed(2)+(r.bowtie!=null?' <span class="cls">bow '+(r.bowtie>=0?'+':'')+r.bowtie.toFixed(2)+'</span>':'')+'</span>';
+    return '<span style="border:1px solid var(--line);border-radius:5px;padding:3px 8px;font-size:11px;color:'+col+'" title="'+groupWord(r.key)+' · '+(r.etf||'')+' trend '+(+r.trend).toFixed(2)+' momentum '+(+r.momentum).toFixed(2)+(r.bowtie!=null?' · bow tie '+(r.bowtie>=0?'+':'')+r.bowtie.toFixed(2):'')+(vd?' · aggregate '+vd:'')+'">'+(r.rank?'#'+r.rank+' ':'')+groupWord(r.key)+' '+(r.score>=0?'+':'')+(+r.score).toFixed(2)+(r.bowtie!=null?' <span class="cls">bow '+(r.bowtie>=0?'+':'')+r.bowtie.toFixed(2)+'</span>':'')+'</span>';
   }).join(' ');
   const ts=SPINE['sector_compare']&&SPINE['sector_compare'].ts?freshTxt(SPINE['sector_compare'].ts):'';
   el.innerHTML='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin-bottom:4px">SECTORS — each sector fund\'s own Geiger, strongest first (the Hub\'s sector compare) · bow = equal-weight minus cap-weight · '+ts+'</div><div style="display:flex;flex-wrap:wrap;gap:5px">'+chips+'</div>';
@@ -782,6 +851,7 @@ function groupReadOf(g){ return (AXIS==='sector' && SECTOR_READ[g] && SECTOR_REA
 function groupShares(){
   const raw={}; let tot=0;
   const keys=new Set(Object.keys(GROUP_READ)); if(AXIS==='sector') for(const k of Object.keys(SECTOR_READ)) keys.add(k);
+  keys.delete('MACRO'); keys.delete('INDEXES');   // not places money goes
   for(const g of keys){
     const r=groupReadOf(g); if(!r||r.score==null) continue;
     const cold=Math.max(0.05,(1-r.score)/2);
@@ -1296,7 +1366,8 @@ function render(){
   const SH = sleeveShares();
   const sleeveRows = Object.entries(SH).sort((a,b)=>b[1]-a[1]).map(([k,sh]) => {
     const gk = sleeveG(k), eq = sh * inv;
-    return `<div class="move"><div class="mname" style="color:${SLEEVE_COLOR[k]}">${k}</div><div class="mval">${pct(eq)}<small>of equity · ${pct(sh,0)} of invested · geiger ${(gk>=0?'+':'')+gk.toFixed(2)} · ${namesPer(h)} names × ${pct(eq/namesPer(h))}</small></div></div>`;
+    const sr=groupReadOf(k)||{}; const vd=b1Verdict(k);
+    return `<div class="move"><div class="mname" style="color:${SLEEVE_COLOR[k]||groupColor(k)}">${esc2(groupWord(k))}</div><div class="mval">${pct(eq)}<small>of equity · ${pct(sh,0)} of invested · geiger ${(gk>=0?'+':'')+gk.toFixed(2)}${sr.q?' · '+esc2(sr.q.toLowerCase()):''}${sr.bowtie!=null?' · bow tie '+(sr.bowtie>=0?'+':'')+sr.bowtie.toFixed(2):''}${vd?' · aggregate '+vd:''} · ${namesPer(h)} names × ${pct(eq/namesPer(h))}</small></div></div>`;
   }).join('');
   document.getElementById('targets').innerHTML = `
     <div class="move"><div class="mname">INVESTED</div><div class="mval">${pct(inv)}<small>cash ${pct(1-inv)} — HOW MUCH comes from the heat score; WHERE comes from the sleeves below</small></div></div>
@@ -1337,10 +1408,10 @@ function render(){
   const sleeveMoves = Object.entries(SH2).sort((a,b)=>b[1]-a[1]).map(([k,sh]) => {
     const d = sh * inv;
     const col = (SLEEVE_COLOR[k]||groupColor(k));
-    if (d <= 0.005) return `<div style="border-left:3px solid ${col};padding:10px 14px;opacity:.45;background:rgba(255,255,255,.01);border-radius:0 8px 8px 0"><b style="color:${col}">${k}</b> <span class="cls">HOLD</span></div>`;
+    if (d <= 0.005) return `<div style="border-left:3px solid ${col};padding:10px 14px;opacity:.45;background:rgba(255,255,255,.01);border-radius:0 8px 8px 0"><b style="color:${col}">${esc2(groupWord(k))}</b> <span class="cls">HOLD</span></div>`;
     const tr = tranchePlan.map(([frac,lbl],i)=>`<span style="display:inline-flex;align-items:center;gap:5px;margin:6px 10px 0 0;font-size:11px;color:var(--dim)"><span style="background:${col};opacity:${(1-i*0.2).toFixed(2)};color:#0a0a0f;font-weight:700;border-radius:4px;padding:2px 8px">${spct(d*frac)}</span>${lbl}</span>`).join('');
     return `<div style="border-left:3px solid ${col};padding:10px 14px;background:rgba(255,255,255,.02);border-radius:0 8px 8px 0">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><b style="color:${col};font-size:14px;letter-spacing:.1em">${k}</b><span style="color:${col};font-size:17px;font-weight:700">BUILD ${spct(d)}</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><b style="color:${col};font-size:14px;letter-spacing:.1em">${esc2(groupWord(k))}</b><span style="color:${col};font-size:17px;font-weight:700">BUILD ${spct(d)}</span></div>
       <div style="display:flex;flex-wrap:wrap">${tr}</div></div>`;
   }).join('');
   document.getElementById('moves').innerHTML = `
@@ -1381,7 +1452,7 @@ function renderPolicy(h, inv, cInv){
   const gap=inv-cInv;
   el.innerHTML=`<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 4px">HOW MUCH — the policy ladder · today's condition is lit</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">${rungs}</div>
-    <div class="move" style="margin-top:8px"><div class="mname" style="color:${color}">TODAY</div><div class="mval">${lbl} → ${pct(inv,0)} invested<small>cash ${pct(1-inv,0)} · you hold ${pct(cInv,0)} invested, so ${gap>0.005?spct(gap,0)+' of equity is to deploy':gap<-0.005?spct(-gap,0)+' of equity is to trim':'you are on the rung'} · heat ${(h>=0?'+':'')+h.toFixed(2)}</small></div></div>`;
+    <div class="move" style="margin-top:8px"><div class="mname" style="color:${color}">TODAY</div><div class="mval">${lbl} → ${pct(inv,0)} invested<small>cash ${pct(1-inv,0)} · you hold ${pct(cInv,0)} invested, so ${gap>0.005?pct(gap,0)+' of equity is to deploy':gap<-0.005?pct(-gap,0)+' of equity is to trim':'you are on the rung'} · heat ${(h>=0?'+':'')+h.toFixed(2)}</small></div></div>`;
 }
 function drawCurve(h){
   const cv = document.getElementById('curve'), ctx = cv.getContext('2d');
@@ -1476,10 +1547,10 @@ function drawDonut(shares, inv){
   ctx.fillStyle='#8a8aa0'; ctx.font='10px monospace'; ctx.fillText('OUTER RING = SLEEVE · INNER = YOUR PICKS', lx, ly-18);
   for(const [k,v] of segs){ if(v<=0.001) continue;
     ctx.fillStyle=(SLEEVE_COLOR[k]||groupColor(k)); ctx.beginPath(); ctx.roundRect(lx,ly-7,14,14,4); ctx.fill();
-    ctx.fillStyle='#e8e8f0'; ctx.font='13px monospace'; ctx.fillText(k, lx+24, ly);
+    ctx.fillStyle='#e8e8f0'; ctx.font='13px monospace'; ctx.fillText(k==='CASH'?k:groupWord(k).toUpperCase(), lx+24, ly);
     const n=k==='CASH'?null:(PM.sleeves[k]?PM.sleeves[k].names.length:0);
     if(n!=null){ ctx.fillStyle=n?'#8a8aa0':'#ff8c42'; ctx.font='10px monospace';
-      ctx.fillText(n?n+(n===1?' name':' names'):'none picked', lx+24+ctx.measureText(k).width+34, ly); }
+      ctx.fillText(n?n+(n===1?' name':' names'):'none picked', lx+24+ctx.measureText(k==='CASH'?k:groupWord(k).toUpperCase()).width+34, ly); }
     ctx.fillStyle='#8a8aa0'; ctx.font='13px monospace'; ctx.textAlign='right'; ctx.fillText((v*100).toFixed(1)+'%', CSSW-8, ly); ctx.textAlign='left';
     ly+=30; }
 }
@@ -1512,7 +1583,7 @@ function renderSectorRot(){
   const rc={}; for(const k of Object.keys(REGIME)){const q=REGIME[k].label; rc[q]=(rc[q]||0)+1}
   const rs=Object.values(SECTOR_READ).sort((a,b)=>(b.score??0)-(a.score??0));
   const scol=k=>k==='lead'?'var(--green)':k==='improve'?'var(--cyan)':k==='weak'?'var(--gold)':'var(--orange)';
-  const chips=rs.map(r=>`<span title="${r.name} · trend ${(+r.trend).toFixed(2)} · momentum ${(+r.momentum).toFixed(2)}" style="display:inline-block;margin:2px 5px 2px 0;padding:2px 7px;border:1px solid var(--line);border-radius:5px;font-size:10px"><b style="color:${scol(r.kind)}">${r.key}</b> <span style="color:var(--dim)">${r.q}</span></span>`).join('');
+  const chips=rs.map(r=>`<span title="${groupWord(r.key)} · trend ${(+r.trend).toFixed(2)} · momentum ${(+r.momentum).toFixed(2)}" style="display:inline-block;margin:2px 5px 2px 0;padding:2px 7px;border:1px solid var(--line);border-radius:5px;font-size:10px"><b style="color:${scol(r.kind)}">${esc2(groupWord(r.key))}</b> <span style="color:var(--dim)">${r.q}</span></span>`).join('');
   el.innerHTML=
    
    seg('ALLOCATE ACROSS',AXIS,[['sector','SECTORS'],['cohort','COHORTS']],'setAxis')+
@@ -1545,14 +1616,11 @@ function impliedPrices(sym){
   const pg=peerGroupOf(sym); if(!pg) return null;
   const members = pg.mode==='fmp_peers' ? pg.members
                 : Object.keys(COMPS).filter(o=>o!==sym && peerKeys(o)[0]===pg.key);
-  const tukeyMedian=(vals)=>{
-    const v=vals.filter(x=>x!=null&&isFinite(x)&&x>0).sort((a,b)=>a-b);
-    if(v.length<4) return null;
+  const tukeyMedian=(vals)=>{   // the name kept; the rule is C5's (log-MAD, K=3, at least 5 peers)
+    const c=c5Clean(vals); const v=c.kept.sort((a,b)=>a-b);
+    if(v.length<3) return null;
     const q=p=>{const i=(v.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?v[lo]:v[lo]+(v[hi]-v[lo])*(i-lo)};
-    const q1=q(.25),q3=q(.75),iqr=q3-q1;
-    const clean=v.filter(x=>x>=q1-1.5*iqr&&x<=q3+1.5*iqr);   // Tukey fences, per the template
-    if(clean.length<3) return null;
-    return {med:q(.5), n:clean.length, dropped:v.length-clean.length};
+    return {med:q(.5), n:v.length, dropped:c.out.length};
   };
   const out=[];
   for(const [key,label] of [['pe','P/E'],['ps','P/S'],['pb','P/B'],['fwd_pe','FWD P/E']]){
@@ -1581,7 +1649,7 @@ function renderRotationTemplate(){
   const leaders='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:10px 0 4px">LEADERS — ranked by their own trend and momentum</div>'+
     '<table class="imap" style="font-size:11.5px"><tr><th style="text-align:left">#</th><th style="text-align:left">SECTOR</th>'+
     '<th>TREND</th><th>MOM</th><th>SCORE</th><th style="text-align:left">READ</th><th>BOW TIE</th><th style="text-align:left">AGGREGATE</th></tr>'+
-    rs.map((r,i)=>`<tr><td>${i+1}</td><td><b>${esc2(r.name||r.k)}</b> <span class="cls">${esc2(r.etf||'')}</span></td><td>${f2s(r.trend)}</td><td>${f2s(r.momentum)}</td>
+    rs.map((r,i)=>`<tr><td>${i+1}</td><td><b>${esc2(groupWord(r.k))}</b> <span class="cls">${esc2(r.etf||'')}</span></td><td>${f2s(r.trend)}</td><td>${f2s(r.momentum)}</td>
       <td><b>${f2s(r.score)}</b></td><td style="color:${col(r.kind)}">${esc2(r.q)}</td><td>${r.bowtie==null?'—':f2s(r.bowtie)}</td><td class="cls">${esc2(b1Verdict(r.k)||'—')}</td></tr>`).join('')+'</table>';
 
   // SECTOR HEATMAP — one cell per sector, shaded by score
@@ -1590,7 +1658,7 @@ function renderRotationTemplate(){
       const t=Math.max(0,Math.min(1,(r.score+1)/2));
       const bg=r.score>=0?`rgba(56,224,123,${(0.12+t*0.55).toFixed(2)})`:`rgba(255,140,66,${(0.12+(1-t)*0.55).toFixed(2)})`;
       return `<div style="background:${bg};border:1px solid var(--line);border-radius:4px;padding:6px 9px;min-width:88px">
-        <div style="font-size:10.5px;font-weight:700">${esc2(r.k)}</div>
+        <div style="font-size:10.5px;font-weight:700">${esc2(groupWord(r.k))}</div>
         <div style="font-size:13px;font-family:var(--mono,monospace)">${f2s(r.score)}</div></div>`}).join('')+'</div>';
 
   // QUADRANT POSITIONS — the four RRG boxes, populated
@@ -1660,7 +1728,7 @@ function renderPickMix(shares, inv){
             (vr?' <span style="font-size:10px;color:'+(vr.tag==='CHEAP'?'var(--green)':vr.tag==='EXPENSIVE'?'var(--orange)':'#8a8aa0')+'" title="'+vr.measure+' '+(+vr.val).toFixed(1)+' vs '+vr.level+' '+vr.group+' (n='+vr.n+') · Q1 '+(+vr.q1).toFixed(1)+' med '+(+vr.med).toFixed(1)+' Q3 '+(+vr.q3).toFixed(1)+'">'+vr.tag+' '+vr.measure+' vs '+vr.level+'</span>':'')+'</span>'}).join('')
         + (info.blocked&&info.blocked.length?'<div style="color:var(--orange);margin-top:4px">held out by the regime gate — breaking down, not on sale: '+info.blocked.join(', ')+'</div>':'')
       : '<span style="color:var(--orange)">nothing picked here — this '+(info.share*100).toFixed(1)+'% stays UNASSIGNED (it is not given to the other sleeves)</span>';
-    return '<div class="move"><div class="mname" style="color:'+col+'">'+k+'</div><div class="mval" style="font-size:12px">'+
+    return '<div class="move"><div class="mname" style="color:'+col+'">'+esc2(groupWord(k))+'</div><div class="mval" style="font-size:12px">'+
       (info.share*100).toFixed(1)+'% of equity<small>'+inner+'</small></div></div>';
   }).join('');
   const multi=Object.entries(PM.perName).filter(([s])=>tickerSleeves(s).filter(x=>shares[x]!=null).length>1)
@@ -1693,7 +1761,7 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const gS=gv('SPY'), gQ=gv('QQQ'), gI=gv('IWM'), gR=gv('RSP');
   const vix=(VIXDB&&VIXDB.fresh)?VIXDB.vix:null, ten=(TREAS&&TREAS.y10!=null)?+TREAS.y10:null;
   const secs=Object.values(SECTOR_READ).filter(r=>r.score!=null).sort((a,b)=>b.score-a.score);
-  const word=r=>(r.name||r.key);
+  const word=r=>groupWord(r.key);
   const leading=secs.filter(r=>r.kind==='go'), lagging=secs.filter(r=>r.kind==='avoid'), turning=secs.filter(r=>r.kind==='improve');
   const bows=secs.filter(r=>r.bowtie!=null), bowAvg=bows.length?bows.reduce((t,r)=>t+r.bowtie,0)/bows.length:null;
   const narrow = gS!=null && gR!=null && (gS-gR)>0.3;
@@ -1705,7 +1773,7 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const p1 = 'The market reads '+st.cond+' (heat '+f(h)+'). '+idx+breadth+'.'+sect+bow+macro;
   const SHB = sleeveShares();
   const top = Object.entries(SHB).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,sh])=>(SECT_WORD[k]||k)+' '+Math.round(sh*inv*100)+'%');
-  const p2 = 'The policy for a '+st.cond.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?spct(dTot,0)+' of equity is to deploy':spct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in TARGET MIX).':'.');
+  const p2 = 'The policy for a '+st.cond.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?pct(dTot,0)+' of equity is to deploy':pct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in TARGET MIX).':'.');
   const ranked = (typeof rankCandidates==='function') ? rankCandidates().filter(r=>r.tag).slice(0,5) : [];
   const p3 = ranked.length ? 'Inside those sectors the names that rank first — fundamentals first, then the Geiger for timing — are '+ranked.map(r=>r.sym+' ('+(SECT_WORD[r.sleeves[0]]||r.sleeves[0]||'')+(r.vr?', '+r.vr.tag.toLowerCase()+' vs peers':'')+(r.target?', target '+(r.target.up>=0?'+':'')+Math.round(r.target.up*100)+'%':'')+')').join(', ')+'. Their comparables and the checked analyst targets are in 4b.' : '';
   el.innerHTML = p1 + '<br><br>' + p2 + (p3?'<br><br>'+p3:'');
@@ -1734,55 +1802,40 @@ const CATS=['ALL','GROWTH','SEMIS','SMALL','CRYPTO','CMDTY','BROAD'];
 let CATFILTER='ALL';
 function setCat(c){ CATFILTER=c; render(); }
 function renderCohort(dLC, dSC){
-  const SPR2 = styleSpreads();
-  const PROXY_EXCLUDE = new Set(['IWM','SMH','RSP','XLP','XLU','SPY','QQQ']);
-  let allrows = candidateSyms().filter(s => !PROXY_EXCLUDE.has(s))
-    .map(s => { const tg = tickerG(s); if (!tg) return null;
-      const g = tg.g, adj = g + styleAdj(s, SPR2);
-      const q = QUOTES[s], c = COHORT[s] || {};
-      const price = (q && q.price != null) ? +q.price : c.price;
-      const day = (q && q.chg_pct != null) ? (+q.chg_pct)/100 : c.day;   // chg_pct is percent-units; c.day is a fraction
-      return {sym:s, cls:tickerCls(s)||'?', g, gsrc:tg.src, adj, sleeves:tickerSleeves(s), price, day, fav:UNIVERSE.favs.has(s)}; })
-    .filter(Boolean)
-    .sort((a,b) => a.adj - b.adj);
-  const liveCats = ['ALL', ...CATS.slice(1).filter(c=>allrows.some(r=>r.sleeves.includes(c)))];
+  const allrows = rankCandidates();
+  const groups = RANK_GROUPS.filter(g=>allrows.some(r=>r.sleeves.includes(g.key)));
+  const liveCats = ['ALL', ...groups.map(g=>g.key)];
   if(!liveCats.includes(CATFILTER)) CATFILTER='ALL';
   const tb=document.getElementById('catTabs');
-  if(tb) tb.innerHTML = liveCats.map(c=>`<button onclick="setCat('${c}')" style="background:${c===CATFILTER?'var(--cyan)':'#14141f'};color:${c===CATFILTER?'#0a0a0f':'var(--cyan)'};border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;font-weight:${c===CATFILTER?'700':'400'}">${c}</button>`).join('');
+  const vword=v=>v==='sound'?'<span style="color:var(--green)" title="B1: a statistically sound aggregate">●</span> ':v==='thin'?'<span style="color:var(--gold)" title="B1: thin aggregate">◐</span> ':v?'<span class="cls" title="B1: not yet sound">○</span> ':'';
+  if(tb) tb.innerHTML = liveCats.map(c=>{ const g=groups.find(x=>x.key===c); return `<button onclick="setCat('${c}')" style="background:${c===CATFILTER?'var(--cyan)':'#14141f'};color:${c===CATFILTER?'#0a0a0f':'var(--cyan)'};border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;font-weight:${c===CATFILTER?'700':'400'}">${c==='ALL'?'ALL':vword(g&&g.verdict)+groupWord(c)+' <span style="opacity:.7">'+Math.round(g.share*100)+'%</span>'}</button>`; }).join('')+
+    '<span class="cls" style="font-size:10px;align-self:center;margin-left:6px">● sound · ◐ thin · ○ not yet (B1, '+(B1?B1.asof:'not read')+') · the share of invested each earns</span>';
   let rows = (CATFILTER!=='ALL') ? allrows.filter(r=>r.sleeves.includes(CATFILTER)) : allrows;
-  const sleeveRank = {};
-  for (const sl of Object.keys(SLEEVES)) {
-    rows.filter(r => r.sleeves.includes(sl)).slice(0,3).forEach((r,i) => { (sleeveRank[r.sym] = sleeveRank[r.sym] || []).push(sl + ' #' + (i+1)); });
-  }
   const t = document.getElementById('cohort');
-  let html = '<tr><th></th><th>TICKER</th><th>SLEEVES</th><th>SECT</th><th class="r">PRICE</th><th class="r">DAY</th><th class="r">RVOL</th><th>GEIGER</th><th class="r">SCORE</th><th class="r">P/E</th><th class="r">FWD P/E</th><th class="r">P/S</th><th class="r">REV g</th><th class="r">GROSS</th><th class="r">NET</th><th class="r">D/E</th></tr>';
-  const addN = {LC: dLC > .005 ? 3 : 0, SC: dSC > .005 ? 3 : 0};
-  const trimN = {LC: dLC < -.005 ? 3 : 0, SC: dSC < -.005 ? 3 : 0};
-  const coldRank = {}, hotRank = {};
-  for (const cl of ['LC','SC']) {
-    const inCl = rows.filter(r => r.cls === cl);
-    inCl.slice(0, addN[cl]).forEach((r, i) => coldRank[r.sym] = i + 1);
-    if (trimN[cl]) inCl.slice(-trimN[cl]).reverse().forEach((r, i) => hotRank[r.sym] = i + 1);
-  }
+  let html = '<tr><th></th><th>TICKER</th><th>SECTOR</th><th>COHORTS</th><th class="r">PRICE</th><th class="r">DAY</th><th class="r" title="price, growth, margin and leverage against the name\'s own peer set (outliers out) — 1.00 = better than three quarters of its peers on every count">FUNDAMENTALS</th><th>VS PEERS</th><th>GEIGER</th><th>TIMING</th><th class="r">P/E</th><th class="r">P/S</th><th class="r">REV g</th><th class="r">NET</th><th class="r">D/E</th><th class="r" title="A4: the median of the checked analyst targets, one per firm, last 90 days">TARGET</th><th class="r">UPSIDE</th></tr>';
+  const num = (x,d=1,suf='') => (x==null||!isFinite(x))?'<span class="cls">—</span>':(x.toFixed(d)+suf);
+  const pctc = (x) => (x==null||!isFinite(x))?'<span class="cls">—</span>':((x*100).toFixed(0)+'%');
+  const rcol = k => k==='avoid'?'var(--orange)':k==='buy'?'var(--green)':k==='go'?'var(--cyan)':k==='care'?'var(--gold)':'var(--dim)';
   for (const r of rows) {
-    let tag = '';
-    if (sleeveRank[r.sym]) { const best = sleeveRank[r.sym][0].split(' '); tag = `<span class="tag add">ADD · ${best[0]} ${best[1]}</span>` + (sleeveRank[r.sym].length>1?` <span class="cls">+${sleeveRank[r.sym].length-1}</span>`:''); }
-    else if (hotRank[r.sym]) tag = `<span class="tag trim">TRIM · #${hotRank[r.sym]} ${r.cls}</span>`;
+    const tag = r.tag ? `<span class="tag add">ADD · ${esc2(groupWord(r.tag.group))} #${r.tag.rank}</span>` : '';
     const inC = COMPARE.has(r.sym);
     const star = `<button class="cmpstar" data-sym="${r.sym}" style="background:${inC?'rgba(255,209,102,.15)':'#14141f'};color:${inC?'var(--gold)':'var(--dim)'};border:1px solid ${inC?'var(--gold)':'var(--line)'};border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer" title="add this name to the COMPARABLES table below (for names not auto-suggested)">${inC?'★ in comps':'+ to comps'}</button>`;
     const w = Math.min(50, Math.abs(r.g) * 50);
-    const k = COMPS[r.sym] || {};
-    const num = (x,d=1,suf='') => (x==null||!isFinite(x))?'<span class="cls">—</span>':(x.toFixed(d)+suf);
-    const pctc = (x) => (x==null||!isFinite(x))?'<span class="cls">—</span>':((x*100).toFixed(0)+'%');
-    html += `<tr style="${sleeveRank[r.sym]?'background:rgba(0,212,255,.07)':''}"><td>${star}</td><td>${sleeveRank[r.sym]?'<span style=\'color:var(--cyan)\'>▸</span> ':''}<b>${r.sym}</b>${r.fav?' <span style="color:var(--gold)" title="hub_favorites">★</span>':''}${r.gsrc==='fallback'?' <span class="cls" title="composite_staged row missing — client Yahoo geiger fallback">⚠</span>':''}</td><td class="cls">${r.sleeves.join("/")||CLASSNAME[r.cls]||r.cls}</td><td>${sectorChip(r.sym)}</td>
+    const k = r.k;
+    const fsc = r.fund.score==null?'<span class="cls">—</span>':'<b style="color:'+(r.fund.score>=0.6?'var(--green)':r.fund.score<=0.35?'var(--orange)':'var(--txt)')+'" title="'+r.fund.parts.map(p=>p[2]).join(' · ').replace(/"/g,'')+'">'+r.fund.score.toFixed(2)+'</b> <span class="cls">'+r.fund.n+'/4</span>';
+    const vp = r.vr ? '<span style="color:'+(r.vr.tag==='CHEAP'?'var(--green)':r.vr.tag==='EXPENSIVE'?'var(--orange)':'var(--dim)')+'" title="'+r.vr.measure+' '+(+r.vr.val).toFixed(1)+' vs '+r.vr.n+' peers ('+r.vr.level+' '+r.vr.group+'): Q1 '+(+r.vr.q1).toFixed(1)+' · median '+(+r.vr.med).toFixed(1)+' · Q3 '+(+r.vr.q3).toFixed(1)+'">'+r.vr.tag+' <span class="cls">'+r.vr.measure+'</span></span>' : '<span class="cls">—</span>';
+    const cohorts=(UNIVERSE.cohorts[r.sym]||[]).filter(c=>TRUE_COHORT_SET.has(c)).map(c=>c.replace(/_/g,' ')).join(' / ');
+    const tgt = r.target ? '$'+r.target.median.toFixed(0)+' <span class="cls">'+r.target.n+'</span>' : '<span class="cls">—</span>';
+    const up = r.target ? '<span style="color:'+(r.target.up>0.15?'var(--green)':r.target.up<0?'var(--orange)':'var(--dim)')+'">'+spct(r.target.up,0)+'</span>' : '<span class="cls">—</span>';
+    html += `<tr style="${r.tag?'background:rgba(0,212,255,.07)':''}"><td>${star}</td><td>${r.tag?'<span style=\'color:var(--cyan)\'>▸</span> ':''}<b>${r.sym}</b>${r.fav?' <span style="color:var(--gold)" title="hub_favorites">★</span>':''}${r.gsrc!=='geiger'?' <span class="cls" title="not on the chart API — composite_staged reading">⚠</span>':''} ${tag}</td><td>${sectorChip(r.sym)}</td><td class="cls">${esc2(cohorts)||'—'}</td>
       <td class="r">${r.price==null?'<span class="cls">—</span>':(+r.price).toLocaleString()}</td>
       <td class="r" style="color:${r.day>=0?'var(--green)':'var(--red)'}">${r.day==null?'<span class="cls">—</span>':spct(r.day,2)}</td>
-      <td class="r">${rvolTxt(r.sym)}</td>
-      <td><span class="mini"><span class="mid"></span><span class="b" style="left:${r.g<0?50-w:50}%;width:${w}%;background:${r.g>=0?'var(--cyan)':'var(--orange)'}"></span></span></td>
-      <td class="r">${(r.g>=0?'+':'')+r.g.toFixed(2)}</td>
-      <td class="r">${num(k.pe)}</td><td class="r">${num(k.fwd_pe)}</td><td class="r">${num(k.ps)}</td>
+      <td class="r">${fsc}</td><td>${vp}</td>
+      <td><span class="mini"><span class="mid"></span><span class="b" style="left:${r.g<0?50-w:50}%;width:${w}%;background:${r.g>=0?'var(--cyan)':'var(--orange)'}"></span></span> ${(r.g>=0?'+':'')+r.g.toFixed(2)}</td>
+      <td style="color:${rcol(r.rg.kind)};font-size:10px">${esc2(r.rg.label||'—')}</td>
+      <td class="r">${num(k.pe)}</td><td class="r">${num(k.ps)}</td>
       <td class="r" style="color:${k.rev_growth>0?'var(--green)':k.rev_growth<0?'var(--red)':'var(--dim)'}">${k.rev_growth==null?'<span class=cls>—</span>':spct(k.rev_growth,0)}</td>
-      <td class="r">${pctc(k.gross_m)}</td><td class="r">${pctc(k.net_m)}</td><td class="r">${num(k.de,2)}</td></tr>`;
+      <td class="r">${pctc(k.net_m)}</td><td class="r">${num(k.de,2)}</td><td class="r">${tgt}</td><td class="r">${up}</td></tr>`;
   }
   t.innerHTML = html;
   t.querySelectorAll('.cmpstar').forEach(el => el.onclick = () => toggleCompare(el.getAttribute('data-sym')));
@@ -1806,39 +1859,13 @@ function renderComps(){
   const t = document.getElementById('comps'); if (!t) return;
   // suggested = anything currently ADD-tagged (top-3 coldest per sleeve), gathered from the last cohort render
   const SPR = styleSpreads();
-  const ranked = candidateSyms().filter(s=>!['IWM','SMH','RSP','XLP','XLU','SPY','QQQ'].includes(s))
-    .map(s=>{ const tg=tickerG(s); if(!tg) return null; const rg=REGIME[s]||{};
-            const vr=valueRead(s);
-            const w=METHOD.regimeWeight;
-            /* Coldness alone was swamping everything — an additive nudge left all three
-               intents returning the same names, which is the "too basic" failure. Intent is
-               MULTIPLICATIVE instead: a name that is cold for the wrong reason loses most of
-               its score no matter how cold it is. At HOW HARD = 0 this collapses back to
-               pure coldness, so the old behaviour is still reachable. */
-            let attract = (1 - (tg.g + styleAdj(s,SPR))) / 2;            // 0..1, 1 = coldest
-            /* ONE PIPELINE (2026-08-11). Rotation used to attach to allocation as a separate
-               re-rank with its own vocabulary. Now the SAME intent runs through the SAME
-               readOf() at both levels: the name's own trend x momentum, and the trend x
-               momentum of the sector it sits in. A name is scored on what it is doing AND on
-               what its neighbourhood is doing, judged by one rule. Rotation is no longer an
-               adjustment bolted onto allocation — it is the same question asked one level up. */
-            const secR = (AXIS==='sector' ? (E_SECREAD[SECTOR_OF[s]]||null) : null) || sectorReadOf(s);
-            const fitName = intentFit(s);
-                      /* The name's own regime decides. Its sector is shown beside it and sets how much
-               money the sector gets, but it does not dilute the name's own reading — the 70/30
-               blend that used to sit here was mine, not asked for, and is gone. */
-            const fit = fitName;
-            attract *= (1 - w) + w*(0.15 + 1.7*fit);
-            if(vr) attract *= 1 - METHOD.valueWeight*vr.z;                // cheap vs peers lifts, dear cuts
-            return {sym:s, adj:-attract, sleeves:tickerSleeves(s), rg, vr}; }).filter(Boolean);
-  const suggested = new Set();
-  for (const sl of Object.keys(SLEEVES)) ranked.filter(r=>r.sleeves.includes(sl)).sort((a,b)=>a.adj-b.adj).slice(0,3).forEach(r=>suggested.add(r.sym));
-  // category switcher — which sleeves have suggestions
-  const cats = ['ALL', ...Object.keys(SLEEVES).filter(sl=>ranked.some(r=>r.sleeves.includes(sl)&&suggested.has(r.sym)))];
+  const ranked = RANKED.length ? RANKED : rankCandidates();
+  const suggested = new Set(ranked.filter(r=>r.tag).map(r=>r.sym));
+  const cats = ['ALL', ...RANK_GROUPS.map(g=>g.key).filter(k=>ranked.some(r=>r.tag&&r.sleeves.includes(k)))];
   if (!cats.includes(COMPCAT)) COMPCAT='ALL';
   const cc=document.getElementById('compCat');
-  if(cc) cc.innerHTML = cats.map(c=>`<button onclick="setCompCat('${c}')" style="background:${c===COMPCAT?'var(--gold)':'#14141f'};color:${c===COMPCAT?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;font-weight:${c===COMPCAT?'700':'400'}">${c}</button>`).join('');
-  let syms = [...new Set([...suggested, ...COMPARE])].filter(x=>(COMPS[x]||COMPOSITE[x]||COHORT[x]));
+  if(cc) cc.innerHTML = cats.map(c=>`<button onclick="setCompCat('${c}')" style="background:${c===COMPCAT?'var(--gold)':'#14141f'};color:${c===COMPCAT?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;font-weight:${c===COMPCAT?'700':'400'}">${c==='ALL'?'ALL':esc2(groupWord(c))}</button>`).join('');
+  let syms = [...new Set([...suggested, ...COMPARE])].filter(x=>(COMPS[x]||GEIGER[x]||COMPOSITE[x]));
   if (COMPCAT!=='ALL') syms = syms.filter(x=>tickerSleeves(x).includes(COMPCAT));
   // [key,label,fmt,dir] dir: -1 lower-is-better, +1 higher-is-better, 0 neutral. valid: ratios must be >0.
   const cols = [
@@ -1846,7 +1873,8 @@ function renderComps(){
     ['g','GEIGER',v=>(v>=0?'+':'')+v.toFixed(2),-1],
     ['pe','P/E',v=>v.toFixed(1),-1],['fwd_pe','FWD P/E',v=>v.toFixed(1),-1],['ps','P/S',v=>v.toFixed(1),-1],['pb','P/B',v=>v.toFixed(1),-1],
     ['rev_growth','REV g',v=>(v*100).toFixed(0)+'%',1],['gross_m','GROSS',v=>(v*100).toFixed(0)+'%',1],['net_m','NET',v=>(v*100).toFixed(0)+'%',1],
-    ['de','D/E',v=>v.toFixed(2),-1],['div_yld','DIV',v=>(v*100).toFixed(2)+'%',0]];
+    ['de','D/E',v=>v.toFixed(2),-1],['div_yld','DIV',v=>(v*100).toFixed(2)+'%',0],
+    ['target','TARGET',v=>'$'+v.toFixed(0),0],['upside','UPSIDE',v=>(v>=0?'+':'')+(v*100).toFixed(0)+'%',1]];
   /* IMPLIED — what the name would be worth at its peers' multiples, per the template's
      football field. Works for loss-makers via P/S and P/B when P/E cannot be computed. */
   const impCell=(sym)=>{
@@ -1862,7 +1890,9 @@ function renderComps(){
   const RATIO=new Set(['pe','fwd_pe','ps','pb']);
   const valid=(key,v)=> v!=null && isFinite(v) && !(RATIO.has(key) && v<=0);
   // peer medians for conditional formatting (only non-excluded, valid)
-  const data = syms.map(sym=>{ const k=Object.assign({}, COMPS[sym]||{}); k.g = gv(sym); return {sym, k, manual:COMPARE.has(sym) && !suggested.has(sym), excl:EXCLUDED.has(sym)}; });
+  const data = syms.map(sym=>{ const k=Object.assign({}, COMPS[sym]||{}); k.g = gv(sym);
+    const tg=TARGETS[sym], px=QUOTES[sym]&&QUOTES[sym].price; if(tg){ k.target=tg.median; k.upside=px?tg.median/px-1:null; k.target_n=tg.n; }
+    return {sym, k, manual:COMPARE.has(sym) && !suggested.has(sym), excl:EXCLUDED.has(sym)}; });
   const active=data.filter(d=>!d.excl);
   /* THE TEMPLATE'S METHOD (fundamentals-spec.html §1): compare against a PEER SET and flag
      cheap/expensive AND IQR OUTLIERS. Previously this compared each name to the median of
@@ -1875,11 +1905,12 @@ function renderComps(){
     const pg=peerGroupOf(sym); if(!pg) return null;
     let members = pg.mode==='fmp_peers' ? pg.members
                 : Object.keys(COMPS).filter(o=>peerKeys(o)[0]===pg.key);
-    const vs=members.map(m=>COMPS[m]&&COMPS[m][key]).filter(v=>valid(key,v));
+    let vs=members.map(m=>COMPS[m]&&COMPS[m][key]).filter(v=>valid(key,v)); let out=0;
+    if(RATIO_KEYS.has(key)){ const c=c5Clean(vs); out=c.out.length; vs=c.kept; }   // C5: outliers out of the pack
     if(vs.length<4) return null;
     vs.sort((a,b)=>a-b);
     const q=(p)=>{const i=(vs.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?vs[lo]:vs[lo]+(vs[hi]-vs[lo])*(i-lo)};
-    return {q1:q(.25), med:q(.5), q3:q(.75), n:vs.length, mode:pg.mode};
+    return {q1:q(.25), med:q(.5), q3:q(.75), n:vs.length, out, mode:pg.mode};
   }
   const PSTAT={};
   const statFor=(key,sym)=>{ const kk=key+'|'+sym; if(!(kk in PSTAT)) PSTAT[kk]=peerStat(key,sym); return PSTAT[kk] };
@@ -1896,7 +1927,7 @@ function renderComps(){
   };
   const cellTitle=(c,v,sym)=>{ const st=statFor(c[0],sym); if(!st||!valid(c[0],v)) return '';
     const iqr=st.q3-st.q1, out=iqr>0&&(v<st.q1-1.5*iqr||v>st.q3+1.5*iqr);
-    return c[1]+' '+(+v).toFixed(2)+' vs '+st.n+' peers ('+st.mode+') — Q1 '+st.q1.toFixed(2)+' · median '+st.med.toFixed(2)+' · Q3 '+st.q3.toFixed(2)+(out?' — IQR OUTLIER':''); };
+    return c[1]+' '+(+v).toFixed(2)+' vs '+st.n+' peers ('+(st.mode==='fmp_peers'?'named peers':st.mode)+(st.out?', '+st.out+' outliers out':'')+') — Q1 '+st.q1.toFixed(2)+' · median '+st.med.toFixed(2)+' · Q3 '+st.q3.toFixed(2)+(out?' — far outside the pack':''); };
   let html = '<tr><th></th><th>NAME</th>'+cols.map(c=>'<th class="r">'+c[1]+'</th>').join('')+'<th class="r" title="What the name would be worth at its peers\' median multiples — the template\'s football field. Uses P/S and P/B when there are no earnings.">IMPLIED</th>'+'<th></th></tr>';
   for (const d of data) {
     const picked = PICKS.has(d.sym);
@@ -1905,7 +1936,7 @@ function renderComps(){
     const pickBtn = `<button class="compick" data-sym="${d.sym}" style="background:${picked?'rgba(56,224,123,.15)':'#14141f'};color:${picked?'var(--green)':'var(--cyan)'};border:1px solid ${picked?'var(--green)':'var(--line)'};border-radius:5px;padding:2px 10px;font-size:11px;cursor:pointer">${picked?'✓ picked':'pick'}</button>`;
     const rowStyle = d.excl ? 'opacity:.35;text-decoration:line-through' : (picked?'background:rgba(56,224,123,.06)':'');
     html += `<tr style="${rowStyle}"><td>${rmBtn}</td><td><b>${d.sym}</b>${d.manual?' <span class="cls">(added)</span>':' <span class="tag add" style="margin:0">suggested</span>'}</td>`+
-      cols.map(c=>{ const v=d.k[c[0]]; const ok=valid(c[0],v); return '<td class="r" title="'+(ok?cellTitle(c,v,d.sym).replace(/"/g,'')+'" ':'" ')+'style="'+(d.excl?'':cellColor(c,v,d.sym))+'">'+(ok?c[2](v):'<span class="cls">NA</span>')+'</td>'; }).join('')+impCell(d.sym)+`<td class="r">${pickBtn}</td></tr>`;
+      cols.map(c=>{ const v=d.k[c[0]]; const ok=valid(c[0],v); const extra=c[0]==='target'&&ok?' <span class="cls">'+d.k.target_n+'</span>':''; return '<td class="r" title="'+(ok?cellTitle(c,v,d.sym).replace(/"/g,'')+'" ':'" ')+'style="'+(d.excl?'':(c[0]==='upside'?(v>0.15?'color:var(--green)':v<0?'color:var(--orange)':''):cellColor(c,v,d.sym)))+'">'+(ok?c[2](v)+extra:'<span class="cls">NA</span>')+'</td>'; }).join('')+impCell(d.sym)+`<td class="r">${pickBtn}</td></tr>`;
   }
   // stat rows
   const stat = (fn,label,color)=>{ let row=`<tr><td></td><td class="cls" style="color:${color}">${label}</td>`; for(const c of cols){ const vals=active.map(d=>d.k[c[0]]).filter(v=>valid(c[0],v)); row+='<td class="r" style="color:'+color+'">'+(vals.length?c[2](fn(vals)):'NA')+'</td>'; } return row+'<td></td></tr>'; };
