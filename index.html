@@ -276,7 +276,7 @@ async function sbGetPaged(path, pageSize=1000, maxPages=12){
   throw new Error('paged read exceeded '+maxPages+' pages');
 }
 let MKTINT=null, MKTBREADTH={}, PEERS={}, QUOTES_DB={};   // FMP algorithmic peers, per fundamentals-spec   // broad-market series — sourced OUTSIDE the hub universe   // market_internals — the real advance/decline line
-let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={};   // industry = the sub-sector axis (93 groups, 317 names)   // ticker -> our sector key ; sector key -> the rotation read
+let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={}, SR_FALLBACK={d:null,byEtf:{}};   // industry = the sub-sector axis (93 groups, 317 names)   // ticker -> our sector key ; sector key -> the rotation read
 /* SECTOR ROTATION, ACTUALLY WIRED IN (2026-08-11).
    Until now the only thing sector did in this module was the XLP+XLU defensives voter and
    a display chip — Alan: "its just defensives. nothing of sectors." The module's own doc
@@ -288,6 +288,26 @@ let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={};   // industry = the sub-sector
 const SECTOR_ETF_OF={TECH:'XLK',HEALTH:'XLV',FINANCIALS:'XLF',DISCRET:'XLY',INDUSTRIAL:'XLI',
   MATERIALS:'XLB',ENERGY:'XLE',STAPLES:'XLP',UTILITIES:'XLU',REAL_ESTATE:'XLRE',COMMS:'XLC'};
 function rrg(t,m){ return readOf(t,m) }   // sectors read exactly as names do
+/* THE SECTOR READINGS (PA3, 5 Oct 2026) — the Hub's sector compare, not the published table.
+   Each sector is read from its own fund's Geiger: the State Street fund (cap-weight) gives trend, momentum
+   and the score; the Invesco equal-weight twin gives the bow tie (equal-weight minus cap-weight: above zero
+   the average stock is stronger than the fund, below zero the biggest names carry it). Both come from the
+   same /geiger call the Hub's compare strip reads. sector_rankings is only the fallback when a fund is missing. */
+function buildSectorReads(){
+  const out={}; let live=0;
+  for(const key of Object.keys(SECT_CW)){
+    const cw=geigerRow(SECT_CW[key]), ew=geigerRow(SECT_EW[key]);
+    if(cw){ live++;
+      out[key]={key,etf:SECT_CW[key],ewEtf:SECT_EW[key],name:SECT_WORD[key],score:cw.composite,trend:cw.trend,momentum:cw.momentum,
+                ew:ew?ew.composite:null,ewTrend:ew?ew.trend:null,ewMom:ew?ew.momentum:null,bowtie:ew?(ew.composite-cw.composite):null,src:'geiger',...rrg(cw.trend,cw.momentum)};
+    } else { const r=SR_FALLBACK.byEtf[SECT_CW[key]]; if(!r) continue;
+      out[key]={key,etf:SECT_CW[key],name:SECT_WORD[key],score:r.score,trend:r.trend,momentum:r.momentum,ew:null,bowtie:null,src:'sector_rankings',...rrg(r.trend,r.momentum)}; }
+  }
+  Object.values(out).sort((a,b)=>b.score-a.score).forEach((r,i)=>r.rank=i+1);
+  SECTOR_READ=out;
+  const ts=GEIGER_META&&(GEIGER_META.computed_utc||GEIGER_META.published_utc)||null;
+  spineSet('sector_compare',ts, live===11?'LIVE':live?'STALE':'FALLBACK', live+' of 11 sectors read from the funds\' own Geigers (cap-weight + equal-weight twin = the Hub\'s sector compare and bow tie)'+(live<11?' · the rest from sector_rankings '+(SR_FALLBACK.d||''):''));
+}
 function sectorRead(sym){
   const k=SECTOR_OF[sym]; if(!k) return null;
   const r=SECTOR_READ[k]; if(!r) return null;
@@ -529,13 +549,8 @@ async function refreshSSOT(){
     const d=(await sbGet('sector_rankings?select=date&order=date.desc&limit=1'))[0]?.date;
     const rows=d?await sbGet('sector_rankings?select=sector,sector_name,rank,score,trend,momentum&date=eq.'+d+'&limit=20'):[];
     const byEtf={}; for(const r of rows) byEtf[r.sector]=r;
-    const out={};
-    for(const [key,etf] of Object.entries(SECTOR_ETF_OF)){
-      const r=byEtf[etf]; if(!r) continue;
-      out[key]={key,etf,name:r.sector_name,rank:r.rank,score:r.score,trend:r.trend,momentum:r.momentum,...rrg(r.trend,r.momentum)};
-    }
-    SECTOR_READ=out;
-    spineSet('sector_rotation',null,'LIVE',Object.keys(out).length+' sectors · '+Object.keys(m).length+' names mapped · '+(d||''));
+    SR_FALLBACK={d,byEtf};
+    spineSet('sector_members',null,'LIVE',Object.keys(m).length+' names mapped to a sector · '+Object.keys(im).length+' to an industry');
   })().catch(e=>spineSet('sector_rotation',null,'FALLBACK','read failed ('+e.message+')')));
   // REGIME — trend and momentum kept apart, latest bar only
   J.push((async()=>{
@@ -597,6 +612,7 @@ async function refreshSSOT(){
     OPW={rows:rows.length}; spineSet('operator_weights',null,'LIVE',rows.length+' rows — applied upstream by the hub inside composite_staged');
   }).catch(e=>spineSet('operator_weights',null,'FALLBACK','read failed')));
   await Promise.all(J);
+  buildSectorReads();
   // second wave — these need the universe: live quotes, peers and checked targets for the candidate names
   const syms=candidateSyms();
   const K2=[];
@@ -657,11 +673,11 @@ function gv(sym){ const r=tickerG(sym); return r?r.g:null; }
 // FMP-style profile sector names -> GICS sector ETF
 const SECTOR_ETF={'Technology':'XLK','Communication Services':'XLC','Consumer Cyclical':'XLY','Consumer Discretionary':'XLY','Financial Services':'XLF','Financials':'XLF','Industrials':'XLI','Basic Materials':'XLB','Materials':'XLB','Energy':'XLE','Healthcare':'XLV','Health Care':'XLV','Consumer Defensive':'XLP','Consumer Staples':'XLP','Utilities':'XLU','Real Estate':'XLRE'};
 function sectorChip(sym){
-  const p=PROFILES[sym]; if(!p||!p.sector) return '<span class="cls">—</span>';
-  const etf=SECTOR_ETF[p.sector]; const sr=SECTOR_RANKS&&etf?SECTOR_RANKS.bySector[etf]:null;
-  if(!sr) return '<span class="cls">'+p.sector.slice(0,12)+'</span>';
-  const col=sr.rank<=3?'var(--green)':sr.rank>=9?'var(--orange)':'var(--dim)';
-  return '<span style="color:'+col+'" title="'+p.sector+' · '+etf+' rank '+sr.rank+'/11 · score '+(+sr.score).toFixed(2)+' · sector_rankings (published by the sector-rotation tool)">#'+sr.rank+' '+etf+'</span>';
+  const key=SECTOR_OF[sym] || (groupsOfTicker(sym)[0]||null);
+  const sr=key?SECTOR_READ[key]:null;
+  if(!sr){ const p=PROFILES[sym]; return '<span class="cls">'+(p&&p.sector?p.sector.slice(0,12):'—')+'</span>'; }
+  const col=sr.kind==='go'?'var(--green)':sr.kind==='avoid'?'var(--orange)':sr.kind==='improve'?'var(--cyan)':'var(--gold)';
+  return '<span style="color:'+col+'" title="'+(sr.name||key)+' · '+(sr.etf||'')+' Geiger '+(+sr.score).toFixed(2)+' · '+sr.q+(sr.bowtie!=null?' · bow tie '+(sr.bowtie>=0?'+':'')+sr.bowtie.toFixed(2):'')+'">'+(sr.rank?'#'+sr.rank+' ':'')+(sr.name||key)+'</span>';
 }
 function rvolTxt(sym){
   const q=QUOTES[sym],p=PROFILES[sym];
@@ -672,12 +688,15 @@ function rvolTxt(sym){
 }
 function renderSectorStrip(){
   const el=document.getElementById('sectorStrip'); if(!el) return;
-  if(!SECTOR_RANKS){ el.innerHTML='<span class="cls">sector_rankings unavailable — sector lens off</span>'; return; }
-  const chips=SECTOR_RANKS.list.map(r=>{
-    const col=r.rank<=3?'var(--green)':r.rank>=9?'var(--orange)':'var(--dim)';
-    return '<span style="border:1px solid var(--line);border-radius:5px;padding:3px 8px;font-size:11px;color:'+col+'" title="'+(r.sector_name||'')+' · '+r.method+'">#'+r.rank+' '+r.sector+' '+(r.score>=0?'+':'')+(+r.score).toFixed(2)+'</span>';
+  const rs=Object.values(SECTOR_READ).filter(r=>r.score!=null).sort((a,b)=>b.score-a.score);
+  if(!rs.length){ el.innerHTML='<span class="cls">no sector reading yet</span>'; return; }
+  const chips=rs.map(r=>{
+    const col=r.kind==='go'?'var(--green)':r.kind==='avoid'?'var(--orange)':r.kind==='improve'?'var(--cyan)':'var(--gold)';
+    const vd=b1Verdict(r.key);
+    return '<span style="border:1px solid var(--line);border-radius:5px;padding:3px 8px;font-size:11px;color:'+col+'" title="'+(r.name||r.key)+' · '+(r.etf||'')+' trend '+(+r.trend).toFixed(2)+' momentum '+(+r.momentum).toFixed(2)+(r.bowtie!=null?' · bow tie '+(r.bowtie>=0?'+':'')+r.bowtie.toFixed(2):'')+(vd?' · aggregate '+vd:'')+'">'+(r.rank?'#'+r.rank+' ':'')+(r.name||r.key)+' '+(r.score>=0?'+':'')+(+r.score).toFixed(2)+(r.bowtie!=null?' <span class="cls">bow '+(r.bowtie>=0?'+':'')+r.bowtie.toFixed(2)+'</span>':'')+'</span>';
   }).join(' ');
-  el.innerHTML='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin-bottom:4px">SECTOR ROTATION — published ranking · <code>sector_rankings</code> (sector tool, same composite_staged geiger) · '+freshTxt(SECTOR_RANKS.updated_at)+' · annotation lens only, no score-math change</div><div style="display:flex;flex-wrap:wrap;gap:5px">'+chips+'</div>';
+  const ts=SPINE['sector_compare']&&SPINE['sector_compare'].ts?freshTxt(SPINE['sector_compare'].ts):'';
+  el.innerHTML='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin-bottom:4px">SECTORS — each sector fund\'s own Geiger, strongest first (the Hub\'s sector compare) · bow = equal-weight minus cap-weight · '+ts+'</div><div style="display:flex;flex-wrap:wrap;gap:5px">'+chips+'</div>';
 }
 function candidateSyms(){
   // THE universe = ticker_cohorts (pick cohorts) + hub_favorites. Legacy cohort-feed set only as fallback.
@@ -754,11 +773,15 @@ function buildGroupReads(){
   GROUP_READ=out;
 }
 /* Share = coldness, lifted or cut by what the group is actually doing. */
+function groupReadOf(g){ return (AXIS==='sector' && SECTOR_READ[g] && SECTOR_READ[g].score!=null) ? SECTOR_READ[g] : GROUP_READ[g]; }
 function groupShares(){
   const raw={}; let tot=0;
-  for(const [g,r] of Object.entries(GROUP_READ)){
+  const keys=new Set(Object.keys(GROUP_READ)); if(AXIS==='sector') for(const k of Object.keys(SECTOR_READ)) keys.add(k);
+  for(const g of keys){
+    const r=groupReadOf(g); if(!r||r.score==null) continue;
     const cold=Math.max(0.05,(1-r.score)/2);
-    const turn = r.kind==='improve'?1.35 : r.kind==='lag'?0.6 : r.kind==='weak'?0.85 : 1.0;
+    /* the turn: improving (down-trend, momentum up) is lifted; a breakdown is cut; weakening is trimmed */
+    const turn = r.kind==='improve'?1.35 : r.kind==='avoid'?0.6 : r.kind==='buy'?0.85 : 1.0;
     raw[g]=cold*turn; tot+=raw[g];
   }
   if(!tot) return {};
@@ -775,7 +798,7 @@ function sleeveG(name){
   /* A sector or cohort has no single proxy ticker — its reading is its constituents,
      which is also how the sector tool does it. The old proxy path (QQQ for GROWTH etc.)
      is kept only for any legacy sleeve key still passed in. */
-  const r = GROUP_READ[name];
+  const r = groupReadOf(name);
   if (r) return r.score;
   const legacy = SLEEVES[name];
   if (!legacy) return null;
@@ -824,19 +847,22 @@ const DEFAULTS = {
   vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
   maxInv:100, minInv:15, nLC:4, nSC:2, nPer:2, divAuto:1, lcTilt:0, maxTotal:12, maxNames:6, concLean:0,
   curInv:0, curLC:0,
-  wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25, BREADTH_EW:0.5, BREADTH_SC:0.25, VIX_TERM:0.25, CURVE:0.5, PCC:0, SKEW:0.25, ADLINE:0.5, TRIN:0.25, B_VOL:0.25, CONC:0.5, CREDIT:0.5, DURATION:0.25, HAVEN:0.25}
+  wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25, BREADTH_EW:0.5, BREADTH_SC:0.25, SECTOR_CMP:0.5, BOWTIE:0.5, MKT_BOWTIE:0.25, VIX_TERM:0.25, CURVE:0.5, PCC:0, SKEW:0.25, ADLINE:0.5, TRIN:0.25, B_VOL:0.25, CONC:0.5, CREDIT:0.5, DURATION:0.25, HAVEN:0.25}
 };
 const VOTER_DESC = {
-  SPY: 'PROXY: SPY (composite_staged · db; Yahoo fallback). The approved geiger on the S&P across your full equalizer curve (2h→1w): ribbon order 50% + momentum 50% (RSI 60 / W%R 40, straight 23→77 map — every level in between feeds, per GOOGL_GEIGER_v2). WHEN it reads positive the market is stretched and it pushes the score UP toward Overbought; negative = washed out, pushes DOWN toward Oversold.',
-  QQQ: 'PROXY: QQQ (composite_staged · db; Yahoo fallback). Same geiger on the Nasdaq-100. When growth is the stretched side it pushes the score UP; when growth is the beaten-down side (like now) it pulls the score DOWN. Watch it vs SPY: the gap says which side is discounted.',
-  IWM: 'PROXY: IWM (composite_staged · db; Yahoo fallback). Same geiger on small caps. As a voter it adds breadth: a rally without small caps reads cooler. NOTE: whether weighted or not, IWM-vs-SPY always drives the LC/SC split in panel 2.',
-  SMH: 'PROXY: SMH (composite_staged · db; Yahoo fallback). Same geiger on semis, the current leadership. Weighted in, a stretched semi complex pushes the score UP (leadership froth) and a broken one drags it DOWN.',
+  SPY: 'PROXY: SPY (the Hub\'s Geiger from the chart API, fresh every cycle; composite_staged only if the API is down). The approved geiger on the S&P across your full equalizer curve (2h→1w): ribbon order 50% + momentum 50% (RSI 60 / W%R 40, straight 23→77 map — every level in between feeds, per GOOGL_GEIGER_v2). WHEN it reads positive the market is stretched and it pushes the score UP toward Overbought; negative = washed out, pushes DOWN toward Oversold.',
+  QQQ: 'PROXY: QQQ (the Hub\'s Geiger from the chart API, fresh every cycle; composite_staged only if the API is down). Same geiger on the Nasdaq-100. When growth is the stretched side it pushes the score UP; when growth is the beaten-down side (like now) it pulls the score DOWN. Watch it vs SPY: the gap says which side is discounted.',
+  IWM: 'PROXY: IWM (the Hub\'s Geiger from the chart API, fresh every cycle; composite_staged only if the API is down). Same geiger on small caps. As a voter it adds breadth: a rally without small caps reads cooler. NOTE: whether weighted or not, IWM-vs-SPY always drives the LC/SC split in panel 2.',
+  SMH: 'PROXY: SMH (the Hub\'s Geiger from the chart API, fresh every cycle; composite_staged only if the API is down). Same geiger on semis, the current leadership. Weighted in, a stretched semi complex pushes the score UP (leadership froth) and a broken one drags it DOWN.',
   VIX: 'PROXY: VIX level (vix_term · db when fresh; Yahoo fallback flagged when stale), not a geiger. HOW IT VOTES: below ~21 it votes hot (+) — calm/complacency, pushes the score UP; above ~21 it votes cold (−) — fear, pulls it DOWN; at 12 it maxes at +1, at your cold endpoint (30) it floors at −1, clamped beyond. Today 18.8 → +0.25: mildly complacent. KNOWN LIMIT: level-only is v1-simplistic — term structure (VIX vs VIX3M) and rate-of-change are roadmap upgrades.',
   US10Y: 'PROXY: US 10Y yield (treasury_rates.y10 · db; Yahoo fallback), not a geiger. HOW IT VOTES: below ~4.15% yields are fuel — pushes the score UP; above ~4.15% they are a headwind — pulls it DOWN; +1 at 3.5%, −1 at 4.8%. Today 4.54% → −0.60: rates are a drag. Same v1-simplistic caveat as VIX — a yield-trend geiger is a roadmap upgrade.',
-  OIL: 'PROXY: CLUSD crude (composite_staged · db; Yahoo fallback), its own independent voter — never lumped with other commodities. INVERTED geiger: oil trending hot = inflation pressure = pulls the score DOWN; oil breaking down = relief = pushes UP. Base weight 0.5 because it matters now; dial to 0 the day it stops.',
-  VALUE: 'PROXY: RSP equal-weight S&P (composite_staged · db). The value/breadth style. Straight geiger: a hot equal-weight tape = broad strength pushes the score UP; a cold one = narrow market, pulls DOWN. Base weight 0 — reading only for now; as a STYLE it will re-rank candidates rather than vote, per the roadmap.',
-  CRYPTO: 'PROXY: BTCUSD (composite_staged · db). The risk-appetite tell. Straight geiger: BTC running hot = speculative appetite = pushes the score UP; BTC breaking = risk coming off = pulls DOWN. Base weight 0.25 — a tell, not a driver.',
-  DEF: 'PROXY: XLP+XLU average (composite_staged · db), INVERTED. When defensives are the hot trade, money is hiding — that is risk-off, so it pulls the score DOWN; defensives cold = nobody paying up for safety = pushes UP. Base weight 0.25.'
+  OIL: 'PROXY: CLUSD crude (the Hub\'s Geiger from the chart API, fresh every cycle; composite_staged only if the API is down), its own independent voter — never lumped with other commodities. INVERTED geiger: oil trending hot = inflation pressure = pulls the score DOWN; oil breaking down = relief = pushes UP. Base weight 0.5 because it matters now; dial to 0 the day it stops.',
+  VALUE: 'PROXY: RSP equal-weight S&P (the Hub\'s Geiger from the chart API). The value/breadth style. Straight geiger: a hot equal-weight tape = broad strength pushes the score UP; a cold one = narrow market, pulls DOWN. Base weight 0 — reading only for now; as a STYLE it will re-rank candidates rather than vote, per the roadmap.',
+  CRYPTO: 'PROXY: BTCUSD (composite_staged, refreshed today; the chart API carries no BTC symbol). The risk-appetite tell. Straight geiger: BTC running hot = speculative appetite = pushes the score UP; BTC breaking = risk coming off = pulls DOWN. Base weight 0.25 — a tell, not a driver.',
+  SECTOR_CMP: 'PROXY: the eleven State Street sector funds (XLK XLV XLF XLY XLI XLB XLE XLP XLU XLRE XLC), each fund\'s own Geiger from the chart API — the same numbers the Hub\'s SECTOR COMPARE strip shows — averaged. Straight: when most sectors run hot the score goes UP; when most are washed out it goes DOWN. Weight 0.5, same as the other breadth voters; set it to 0 to read it without counting it.',
+  BOWTIE: 'PROXY: the Hub\'s BOW TIE — for each sector, the Invesco equal-weight fund\'s Geiger minus the State Street cap-weight fund\'s (RSPT−XLK, RSPG−XLE …), averaged over the eleven. Above zero the average stock is stronger than its index (broad participation, hotter); below zero the biggest names carry the sector (narrow, colder). Enters straight, like EQUAL-WEIGHT vs INDEX. Weight 0.5.',
+  MKT_BOWTIE: 'PROXY: B1\'s whole-market bow tie — every listed common stock we compute (about 4,600 read), equal-weight minus cap-weight, from the Hub\'s B1 page. It is a dated close (the date is shown), so it votes on the slow end. Weight 0.25.',
+  DEF: 'PROXY: XLP+XLU average (the Hub\'s Geiger from the chart API), INVERTED. When defensives are the hot trade, money is hiding — that is risk-off, so it pulls the score DOWN; defensives cold = nobody paying up for safety = pushes UP. Base weight 0.25.'
 };
 let S = JSON.parse(localStorage.getItem('alloc-module-v1') || 'null') || structuredClone(DEFAULTS);
 S.wts = Object.assign(structuredClone(DEFAULTS.wts), S.wts || {});
@@ -978,6 +1004,18 @@ function voters(){
   v.push({key:'BREADTH_SC', speed:0.85, name:'SMALL vs LARGE',
           sub:(gIWM!=null&&gSPY!=null)?'IWM − SPY = '+f2v(gIWM-gSPY):'—',
           val:(gIWM!=null&&gSPY!=null)?clamp(gIWM-gSPY):null});
+  /* THE SECTOR COMPARE AND THE BOW TIE AS VOTERS (PA3, 5 Oct 2026). Alan: "use sector compare for portfolio
+     allocation". SECTOR COMPARE = the average of the eleven sector funds' Geigers (straight: hot sectors push the
+     score up). SECTOR BOW TIE = the average of equal-weight minus cap-weight across the eleven sectors (straight,
+     like EQUAL-WEIGHT vs INDEX above: below zero the big names carry the tape, which reads colder). MARKET BOW TIE =
+     B1's whole-market figure, every listed name, dated — it votes slowly and says its date. */
+  const secs=Object.values(SECTOR_READ).filter(r=>r.src==='geiger'&&r.score!=null);
+  const scAvg=secs.length? secs.reduce((t,r)=>t+r.score,0)/secs.length : null;
+  v.push({key:'SECTOR_CMP', speed:0.5, name:'SECTOR COMPARE', sub: scAvg==null?'— the sector funds carry no Geiger yet':(secs.length+' sector funds average '+f2v(scAvg)+' · '+secs.filter(r=>r.kind==='go').length+' leading · '+secs.filter(r=>r.kind==='avoid').length+' lagging'), val: scAvg==null?null:clamp(scAvg)});
+  const bows=secs.filter(r=>r.bowtie!=null); const bowAvg=bows.length? bows.reduce((t,r)=>t+r.bowtie,0)/bows.length : null;
+  v.push({key:'BOWTIE', speed:0.85, name:'SECTOR BOW TIE', sub: bowAvg==null?'—':('equal-weight minus cap-weight, '+bows.length+' sectors = '+f2v(bowAvg)+' · below zero: the biggest names carry each sector'), val: bowAvg==null?null:clamp(bowAvg)});
+  const mb1=(B1&&B1.market&&B1.market.bowtie!=null)?+B1.market.bowtie:null;
+  v.push({key:'MKT_BOWTIE', speed:0.85, name:'MARKET BOW TIE', sub: mb1==null?'— not read':('every listed name, equal-weight minus cap-weight = '+f2v(mb1)+' · as of the '+B1.asof+' close · '+(B1.market.n_read||'')+' names read'), val: mb1==null?null:clamp(mb1)});
   // VIX TERM STRUCTURE — spot vs 3-month. Above 1 is backwardation, i.e. stress now.
   /* Only votes on a FRESH row. vix_term stopped on 2026-06-08, so today this reads
      stale and contributes nothing rather than voting on a two-month-old ratio. */
@@ -1511,9 +1549,9 @@ function renderRotationTemplate(){
   // LEADERS — ranked, with the reading that produced the rank
   const leaders='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:10px 0 4px">LEADERS — ranked by their own trend and momentum</div>'+
     '<table class="imap" style="font-size:11.5px"><tr><th style="text-align:left">#</th><th style="text-align:left">SECTOR</th>'+
-    '<th>TREND</th><th>MOM</th><th>SCORE</th><th style="text-align:left">READ</th><th>NAMES</th></tr>'+
-    rs.map((r,i)=>`<tr><td>${i+1}</td><td><b>${esc2(r.k)}</b></td><td>${f2s(r.trend)}</td><td>${f2s(r.momentum)}</td>
-      <td><b>${f2s(r.score)}</b></td><td style="color:${col(r.kind)}">${esc2(r.q)}</td><td>${r.n||'—'}</td></tr>`).join('')+'</table>';
+    '<th>TREND</th><th>MOM</th><th>SCORE</th><th style="text-align:left">READ</th><th>BOW TIE</th><th style="text-align:left">AGGREGATE</th></tr>'+
+    rs.map((r,i)=>`<tr><td>${i+1}</td><td><b>${esc2(r.name||r.k)}</b> <span class="cls">${esc2(r.etf||'')}</span></td><td>${f2s(r.trend)}</td><td>${f2s(r.momentum)}</td>
+      <td><b>${f2s(r.score)}</b></td><td style="color:${col(r.kind)}">${esc2(r.q)}</td><td>${r.bowtie==null?'—':f2s(r.bowtie)}</td><td class="cls">${esc2(b1Verdict(r.k)||'—')}</td></tr>`).join('')+'</table>';
 
   // SECTOR HEATMAP — one cell per sector, shaded by score
   const heat='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:14px 0 4px">SECTOR HEATMAP</div>'+
