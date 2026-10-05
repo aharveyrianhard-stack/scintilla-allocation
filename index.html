@@ -138,8 +138,12 @@
     <div class="ctl"><label>Current % invested</label><input type="range" id="curInv" min="0" max="100" step="1"><div class="v" id="curInvV"></div></div>
     <div class="ctl"><label>…of which Large Cap<small>% of equity in LC</small></label><input type="range" id="curLC" min="0" max="100" step="1"><div class="v" id="curLCV"></div></div>
     <div style="color:var(--cyan);font-size:10px;letter-spacing:.18em;margin:14px 0 2px">RISK POLICY (how much at the extremes)</div>
-    <div class="ctl"><label>Invested when market washed out<small>your all-in ceiling</small></label><input type="range" id="maxInv" min="0" max="100" step="5"><div class="v" id="maxInvV"></div></div>
-    <div class="ctl"><label>Invested when market stretched<small>your defensive floor</small></label><input type="range" id="minInv" min="0" max="100" step="5"><div class="v" id="minInvV"></div></div>
+    <div class="ctl"><label>Invested when market washed out<small>your all-in ceiling — deep oversold, heat below −0.5</small></label><input type="range" id="maxInv" min="0" max="100" step="5"><div class="v" id="maxInvV"></div></div>
+    <div class="ctl"><label>Invested when market stretched<small>your defensive floor — deep overbought, heat above +0.5</small></label><input type="range" id="minInv" min="0" max="100" step="5"><div class="v" id="minInvV"></div></div>
+    <div class="note" style="margin:6px 0 2px;font-size:10px">THE POLICY LADDER — five conditions, five numbers (your July model: 100 · 80 · 50 · 30 · 15). The two ends are the dials above; the three middle steps are here.</div>
+    <div class="ctl"><label>Invested when oversold<small>heat −0.5 to −0.2</small></label><input type="range" id="invCold" min="0" max="100" step="5"><div class="v" id="invColdV"></div></div>
+    <div class="ctl"><label>Invested when neutral<small>heat −0.2 to +0.2</small></label><input type="range" id="invMid" min="0" max="100" step="5"><div class="v" id="invMidV"></div></div>
+    <div class="ctl"><label>Invested when overbought<small>heat +0.2 to +0.5</small></label><input type="range" id="invHot" min="0" max="100" step="5"><div class="v" id="invHotV"></div></div>
     <div style="color:var(--cyan);font-size:10px;letter-spacing:.18em;margin:14px 0 2px">DIVERSIFICATION</div>
     <div class="ctl"><label>Mode<small>AUTO scales names with the market: names = 2 + (1−heat)/2 × 3, so heat −1 → 5 names (wide, catch the rebound), heat +1 → 2 names (concentrate in the best). Heat ~0 → ~4. MANUAL: you fix it.</small></label><div><button id="divToggle" style="background:#14141f;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:5px 14px;font-family:inherit;font-size:11px;cursor:pointer"></button></div><div class="v" id="divModeV"></div></div>
     <div class="ctl"><label>Hard cap — TOTAL names<small>your portfolio-wide ceiling on how many individual names you'll hold, all sleeves combined. This is the number that caps how many PICKS the comps table lets you keep — so your plan and your buy-list stay consistent.</small></label><input type="range" id="maxTotal" min="2" max="24" step="1"><div class="v" id="maxTotalV"></div></div>
@@ -157,7 +161,8 @@
   <!-- 2 TARGET MIX -->
   <div class="panel">
     <h2>2 · TARGET MIX — where the money goes</h2>
-    <div class="note">Heat sets HOW MUCH is invested; the sleeves' coldness sets WHERE. Big picture first, detail on demand.</div>
+    <div class="note">The market's condition sets HOW MUCH is invested (your policy ladder); each sector's own reading sets WHERE. Big picture first, detail on demand.</div>
+    <div id="policy"></div>
     <div id="sectorrot"></div>
     <div id="rotationtpl"></div>
     <canvas id="donut" width="640" height="300"></canvas>
@@ -167,7 +172,7 @@
       <div class="note" id="autosplit" style="margin-top:8px"></div>
       <canvas id="curve" width="640" height="300"></canvas>
       <div class="axis"><span>−1 COLD → deploy</span><span>HEAT</span><span>+1 HOT → defend</span></div>
-      <div class="note" style="margin-top:8px;line-height:1.7">% INVESTED = floor + (ceiling − floor) × how-cold. LC/SC split = 50% + (IWM geiger − SPY geiger)×50%, capped 20–80% — colder class earns the bigger sleeve. No hand dials beyond the two policy endpoints.</div>
+      <div class="note" style="margin-top:8px;line-height:1.7">% INVESTED = the policy step of today's condition: deep oversold → ceiling · oversold · neutral · overbought · deep overbought → floor (the five dials in INPUTS). LC/SC split = 50% + (IWM geiger − SPY geiger)×50%, capped 20–80% — colder class earns the bigger sleeve.</div>
     </details>
   </div>
 
@@ -845,7 +850,7 @@ const INTERNALS = {'RSP/SPY':[1,1],'IWM/SPY':[1,1],'QQQ/SPY':[1,1],'XLY/XLP':[1,
 const DEFAULTS = {
   dTrend:0.5, dRsi:0.6, dTf:0.763,          // approved geiger + equalizer 3.1785/0.9875
   vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
-  maxInv:100, minInv:15, nLC:4, nSC:2, nPer:2, divAuto:1, lcTilt:0, maxTotal:12, maxNames:6, concLean:0,
+  maxInv:100, minInv:15, invCold:80, invMid:50, invHot:30, nLC:4, nSC:2, nPer:2, divAuto:1, lcTilt:0, maxTotal:12, maxNames:6, concLean:0,
   curInv:0, curLC:0,
   wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25, BREADTH_EW:0.5, BREADTH_SC:0.25, SECTOR_CMP:0.5, BOWTIE:0.5, MKT_BOWTIE:0.25, VIX_TERM:0.25, CURVE:0.5, PCC:0, SKEW:0.25, ADLINE:0.5, TRIN:0.25, B_VOL:0.25, CONC:0.5, CREDIT:0.5, DURATION:0.25, HAVEN:0.25}
 };
@@ -873,6 +878,7 @@ if (S.divAuto==null) S.divAuto=1;
 if (S.maxTotal==null) S.maxTotal=12;
 if (S.maxNames==null) S.maxNames=6;
 if (S.concLean==null) S.concLean=0;
+if (S.invCold==null) S.invCold=80; if (S.invMid==null) S.invMid=50; if (S.invHot==null) S.invHot=30;   // PA3: the policy ladder's middle steps
 function save(){ localStorage.setItem('alloc-module-v1', JSON.stringify(S)); }
 
 let COHORT = {};
@@ -1168,7 +1174,15 @@ function heatWith(vlist, key, w){ // counterfactual: heat if this one voter's we
   for (const v of vlist) { if (v.val == null) continue; const wt = v.key === key ? w : (S.wts[v.key] ?? 0); num += v.val * wt; den += wt; }
   return den ? num / den : 0;
 }
-function investedAt(h){ const x = (1 - h) / 2; return (S.minInv + (S.maxInv - S.minInv) * x) / 100; }
+/* THE POLICY (PA3, 5 Oct 2026) — Alan's July model: the condition, read from the heat, picks one of five steps.
+   deep oversold → the ceiling · oversold · neutral · overbought · deep overbought → the floor (100/80/50/30/15 by default). */
+function policyStep(h){
+  const lbl=heatLabel(h)[0];
+  const v = lbl==='DEEP OVERSOLD'?S.maxInv : lbl==='OVERSOLD'?S.invCold : lbl==='NEUTRAL'?S.invMid : lbl==='OVERBOUGHT'?S.invHot : S.minInv;
+  return {cond:lbl, pct:+v};
+}
+function policyLadder(){ return [['DEEP OVERSOLD','heat below −0.5',S.maxInv],['OVERSOLD','−0.5 to −0.2',S.invCold],['NEUTRAL','−0.2 to +0.2',S.invMid],['OVERBOUGHT','+0.2 to +0.5',S.invHot],['DEEP OVERBOUGHT','above +0.5',S.minInv]]; }
+function investedAt(h){ return policyStep(h).pct / 100; }
 // LC/SC split: DATA-DRIVEN. Colder class gets the bigger sleeve, sized by the geiger spread.
 // Optional sub-dial: heat tilt — when overall heat is high, lean extra toward large caps (better holds when stretched).
 function lcShareAuto(h){
@@ -1235,6 +1249,7 @@ function render(){
   set('tenCold', S.tenCold, '−1 @ '+(+S.tenCold).toFixed(1)+'% · +1 @ 3.5%');
   set('maxInv', S.maxInv, S.maxInv+'%');
   set('minInv', S.minInv, S.minInv+'%');
+  set('invCold', S.invCold, S.invCold+'%'); set('invMid', S.invMid, S.invMid+'%'); set('invHot', S.invHot, S.invHot+'%');
   set('nPer', S.nPer, S.nPer+' names');
   set('maxTotal', S.maxTotal, S.maxTotal+' total');
   set('maxNames', S.maxNames, S.maxNames+' / sleeve');
@@ -1333,6 +1348,7 @@ function render(){
     ${scheduleNote}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">${sleeveMoves}</div>`;
 
+  renderPolicy(h, inv, cInv);
   buildGroupReads();
   for(const k of Object.keys(E_SECREAD)) delete E_SECREAD[k];
   Object.assign(E_SECREAD, SECTOR_READ);
@@ -1347,10 +1363,25 @@ function render(){
   renderComps();
   renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot, dLC, dSC);
   const csFresh = SPINE['composite_staged'] && SPINE['composite_staged'].ts ? freshTxt(SPINE['composite_staged'].ts) : '—';
-  document.getElementById('stamp').textContent = 'MACRO HEAT MODULE · geiger SSOT composite_staged (' + csFresh + ') · universe ticker_cohorts+hub_favorites · % only, never dollars';
-  document.getElementById('cohstamp').textContent = 'SSOT: composite_staged + ticker_cohorts/hub_favorites + live_quotes + sector_rankings (db) · comps: fundamentals/ratios_history/analyst_estimates · fallback feeds flagged in the badge strip';
+  const gFresh = SPINE['geiger'] && SPINE['geiger'].ts ? freshTxt(SPINE['geiger'].ts) : (SPINE['geiger']?'not reached':'—');
+  document.getElementById('stamp').textContent = 'PORTFOLIO ALLOCATION · regime → % cash → sectors → names → comparables · the Hub\'s Geiger ' + gFresh + ' · % only, never dollars';
+  document.getElementById('cohstamp').textContent = 'Geiger and prices from the chart API · sectors from the sector funds · cohorts from the Hub · fundamentals and peers from the database · analyst targets checked (A4) · anything stale or missing says so in the badges under the title';
   renderSpine(); renderSectorStrip();
   save();
+}
+/* The ladder, with today's rung lit: condition → % invested → cash to deploy. */
+function renderPolicy(h, inv, cInv){
+  const el=document.getElementById('policy'); if(!el) return;
+  const st=policyStep(h); const [lbl,color]=heatLabel(h);
+  const rungs=policyLadder().map(([c,range,v])=>{ const on=c===st.cond;
+    return `<div style="flex:1;min-width:118px;border:1px solid ${on?color:'var(--line)'};border-radius:6px;padding:8px 10px;background:${on?'rgba(255,255,255,.04)':'transparent'};opacity:${on?1:.55}">
+      <div style="font-size:9.5px;letter-spacing:.12em;color:${on?color:'var(--dim)'}">${c}</div>
+      <div style="font-size:22px;font-weight:700;color:${on?'var(--txt)':'var(--dim)'};margin:2px 0">${v}%</div>
+      <div class="cls" style="font-size:9.5px">${range}</div></div>`; }).join('');
+  const gap=inv-cInv;
+  el.innerHTML=`<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 4px">HOW MUCH — the policy ladder · today's condition is lit</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">${rungs}</div>
+    <div class="move" style="margin-top:8px"><div class="mname" style="color:${color}">TODAY</div><div class="mval">${lbl} → ${pct(inv,0)} invested<small>cash ${pct(1-inv,0)} · you hold ${pct(cInv,0)} invested, so ${gap>0.005?spct(gap,0)+' of equity is to deploy':gap<-0.005?spct(-gap,0)+' of equity is to trim':'you are on the rung'} · heat ${(h>=0?'+':'')+h.toFixed(2)}</small></div></div>`;
 }
 function drawCurve(h){
   const cv = document.getElementById('curve'), ctx = cv.getContext('2d');
@@ -1657,23 +1688,27 @@ function drawMix(tLC, tSC, tCash, cLC2, cSC2, cCash){
 }
 function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const el = document.getElementById('brief'); if (!el) return;
-  const g = sym => COHORT[sym] ? geiger(COHORT[sym]) : null;
-  const gS = g('SPY'), gQ = g('QQQ'), gI = g('IWM'), gR = g('RSP');
-  const vix = (VIXDB && VIXDB.fresh) ? VIXDB.vix : MACRO['VIX']?.value, ten = (TREAS && TREAS.y10!=null) ? TREAS.y10 : MACRO['US10Y']?.value;
-  const SPR = styleSpreads();
   const f = x => x==null?'—':(x>=0?'+':'')+x.toFixed(2);
-  const lbl = heatLabel(h)[0];
-  const breadthOK = (gI!=null && gI > -0.1) && (gR!=null && gR > -0.1);
-  const growthDisc = SPR.GROWTH != null && SPR.GROWTH < -0.15;
-  const semisDisc = SPR.SEMIS != null && SPR.SEMIS < -0.15;
-  const complacent = vix != null && vix < 21;
-  const ratesDrag = ten != null && ten > 4.15;
-  const p1 = `Heat reads ${f(h)} — ${lbl.toLowerCase()}. The tape is ${gS>0.15?'holding at the index level':'soft at the index level'} (SPY ${f(gS)})${breadthOK?', and breadth is intact — small caps ('+f(gI)+') and the equal-weight tape ('+f(gR)+') are not confirming any breakdown':', with breadth softening — small caps '+f(gI)+', equal-weight '+f(gR)}. ${growthDisc?'Growth is the discounted side (QQQ '+f(gQ)+', spread '+f(SPR.GROWTH)+' vs SPY)':'Growth is not meaningfully discounted vs the index'}${semisDisc?'; semis likewise ('+f(SPR.SEMIS)+')':''}. ${ratesDrag?'Rates are a headwind at '+ten.toFixed(2)+'%':'Rates are supportive'}${vix!=null?(complacent?', and volatility says complacency (VIX '+vix.toFixed(1)+') — no washout has happened':', and fear is on the tape (VIX '+vix.toFixed(1)+')'):''}.`;
+  const st = policyStep(h);
+  const gS=gv('SPY'), gQ=gv('QQQ'), gI=gv('IWM'), gR=gv('RSP');
+  const vix=(VIXDB&&VIXDB.fresh)?VIXDB.vix:null, ten=(TREAS&&TREAS.y10!=null)?+TREAS.y10:null;
+  const secs=Object.values(SECTOR_READ).filter(r=>r.score!=null).sort((a,b)=>b.score-a.score);
+  const word=r=>(r.name||r.key);
+  const leading=secs.filter(r=>r.kind==='go'), lagging=secs.filter(r=>r.kind==='avoid'), turning=secs.filter(r=>r.kind==='improve');
+  const bows=secs.filter(r=>r.bowtie!=null), bowAvg=bows.length?bows.reduce((t,r)=>t+r.bowtie,0)/bows.length:null;
+  const narrow = gS!=null && gR!=null && (gS-gR)>0.3;
+  const idx = gS==null?'The index has no reading': gS>0.2?'The index is hot (S&P '+f(gS)+(gQ!=null?', Nasdaq '+f(gQ):'')+')': gS<-0.2?'The index is washed out (S&P '+f(gS)+(gQ!=null?', Nasdaq '+f(gQ):'')+')':'The index is in the middle (S&P '+f(gS)+(gQ!=null?', Nasdaq '+f(gQ):'')+')';
+  const breadth = (gR==null||gI==null)?'': narrow?', but the average stock is not (equal-weight '+f(gR)+', small caps '+f(gI)+'): the biggest names carry the tape': (gR>0.2&&gI>0.2)?', and the average stock is with it (equal-weight '+f(gR)+', small caps '+f(gI)+')':', with the average stock cooler (equal-weight '+f(gR)+', small caps '+f(gI)+')';
+  const sect = secs.length? ' '+leading.length+' of '+secs.length+' sectors lead'+(leading.length?' ('+leading.slice(0,3).map(word).join(', ')+')':'')+(lagging.length?', '+lagging.length+' lag'+(lagging.length<=4?' ('+lagging.map(word).join(', ')+')':''):'')+(turning.length?', '+turning.length+' turning up from below ('+turning.map(word).join(', ')+')':'')+'.':'';
+  const bow = bowAvg==null?'': ' Inside the sectors the bow tie reads '+f(bowAvg)+(bowAvg<-0.1?': the big names carry each sector.':bowAvg>0.1?': the average stock leads its sector.':': even.');
+  const macro = (ten!=null?(ten>4.15?' Rates are a headwind at '+ten.toFixed(2)+'%.':' Rates are supportive at '+ten.toFixed(2)+'%.'):'')+(vix!=null?(vix<21?' Volatility is calm (VIX '+vix.toFixed(1)+').':' Fear is on the tape (VIX '+vix.toFixed(1)+').'):' The VIX table is stale, so volatility is not voting.');
+  const p1 = 'The market reads '+st.cond+' (heat '+f(h)+'). '+idx+breadth+'.'+sect+bow+macro;
   const SHB = sleeveShares();
-  const topSleeves = Object.entries(SHB).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,sh])=>k+' '+Math.round(sh*inv*100)+'%').join(', ');
-  const p2 = `The model wants ${pct(inv)} invested — biggest sleeves by coldness: ${topSleeves} of equity — ${Math.abs(dTot)<.005?'and you are on target.':dTot>0?'you are under-invested by '+spct(dTot)+' of equity.':'you are over-invested by '+spct(-dTot)+' of equity.'}`;
-  const p3 = dTot>.005 ? (complacent?'Discipline: cheapness without fear tends to get cheaper — size the first clip from the readings rather than a round number, favour the names the list ranks on top, and let the named trigger buy the rest at better prices.':'Fear is present — adds can be executed faster, front-half now.') : dTot<-.005 ? 'Trims execute now; de-risking is never staged.' : 'No action required — re-read when the score crosses a band.';
-  el.innerHTML = p1 + '<br><br>' + p2 + ' ' + p3;
+  const top = Object.entries(SHB).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,sh])=>(SECT_WORD[k]||k)+' '+Math.round(sh*inv*100)+'%');
+  const p2 = 'The policy for a '+st.cond.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?spct(dTot,0)+' of equity is to deploy':spct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in TARGET MIX).':'.');
+  const ranked = (typeof rankCandidates==='function') ? rankCandidates().filter(r=>r.tag).slice(0,5) : [];
+  const p3 = ranked.length ? 'Inside those sectors the names that rank first — fundamentals first, then the Geiger for timing — are '+ranked.map(r=>r.sym+' ('+(SECT_WORD[r.sleeves[0]]||r.sleeves[0]||'')+(r.vr?', '+r.vr.tag.toLowerCase()+' vs peers':'')+(r.target?', target '+(r.target.up>=0?'+':'')+Math.round(r.target.up*100)+'%':'')+')').join(', ')+'. Their comparables and the checked analyst targets are in 4b.' : '';
+  el.innerHTML = p1 + '<br><br>' + p2 + (p3?'<br><br>'+p3:'');
 }
 function renderInputMap(h){
   const t = document.getElementById('imap'); if (!t) return;
@@ -1920,7 +1955,7 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   document.getElementById('trace').textContent = L.join('\n');
 }
 // slider wiring
-for (const id of ['dTrend','dRsi','vixCold','tenCold','maxInv','minInv','lcTilt','nPer','maxTotal','maxNames','concLean','curInv','curLC']) {
+for (const id of ['dTrend','dRsi','vixCold','tenCold','maxInv','minInv','invCold','invMid','invHot','lcTilt','nPer','maxTotal','maxNames','concLean','curInv','curLC']) {
   const el=document.getElementById(id); if(!el) continue;
   document.getElementById(id).oninput = e => { S[id] = +e.target.value; save(); render(); };
 }
