@@ -275,7 +275,7 @@ async function sbGetPaged(path, pageSize=1000, maxPages=12){
   }
   throw new Error('paged read exceeded '+maxPages+' pages');
 }
-let MKTINT=null, MKTBREADTH={}, PEERS={};   // FMP algorithmic peers, per fundamentals-spec   // broad-market series — sourced OUTSIDE the hub universe   // market_internals — the real advance/decline line
+let MKTINT=null, MKTBREADTH={}, PEERS={}, QUOTES_DB={};   // FMP algorithmic peers, per fundamentals-spec   // broad-market series — sourced OUTSIDE the hub universe   // market_internals — the real advance/decline line
 let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={};   // industry = the sub-sector axis (93 groups, 317 names)   // ticker -> our sector key ; sector key -> the rotation read
 /* SECTOR ROTATION, ACTUALLY WIRED IN (2026-08-11).
    Until now the only thing sector did in this module was the XLP+XLU defensives voter and
@@ -419,6 +419,36 @@ function regimeOf(t,m){
 let COMPOSITE={}, COMPOSITE_STATUS='pending';           // ticker -> {trend,momentum,composite,updated_ts}  THE geiger
 let UNIVERSE={cohorts:{}, favs:new Set(), status:'pending'};  // THE universe: ticker_cohorts + hub_favorites
 let QUOTES={}, PROFILES={}, TREAS=null, VIXDB=null, SECTOR_RANKS=null, OPW=null;
+/* ===================== PA3 (5 Oct 2026) — THE LIVE SOURCES =====================
+   GEIGER   the chart API's /geiger (590 names, every proxy and every sector fund, fresh every cycle).
+            composite_staged stays only for the four symbols /geiger does not carry (CLUSD BTCUSD GCUSD SIUSD).
+   QUOTES   the chart API's /quotes (live price + change vs the last settled close); live_quotes is the fallback.
+   SECTORS  the Hub's sector compare: the eleven State Street sector funds (cap-weight) and the eleven Invesco
+            equal-weight twins, both from /geiger — the bow tie is equal-weight minus cap-weight, per sector.
+   SOUND    B1's market bow tie (3 Oct): which sectors and cohorts carry a statistically sound aggregate.
+   PEERS    peer_sources (FMP + Massive peers) with C5's outlier rule (log-MAD, K=3, at least 5 peers).
+   TARGETS  A4's checked analyst targets: analyst_target_news, kind TARGET, quality ok, last 90 days, one per firm.
+   The chart API answers only the Hub's origin in a browser, so vercel.json rewrites /geiger and /quotes on this
+   site to it (same-origin); the direct address is tried second. */
+let GEIGER={}, GEIGER_META=null, TARGETS={}, B1=null, PEER_SRC='';
+const CHART_API='https://scintilla-massive-chart-api.fly.dev';
+async function apiGet(path){
+  let lastErr=null;
+  for(const u of [path, CHART_API+path]){
+    try{ const r=await fetch(u,{cache:'no-store'}); if(!r.ok) throw new Error(u.split('?')[0]+' '+r.status);
+         const j=await r.json(); if(j&&typeof j==='object'&&(j.symbols||j.quotes)) return j; throw new Error('not the chart API'); }
+    catch(e){ lastErr=e; }
+  }
+  throw lastErr||new Error('unreachable');
+}
+const SECT_CW={TECH:'XLK',HEALTH:'XLV',FINANCIALS:'XLF',DISCRET:'XLY',INDUSTRIAL:'XLI',MATERIALS:'XLB',ENERGY:'XLE',STAPLES:'XLP',UTILITIES:'XLU',REAL_ESTATE:'XLRE',COMMS:'XLC'};
+const SECT_EW={TECH:'RSPT',HEALTH:'RSPH',FINANCIALS:'RSPF',DISCRET:'RSPD',INDUSTRIAL:'RSPN',MATERIALS:'RSPM',ENERGY:'RSPG',STAPLES:'RSPS',UTILITIES:'RSPU',REAL_ESTATE:'RSPR',COMMS:'RSPC'};
+const SECT_WORD={TECH:'Technology',HEALTH:'Health care',FINANCIALS:'Financials',DISCRET:'Consumer discretionary',INDUSTRIAL:'Industrials',MATERIALS:'Materials',ENERGY:'Energy',STAPLES:'Consumer staples',UTILITIES:'Utilities',REAL_ESTATE:'Real estate',COMMS:'Communications',CRYPTO:'Crypto',METALS:'Metals',OIL:'Oil'};
+const B1_KEY={'TECH':'TECH','INDUSTRIAL':'INDUSTRIAL','FINANCIALS':'FINANCIALS','ENERGY':'ENERGY','DISCRET':'DISCRET','HEALTH':'HEALTH','UTILITIES':'UTILITIES','STAPLES':'STAPLES','MATERIALS':'MATERIALS','COMMS':'COMMS','REAL ESTATE':'REAL_ESTATE','AI HARDWARE':'AI_HARDWARE','AI SOFTWARE':'AI_SOFTWARE','BLUE CHIP':'BLUE_CHIP','AI POWERTRAIN':'AI_POWERTRAIN'};
+function b1Verdict(group){ if(!B1) return null; return B1.verdict[group]||null; }
+function geigerRow(sym){ const g=GEIGER[sym]; return (g&&g.composite!=null)?g:null; }
+function batches(arr,n){ const out=[]; for(let i=0;i<arr.length;i+=n) out.push(arr.slice(i,i+n)); return out; }
+function inList(arr){ return 'in.('+arr.map(s=>'"'+s+'"').join(',')+')'; }
 const SPINE={};
 function spineSet(k,ts,mode,note){ SPINE[k]={ts,mode,note}; }
 function freshTxt(ts){
@@ -466,16 +496,27 @@ async function refreshSSOT(){
      screener vs ETF constituents". This reads whichever table they land in and falls back to
      the sub-sector -> sector -> cohort hierarchy only when they are absent, saying which was
      used on every row so the two are never confused. */
-  J.push(sbGetPaged('ticker_peers?select=ticker,peer&order=ticker.asc').then(rows=>{
-    const m={}; for(const r of rows)(m[r.ticker]=m[r.ticker]||[]).push(r.peer); PEERS=m;
-    spineSet('ticker_peers',null,'LIVE',Object.keys(m).length+' names with FMP peers');
-  }).catch(()=>spineSet('ticker_peers',null,'FALLBACK','no peers table — comps on the membership hierarchy')));
+  // THE GEIGER — the chart API, every name it computes (the Hub reads the same call)
+  J.push(apiGet('/geiger').then(j=>{
+    GEIGER=j.symbols||{}; GEIGER_META=j;
+    const fr=j.freshness||{}; const ts=j.computed_utc||j.published_utc||null;
+    const carried=fr.names_carried||0, n=Object.keys(GEIGER).length;
+    spineSet('geiger',ts,ageMode(ts,30*60),n+' names from the chart API · '+(fr.names_fresh??n)+' fresh'+(carried?' · '+carried+' carried':'')+' · the Hub\'s own Geiger');
+  }).catch(e=>{ GEIGER={}; spineSet('geiger',null,'FALLBACK','chart API unreachable ('+e.message+') — composite_staged voting instead'); }));
+  // B1 — which sector and cohort aggregates are statistically sound (3 Oct), read from the Hub
+  J.push(fetch('https://scintillahub.ai/deliverables/20261003/b1-market-bowtie/data/market-bowtie-20261003.json',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(new Error('b1 '+r.status))).then(j=>{
+    const bl=(j.modes&&j.modes.blend)||{}; const v={}, read={};
+    for(const list of [bl.sectors||[],bl.cohorts||[]]) for(const x of list){ const k=B1_KEY[x.label]||x.label.replace(/ /g,'_'); v[k]=x.verdict; read[k]=x; }
+    B1={asof:(j.as_of&&j.as_of.close)||null, built:j.built_utc||null, verdict:v, read, market:bl.market||null};
+    const ns=Object.values(v).filter(x=>x==='sound').length;
+    spineSet('b1_soundness',B1.built,'LIVE',ns+' of '+Object.keys(v).length+' aggregates sound · as of the '+B1.asof+' close · whole-market bow tie '+(B1.market&&B1.market.bowtie!=null?(+B1.market.bowtie).toFixed(2):'—'));
+  }).catch(e=>{ B1=null; spineSet('b1_soundness',null,'FALLBACK','B1 data unreachable ('+e.message+') — soundness unknown, cohorts shown in share order'); }));
   J.push(sbGet('market_breadth?select=*&order=asof.desc&limit=1').then(rows=>{
     if(rows[0]){ MKTBREADTH=rows[0]; spineSet('market_breadth',null,'LIVE','broad-market series'); }
   }).catch(()=>spineSet('market_breadth',null,'FALLBACK','no market_breadth table — breadth voters abstaining')));
   J.push(sbGet('market_internals?select=asof,advancers,decliners,add_line,trin,universe,adv_volume,dec_volume&order=asof.desc&limit=2').then(rows=>{
-    if(rows[0]){ MKTINT=rows[0];
-      spineSet('market_internals',null,'LIVE','A/D '+MKTINT.advancers+'/'+MKTINT.decliners+' · '+MKTINT.universe+' issues'); }
+    if(rows[0]){ MKTINT=rows[0]; const old=(Date.now()-Date.parse(MKTINT.asof))/864e5>5; if(old) MKTINT=null;
+      spineSet('market_internals',rows[0].asof,old?'STALE':'LIVE','A/D '+rows[0].advancers+'/'+rows[0].decliners+' · '+rows[0].universe+' issues @ '+rows[0].asof+(old?' — too old to vote':'')); }
   }).catch(e=>spineSet('market_internals',null,'FALLBACK','read failed')));
   // SECTOR ROTATION — membership + the rotation tool's own published read
   J.push((async()=>{
@@ -523,15 +564,17 @@ async function refreshSSOT(){
     spineSet('composite_staged',mx,ageMode(mx,45*60),rows.length+' tickers tf=D — THE geiger (0.5×trend+0.5×momentum, hub equalizer output)');
   }).catch(e=>{COMPOSITE_STATUS='error';spineSet('composite_staged',null,'FALLBACK','read failed ('+e.message+') — client Yahoo geiger in use');}));
   // quote + RVOL inputs
-  J.push(sbGet('live_quotes?select=ticker,price,chg_pct,volume,prev_close,updated_ts&limit=1000').then(rows=>{
+  // quotes: the chart API first (live price, change vs the last settled close); live_quotes only as a fallback
+  J.push(sbGet('live_quotes?select=ticker,price,updated_ts&limit=1000').then(rows=>{
     if(rows.length>=1000) throw new Error('truncated at PostgREST cap');
-    const m={}; let mx=null; for(const r of rows){m[r.ticker]=r; const es=Date.parse(r.updated_ts)/1000; if(!mx||es>mx)mx=es;}
-    QUOTES=m; spineSet('live_quotes',mx,ageMode(mx,30*60),rows.length+' quotes');
-  }).catch(e=>spineSet('live_quotes',null,'FALLBACK','read failed — cohort-feed prices in use')));
-  J.push(sbGet('company_profile?select=ticker,sector,market_cap,avg_volume,is_etf&limit=1000').then(rows=>{
+    let mx=null; for(const r of rows){ const es=Date.parse(r.updated_ts)/1000; if(!mx||es>mx)mx=es; }
+    QUOTES_DB=Object.fromEntries(rows.map(r=>[r.ticker,{price:r.price,updated_ts:r.updated_ts}]));
+    spineSet('live_quotes',mx,'FALLBACK',rows.length+' rows · fallback only — prices come from the chart API');
+  }).catch(e=>spineSet('live_quotes',null,'FALLBACK','read failed')));
+  J.push(sbGet('company_profile?select=ticker,sector,industry,market_cap,avg_volume,is_etf,updated_ts&limit=1000').then(rows=>{
     if(rows.length>=1000) throw new Error('truncated at PostgREST cap');
-    const m={}; for(const r of rows)m[r.ticker]=r;
-    PROFILES=m; spineSet('company_profile',null,'LIVE',rows.length+' profiles (sector · mcap · avg_volume)');
+    const m={}; let mx=0; for(const r of rows){ m[r.ticker]=r; if(r.updated_ts>mx) mx=r.updated_ts; }
+    PROFILES=m; spineSet('company_profile',mx||null,ageMode(mx||null,7*86400),rows.length+' profiles (sector · industry · market cap · average volume) — filled by F1');
   }).catch(e=>spineSet('company_profile',null,'FALLBACK','read failed — RVOL/sector chips unavailable')));
   // macro truth
   J.push(sbGet('treasury_rates?select=date,y2,y10,updated_ts&order=date.desc&limit=1').then(rows=>{
@@ -554,6 +597,40 @@ async function refreshSSOT(){
     OPW={rows:rows.length}; spineSet('operator_weights',null,'LIVE',rows.length+' rows — applied upstream by the hub inside composite_staged');
   }).catch(e=>spineSet('operator_weights',null,'FALLBACK','read failed')));
   await Promise.all(J);
+  // second wave — these need the universe: live quotes, peers and checked targets for the candidate names
+  const syms=candidateSyms();
+  const K2=[];
+  K2.push((async()=>{
+    const m={}; let n=0, fresh=0, ts=null;
+    for(const b of batches(syms.slice().sort(),120)){
+      const j=await apiGet('/quotes?symbols='+encodeURIComponent(b.join(',')));
+      const rows=j.quotes&&!Array.isArray(j.quotes)?Object.values(j.quotes):(j.quotes||[]);
+      for(const q of rows){ if(q.price==null) continue; m[q.symbol]={price:q.price,chg_pct:q.change_pct,prev_close:q.previous_close,fresh:q.price_freshness,updated_ts:q.price_observation_utc}; n++; if(q.price_freshness==='FRESH') fresh++; ts=j.generated_utc||ts; }
+    }
+    QUOTES=m; spineSet('quotes',ts,ageMode(ts,15*60),n+' prices from the chart API · '+fresh+' fresh');
+  })().catch(e=>{ QUOTES=QUOTES_DB; spineSet('quotes',null,'FALLBACK','chart API quotes unreachable ('+e.message+') — live_quotes prices in use'); }));
+  K2.push((async()=>{
+    const m={};
+    for(const b of batches(syms.slice().sort(),150)){
+      const rows=await sbGet('peer_sources?select=ticker,peer,source,position&ticker='+inList(b)+'&order=ticker.asc,source.asc,position.asc&limit=1000');
+      for(const r of rows){ const a=(m[r.ticker]=m[r.ticker]||[]); if(!a.includes(r.peer)&&r.peer!==r.ticker) a.push(r.peer); }
+    }
+    PEERS=m; PEER_SRC='peer_sources';
+    spineSet('peer_sources',null,'LIVE',Object.keys(m).length+' names with named peers (FMP + Massive) — C5\'s outlier rule applied in COMPARABLES');
+  })().catch(e=>{ PEERS={}; spineSet('peer_sources',null,'FALLBACK','read failed ('+e.message+') — comps on the membership hierarchy'); }));
+  K2.push((async()=>{
+    const since=new Date(Date.now()-90*864e5).toISOString().slice(0,10);
+    const byT={}; let rows=0;
+    for(const b of batches(syms.slice().sort(),150)){
+      const rs=await sbGetPaged('analyst_target_news?select=ticker,firm,adj_target_checked,published_utc&kind=eq.TARGET&quality=eq.ok&adj_target_checked=not.is.null&published_utc=gte.'+since+'&ticker='+inList(b)+'&order=ticker.asc,published_utc.desc');
+      for(const r of rs){ rows++; const t=(byT[r.ticker]=byT[r.ticker]||{}); const f=r.firm||'(no firm)'; if(!(f in t)) t[f]=+r.adj_target_checked; }
+    }
+    const out={};
+    for(const [t,firms] of Object.entries(byT)){ const v=Object.values(firms).filter(x=>x>0).sort((a,b)=>a-b); if(!v.length) continue;
+      const med=v.length%2?v[v.length>>1]:(v[(v.length>>1)-1]+v[v.length>>1])/2; out[t]={median:med,n:v.length,low:v[0],high:v[v.length-1]}; }
+    TARGETS=out; spineSet('analyst_targets',null,'LIVE',Object.keys(out).length+' names with checked targets · '+rows+' notes, last 90 days, one per firm (A4)');
+  })().catch(e=>{ TARGETS={}; spineSet('analyst_targets',null,'FALLBACK','read failed ('+e.message+') — no target column'); }));
+  await Promise.all(K2);
   /* CRYPTO, METALS and OIL are sectors too — they are simply not State Street ones, so
      no SPDR publishes them. Computed here the same way the sector tool computes the
      others: from the constituents we already hold, on the same trend x momentum logic.
@@ -570,10 +647,10 @@ async function refreshSSOT(){
 }
 // THE geiger accessor: composite_staged first, client Yahoo geiger strictly as flagged fallback
 function tickerG(sym){
+  const live=geigerRow(sym);
+  if(live) return {g:Math.max(-1,Math.min(1,live.composite)),src:'geiger',state:(live.liveness&&live.liveness.state)||'FRESH',ts:live.computed_utc};
   const r=COMPOSITE[sym];
-  if(r&&r.composite!=null) return {g:Math.max(-1,Math.min(1,r.composite)),src:'db'};
-  const c=COHORT[sym];
-  if(c) return {g:geiger(c),src:'fallback'};
+  if(r&&r.composite!=null) return {g:Math.max(-1,Math.min(1,r.composite)),src:'db',state:ageMode(r.updated_ts,36*3600)==='LIVE'?'FRESH':'STALE',ts:r.updated_ts};
   return null;
 }
 function gv(sym){ const r=tickerG(sym); return r?r.g:null; }
@@ -608,7 +685,7 @@ function candidateSyms(){
   const out=new Set();
   for(const [sym,cs] of Object.entries(UNIVERSE.cohorts)) if(cs.some(c=>pickCohorts.has(c))) out.add(sym);
   for(const f of UNIVERSE.favs) out.add(f);
-  for(const s of CMDTY_SYMS) if(COMPOSITE[s]||COHORT[s]) out.add(s);
+  for(const s of CMDTY_SYMS) if(COMPOSITE[s]||GEIGER[s]) out.add(s);
   if(!out.size) for(const s of Object.keys(COHORT)) out.add(s);   // FALLBACK universe (spine flags it)
   return [...out];
 }
@@ -814,14 +891,16 @@ async function loadFeeds(){
   try { await ssotP; } catch(e) { /* per-table spine badges carry their own error state */ }
   // comps value layer from the SCINTILLA database (fundamentals / ratios_history / analyst_estimates via comps-feed; never FMP)
   try {
-    const syms = candidateSyms();
+    const base = candidateSyms(), want = new Set(base);
+    for (const s of base) for (const p of (PEERS[s]||[])) want.add(p);
+    const syms = [...want];
     const batches = []; for (let i = 0; i < syms.length; i += 60) batches.push(syms.slice(i, i+60).join(','));
     const texts = await Promise.all(batches.map(b => fetch(SB + '/comps-feed?syms=' + encodeURIComponent(b)).then(r=>r.text())));
     for (const ct of texts) {
       const L = ct.trim().split('\n'); const head = L[0].split(',');
       for (const line of L.slice(1)) { const c = line.split(','); const o = {}; head.forEach((h,i)=>o[h]=c[i]===''?null:+c[i]); COMPS[c[0]] = o; }
     }
-    spineSet('comps-feed', null, 'LIVE', Object.keys(COMPS).length+' tickers — fundamentals/ratios_history/analyst_estimates (db)');
+    spineSet('comps-feed', null, 'LIVE', Object.keys(COMPS).length+' names priced (candidates + their peers) — fundamentals from the database');
   } catch(e) { spineSet('comps-feed', null, 'FALLBACK', 'comps read failed'); }
   renderSpine();
   // IBKR state handoff: a Claude session syncs percentages (never dollars) to this file on schedule.
@@ -870,7 +949,7 @@ function f2v(x){return x==null?'—':(x>=0?'+':'')+(+x).toFixed(2)}
 function voters(){
   const v = [];
   const idx = sym => gv(sym);                                            // SSOT: composite_staged
-  const gsrc = sym => COMPOSITE[sym] ? 'composite_staged · db' : (COHORT[sym] ? 'FALLBACK client geiger (yahoo)' : '—');
+  const gsrc = sym => { const t=tickerG(sym); return !t?'—': t.src==='geiger'?('chart API · '+(t.state==='FRESH'?'fresh':'carried')): ('composite_staged · '+(t.state==='FRESH'?freshTxt(t.ts):'STALE '+freshTxt(t.ts))); };
   v.push({key:'SPY', speed:0.15, name:'SPY GEIGER', sub:gsrc('SPY'), val:idx('SPY')});
   v.push({key:'QQQ', speed:0.15, name:'QQQ GEIGER', sub:gsrc('QQQ'), val:idx('QQQ')});
   v.push({key:'IWM', speed:0.15, name:'IWM GEIGER', sub:'small caps · '+gsrc('IWM'), val:idx('IWM')});

@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/geiger", "destination": "https://scintilla-massive-chart-api.fly.dev/geiger" },
+    { "source": "/quotes", "destination": "https://scintilla-massive-chart-api.fly.dev/quotes" }
+  ]
+}
