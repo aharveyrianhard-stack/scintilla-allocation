@@ -38,7 +38,7 @@ test("the page loads headless with no errors and no non-GET request", async () =
     voters: Object.fromEntries(voters().map((v) => [v.key, v.val])), heat: heat(), step: policyStep(heat()), inv: investedAt(heat()),
     heatShown: document.getElementById("heatnum").innerText, policyText: document.getElementById("policy").innerText,
     quotes: Object.keys(QUOTES).length, nvdaPrice: QUOTES.NVDA && QUOTES.NVDA.price, targetsN: Object.keys(TARGETS).length, nvdaTarget: TARGETS.NVDA,
-    peersN: Object.keys(PEERS).length, nvdaPeers: PEERS.NVDA, b1: B1 && { asof: B1.asof, market: B1.market.bowtie, tech: B1.verdict.TECH },
+    peersN: Object.keys(PEERS).length, nvdaPeers: PEERS.NVDA, b1: B1 && { asof: B1.asof, market: B1.market.bowtie, tech: B1.sectors.TECH },
     ranked: RANKED.slice(0, 5).map((r) => r.sym), tabs: document.getElementById("catTabs").innerText,
     firstRow: [...document.querySelectorAll("#cohort tr")][1].innerText, brief: document.getElementById("brief").innerText,
     wts: S.wts, stamp: document.getElementById("stamp").innerText,
@@ -90,7 +90,7 @@ test("B1: the soundness verdicts and the whole-market bow tie are read from the 
   assert.equal(state.b1.tech, j.modes.blend.sectors.find((s) => s.label === "TECH").verdict);
 });
 test("names: sound sectors come first in the tabs, the first row is tagged ADD, the brief names the rung and the cash", () => {
-  const tabs = state.tabs.split("\n").filter((t) => /[●◐○]/.test(t)); const order = tabs.map((t) => t[0]);
+  const tabs = state.tabs.split("\n").filter((t) => /^[●◐○] /.test(t) && !/sound ·/.test(t)); const order = tabs.map((t) => t[0]);
   const rank = { "●": 0, "◐": 1, "○": 2 }; for (let i = 1; i < order.length; i++) assert.ok(rank[order[i]] >= rank[order[i - 1]], "sound first: " + order.join(""));
   assert.ok(state.firstRow.includes("ADD")); assert.ok(state.ranked.length === 5);
   assert.ok(state.brief.includes("The market reads " + state.step.cond)); assert.ok(state.brief.includes(state.step.pct + "% invested"));

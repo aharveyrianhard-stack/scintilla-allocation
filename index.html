@@ -540,7 +540,9 @@ const SECT_CW={TECH:'XLK',HEALTH:'XLV',FINANCIALS:'XLF',DISCRET:'XLY',INDUSTRIAL
 const SECT_EW={TECH:'RSPT',HEALTH:'RSPH',FINANCIALS:'RSPF',DISCRET:'RSPD',INDUSTRIAL:'RSPN',MATERIALS:'RSPM',ENERGY:'RSPG',STAPLES:'RSPS',UTILITIES:'RSPU',REAL_ESTATE:'RSPR',COMMS:'RSPC'};
 const SECT_WORD={TECH:'Technology',HEALTH:'Health care',FINANCIALS:'Financials',DISCRET:'Consumer discretionary',INDUSTRIAL:'Industrials',MATERIALS:'Materials',ENERGY:'Energy',STAPLES:'Consumer staples',UTILITIES:'Utilities',REAL_ESTATE:'Real estate',COMMS:'Communications',CRYPTO:'Crypto',METALS:'Metals',OIL:'Oil'};
 const B1_KEY={'TECH':'TECH','INDUSTRIAL':'INDUSTRIAL','FINANCIALS':'FINANCIALS','ENERGY':'ENERGY','DISCRET':'DISCRET','HEALTH':'HEALTH','UTILITIES':'UTILITIES','STAPLES':'STAPLES','MATERIALS':'MATERIALS','COMMS':'COMMS','REAL ESTATE':'REAL_ESTATE','AI HARDWARE':'AI_HARDWARE','AI SOFTWARE':'AI_SOFTWARE','BLUE CHIP':'BLUE_CHIP','AI POWERTRAIN':'AI_POWERTRAIN'};
-function b1Verdict(group){ if(!B1) return null; return B1.verdict[group]||null; }
+/* a sector key reads the sector verdict (its cohort twin only when the sector has none); a cohort key the cohort's */
+function b1Verdict(group){ if(!B1) return null; const isSector = !!SECT_CW[group] || ['CRYPTO','METALS','OIL'].includes(group);
+  return isSector ? (B1.sectors[group] ?? B1.cohorts[group] ?? null) : (B1.cohorts[group] ?? B1.sectors[group] ?? null); }
 function geigerRow(sym){ const g=GEIGER[sym]; return (g&&g.composite!=null)?g:null; }
 function batches(arr,n){ const out=[]; for(let i=0;i<arr.length;i+=n) out.push(arr.slice(i,i+n)); return out; }
 function inList(arr){ return 'in.('+arr.map(s=>'"'+s+'"').join(',')+')'; }
@@ -600,11 +602,12 @@ async function refreshSSOT(){
   }).catch(e=>{ GEIGER={}; spineSet('geiger',null,'FALLBACK','chart API unreachable ('+e.message+') — composite_staged voting instead'); }));
   // B1 — which sector and cohort aggregates are statistically sound (3 Oct), read from the Hub
   J.push(fetch('https://scintillahub.ai/deliverables/20261003/b1-market-bowtie/data/market-bowtie-20261003.json',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(new Error('b1 '+r.status))).then(j=>{
-    const bl=(j.modes&&j.modes.blend)||{}; const v={}, read={};
-    for(const list of [bl.sectors||[],bl.cohorts||[]]) for(const x of list){ const k=B1_KEY[x.label]||x.label.replace(/ /g,'_'); v[k]=x.verdict; read[k]=x; }
-    B1={asof:(j.as_of&&j.as_of.close)||null, built:j.built_utc||null, verdict:v, read, market:bl.market||null};
-    const ns=Object.values(v).filter(x=>x==='sound').length;
-    spineSet('b1_soundness',B1.built,'LIVE',ns+' of '+Object.keys(v).length+' aggregates sound · as of the '+B1.asof+' close · whole-market bow tie '+(B1.market&&B1.market.bowtie!=null?(+B1.market.bowtie).toFixed(2):'—'));
+    const bl=(j.modes&&j.modes.blend)||{}; const vs={}, vc={}, read={};
+    for(const x of (bl.sectors||[])){ const k=B1_KEY[x.label]||x.label.replace(/ /g,'_'); vs[k]=x.verdict; read['s:'+k]=x; }
+    for(const x of (bl.cohorts||[])){ const k=B1_KEY[x.label]||x.label.replace(/ /g,'_'); vc[k]=x.verdict; read['c:'+k]=x; }
+    B1={asof:(j.as_of&&j.as_of.close)||null, built:j.built_utc||null, sectors:vs, cohorts:vc, read, market:bl.market||null};
+    const ns=Object.values(vs).filter(x=>x==='sound').length, nc=Object.values(vc).filter(x=>x==='sound').length;
+    spineSet('b1_soundness',B1.built,'LIVE',ns+' of '+Object.keys(vs).length+' sectors and '+nc+' of '+Object.keys(vc).length+' cohorts sound · as of the '+B1.asof+' close · whole-market bow tie '+(B1.market&&B1.market.bowtie!=null?(+B1.market.bowtie).toFixed(2):'—'));
   }).catch(e=>{ B1=null; spineSet('b1_soundness',null,'FALLBACK','B1 data unreachable ('+e.message+') — soundness unknown, cohorts shown in share order'); }));
   J.push(sbGet('market_breadth?select=*&order=asof.desc&limit=1').then(rows=>{
     if(rows[0]){ MKTBREADTH=rows[0]; spineSet('market_breadth',null,'LIVE','broad-market series'); }
