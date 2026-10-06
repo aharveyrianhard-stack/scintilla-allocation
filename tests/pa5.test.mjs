@@ -13,7 +13,7 @@ test("the page loads with the blend live and no stray write", async () => {
     table: blendTable().map((r) => ({ key: r.key, score: r.score, cap: r.cap, eq: r.eq, bow: r.blendBow, used: r.used, missing: r.missing, weights: r.weights, parts: Object.fromEntries(Object.entries(r.parts || {}).map(([k, p]) => [k, p && { score: p.score, ts: p.ts }])) })),
     mixW: mixWeights(), method: methodWord(), voters: voters().map((v) => v.key), sectorsVoter: voters().find((v) => v.key === "SECTORS"), wts: S.wts,
     bar: document.getElementById("secbar").innerText.replace(/\n/g, " | "),
-    svg: { polygons: document.querySelectorAll("#bowtie svg polygon").length, circles: document.querySelectorAll("#bowtie svg circle").length, text: document.getElementById("bowtie").innerText },
+    svg: { polygons: document.querySelectorAll("#bowtie td[data-side=cap] .sc-gmini, #bowtie td[data-side=eq] .sc-gmini").length, circles: document.querySelectorAll("#bowtie td[data-side=blend] .sc-gmini").length, text: document.getElementById("bowtie").innerText },
     mixdialButtons: document.querySelectorAll("#mixdial button").length, rankDial: !!document.getElementById("mixRANK"),
     ko: KO_COHORT, K: (() => { const K = knockout(KO_COHORT); return K && { cohort: K.cohort.key, entrants: K.entrants.map((e) => [e.sym, e.seed, e.fund.score, e.fund.n, e.timing]), sitOut: K.sitOut.map((e) => [e.sym, e.fund.n]), rounds: K.rounds.map((ms) => ms.map((m) => ({ a: m.a.sym, b: m.b && m.b.sym, w: m.winner.sym, on: m.on, fa: m.a.fund.score, fb: m.b && m.b.fund.score, ta: m.a.timing, tb: m.b && m.b.timing, why: m.why }))), champion: K.champion && K.champion.sym, picks: K.picksOrder.map((e) => e.sym) }; })(),
     dom: { minis: document.querySelectorAll("#knockout .komini").length, matches: document.querySelectorAll("#knockout .komatch").length, won: [...document.querySelectorAll("#knockout .koround:last-child .swcard.won .chead b")].map((b) => b.innerText), pickCards: document.querySelectorAll("#knockout .kopick .swcard").length, picksTxt: document.getElementById("picks").innerText },
@@ -48,10 +48,10 @@ test("the blend: a missing source → the weights are renormalised over the rest
   for (const [k, missing, weights] of r.live) { assert.ok(missing.length >= 1, k); assert.ok(Math.abs(Object.values(weights).reduce((a, b) => a + b, 0) - 100) < 0.2, k + " weights sum to 100: " + JSON.stringify(weights)); }
   const crypto = state.table.find((x) => x.key === "CRYPTO"); if (crypto) { assert.ok(crypto.missing.includes("MKTBOW") && crypto.missing.includes("TREE"), JSON.stringify(crypto.missing)); assert.ok(state.svg.text.includes("3 of 5 missing")); }
 });
-test("the bow tie is drawn: one bar per sector, two halves meeting at the blend, hot at the top, the readings' times beside it", () => {
+test("the bow tie is drawn (PA6: in the Hub's Geiger chip): one row per sector, the two halves meeting at the blend, most overbought at the top, the readings' times beside it", () => {
   const n = state.table.length; assert.ok(n >= 11, "sectors drawn " + n);
-  assert.equal(state.svg.circles, n, "one knot per sector");
-  const wings = state.table.reduce((t, r) => t + (r.cap != null ? 1 : 0) + (r.eq != null ? 1 : 0), 0); assert.ok(state.svg.polygons <= wings && state.svg.polygons >= wings - 4, "wings " + state.svg.polygons + " of " + wings + " readings (a reading at exactly −1 draws no wing)");
+  assert.equal(state.svg.circles, n, "one blend chip per sector");
+  const wings = state.table.reduce((t, r) => t + (r.cap != null ? 1 : 0) + (r.eq != null ? 1 : 0), 0); assert.equal(state.svg.polygons, wings, "one chip per cap-weighted and per equal-weighted reading");
   assert.ok(/READINGS TAKEN · fund Geigers .* ET · served-set bow tie .* ET · tree close tier .* ET · sector ranking .* ET/.test(state.svg.text), state.svg.text.slice(0, 300));
   assert.ok(state.svg.text.includes("CAP-WEIGHTED") && state.svg.text.includes("EQUAL-WEIGHTED"));
   const first = state.table[0].key, last = state.table[n - 1].key; const txt = state.svg.text;
@@ -66,7 +66,7 @@ test("one sector voter in place of three, and the four-way dial is gone", () => 
   assert.equal(state.mixdialButtons, 0, "no method buttons"); assert.ok(state.rankDial, "the fifth weight dial exists in INPUTS");
 });
 test("the chain on one page, in order: heat → how much → the bow tie → cohorts → the knockout → the picks and their % → moves …", () => {
-  const want = ["THE BRIEF", "1 HEAT", "INPUTS", "2 HOW MUCH", "3 SECTORS", "4 COHORTS", "5 KNOCKOUT", "6 PICKS & %", "7 MOVES", "8 OPTIONS", "8b COMPS", "9 MAP", "10 STATE", "11 TRACE"];
+  const want = ["THE BRIEF", "1 HEAT", "INPUTS", "2 HOW MUCH", "3a SECTORS", "3b MONEY", "4 COHORTS", "5 KNOCKOUT", "6 PICKS & %", "7 MOVES", "8 OPTIONS", "8b COMPS", "9 MAP", "10 STATE", "11 TRACE"];
   let at = -1; for (const w of want) { const i = state.bar.indexOf(w); assert.ok(i > at, w + " in order: " + state.bar); at = i; }
   assert.ok(/MIDDLING|WASHED OUT|STRETCHED/.test(state.heatLabelTxt) && !/^NEUTRAL/.test(state.heatLabelTxt), "plain words on the heat readout: " + state.heatLabelTxt);
   assert.ok(/^The market's heat is .*, so the plan .*: \d+% invested, \d+% in cash\.$/.test(state.plain.sentence), state.plain.sentence);

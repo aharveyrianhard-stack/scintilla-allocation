@@ -157,6 +157,28 @@
   .cohchip small{display:block;color:var(--dim);font-size:9.5px;margin-top:2px}
   .kopick{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
   .kopick .swcard{width:min(420px,94vw)}
+  /* PA6 · the Hub's Geiger chip — CSS copied from the Hub's index.html (.sc-gmini, .sc-gmini__mid, .sc-gmini i; tokens --bull / --bear), so a
+     sector reads here exactly as a name reads on the Hub's board: a flat bar, the centre line at zero, the fill to the right when positive
+     (bull), to the left when negative (bear). Alan, 6 Oct: the sectors' overbought / oversold "in the Geiger's own look". */
+  :root{--bull:#00FFA3;--bear:#FF2D55;--hubpanel:#0D0D14;--hubdim:#868AAA}
+  .sc-gmini{position:relative;height:13px;background:var(--hubpanel);border-radius:2px;overflow:hidden;display:block}
+  .sc-gmini__mid{position:absolute;left:50%;top:0;bottom:0;width:1.3px;background:var(--hubdim);z-index:1}
+  .sc-gmini i{position:absolute;top:2px;bottom:2px;border-radius:2px;max-width:50%}
+  .sc-gmini.big{height:16px}
+  .sc-gnum{font-variant-numeric:tabular-nums}
+  .sectab{width:100%;border-collapse:collapse;font-size:11px}
+  .sectab th{font-size:9px;letter-spacing:.14em;color:var(--dim);text-align:left;font-weight:400;padding:2px 8px 6px}
+  .sectab td{padding:4px 8px;border-top:1px solid #15151f;vertical-align:middle}
+  .sectab td.nm{color:var(--txt);font-size:12px;white-space:nowrap}.sectab td.nm small{display:block;color:#5a5a70;font-size:9px}
+  .sectab td.chip{min-width:150px}.sectab td.v{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;color:#c8c8d8}
+  .sectab td.word{white-space:nowrap;font-size:10px;letter-spacing:.1em}
+  .sectab .ends{display:flex;justify-content:space-between;font-size:7px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;margin-bottom:3px}
+  .moneybar{height:10px;background:var(--hubpanel);border-radius:2px;position:relative}.moneybar b{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:#c8c8d8}
+  .srcline{font-size:10.5px;color:var(--dim);margin:6px 0 2px;letter-spacing:.04em}
+  .srcline summary{cursor:pointer;list-style:none;display:inline}.srcline summary::-webkit-details-marker{display:none}
+  .srcline summary b{color:#c8c8d8;font-weight:600}.srcline summary u{text-decoration:none;border-bottom:1px dotted var(--dim);margin-left:6px}
+  .srcline table{font-size:10.5px;border-collapse:collapse;margin:8px 0 4px}.srcline td{padding:2px 10px 2px 0;vertical-align:top;border-top:1px solid #15151f}
+  .srcline td.k{color:var(--txt);white-space:nowrap}.srcline td.st{white-space:nowrap}.srcline td.old{color:var(--orange)}.srcline td.gone{color:var(--gold)}
 </style>
 </head>
 <body>
@@ -243,13 +265,20 @@
   </div>
 
 
-  <!-- 2b THE BLENDED SECTOR BOW TIE (PA5) -->
+  <!-- 3a SECTORS (PA6: the reading only — nothing about money) -->
   <div class="panel full">
-    <h2>3 · THE BLENDED SECTOR BOW TIE — which sectors are hot, which are cold, read five ways and blended into one</h2>
-    <div class="note">One reading per sector drives TARGET MIX. Each bar is a sector: the left half is the cap-weighted read (the index names), the right half the equal-weighted read (the average stock); they meet in the middle at the blend. Hot at the top, cold at the bottom. Colder sectors earn a bigger share of what is invested.</div>
+    <h2>3a · SECTORS — which sectors are overbought, which oversold: one blended reading per sector, in the Geiger's own look</h2>
+    <div class="note">One row per sector, most overbought at the top. The chip on the left is the cap-weighted reading (the index names), the chip on the right the equal-weighted reading (the average stock); they meet in the middle at the blend — the bow tie. Each chip reads like a name on the Hub's board: the fill to the right of the centre line is OVERBOUGHT (stretched), to the left is OVERSOLD (washed out). This step only says what each sector is doing; what that does to the money is the next step.</div>
     <div id="bowtie"></div>
     <div id="mixdial"></div>
     <div id="treeroll"></div>
+  </div>
+
+  <!-- 3b HOW THE MONEY SPLITS (PA6) -->
+  <div class="panel full">
+    <h2>3b · HOW THE MONEY SPLITS — the % of equity per sector, computed from 3a with one stated rule</h2>
+    <div class="note">The rung (step 2) says how much of the money is invested. This step splits that invested part across the sectors from their 3a reading alone: an oversold sector earns more, an overbought one less, and the sector's own turn lifts or trims it. Every number in the table follows from the one on its left.</div>
+    <div id="moneysplit"></div>
   </div>
 
   <!-- 4 THE COHORTS (PA5) -->
@@ -787,39 +816,66 @@ function renderMixDial(){
    Colour is the page's own heat scale: deep cold green · cold cyan · middle grey · hot orange · deep hot red. */
 function heatColor(v){ if(v==null) return '#3a3a4a'; if(v>=.5) return 'var(--red)'; if(v>=.2) return 'var(--orange)'; if(v<=-.5) return 'var(--green)'; if(v<=-.2) return 'var(--cyan)'; return '#8a8aa0'; }
 function etTime(ts){ if(!ts) return '—'; try{ return new Date(ts).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})+' ET'; }catch(e){ return String(ts).slice(0,16); } }
+/* PA6 · the Hub's Geiger chip, copied from the Hub's geigerMiniHTML: fill right when positive (bull), left when negative (bear),
+   width = |g| ÷ max of the half; the number beside it. */
+function hubChip(g, max, withNum, big){
+  if(g==null) return '<span style="text-align:center;color:#5a5a70">—</span>';
+  const bull=g>=0, width=(Math.min(Math.abs(g)/(max||1),1)*50)+'%', color=bull?'var(--bull)':'var(--bear)';
+  return '<span class="sc-gmini'+(big?' big':'')+'"><span class="sc-gmini__mid"></span>'+(withNum?'<b class="sc-gnum" style="position:absolute;'+(bull?'left:4px':'right:4px')+';top:0;bottom:0;display:flex;align-items:center;font-size:9.5px;color:'+color+'">'+(g>=0?'+':'−')+Math.abs(g).toFixed(2)+'</b>':'')+
+    '<i style="'+(bull?'left':'right')+':50%;width:'+width+';background:'+color+';box-shadow:0 0 5px '+color+'"></i></span>';
+}
+window.hubChip=hubChip;
+/* the sector's word, on the ladder's own five rungs (the same thresholds the market's heat uses in step 2) */
+function sectorWord(v){ if(v==null) return 'NO READ'; return v<=-0.5?'DEEP OVERSOLD':v<=-0.2?'OVERSOLD':v<0.2?'NEUTRAL':v<0.5?'OVERBOUGHT':'DEEP OVERBOUGHT'; }
+window.sectorWord=sectorWord;
 function renderBowTie(){
   const el=document.getElementById('bowtie'); if(!el) return;
   const rows=blendTable(); if(!rows.length){ el.innerHTML='<div class="note">no sector carries a reading yet</div>'; return; }
-  const SH=sleeveShares(), inv=investedAt(heat());
-  const W=1240, LAB=200, HW=300, RGT=300, RH=30, TOP=44, c=LAB+HW+10, H=TOP+rows.length*RH+16;
   const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
-  const wing=(x0,y,len,dir,col,title)=>{ if(len<2) return ''; const h=RH*0.62; return '<polygon points="'+x0+','+y+' '+(x0+dir*len)+','+(y-h/2)+' '+(x0+dir*len)+','+(y+h/2)+'" fill="'+col+'" fill-opacity=".85"><title>'+esc2(title)+'</title></polygon>'; };
-  const len=v=>Math.max(0,Math.min(1,(v+1)/2))*(HW-10);
-  let g='';
-  g+='<text x="'+(c-12)+'" y="16" text-anchor="end" fill="#8a8aa0" font-size="10" letter-spacing="1.2">◀ CAP-WEIGHTED — the index names</text>';
-  g+='<text x="'+(c+12)+'" y="16" fill="#8a8aa0" font-size="10" letter-spacing="1.2">EQUAL-WEIGHTED — the average stock ▶</text>';
-  g+='<text x="'+LAB+'" y="32" fill="#5a5a70" font-size="9.5">washed out (−1)</text><text x="'+(c-6)+'" y="32" text-anchor="end" fill="#5a5a70" font-size="9.5">stretched (+1)</text>';
-  g+='<text x="'+(c+6)+'" y="32" fill="#5a5a70" font-size="9.5">stretched (+1)</text><text x="'+(c+HW)+'" y="32" text-anchor="end" fill="#5a5a70" font-size="9.5">washed out (−1)</text>';
-  g+='<line x1="'+c+'" y1="'+(TOP-6)+'" x2="'+c+'" y2="'+(H-10)+'" stroke="#2a2a3a" stroke-width="1"/>';
-  rows.forEach((r,i)=>{ const y=TOP+i*RH+RH/2; const share=SH[r.key]||0;
-    const tip=groupWord(r.key)+' — blended '+f2(r.score)+'\n'+BLEND_SRC.map(([k,n])=>n+': '+(r.parts&&r.parts[k]?f2(r.parts[k].score)+' ('+r.parts[k].label+')':'no reading')).join('\n')+(r.missing&&r.missing.length?'\nmissing: '+r.missing.map(k=>BLEND_SRC.find(b=>b[0]===k)[1]).join(', ')+' — the others carry its weight':'');
-    g+='<text x="'+(LAB-10)+'" y="'+(y+4)+'" text-anchor="end" fill="#e8e8f0" font-size="12">'+esc2(groupWord(r.key))+'</text>';
-    g+='<text x="'+(LAB-10)+'" y="'+(y+15)+'" text-anchor="end" fill="#5a5a70" font-size="9">'+(i+1)+' · '+esc2((r.q||'').toLowerCase())+(r.missing&&r.missing.length?' · '+r.missing.length+' of 5 missing':'')+'</text>';
-    g+='<line x1="'+LAB+'" y1="'+y+'" x2="'+(c+HW)+'" y2="'+y+'" stroke="#16161f" stroke-width="1"/>';
-    if(r.cap!=null){ const L=len(r.cap); g+=wing(c,y,L,-1,heatColor(r.cap),tip); g+='<text x="'+(c-L-6)+'" y="'+(y+3.5)+'" text-anchor="end" fill="#8a8aa0" font-size="10">'+f2(r.cap)+'</text>'; }
-    else g+='<text x="'+(c-16)+'" y="'+(y+3.5)+'" text-anchor="end" fill="#5a5a70" font-size="9.5">no cap-weighted read</text>';
-    if(r.eq!=null){ const L=len(r.eq); g+=wing(c,y,L,1,heatColor(r.eq),tip); g+='<text x="'+(c+L+6)+'" y="'+(y+3.5)+'" fill="#8a8aa0" font-size="10">'+f2(r.eq)+'</text>'; }
-    else g+='<text x="'+(c+16)+'" y="'+(y+3.5)+'" fill="#5a5a70" font-size="9.5">no equal-weighted read</text>';
-    g+='<circle cx="'+c+'" cy="'+y+'" r="8" fill="#0a0a0f" stroke="'+heatColor(r.score)+'" stroke-width="2"><title>'+esc2(tip)+'</title></circle>';
-    g+='<text x="'+(c+HW+28)+'" y="'+(y+4)+'" fill="'+heatColor(r.score)+'" font-size="12" font-weight="700">'+f2(r.score)+'</text>';
-    g+='<text x="'+(c+HW+84)+'" y="'+(y+4)+'" fill="#8a8aa0" font-size="10.5">bow tie '+(r.blendBow==null?'—':f2(r.blendBow))+'</text>';
-    g+='<text x="'+(c+HW+RGT-4)+'" y="'+(y+4)+'" text-anchor="end" fill="#e8e8f0" font-size="11">'+(share?Math.round(share*inv*1000)/10+'% of equity':'—')+'</text>';
-  });
+  const col=v=>v==null?'#5a5a70':v>=0?'var(--bull)':'var(--bear)';
+  const tip=r=>groupWord(r.key)+' — blended '+f2(r.score)+'\n'+BLEND_SRC.map(([k,n])=>n+': '+(r.parts&&r.parts[k]?f2(r.parts[k].score)+' ('+r.parts[k].label+')':'no reading')).join('\n')+(r.missing&&r.missing.length?'\nmissing: '+r.missing.map(k=>BLEND_SRC.find(b=>b[0]===k)[1]).join(', ')+' — the others carry its weight':'');
+  const ends='<div class="ends"><span>◄ oversold</span><span>overbought ►</span></div>';
+  const trs=rows.map((r,i)=>'<tr title="'+esc2(tip(r)).replace(/"/g,'')+'">'+
+    '<td class="nm">'+esc2(groupWord(r.key))+'<small>'+(i+1)+' · '+esc2((r.q||'').toLowerCase())+(r.missing&&r.missing.length?' · '+r.missing.length+' of 5 missing':'')+'</small></td>'+
+    '<td class="chip" data-side="cap">'+(r.cap==null?'<span style="color:#5a5a70;font-size:9.5px">no cap-weighted read</span>':hubChip(r.cap,1,true))+'</td>'+
+    '<td class="chip" data-side="blend" style="min-width:190px">'+hubChip(r.score,1,false,true)+'</td>'+
+    '<td class="chip" data-side="eq">'+(r.eq==null?'<span style="color:#5a5a70;font-size:9.5px">no equal-weighted read</span>':hubChip(r.eq,1,true))+'</td>'+
+    '<td class="v" style="color:'+col(r.score)+';font-weight:700;font-size:12px">'+f2(r.score)+'</td>'+
+    '<td class="word" style="color:'+col(r.score)+'">'+sectorWord(r.score)+'</td>'+
+    '<td class="v" style="color:#8a8aa0;font-size:10px">bow tie '+(r.blendBow==null?'—':f2(r.blendBow))+'</td></tr>').join('');
   const times=[['fund Geigers',geigerTs()],['served-set bow tie',MKTBOW&&MKTBOW.ts],['tree close tier',TREE_ROLL&&TREE_ROLL.computed],['sector ranking',SECTOR_RANKS&&SECTOR_RANKS.updated_at]].map(([n,t])=>n+' '+etTime(t)).join(' · ');
-  el.innerHTML='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:6px 0 2px">THE BLENDED SECTOR BOW TIE — '+rows.length+' sectors, hot at the top, cold at the bottom · the number in the middle is the blend that TARGET MIX uses · the right column is the plan\'s share of equity</div>'+
+  el.innerHTML='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:6px 0 2px">THE SECTORS — '+rows.length+', most overbought at the top · each chip reads like the Hub\'s board: right of the line overbought, left of it oversold</div>'+
     '<div class="cls" style="font-size:10px;margin:0 0 6px">READINGS TAKEN · '+times+'</div>'+
-    '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px;display:block;font-family:inherit">'+g+'</svg>'+
-    '<div class="note" style="font-size:10.5px;margin-top:4px">Hover a bar for its five readings. Left wing: the cap-weighted readings (the fund, the served names weighted by size). Right wing: the equal-weighted readings (the twin fund, the served names one each, the tree, the sector ranking). A longer wing is hotter. When the right wing is shorter than the left, the biggest names carry the sector.</div>';
+    '<table class="sectab"><tr><th>SECTOR</th><th>CAP-WEIGHTED — the index names'+ends+'</th><th>THE BLEND — the reading this tool uses'+ends+'</th><th>EQUAL-WEIGHTED — the average stock'+ends+'</th><th style="text-align:right">BLEND</th><th>WHAT IT IS</th><th style="text-align:right">EQUAL − CAP</th></tr>'+trs+'</table>'+
+    '<div class="note" style="font-size:10.5px;margin-top:6px">Hover a row for its five readings. When the right chip is shorter than the left, the biggest names carry the sector (bow tie below zero). The words are the ladder\'s own: deep oversold below −0.5, oversold to −0.2, neutral to +0.2, overbought to +0.5, deep overbought above.</div>';
+}
+/* PA6 · 3b — the money split, every number following from the one on its left. The rule is groupShares(), unchanged from PA5:
+   coldness = the larger of 0.05 and (1 − reading) ÷ 2; the turn: improving ×1.35 · pullback in uptrend ×0.85 · breakdown ×0.6 · leading ×1;
+   raw shares normalised to 100% of the invested part; each sector held between 2% and 35% and renormalised; × the rung's % invested. */
+function moneyRows(){
+  const inv=investedAt(heat()), SH=sleeveShares(); const rows=blendTable();
+  const out=[]; let rawTot=0;
+  for(const r of rows){ if(r.key==='MACRO'||r.key==='INDEXES') continue; const cold=Math.max(0.05,(1-r.score)/2); const turn=r.kind==='improve'?1.35:r.kind==='avoid'?0.6:r.kind==='buy'?0.85:1.0; const raw=cold*turn; rawTot+=raw; out.push({key:r.key,score:r.score,q:r.q,kind:r.kind,cold,turn,raw}); }
+  for(const o of out){ o.rawShare=rawTot?o.raw/rawTot:0; o.share=SH[o.key]||0; o.equity=o.share*inv; }
+  return {inv, rows:out.sort((a,b)=>b.equity-a.equity)};
+}
+window.moneyRows=moneyRows;
+function renderMoney(){
+  const el=document.getElementById('moneysplit'); if(!el) return;
+  const M=moneyRows(); const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2); const pc=(x,d=1)=>(x*100).toFixed(d)+'%';
+  if(!M.rows.length){ el.innerHTML='<div class="note">no sector carries a reading yet</div>'; return; }
+  const st=policyStep(heat()); const mx=Math.max(...M.rows.map(r=>r.equity),0.0001);
+  const turnWord=k=>k==='improve'?'improving ×1.35':k==='avoid'?'breakdown ×0.6':k==='buy'?'pullback ×0.85':'leading ×1';
+  const trs=M.rows.map((r,i)=>'<tr><td class="nm">'+esc2(groupWord(r.key))+'<small>'+(i+1)+'</small></td>'+
+    '<td class="v" style="color:'+(r.score>=0?'var(--bull)':'var(--bear)')+'">'+f2(r.score)+' <span style="color:#8a8aa0;font-size:9.5px;letter-spacing:.08em">'+sectorWord(r.score)+'</span></td>'+
+    '<td class="v">'+r.cold.toFixed(3)+'</td><td class="v" style="color:#8a8aa0">'+turnWord(r.kind)+'</td><td class="v">'+r.raw.toFixed(3)+'</td><td class="v">'+pc(r.rawShare)+'</td>'+
+    '<td class="v"'+(Math.abs(r.share-r.rawShare)>0.0005?' style="color:var(--gold)" title="held between 2% and 35%, then renormalised"':'')+'>'+pc(r.share)+'</td>'+
+    '<td class="v" style="color:var(--txt);font-weight:700">'+pc(r.equity)+'</td><td style="min-width:160px"><div class="moneybar"><b style="width:'+Math.round(r.equity/mx*100)+'%"></b></div></td></tr>').join('');
+  const tot=M.rows.reduce((t,r)=>t+r.equity,0);
+  el.innerHTML='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:6px 0 6px">THE RULE · the rung says <b style="color:var(--txt)">'+st.pct+'% invested</b> ('+esc2(st.cond.toLowerCase())+') · coldness = (1 − reading) ÷ 2, never below 0.05 · × the sector\'s turn · shares normalised · each held between 2% and 35% · × '+st.pct+'%</div>'+
+    '<table class="sectab"><tr><th>SECTOR</th><th style="text-align:right">3a READING</th><th style="text-align:right">COLDNESS</th><th style="text-align:right">THE TURN</th><th style="text-align:right">RAW</th><th style="text-align:right">RAW SHARE</th><th style="text-align:right">AFTER 2–35%</th><th style="text-align:right">% OF EQUITY</th><th></th></tr>'+trs+
+    '<tr><td class="nm">all sectors</td><td colspan="6"></td><td class="v" style="color:var(--txt);font-weight:700">'+pc(tot)+'</td><td class="cls" style="font-size:10px">= '+st.pct+'% invested; the other '+(100-st.pct)+'% is cash</td></tr></table>'+
+    '<div class="note" style="font-size:10.5px;margin-top:6px">An oversold sector reads below zero, so its coldness is above one half and it earns more; an overbought one earns less. The turn comes from the sector\'s trend and momentum read apart: a bounce in a downtrend is lifted, a breakdown is cut, a pullback inside an uptrend is trimmed a little. The 2–35% rails stop one sector taking the book. Inside a sector the kept names split its share in step 6.</div>';
 }
 /* the tree's reading beside the State Street reading — by sector and by cohort */
 function renderTreeRoll(){
@@ -896,11 +952,21 @@ function ageMode(ts,staleSec){
   const es=(typeof ts==='number')?ts:(Date.parse(ts)/1000);
   return (isFinite(es)&&(Date.now()/1000-es)>staleSec)?'STALE':'LIVE';
 }
+/* PA6 · the sources, one quiet line (Alan, 6 Oct: "I don't know what these yellow, orange and green buttons are for"). The badges
+   became a sentence — "sources: 22 live · 2 old · 1 unreachable — details" — that opens the list. The words: LIVE = read just now
+   and fresh; OLD = read, but older than that source is allowed to be; UNREACHABLE = the read failed and the page says what it uses
+   instead. The explanation is in PAGE SPECS. The SPINE itself is unchanged (every test reads it). */
+function sourceWord(mode){ return mode==='LIVE'?'live':mode==='STALE'?'old':'unreachable'; }
+function sourceCounts(){ const c={live:0,old:0,gone:0}; for(const v of Object.values(SPINE)){ if(v.mode==='LIVE') c.live++; else if(v.mode==='STALE') c.old++; else c.gone++; } return c; }
+window.sourceCounts=sourceCounts;
 function renderSpine(){
   const el=document.getElementById('dataspine'); if(!el) return;
-  const col={LIVE:'#38e07b',STALE:'var(--orange)',FALLBACK:'var(--gold)'};
-  el.innerHTML=Object.entries(SPINE).map(([k,v])=>
-    `<span style="border:1px solid ${col[v.mode]||'var(--line)'};color:${col[v.mode]||'var(--dim)'};border-radius:5px;padding:2px 8px;font-size:10px;letter-spacing:.04em" title="${(v.note||'').replace(/"/g,'&quot;')}">${k}${v.ts?' · '+freshTxt(v.ts):''} · ${v.mode}</span>`).join('');
+  const c=sourceCounts(); const open=el.querySelector('details')&&el.querySelector('details').open;
+  const parts=[c.live+' live']; if(c.old) parts.push(c.old+' old'); if(c.gone) parts.push(c.gone+' unreachable');
+  const rows=Object.entries(SPINE).sort((a,b)=>(a[1].mode==='LIVE'?1:0)-(b[1].mode==='LIVE'?1:0)||a[0].localeCompare(b[0])).map(([k,v])=>
+    '<tr><td class="k">'+esc2(k.replace(/_/g,' '))+'</td><td class="st'+(v.mode==='STALE'?' old':v.mode==='FALLBACK'?' gone':'')+'">'+sourceWord(v.mode)+(v.ts?' · '+freshTxt(v.ts):'')+'</td><td>'+esc2(v.note||'')+'</td></tr>').join('');
+  el.innerHTML='<details class="srcline"'+(open?' open':'')+'><summary>sources: <b>'+parts.join(' · ')+'</b><u>details</u></summary>'+
+    '<table>'+rows+'</table><div style="font-size:10px;color:#5a5a70">live = read just now and fresh · old = read, but older than that source is allowed to be · unreachable = the read failed; the row says what the page uses instead</div></details>';
 }
 async function refreshSSOT(){
   const J=[];
@@ -1844,6 +1910,7 @@ function render(){
   renderRotationTemplate();
   renderTreeRoll();
   renderBowTie();
+  renderMoney();
   renderCohortBoard();
   renderKnockout();
   renderPicks();
@@ -2693,7 +2760,7 @@ if(localStorage.getItem('alloc-hidedesc')!=='0') document.body.classList.add('hi
 (function(){ const b=document.getElementById('descToggle'); const upd=()=>{ const hid=document.body.classList.contains('hidedesc'); b.textContent=(hid?'▸ ':'▾ ')+'what each voter is (proxy detail)'; }; upd(); b.onclick=()=>{ document.body.classList.toggle('hidedesc'); localStorage.setItem('alloc-hidedesc', document.body.classList.contains('hidedesc')?'1':'0'); upd(); }; })();
 /* ===== PA4 · THE FOLD ===== every section folds to one screen with a sticky bar at the top; INPUTS is a drawer over the page;
    THE BRIEF and the TARGET MIX pie sit on the first screen. Nothing is removed. Fold state is remembered on this device. */
-const SECTIONS=[['p-brief','THE BRIEF'],['p-heat','1 HEAT'],['p-inputs','INPUTS'],['p-howmuch','2 HOW MUCH'],['p-bowtie','3 SECTORS'],['p-cohorts','4 COHORTS'],['p-knockout','5 KNOCKOUT'],['p-mix','6 PICKS & %'],['p-moves','7 MOVES'],['p-options','8 OPTIONS'],['p-comps','8b COMPS'],['p-map','9 MAP'],['p-state','10 STATE'],['p-trace','11 TRACE']];
+const SECTIONS=[['p-brief','THE BRIEF'],['p-heat','1 HEAT'],['p-inputs','INPUTS'],['p-howmuch','2 HOW MUCH'],['p-bowtie','3a SECTORS'],['p-money','3b MONEY'],['p-cohorts','4 COHORTS'],['p-knockout','5 KNOCKOUT'],['p-mix','6 PICKS & %'],['p-moves','7 MOVES'],['p-options','8 OPTIONS'],['p-comps','8b COMPS'],['p-map','9 MAP'],['p-state','10 STATE'],['p-trace','11 TRACE']];
 let FOLDS={}; try{ FOLDS=JSON.parse(localStorage.getItem('alloc-folds')||'{}'); }catch(e){}
 function setFold(id, folded){ FOLDS[id]=folded?1:0; localStorage.setItem('alloc-folds',JSON.stringify(FOLDS)); applyFold(id); }
 function applyFold(id){ const p=document.getElementById(id); if(!p) return; const folded=(FOLDS[id]==null)?(id!=='p-brief'):!!FOLDS[id]; p.classList.toggle('folded',folded); const b=p.querySelector('.pfold'); if(b) b.textContent=folded?'ONE SCREEN · OPEN ▾':'OPEN · FOLD ▴'; }
@@ -2719,6 +2786,8 @@ window.openDrawer=openDrawer;
 loadFeeds();
 </script>
 <details class="sc-pagespecs"><summary>PAGE SPECS</summary>
+<p><b>The sources line (PA6, 6 Oct).</b> Under the title, one line says how many of the page's sources read live, how many are old and how many could not be reached; "details" opens the list. A source is LIVE when it was read just now and is within the age that source is allowed (the Geiger thirty minutes, the quotes fifteen, a profile a week, the sector ranking three hours); OLD when the read worked but the newest row is older than that; UNREACHABLE when the read failed, and the row then says what the page uses instead (an older table, or a voter that abstains). Nothing is faked: an unreachable source never shows a number.</p>
+<p><b>3a and 3b (PA6).</b> Step 3 is two screens. 3a SECTORS says what each sector is doing and nothing else: the blended reading per sector (five readings averaged, the weights in INPUTS), drawn in the Hub's own Geiger chip — the same flat bar the Hub's board uses, the centre line at zero, the fill to the right when positive (overbought, stretched) and to the left when negative (oversold, washed out), green and red as on the Hub. The cap-weighted chip on the left and the equal-weighted chip on the right meet at the blend: that is the bow tie. The words are the ladder's own five rungs. 3b HOW THE MONEY SPLITS takes those readings and nothing else and shows, column by column, how the invested part is split: coldness = (1 − reading) ÷ 2 (never below 0.05); × the sector's turn (improving ×1.35, pullback inside an uptrend ×0.85, breakdown ×0.6, leading ×1); normalised; each sector held between 2% and 35% and renormalised; × the rung's % invested. The last column is the % of equity the pie and the picks use.</p>
 <p><b>What changed on 5 Oct (PA4).</b> Two breadth voters: ADVANCE / DECLINE is the line over the names the Hub serves to this tool — one up or down per name per completed session from the chart API's daily bars, summed over the last 20 sessions, plus today's session from the live quotes; the vote is that line's slope, scaled so two thirds of the names rising every day reads +1 (default weight 0.5). CONCENTRATION is the equal-weight twin (RSP) minus the cap-weight index (SPY) over the same 20 sessions, scaled so a five-point spread reads ±1, with the share of the served set's cap-weighted move that its ten largest names carried (default weight 0.5). The VIX votes live from the chart API's macro board; the VIX term structure (spot ÷ 3-month) uses the VIX table's last close for the 3-month leg because no live 3-month VIX exists in the estate, and says that date on its dial.</p>
 <p><b>The sector method dial.</b> TARGET MIX reads each sector one of four ways: STATE STREET SECTORS (the sector fund's own Geiger), HUB SECTOR COMPARE (the fund and its equal-weight twin, averaged), MARKET BOW TIE (the average served stock in the sector, every name equal-weight, live from the chart API, with the bow tie against the cap-weighted read), TREE READINGS (the tree's close tier, 5,316 common stocks and ADRs, rolled up by sector — 652 of them carry a sector in the estate today). The default is a mix, 40 / 20 / 20 / 20 in that order; the weights are dials in INPUTS. The pie, the moves and the ranking all follow the dial. Crypto, metals and oil have no fund, so every option reads them from their own constituents.</p>
 <p><b>The short list.</b> For the five sectors the tool favours most (sound sectors first, then by share), the ADD names and the two best of each one's comps field — the business-first peers from the peer table, same sector and within ten times its size (C5's rule), ranked by fundamentals — as the approved cards. KEEP / DROP appends one row to the comps decisions table through the public write path the Hub's comps tab uses; the latest row per company and peer is the state. An ADD tag needs at least two measured fundamentals.</p>
