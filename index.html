@@ -790,6 +790,19 @@ function methodRead(k){
   return {...base, trend:b.trend, momentum:b.momentum, ...rrg(b.trend,b.momentum), score:b.score, parts, used:b.used, missing:b.missing, weights:b.weights, method:'BLEND', spdrScore:base.score, cap:sides.cap, eq:sides.eq, blendBow:sides.bowtie};
 }
 const blendRead=methodRead;
+/* R3 (6 Oct 2026) — ONE SECTOR COUNT. The heat row said "11 sectors … 3 leading · 7 lagging" and the brief "4 of 14 sectors lead … 5 lag":
+   two sets (the eleven funds against the eleven plus crypto, metals and oil) and two rules (the blended reading against the fund's own).
+   Now both read this: the eleven State Street sectors the SECTOR BOW TIE voter averages, each on its BLENDED trend and momentum —
+   leading = both above zero · lagging = both at or below · turning up = momentum above with the trend still below · pulling back = the reverse.
+   Crypto, metals and oil are read beside them in 3a and named apart, never counted in. */
+function sectorTally(){
+  const all=blendTable(), rows=all.filter(r=>SECT_CW[r.key]), beside=all.filter(r=>!SECT_CW[r.key]);
+  const of=k=>rows.filter(r=>r.kind===k);
+  const avg=a=>a.length?a.reduce((t,x)=>t+x,0)/a.length:null;
+  return {rows, n:rows.length, leading:of('go'), lagging:of('avoid'), turning:of('improve'), pulling:of('buy'), beside,
+          avg:avg(rows.map(r=>r.score)), bowAvg:avg(rows.filter(r=>r.blendBow!=null).map(r=>r.blendBow))};
+}
+window.sectorTally=sectorTally;
 function methodWord(){ const w=mixWeights(); return 'THE BLENDED SECTOR BOW TIE · five readings, weights '+BLEND_SRC.map(([k,n])=>n+' '+w[k]).join(' / '); }
 function setMixMethod(m){ S.mixMethod='BLEND'; save(); render(); }   // PA5: the dial is gone; there is one method
 window.setMixMethod=setMixMethod;
@@ -1431,10 +1444,8 @@ function voters(){
      B1's whole-market figure, every listed name, dated — it votes slowly and says its date. */
   /* PA5: ONE sector voter — the blended sector bow tie (it replaces SECTOR COMPARE, SECTOR BOW TIE and MARKET BOW TIE, which read the
      same sectors three ways). The vote is the average blended reading of the eleven fund sectors; the sub line says the bow tie. */
-  const blended=blendTable().filter(r=>SECT_CW[r.key]);
-  const bAvg=blended.length? blended.reduce((t,r)=>t+r.score,0)/blended.length : null;
-  const bows=blended.filter(r=>r.blendBow!=null); const bowAvg=bows.length? bows.reduce((t,r)=>t+r.blendBow,0)/bows.length : null;
-  v.push({key:'SECTORS', speed:0.6, name:'SECTOR BOW TIE (blended)', sub: bAvg==null?'— the sectors carry no reading yet':(blended.length+' sectors, five readings each, average '+f2v(bAvg)+(bowAvg!=null?' · bow tie '+f2v(bowAvg)+(bowAvg<-0.1?' — the biggest names carry the sectors':bowAvg>0.1?' — the average stock leads':' — even'):'')+' · '+blended.filter(r=>r.kind==='go').length+' leading · '+blended.filter(r=>r.kind==='avoid').length+' lagging'), val: bAvg==null?null:clamp(bAvg)});
+  const TALLY=sectorTally(), blended=TALLY.rows, bAvg=TALLY.avg, bowAvg=TALLY.bowAvg;   // R3: the same count the brief prints
+  v.push({key:'SECTORS', speed:0.6, name:'SECTOR BOW TIE (blended)', sub: bAvg==null?'— the sectors carry no reading yet':(blended.length+' sectors, five readings each, average '+f2v(bAvg)+(bowAvg!=null?' · bow tie '+f2v(bowAvg)+(bowAvg<-0.1?' — the biggest names carry the sectors':bowAvg>0.1?' — the average stock leads':' — even'):'')+' · '+TALLY.leading.length+' leading · '+TALLY.lagging.length+' lagging'+(TALLY.turning.length?' · '+TALLY.turning.length+' turning up':'')+(TALLY.pulling.length?' · '+TALLY.pulling.length+' pulling back':'')), val: bAvg==null?null:clamp(bAvg)});
   // VIX TERM STRUCTURE — spot vs 3-month. Above 1 is backwardation, i.e. stress now.
   /* Only votes on a FRESH row. vix_term stopped on 2026-06-08, so today this reads
      stale and contributes nothing rather than voting on a two-month-old ratio. */
@@ -2024,15 +2035,13 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const st = policyStep(h);
   const gS=gv('SPY'), gQ=gv('QQQ'), gI=gv('IWM'), gR=gv('RSP');
   const vix=(MACROAPI&&MACROAPI.VIX&&MACROAPI.VIX.quote&&MACROAPI.VIX.quote.price!=null)?+MACROAPI.VIX.quote.price:((VIXDB&&VIXDB.fresh)?VIXDB.vix:null), ten=(TREAS&&TREAS.y10!=null)?+TREAS.y10:null;
-  const secs=Object.values(SECTOR_READ).filter(r=>r.score!=null).sort((a,b)=>b.score-a.score);
   const word=r=>groupWord(r.key);
   const bl=BREADTH20&&BREADTH20.n>=50?' Across the '+BREADTH20.n+' served names the advance/decline line '+(BREADTH20.cum<0?'fell ':'rose ')+Math.abs(BREADTH20.cum)+' over the last 20 sessions'+(BREADTH20.today.n?' (today '+BREADTH20.today.up+' up, '+BREADTH20.today.down+' down)':'')+(CONC20&&CONC20.top10&&CONC20.top10.share!=null?', and '+Math.round(CONC20.top10.share*100)+'% of the set\'s move came from its ten largest names':'')+'.':'';
-  const leading=secs.filter(r=>r.kind==='go'), lagging=secs.filter(r=>r.kind==='avoid'), turning=secs.filter(r=>r.kind==='improve');
-  const bows=secs.filter(r=>r.bowtie!=null), bowAvg=bows.length?bows.reduce((t,r)=>t+r.bowtie,0)/bows.length:null;
+  const TALLY=sectorTally(), leading=TALLY.leading, lagging=TALLY.lagging, turning=TALLY.turning, pulling=TALLY.pulling, bowAvg=TALLY.bowAvg;   // R3: one count — the heat row prints the same
   const narrow = gS!=null && gR!=null && (gS-gR)>0.3;
   const idx = gS==null?'The index has no reading': gS>0.2?'The index is hot (S&P '+f(gS)+(gQ!=null?', Nasdaq '+f(gQ):'')+')': gS<-0.2?'The index is washed out (S&P '+f(gS)+(gQ!=null?', Nasdaq '+f(gQ):'')+')':'The index is in the middle (S&P '+f(gS)+(gQ!=null?', Nasdaq '+f(gQ):'')+')';
   const breadth = (gR==null||gI==null)?'': narrow?', but the average stock is not (equal-weight '+f(gR)+', small caps '+f(gI)+'): the biggest names carry the tape': (gR>0.2&&gI>0.2)?', and the average stock is with it (equal-weight '+f(gR)+', small caps '+f(gI)+')':', with the average stock cooler (equal-weight '+f(gR)+', small caps '+f(gI)+')';
-  const sect = secs.length? ' '+leading.length+' of '+secs.length+' sectors lead'+(leading.length?' ('+leading.slice(0,3).map(word).join(', ')+')':'')+(lagging.length?', '+lagging.length+' lag'+(lagging.length<=4?' ('+lagging.map(word).join(', ')+')':''):'')+(turning.length?', '+turning.length+' turning up from below ('+turning.map(word).join(', ')+')':'')+'.':'';
+  const sect = TALLY.n? ' '+leading.length+' of '+TALLY.n+' sectors lead'+(leading.length?' ('+leading.slice(0,3).map(word).join(', ')+')':'')+(lagging.length?', '+lagging.length+' lag'+(lagging.length<=4?' ('+lagging.map(word).join(', ')+')':''):'')+(turning.length?', '+turning.length+' turning up from below ('+turning.map(word).join(', ')+')':'')+(pulling.length?', '+pulling.length+' pulling back ('+pulling.map(word).join(', ')+')':'')+'.'+(TALLY.beside.length?' Read beside them, not counted in: '+TALLY.beside.map(r=>word(r)+' '+f(r.score)).join(', ')+'.':''):'';
   const bow = bowAvg==null?'': ' Inside the sectors the bow tie reads '+f(bowAvg)+(bowAvg<-0.1?': the big names carry each sector.':bowAvg>0.1?': the average stock leads its sector.':': even.');
   const macro = (ten!=null?(ten>4.15?' Rates are a headwind at '+ten.toFixed(2)+'%.':' Rates are supportive at '+ten.toFixed(2)+'%.'):'')+(vix!=null?(vix<21?' Volatility is calm (VIX '+vix.toFixed(1)+').':' Fear is on the tape (VIX '+vix.toFixed(1)+').'):' The VIX table is stale, so volatility is not voting.');
   const pc=plainCondition(h);
