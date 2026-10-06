@@ -103,6 +103,7 @@
   #drawerShade{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:390;display:none} #drawerShade.on{display:block}
   .brief2{display:grid;grid-template-columns:minmax(0,1fr) 680px;gap:18px;align-items:start}
   @media(max-width:1300px){.brief2{grid-template-columns:1fr}}
+  .heatsay{font-size:12px;line-height:1.7;color:var(--txt);margin:8px 0 0;max-width:1500px}.heatsay:empty{display:none}.heatsay small{color:var(--dim);font-size:11px}
   .nvrow{display:grid;grid-template-columns:220px 1fr 260px;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);font-size:11px;line-height:1.5;color:var(--dim)}
   .nvrow b{color:var(--txt);font-weight:600;letter-spacing:.04em}.nvrow i{font-style:normal;text-align:right}
   @media(max-width:800px){.nvrow{grid-template-columns:1fr}.nvrow i{text-align:left}}
@@ -219,6 +220,8 @@
       </div>
       <div class="heatlabel" id="heatlabel">—</div>
     </div>
+    <div id="heatsplit" class="heatsay"></div>
+    <div id="heatpast" class="heatsay"></div>
     <details>
       <summary>THE TWO INVERTED VOTERS — where VIX and the 10-year read cold and hot</summary>
       <div class="ctl"><label>VIX cold ↔ hot<small>−1 at high, +1 at low</small></label><input type="range" id="vixCold" min="20" max="50" step="1"><div class="v" id="vixColdV"></div></div>
@@ -1653,6 +1656,25 @@ function heat(){
   for (const v of voters()) { if (!canVote(v)) continue; const w = S.wts[v.key] ?? 0; num += v.val * w; den += w; }
   return den ? num / den : 0;
 }
+/* R3 (6 Oct 2026) — THE SPLIT (display only). The heat is one number, and near zero it can mean "nothing is happening" or "two camps are
+   pulling hard against each other". campSplit() says which: the voting rows above zero are the hot camp, those below the cold camp, each
+   with its own weighted average; heat = (hot weight × hot average + cold weight × cold average) ÷ all the weight. `flip` (a Set of keys) turns
+   the sign of those rows — nothing on the page passes it; the branch-only decision picture and the tests do. */
+const VOTER_SHORT={SPY:'S&P',QQQ:'Nasdaq',IWM:'small caps',SMH:'semis',VIX:'VIX',US10Y:'10-year yield',OIL:'oil',VALUE:'equal-weight',CRYPTO:'bitcoin',DEF:'defensives',BREADTH_EW:'equal-weight vs index',BREADTH_SC:'small vs large',SECTORS:'sectors',VIX_TERM:'VIX term',CURVE:'yield curve',PCC:'put/call',SKEW:'SKEW',ADLINE:'advance/decline',TRIN:'TRIN',B_VOL:'up/down volume',CONC:'concentration',CREDIT:'credit',DURATION:'long bonds',HAVEN:'gold',MAGS:'mega-caps'};
+function campSplit(vlist, flip){
+  const rows=(vlist||voters()).filter(canVote).map(v=>({key:v.key,name:VOTER_SHORT[v.key]||v.name,w:S.wts[v.key]??0,val:(flip&&flip.has(v.key))?-v.val:v.val})).filter(r=>r.w>0);
+  const camp=rs=>{ const w=rs.reduce((t,r)=>t+r.w,0); return {w, avg:w?rs.reduce((t,r)=>t+r.w*r.val,0)/w:null, rows:rs.slice().sort((a,b)=>Math.abs(b.w*b.val)-Math.abs(a.w*a.val))}; };
+  const hot=camp(rows.filter(r=>r.val>0)), cold=camp(rows.filter(r=>r.val<0)), flat=camp(rows.filter(r=>r.val===0));
+  const W=hot.w+cold.w+flat.w;
+  return {heat:W?((hot.w*(hot.avg||0))+(cold.w*(cold.avg||0)))/W:0, hot, cold, flat, W, n:rows.length};
+}
+function heatOf(vlist, flip){ return campSplit(vlist, flip).heat; }
+function splitSentence(sp){
+  const f=x=>x==null?'—':(x>=0?'+':'−')+Math.abs(x).toFixed(2), list=c=>c.rows.map(r=>r.name+' '+f(r.val)).join(', ');
+  const wt=x=>(+x.toFixed(2)).toString();
+  return f(sp.heat)+' = a hot camp at '+f(sp.hot.avg)+' ('+(list(sp.hot)||'nobody')+') against a cold camp at '+f(sp.cold.avg)+' ('+(list(sp.cold)||'nobody')+'). The hot camp carries '+wt(sp.hot.w)+' of the '+wt(sp.W)+' weight, the cold camp '+wt(sp.cold.w)+(sp.flat.w?', and '+wt(sp.flat.w)+' sits exactly at zero':'')+'.';
+}
+window.campSplit=campSplit; window.heatOf=heatOf; window.splitSentence=splitSentence;
 function heatWith(vlist, key, w){ // counterfactual: heat if this one voter's weight were w
   let num = 0, den = 0;
   for (const v of vlist) { if (!canVote(v)) continue; const wt = v.key === key ? w : (S.wts[v.key] ?? 0); num += v.val * wt; den += wt; }
@@ -1747,6 +1769,8 @@ function render(){
   const hb = document.getElementById('heatbar'); barCSS(hb, h);
   const hl = document.getElementById('heatlabel'); const pc=plainCondition(h); hl.innerHTML = pc.word+'<small style="display:block;font-size:10px;letter-spacing:0;color:var(--dim);max-width:260px;line-height:1.5;margin-top:2px">'+esc2(pc.does)+' — '+pc.pct+'% invested</small>'; hl.style.color = color;
 
+  { const sp=campSplit(), el=document.getElementById('heatsplit'); if(el) el.textContent = sp.n ? splitSentence(sp) : ''; }   // R3 4: the split, beside the heat
+  renderHeatPast();
   // dials display
   const set = (id, v, fmt) => { const e = document.getElementById(id); e.value = v; document.getElementById(id+'V').textContent = fmt; };
   set('vixCold', S.vixCold, '−1 @ '+S.vixCold+' · +1 @ 12');
@@ -1844,6 +1868,7 @@ function render(){
   renderSpine(); renderSectorStrip();
   save();
 }
+function renderHeatPast(){ }   // R3 5 fills this
 /* The ladder, with today's rung lit: condition → % invested → cash to deploy. */
 function renderPolicy(h, inv, cInv){
   const el=document.getElementById('policy'); if(!el) return;
