@@ -190,11 +190,12 @@
     <div class="ctl"><label>Invested when oversold<small>heat −0.5 to −0.2</small></label><input type="range" id="invCold" min="0" max="100" step="5"><div class="v" id="invColdV"></div></div>
     <div class="ctl"><label>Invested when neutral<small>heat −0.2 to +0.2</small></label><input type="range" id="invMid" min="0" max="100" step="5"><div class="v" id="invMidV"></div></div>
     <div class="ctl"><label>Invested when overbought<small>heat +0.2 to +0.5</small></label><input type="range" id="invHot" min="0" max="100" step="5"><div class="v" id="invHotV"></div></div>
-    <div style="color:var(--cyan);font-size:10px;letter-spacing:.18em;margin:14px 0 2px">SECTOR METHOD MIX (TARGET MIX, when the dial says MIX)</div>
-    <div class="ctl"><label>State Street sectors<small>the fund's own Geiger</small></label><input type="range" id="mixSPDR" min="0" max="100" step="5"><div class="v" id="mixSPDRV"></div></div>
+    <div style="color:var(--cyan);font-size:10px;letter-spacing:.18em;margin:14px 0 2px">THE BLENDED SECTOR BOW TIE — the five readings' weights (equal by default)</div>
+    <div class="ctl"><label>State Street fund<small>the sector fund's own Geiger (cap-weighted)</small></label><input type="range" id="mixSPDR" min="0" max="100" step="5"><div class="v" id="mixSPDRV"></div></div>
     <div class="ctl"><label>Hub sector compare<small>fund + equal-weight twin</small></label><input type="range" id="mixHUBCMP" min="0" max="100" step="5"><div class="v" id="mixHUBCMPV"></div></div>
-    <div class="ctl"><label>Market bow tie<small>the average served stock, live</small></label><input type="range" id="mixMKTBOW" min="0" max="100" step="5"><div class="v" id="mixMKTBOWV"></div></div>
-    <div class="ctl"><label>Tree readings<small>the close tier by sector</small></label><input type="range" id="mixTREE" min="0" max="100" step="5"><div class="v" id="mixTREEV"></div></div>
+    <div class="ctl"><label>Market bow tie<small>every served name, cap-weight vs equal-weight, live</small></label><input type="range" id="mixMKTBOW" min="0" max="100" step="5"><div class="v" id="mixMKTBOWV"></div></div>
+    <div class="ctl"><label>Tree close tier<small>the tree rolled up by sector</small></label><input type="range" id="mixTREE" min="0" max="100" step="5"><div class="v" id="mixTREEV"></div></div>
+    <div class="ctl"><label>Sector ranking<small>the live sector_rankings row</small></label><input type="range" id="mixRANK" min="0" max="100" step="5"><div class="v" id="mixRANKV"></div></div>
     <div style="color:var(--cyan);font-size:10px;letter-spacing:.18em;margin:14px 0 2px">DIVERSIFICATION</div>
     <div class="ctl"><label>Mode<small>AUTO scales names with the market: names = 2 + (1−heat)/2 × 3, so heat −1 → 5 names (wide, catch the rebound), heat +1 → 2 names (concentrate in the best). Heat ~0 → ~4. MANUAL: you fix it.</small></label><div><button id="divToggle" style="background:#14141f;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:5px 14px;font-family:inherit;font-size:11px;cursor:pointer"></button></div><div class="v" id="divModeV"></div></div>
     <div class="ctl"><label>Hard cap — TOTAL names<small>your portfolio-wide ceiling on how many individual names you'll hold, all sleeves combined. This is the number that caps how many PICKS the comps table lets you keep — so your plan and your buy-list stay consistent.</small></label><input type="range" id="maxTotal" min="2" max="24" step="1"><div class="v" id="maxTotalV"></div></div>
@@ -209,15 +210,22 @@
 
   <!-- 1 MACRO HEAT weights (voters live above already; this panel holds weight sliders) -->
 
+  <!-- 2b THE BLENDED SECTOR BOW TIE (PA5) -->
+  <div class="panel full">
+    <h2>THE BLENDED SECTOR BOW TIE — which sectors are hot, which are cold, read five ways and blended into one</h2>
+    <div class="note">One reading per sector drives TARGET MIX. Each bar is a sector: the left half is the cap-weighted read (the index names), the right half the equal-weighted read (the average stock); they meet in the middle at the blend. Hot at the top, cold at the bottom. Colder sectors earn a bigger share of what is invested.</div>
+    <div id="bowtie"></div>
+    <div id="mixdial"></div>
+    <div id="treeroll"></div>
+  </div>
+
   <!-- 2 TARGET MIX -->
   <div class="panel">
     <h2>2 · TARGET MIX — where the money goes</h2>
-    <div class="note">The market's condition sets HOW MUCH is invested (your policy ladder); each sector's own reading sets WHERE. Big picture first, detail on demand.</div>
+    <div class="note">The market's condition sets HOW MUCH is invested (your policy ladder); each sector's blended reading sets WHERE. Big picture first, detail on demand.</div>
     <div id="policy"></div>
     <div id="sectorrot"></div>
     <div id="rotationtpl"></div>
-    <div id="treeroll"></div>
-    <div id="mixdial"></div>
     <canvas id="donut" width="640" height="300"></canvas>
     <div id="pickmix"></div>
     <div id="targets"></div>
@@ -593,8 +601,17 @@ let GEIGER={}, GEIGER_META=null, TARGETS={}, B1=null, PEER_SRC='';
                                     bow tie against the cap-weighted read beside it (B1's dated whole-market figure stays as the verdicts)
      TREE    TREE READINGS        — the tree's close tier (/v1/scout-geiger, 5,925 names) rolled up by sector, equal-weight */
 let SCOUT=null, TREE_ROLL=null, MKTBOW=null, SECTOR_MAP={}, SPDR_MEMBERS={};
-const MIX_OPTS=[['MIX','MIX'],['SPDR','STATE STREET SECTORS'],['HUBCMP','HUB SECTOR COMPARE'],['MKTBOW','MARKET BOW TIE'],['TREE','TREE READINGS']];
-const MIX_DEFAULT={SPDR:40,HUBCMP:20,MKTBOW:20,TREE:20};
+/* PA5 (5 Oct 2026, night) — ONE blended sector bow tie. Alan: "I would blend the different methods of sector comparisons into one
+   and use that." Five readings per sector, each already on the Geiger scale (−1 washed out … +1 stretched), averaged with stated
+   weights (dials in INPUTS, equal by default). A missing reading is named and the weights are renormalised over the ones present. */
+const BLEND_SRC=[
+  ['SPDR','State Street fund','the sector fund\'s own Geiger — the cap-weighted read (the index names)'],
+  ['HUBCMP','Hub sector compare','the fund and its Invesco equal-weight twin, averaged — the Hub\'s compare strip'],
+  ['MKTBOW','market bow tie','every served name in the sector: the cap-weighted read and the equal-weight read, live from the chart API'],
+  ['TREE','tree close tier','the tree\'s close tier (every common stock and ADR with a close) rolled up by sector, equal-weight'],
+  ['RANK','sector ranking','the live sector_rankings row — the constituents\' newest daily Geiger, equal-weight, published by the sector tool']];
+const MIX_DEFAULT={SPDR:20,HUBCMP:20,MKTBOW:20,TREE:20,RANK:20};
+const MIX_OPTS=[['BLEND','THE BLENDED SECTOR BOW TIE']];
 const FMP_SECTOR_KEY={'Technology':'TECH','Healthcare':'HEALTH','Financial Services':'FINANCIALS','Consumer Cyclical':'DISCRET','Industrials':'INDUSTRIAL','Basic Materials':'MATERIALS','Energy':'ENERGY','Consumer Defensive':'STAPLES','Utilities':'UTILITIES','Real Estate':'REAL_ESTATE','Communication Services':'COMMS'};
 function sectorKeyOfAny(sym){ return SECTOR_OF[sym] || SECTOR_MAP[sym] || (PROFILES[sym]&&FMP_SECTOR_KEY[PROFILES[sym].sector]) || null; }
 function rollup(rows){ const T=rows.map(r=>r.trend).filter(v=>v!=null), M=rows.map(r=>r.momentum).filter(v=>v!=null), C=rows.map(r=>r.composite).filter(v=>v!=null);
@@ -624,56 +641,114 @@ function buildMktBow(){
   spineSet('market_bowtie_live',MKTBOW.ts,'LIVE',all.length+' served names with a market value · whole set equal-weight minus cap-weight = '+(MKTBOW.market?f2v(MKTBOW.market.bowtie):'—')+' · '+Object.keys(sectors).length+' sectors');
 }
 function mixWeights(){ const w=Object.assign({},MIX_DEFAULT,S.mixW||{}); return w; }
-/* one sector, read the way the dial says — every option's reading is kept so the page can show them side by side */
+function geigerTs(){ return GEIGER_META&&(GEIGER_META.computed_utc||GEIGER_META.published_utc)||null; }
+/* the live sector ranking row for a sector — the 11 funds are keyed by their fund, crypto and metals by name; a row older than three days is not used */
+function rankRow(k){ if(!SECTOR_RANKS||!SECTOR_RANKS.list) return null; const age=(Date.now()-Date.parse(SECTOR_RANKS.updated_at))/864e5; if(!(age<=3)) return null; return SECTOR_RANKS.bySector[SECT_CW[k]||k]||null; }
+/* the five readings of one sector, each on the Geiger scale; null where the source has nothing for it */
+function blendParts(k){
+  const base=SECTOR_READ[k]; if(!base) return null;
+  const P={};
+  const fromFund = base.src==='geiger';
+  P.SPDR = base.score!=null ? {score:base.score,trend:base.trend,momentum:base.momentum,ts:fromFund?geigerTs():null,label:base.etf==='(constituents)'?'its own constituents (no fund)':base.etf,side:fromFund?'cap':'eq'} : null;
+  P.HUBCMP = base.ew!=null ? {score:(base.score+base.ew)/2,trend:(base.trend+(base.ewTrend??base.trend))/2,momentum:(base.momentum+(base.ewMom??base.momentum))/2,cap:base.score,eq:base.ew,ts:geigerTs(),label:base.etf+' + '+base.ewEtf} : null;
+  const mb=MKTBOW&&MKTBOW.sectors[k]; P.MKTBOW = mb ? {score:mb.score,trend:mb.trend,momentum:mb.momentum,cap:mb.cw,eq:mb.ew,n:mb.n,ts:MKTBOW.ts,label:mb.n+' served names'} : null;
+  const tr=TREE_ROLL&&TREE_ROLL.sectors[k]; P.TREE = tr ? {score:tr.score,trend:tr.trend,momentum:tr.momentum,n:tr.n,ts:TREE_ROLL.computed,asof:TREE_ROLL.asof,label:tr.n+' names in the close tier, as of '+TREE_ROLL.asof} : null;
+  const rk=rankRow(k); P.RANK = rk ? {score:+rk.score,trend:rk.trend!=null?+rk.trend:null,momentum:rk.momentum!=null?+rk.momentum:null,rank:rk.rank,ts:SECTOR_RANKS.updated_at,label:'#'+rk.rank+' of '+SECTOR_RANKS.list.length+' @ '+SECTOR_RANKS.date} : null;
+  return P;
+}
+/* the arithmetic, on its own so it can be tested: weighted average over the readings present; the missing ones named; weights renormalised */
+function blendFrom(parts, w){
+  const used=[], missing=[]; let ws=0,sc=0,tt=0,mm=0;
+  for(const [src] of BLEND_SRC){ const p=parts[src]; const wt=+(w[src]||0);
+    if(!p||p.score==null||!isFinite(p.score)){ missing.push(src); continue; }
+    if(!(wt>0)) continue; used.push(src); ws+=wt; sc+=wt*p.score; tt+=wt*(p.trend??p.score); mm+=wt*(p.momentum??p.score); }
+  if(!ws) return {score:null,trend:null,momentum:null,used,missing,weights:{}};
+  const weights={}; for(const src of used) weights[src]=+(100*w[src]/ws).toFixed(1);
+  return {score:sc/ws,trend:tt/ws,momentum:mm/ws,used,missing,weights};
+}
+window.blendFrom=blendFrom;
+/* the two halves of the bow tie: the cap-weighted readings (the index names) and the equal-weighted readings (the average stock), each averaged with the same weights */
+function bowSides(parts, w){
+  let cw=0,cs=0,ew=0,es=0;
+  const add=(side,v,wt)=>{ if(v==null||!isFinite(v)||!(wt>0)) return; if(side==='cap'){cw+=wt;cs+=wt*v;} else {ew+=wt;es+=wt*v;} };
+  if(parts.SPDR) add(parts.SPDR.side||'cap',parts.SPDR.score,w.SPDR);
+  if(parts.HUBCMP){ add('cap',parts.HUBCMP.cap,w.HUBCMP); add('eq',parts.HUBCMP.eq,w.HUBCMP); }
+  if(parts.MKTBOW){ add('cap',parts.MKTBOW.cap,w.MKTBOW); add('eq',parts.MKTBOW.eq,w.MKTBOW); }
+  if(parts.TREE) add('eq',parts.TREE.score,w.TREE);
+  if(parts.RANK) add('eq',parts.RANK.score,w.RANK);
+  const cap=cw?cs/cw:null, eq=ew?es/ew:null;
+  return {cap, eq, bowtie:(cap!=null&&eq!=null)?eq-cap:null};
+}
+/* one sector, blended — this is the reading TARGET MIX, the moves and the ranking use */
 function methodRead(k){
   const base=SECTOR_READ[k]; if(!base||base.score==null) return base;
-  const parts={};
-  parts.SPDR = base.src==='geiger'||base.etf==='(constituents)' ? {score:base.score,trend:base.trend,momentum:base.momentum} : (base.score!=null?{score:base.score,trend:base.trend,momentum:base.momentum}:null);
-  parts.HUBCMP = (base.ew!=null) ? {score:(base.score+base.ew)/2, trend:(base.trend+(base.ewTrend??base.trend))/2, momentum:(base.momentum+(base.ewMom??base.momentum))/2} : parts.SPDR;
-  const mb=MKTBOW&&MKTBOW.sectors[k]; parts.MKTBOW = mb ? {score:mb.score,trend:mb.trend,momentum:mb.momentum,bowtie:mb.bowtie,n:mb.n} : parts.SPDR;
-  const tr=TREE_ROLL&&TREE_ROLL.sectors[k]; parts.TREE = tr ? {score:tr.score,trend:tr.trend??base.trend,momentum:tr.momentum??base.momentum,n:tr.n} : parts.SPDR;
-  const m=S.mixMethod||'MIX'; let score,trend,momentum;
-  if(m!=='MIX'){ const p=parts[m]||parts.SPDR; score=p.score; trend=p.trend; momentum=p.momentum; }
-  else { const w=mixWeights(); let ws=0,sc=0,tt=0,mm=0; for(const [o,p] of Object.entries(parts)){ if(!p||!(w[o]>0)) continue; ws+=w[o]; sc+=w[o]*p.score; tt+=w[o]*(p.trend??0); mm+=w[o]*(p.momentum??0); }
-    if(!ws){ score=base.score; trend=base.trend; momentum=base.momentum; } else { score=sc/ws; trend=tt/ws; momentum=mm/ws; } }
-  return {...base, score, trend, momentum, ...rrg(trend,momentum), parts, method:m, spdrScore:base.score};
+  const parts=blendParts(k), w=mixWeights();
+  const b=blendFrom(parts,w), sides=bowSides(parts,w);
+  if(b.score==null) return {...base, parts, used:[], missing:b.missing, method:'BLEND', spdrScore:base.score, cap:sides.cap, eq:sides.eq, blendBow:sides.bowtie};
+  return {...base, score:b.score, trend:b.trend, momentum:b.momentum, ...rrg(b.trend,b.momentum), parts, used:b.used, missing:b.missing, weights:b.weights, method:'BLEND', spdrScore:base.score, cap:sides.cap, eq:sides.eq, blendBow:sides.bowtie};
 }
-function methodWord(){ const m=S.mixMethod||'MIX'; if(m!=='MIX') return MIX_OPTS.find(o=>o[0]===m)[1]; const w=mixWeights(); return 'MIX · State Street '+w.SPDR+' / Hub compare '+w.HUBCMP+' / market bow tie '+w.MKTBOW+' / tree '+w.TREE; }
-function setMixMethod(m){ S.mixMethod=m; save(); render(); }
+const blendRead=methodRead;
+function methodWord(){ const w=mixWeights(); return 'THE BLENDED SECTOR BOW TIE · five readings, weights '+BLEND_SRC.map(([k,n])=>n+' '+w[k]).join(' / '); }
+function setMixMethod(m){ S.mixMethod='BLEND'; save(); render(); }   // PA5: the dial is gone; there is one method
 window.setMixMethod=setMixMethod;
-/* the shares TARGET MIX would give under each option — shown beside the dial so the choice is visible */
-function sharesUnder(method){ const keep=S.mixMethod; S.mixMethod=method; const sh=groupShares(); S.mixMethod=keep; return sh; }
+/* the whole sector table, blended, sorted hot → cold */
+function blendTable(){ return Object.keys(SECTOR_READ).map(k=>methodRead(k)).filter(r=>r&&r.score!=null).sort((a,b)=>b.score-a.score); }
+window.blendTable=blendTable;
 function renderMixDial(){
-  const html=(()=>{
-    const cur=S.mixMethod||'MIX';
-    const btns=MIX_OPTS.map(([v,t])=>`<button onclick="setMixMethod('${v}')" style="background:${cur===v?'var(--gold)':'#14141f'};color:${cur===v?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:5px;padding:5px 11px;font-family:inherit;font-size:10px;letter-spacing:.06em;cursor:pointer;margin:0 4px 4px 0">${t}</button>`).join('');
-    const w=mixWeights();
-    const opts=MIX_OPTS.map(([v])=>v);
-    const rows=opts.map(v=>{ const sh=sharesUnder(v); const top=Object.entries(sh).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,x])=>esc2(groupWord(k))+' '+Math.round(x*100)+'%').join(' · ');
-      return '<tr style="'+(v===cur?'color:var(--txt)':'color:var(--dim)')+'"><td style="white-space:nowrap">'+(v===cur?'▸ ':'')+MIX_OPTS.find(o=>o[0]===v)[1]+(v==='MIX'?' <span class="cls">'+w.SPDR+'/'+w.HUBCMP+'/'+w.MKTBOW+'/'+w.TREE+'</span>':'')+'</td><td>'+(top||'—')+'</td></tr>'; }).join('');
-    return '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 4px">SECTOR METHOD — what the pie is reading · today: <b style="color:var(--gold)">'+methodWord()+'</b></div>'+
-      '<div>'+btns+'</div>'+
-      '<table class="imap" style="font-size:10.5px;margin-top:4px"><tr><th style="text-align:left;width:34%">option</th><th style="text-align:left">the biggest shares of what is invested, under that option</th></tr>'+rows+'</table>'+
-      '<div class="note" style="font-size:10px;margin-top:4px">Crypto, metals and oil have no State Street fund, so every option reads them from their own constituents. The mix weights are dials in INPUTS.</div>';
-  })();
+  const w=mixWeights(); const rows=blendTable(); const any=rows.find(r=>r.missing&&r.missing.length);
+  const html='<div class="note" style="font-size:10.5px;margin:6px 0 2px">The sectors are read by <b style="color:var(--gold)">one blended bow tie</b>: five readings per sector, averaged '+(BLEND_SRC.every(([k])=>w[k]===w.SPDR)?'with equal weight':'with the weights '+BLEND_SRC.map(([k,n])=>n+' '+w[k]).join(' · '))+'. The weights are dials in INPUTS.'+(any?' Where a reading is missing it is named and the others carry its weight.':'')+'</div>';
   for(const id of ['mixdial','mixdialTop']){ const el=document.getElementById(id); if(el) el.innerHTML=html; }
+}
+/* THE BOW TIE, drawn Alan's way: each sector a bar; the cap-weighted half (the index names) on the left and the equal-weighted half
+   (the average stock) on the right, meeting in the middle at the blended reading; sorted hot → cold; the readings' times beside it.
+   Colour is the page's own heat scale: deep cold green · cold cyan · middle grey · hot orange · deep hot red. */
+function heatColor(v){ if(v==null) return '#3a3a4a'; if(v>=.5) return 'var(--red)'; if(v>=.2) return 'var(--orange)'; if(v<=-.5) return 'var(--green)'; if(v<=-.2) return 'var(--cyan)'; return '#8a8aa0'; }
+function etTime(ts){ if(!ts) return '—'; try{ return new Date(ts).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})+' ET'; }catch(e){ return String(ts).slice(0,16); } }
+function renderBowTie(){
+  const el=document.getElementById('bowtie'); if(!el) return;
+  const rows=blendTable(); if(!rows.length){ el.innerHTML='<div class="note">no sector carries a reading yet</div>'; return; }
+  const SH=sleeveShares(), inv=investedAt(heat());
+  const W=1240, LAB=200, HW=300, RGT=300, RH=30, TOP=44, c=LAB+HW+10, H=TOP+rows.length*RH+16;
+  const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
+  const wing=(x0,y,len,dir,col,title)=>{ if(len<2) return ''; const h=RH*0.62; return '<polygon points="'+x0+','+y+' '+(x0+dir*len)+','+(y-h/2)+' '+(x0+dir*len)+','+(y+h/2)+'" fill="'+col+'" fill-opacity=".85"><title>'+esc2(title)+'</title></polygon>'; };
+  const len=v=>Math.max(0,Math.min(1,(v+1)/2))*(HW-10);
+  let g='';
+  g+='<text x="'+(c-12)+'" y="16" text-anchor="end" fill="#8a8aa0" font-size="10" letter-spacing="1.2">◀ CAP-WEIGHTED — the index names</text>';
+  g+='<text x="'+(c+12)+'" y="16" fill="#8a8aa0" font-size="10" letter-spacing="1.2">EQUAL-WEIGHTED — the average stock ▶</text>';
+  g+='<text x="'+LAB+'" y="32" fill="#5a5a70" font-size="9.5">washed out (−1)</text><text x="'+(c-6)+'" y="32" text-anchor="end" fill="#5a5a70" font-size="9.5">stretched (+1)</text>';
+  g+='<text x="'+(c+6)+'" y="32" fill="#5a5a70" font-size="9.5">stretched (+1)</text><text x="'+(c+HW)+'" y="32" text-anchor="end" fill="#5a5a70" font-size="9.5">washed out (−1)</text>';
+  g+='<line x1="'+c+'" y1="'+(TOP-6)+'" x2="'+c+'" y2="'+(H-10)+'" stroke="#2a2a3a" stroke-width="1"/>';
+  rows.forEach((r,i)=>{ const y=TOP+i*RH+RH/2; const share=SH[r.key]||0;
+    const tip=groupWord(r.key)+' — blended '+f2(r.score)+'\n'+BLEND_SRC.map(([k,n])=>n+': '+(r.parts&&r.parts[k]?f2(r.parts[k].score)+' ('+r.parts[k].label+')':'no reading')).join('\n')+(r.missing&&r.missing.length?'\nmissing: '+r.missing.map(k=>BLEND_SRC.find(b=>b[0]===k)[1]).join(', ')+' — the others carry its weight':'');
+    g+='<text x="'+(LAB-10)+'" y="'+(y+4)+'" text-anchor="end" fill="#e8e8f0" font-size="12">'+esc2(groupWord(r.key))+'</text>';
+    g+='<text x="'+(LAB-10)+'" y="'+(y+15)+'" text-anchor="end" fill="#5a5a70" font-size="9">'+(i+1)+' · '+esc2((r.q||'').toLowerCase())+(r.missing&&r.missing.length?' · '+r.missing.length+' of 5 missing':'')+'</text>';
+    g+='<line x1="'+LAB+'" y1="'+y+'" x2="'+(c+HW)+'" y2="'+y+'" stroke="#16161f" stroke-width="1"/>';
+    if(r.cap!=null){ const L=len(r.cap); g+=wing(c,y,L,-1,heatColor(r.cap),tip); g+='<text x="'+(c-L-6)+'" y="'+(y+3.5)+'" text-anchor="end" fill="#8a8aa0" font-size="10">'+f2(r.cap)+'</text>'; }
+    else g+='<text x="'+(c-16)+'" y="'+(y+3.5)+'" text-anchor="end" fill="#5a5a70" font-size="9.5">no cap-weighted read</text>';
+    if(r.eq!=null){ const L=len(r.eq); g+=wing(c,y,L,1,heatColor(r.eq),tip); g+='<text x="'+(c+L+6)+'" y="'+(y+3.5)+'" fill="#8a8aa0" font-size="10">'+f2(r.eq)+'</text>'; }
+    else g+='<text x="'+(c+16)+'" y="'+(y+3.5)+'" fill="#5a5a70" font-size="9.5">no equal-weighted read</text>';
+    g+='<circle cx="'+c+'" cy="'+y+'" r="8" fill="#0a0a0f" stroke="'+heatColor(r.score)+'" stroke-width="2"><title>'+esc2(tip)+'</title></circle>';
+    g+='<text x="'+(c+HW+28)+'" y="'+(y+4)+'" fill="'+heatColor(r.score)+'" font-size="12" font-weight="700">'+f2(r.score)+'</text>';
+    g+='<text x="'+(c+HW+84)+'" y="'+(y+4)+'" fill="#8a8aa0" font-size="10.5">bow tie '+(r.blendBow==null?'—':f2(r.blendBow))+'</text>';
+    g+='<text x="'+(c+HW+RGT-4)+'" y="'+(y+4)+'" text-anchor="end" fill="#e8e8f0" font-size="11">'+(share?Math.round(share*inv*1000)/10+'% of equity':'—')+'</text>';
+  });
+  const times=[['fund Geigers',geigerTs()],['served-set bow tie',MKTBOW&&MKTBOW.ts],['tree close tier',TREE_ROLL&&TREE_ROLL.computed],['sector ranking',SECTOR_RANKS&&SECTOR_RANKS.updated_at]].map(([n,t])=>n+' '+etTime(t)).join(' · ');
+  el.innerHTML='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:6px 0 2px">THE BLENDED SECTOR BOW TIE — '+rows.length+' sectors, hot at the top, cold at the bottom · the number in the middle is the blend that TARGET MIX uses · the right column is the plan\'s share of equity</div>'+
+    '<div class="cls" style="font-size:10px;margin:0 0 6px">READINGS TAKEN · '+times+'</div>'+
+    '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px;display:block;font-family:inherit">'+g+'</svg>'+
+    '<div class="note" style="font-size:10.5px;margin-top:4px">Hover a bar for its five readings. Left wing: the cap-weighted readings (the fund, the served names weighted by size). Right wing: the equal-weighted readings (the twin fund, the served names one each, the tree, the sector ranking). A longer wing is hotter. When the right wing is shorter than the left, the biggest names carry the sector.</div>';
 }
 /* the tree's reading beside the State Street reading — by sector and by cohort */
 function renderTreeRoll(){
   const el=document.getElementById('treeroll'); if(!el) return;
-  if(!TREE_ROLL){ el.innerHTML='<div class="note" style="margin-top:8px">THE TREE — the close tier is not reachable; the sector step reads the funds only.</div>'; return; }
   const f=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
-  const col=k=>k==='go'?'var(--green)':k==='improve'?'var(--cyan)':k==='buy'?'var(--gold)':'var(--orange)';
-  const secs=Object.keys(SECT_CW).map(k=>({k, spdr:SECTOR_READ[k], tree:TREE_ROLL.sectors[k], mb:MKTBOW&&MKTBOW.sectors[k]})).sort((a,b)=>((b.tree&&b.tree.score)??-9)-((a.tree&&a.tree.score)??-9));
-  const srows=secs.map(r=>'<tr><td><b>'+esc2(groupWord(r.k))+'</b></td><td>'+(r.spdr?f(r.spdr.score)+' <span class="cls">'+r.spdr.etf+'</span>':'—')+'</td><td>'+(r.spdr&&r.spdr.ew!=null?f(r.spdr.ew)+' <span class="cls">'+r.spdr.ewEtf+'</span>':'—')+'</td>'+
-    '<td>'+(r.mb?f(r.mb.score)+' <span class="cls">'+r.mb.n+' names · bow tie '+f(r.mb.bowtie)+'</span>':'—')+'</td>'+
-    '<td style="color:'+(r.tree?col(r.tree.kind):'var(--dim)')+'">'+(r.tree?'<b>'+f(r.tree.score)+'</b> <span class="cls">'+r.tree.n+' names · '+esc2(r.tree.q)+'</span>':'—')+'</td></tr>').join('');
-  const cohs=Object.values(TREE_ROLL.cohorts).sort((a,b)=>b.score-a.score);
-  const crows=cohs.map(c=>'<span style="display:inline-block;margin:2px 8px 2px 0;padding:2px 7px;border:1px solid var(--line);border-radius:5px;font-size:10px"><b>'+esc2(c.key.replace(/_/g,' '))+'</b> <span style="color:'+col(c.kind)+'">'+f(c.score)+'</span> <span class="cls">'+c.n+'</span>'+(b1Verdict(c.key)?' <span class="cls">· '+esc2(b1Verdict(c.key))+'</span>':'')+'</span>').join('');
-  el.innerHTML='<details open style="margin-top:10px"><summary>THE TREE IS AN INPUT — the close tier ('+TREE_ROLL.names.toLocaleString()+' names, as of '+TREE_ROLL.asof+') rolled up by sector and cohort, beside the fund readings</summary>'+
-    '<table class="imap" style="font-size:11px;margin-top:6px"><tr><th style="text-align:left">SECTOR</th><th style="text-align:left">STATE STREET</th><th style="text-align:left">EQUAL-WEIGHT TWIN</th><th style="text-align:left">MARKET BOW TIE (live, served names)</th><th style="text-align:left">TREE (close tier)</th></tr>'+srows+'</table>'+
-    '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 3px">THE TREE BY COHORT — '+cohs.length+' cohorts, equal-weight average of the close-tier Geiger · ● sound per B1</div><div>'+crows+'</div>'+
-    '<div class="note" style="font-size:10px;margin-top:4px">'+TREE_ROLL.mapped.toLocaleString()+' of the '+TREE_ROLL.names.toLocaleString()+' names carry a sector in the estate (the Hub\'s membership, the industry table, the State Street funds\' holdings and the company profiles); the rest count in no sector roll-up. The whole-market bow tie B1 computed on '+(B1?B1.asof:'—')+' reads '+(B1&&B1.market?f2v(B1.market.bowtie):'—')+'; the live served-set figure is '+(MKTBOW&&MKTBOW.market?f2v(MKTBOW.market.bowtie):'—')+'.</div></details>';
+  const rows=blendTable();
+  const cell=(p)=>p?f(p.score)+' <span class="cls">'+esc2(p.label||'')+'</span>':'<span class="cls">no reading</span>';
+  const srows=rows.map(r=>'<tr><td><b>'+esc2(groupWord(r.key))+'</b></td>'+BLEND_SRC.map(([k])=>'<td>'+cell(r.parts&&r.parts[k])+'</td>').join('')+
+    '<td style="color:'+heatColor(r.score)+'"><b>'+f(r.score)+'</b> <span class="cls">'+(r.used?r.used.length:0)+' of 5'+(r.missing&&r.missing.length?' · weights '+Object.entries(r.weights||{}).map(([k,v])=>k+' '+v).join(' / '):'')+'</span></td></tr>').join('');
+  el.innerHTML='<details style="margin-top:10px"><summary>THE FIVE READINGS BEHIND EACH BAR — and the blend</summary>'+
+    '<table class="imap" style="font-size:10.5px;margin-top:6px"><tr><th style="text-align:left">SECTOR</th>'+BLEND_SRC.map(([k,n])=>'<th style="text-align:left">'+esc2(n.toUpperCase())+'</th>').join('')+'<th style="text-align:left">BLEND</th></tr>'+srows+'</table>'+
+    '<div class="note" style="font-size:10px;margin-top:4px">'+BLEND_SRC.map(([k,n,d])=>'<b>'+esc2(n)+'</b>: '+esc2(d)).join(' · ')+'.'+(TREE_ROLL?' The tree: '+TREE_ROLL.mapped.toLocaleString()+' of its '+TREE_ROLL.names.toLocaleString()+' names carry a sector in the estate.':' The tree\'s close tier is not reachable tonight.')+(B1?' The whole-market bow tie B1 computed on '+B1.asof+' reads '+(B1.market?f2v(B1.market.bowtie):'—')+'; the live served-set figure is '+(MKTBOW&&MKTBOW.market?f2v(MKTBOW.market.bowtie):'—')+'.':'')+'</div></details>';
 }
 let MACROAPI=null;      // the chart API's /macro — VIX, rates and the futures as FMP serves them, live
 let BREADTH20=null;     // {n, sessions:[{date,up,down,net}], cum, today:{up,down,n}, dir:{sym:[...]}} — the advance/decline line
@@ -867,7 +942,7 @@ async function refreshSSOT(){
       spineSet('vix_term',null,VIXDB.fresh?'LIVE':'STALE','VIX '+VIXDB.vix+' · 3-month '+VIXDB.vix3m+' @ '+VIXDB.date+(VIXDB.fresh?'':' — last close; the spot VIX votes live from the chart API, the term structure uses this 3-month leg while it is within four days'));}
   }).catch(e=>spineSet('vix_term',null,'FALLBACK','read failed — Yahoo VIX in use')));
   // published sector rotation (written by the sector tool from the same composite_staged)
-  J.push(sbGet('sector_rankings?select=date,sector,sector_name,rank,score,method,updated_at&order=date.desc,rank.asc&limit=22').then(rows=>{
+  J.push(sbGet('sector_rankings?select=date,sector,sector_name,rank,score,trend,momentum,method,updated_at&order=date.desc,rank.asc&limit=22').then(rows=>{
     if(rows.length){const d0=rows[0].date; const list=rows.filter(r=>r.date===d0);
       SECTOR_RANKS={date:d0,list,bySector:Object.fromEntries(list.map(r=>[r.sector,r])),updated_at:rows[0].updated_at};
       spineSet('sector_rankings',rows[0].updated_at,ageMode(rows[0].updated_at,3*3600),list.length+' sectors @ '+d0+' — published by the sector-rotation tool');}
@@ -1129,7 +1204,7 @@ const DEFAULTS = {
   vixCold:30, tenCold:4.8,                   // hot ends fixed at 12 / 3.5
   maxInv:100, minInv:15, invCold:80, invMid:50, invHot:30, nLC:4, nSC:2, nPer:2, divAuto:1, lcTilt:0, maxTotal:12, maxNames:6, concLean:0,
   curInv:0, curLC:0,
-  wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25, BREADTH_EW:0.5, BREADTH_SC:0.25, SECTOR_CMP:0.5, BOWTIE:0.5, MKT_BOWTIE:0.25, VIX_TERM:0.25, CURVE:0.5, PCC:0, SKEW:0.25, ADLINE:0.5, TRIN:0.25, B_VOL:0.25, CONC:0.5, CREDIT:0.5, DURATION:0.25, HAVEN:0.25}
+  wts:{SPY:1, QQQ:1, IWM:0.5, SMH:0.5, VIX:0.5, US10Y:0.5, OIL:0.5, VALUE:0, CRYPTO:0.25, DEF:0.25, BREADTH_EW:0.5, BREADTH_SC:0.25, SECTORS:0.75, VIX_TERM:0.25, CURVE:0.5, PCC:0, SKEW:0.25, ADLINE:0.5, TRIN:0.25, B_VOL:0.25, CONC:0.5, CREDIT:0.5, DURATION:0.25, HAVEN:0.25}
 };
 const VOTER_DESC = {
   SPY: 'PROXY: SPY (the Hub\'s Geiger from the chart API, fresh every cycle; composite_staged only if the API is down). The approved geiger on the S&P across your full equalizer curve (2h→1w): ribbon order 50% + momentum 50% (RSI 60 / W%R 40, straight 23→77 map — every level in between feeds, per GOOGL_GEIGER_v2). WHEN it reads positive the market is stretched and it pushes the score UP toward Overbought; negative = washed out, pushes DOWN toward Oversold.',
@@ -1141,9 +1216,7 @@ const VOTER_DESC = {
   OIL: 'PROXY: CLUSD crude (the Hub\'s Geiger from the chart API, fresh every cycle; composite_staged only if the API is down), its own independent voter — never lumped with other commodities. INVERTED geiger: oil trending hot = inflation pressure = pulls the score DOWN; oil breaking down = relief = pushes UP. Base weight 0.5 because it matters now; dial to 0 the day it stops.',
   VALUE: 'PROXY: RSP equal-weight S&P (the Hub\'s Geiger from the chart API). The value/breadth style. Straight geiger: a hot equal-weight tape = broad strength pushes the score UP; a cold one = narrow market, pulls DOWN. Base weight 0 — reading only for now; as a STYLE it will re-rank candidates rather than vote, per the roadmap.',
   CRYPTO: 'PROXY: BTCUSD (composite_staged, refreshed today; the chart API carries no BTC symbol). The risk-appetite tell. Straight geiger: BTC running hot = speculative appetite = pushes the score UP; BTC breaking = risk coming off = pulls DOWN. Base weight 0.25 — a tell, not a driver.',
-  SECTOR_CMP: 'PROXY: the eleven State Street sector funds (XLK XLV XLF XLY XLI XLB XLE XLP XLU XLRE XLC), each fund\'s own Geiger from the chart API — the same numbers the Hub\'s SECTOR COMPARE strip shows — averaged. Straight: when most sectors run hot the score goes UP; when most are washed out it goes DOWN. Weight 0.5, same as the other breadth voters; set it to 0 to read it without counting it.',
-  BOWTIE: 'PROXY: the Hub\'s BOW TIE — for each sector, the Invesco equal-weight fund\'s Geiger minus the State Street cap-weight fund\'s (RSPT−XLK, RSPG−XLE …), averaged over the eleven. Above zero the average stock is stronger than its index (broad participation, hotter); below zero the biggest names carry the sector (narrow, colder). Enters straight, like EQUAL-WEIGHT vs INDEX. Weight 0.5.',
-  MKT_BOWTIE: 'PROXY: B1\'s whole-market bow tie — every listed common stock we compute (about 4,600 read), equal-weight minus cap-weight, from the Hub\'s B1 page. It is a dated close (the date is shown), so it votes on the slow end. Weight 0.25.',
+  SECTORS: 'PROXY: the blended sector bow tie — for each of the eleven State Street sectors, five readings on the Geiger scale (the fund\'s own Geiger, the Hub\'s sector compare, the served names\' cap-weight and equal-weight read, the tree\'s close tier, the live sector ranking) averaged with the weights in INPUTS; the vote is the average over the sectors. Straight: when most sectors run hot the score goes UP; when most are washed out it goes DOWN. It replaced the three separate sector voters on 5 Oct (Alan: blend them into one). Weight 0.75.',
   ADLINE: 'PROXY: the advance/decline line over the names the Hub serves to this tool — one up or down per name per completed session (close vs the close before, the chart API\'s daily bars), summed over the last 20 sessions, plus today from the live quotes. Straight: more names rising than falling pushes the score UP; the line falling while the index holds up is the classic narrow tape and pulls DOWN. Base weight 0.5.',
   CONC: 'PROXY: concentration — the equal-weight twin (RSP) minus the cap-weight index (SPY) over the same 20 sessions, with the share of the served set\'s move its ten largest names carried. Above zero the average stock keeps up (broad, hotter); below zero the ten biggest names carry the tape, which reads colder for everything else. Base weight 0.5.',
   VIX_TERM: 'PROXY: spot VIX ÷ 3-month VIX. Above 1.00 the market prices stress now (backwardation) — that is fear, so it pulls the score DOWN. The spot leg is the chart API\'s live VIX; the 3-month leg is the VIX table\'s last close (no live 3-month VIX exists in the estate yet), so the dial says that date. Weight 0.25.',
@@ -1158,7 +1231,8 @@ if (S.divAuto==null) S.divAuto=1;
 if (S.maxTotal==null) S.maxTotal=12;
 if (S.maxNames==null) S.maxNames=6;
 if (S.concLean==null) S.concLean=0;
-if (!S.mixMethod) S.mixMethod='MIX'; if (!S.mixW) S.mixW=structuredClone(MIX_DEFAULT);   // PA4: the sector methodology dial and its default mix
+if (!S.mixMethod) S.mixMethod='BLEND'; if (!S.mixW) S.mixW=structuredClone(MIX_DEFAULT);   // PA4: the sector methodology dial and its default mix
+if (!S._v6) { S.mixMethod='BLEND'; S.mixW=structuredClone(MIX_DEFAULT); S.wts.SECTORS=0.75; delete S.wts.SECTOR_CMP; delete S.wts.BOWTIE; delete S.wts.MKT_BOWTIE; S._v6=1; }   // PA5: one blended bow tie, one sector voter
 if (S.invCold==null) S.invCold=80; if (S.invMid==null) S.invMid=50; if (S.invHot==null) S.invHot=30;   // PA3: the policy ladder's middle steps
 function save(){ localStorage.setItem('alloc-module-v1', JSON.stringify(S)); }
 
@@ -1298,13 +1372,12 @@ function voters(){
      score up). SECTOR BOW TIE = the average of equal-weight minus cap-weight across the eleven sectors (straight,
      like EQUAL-WEIGHT vs INDEX above: below zero the big names carry the tape, which reads colder). MARKET BOW TIE =
      B1's whole-market figure, every listed name, dated — it votes slowly and says its date. */
-  const secs=Object.values(SECTOR_READ).filter(r=>r.src==='geiger'&&r.score!=null);
-  const scAvg=secs.length? secs.reduce((t,r)=>t+r.score,0)/secs.length : null;
-  v.push({key:'SECTOR_CMP', speed:0.5, name:'SECTOR COMPARE', sub: scAvg==null?'— the sector funds carry no Geiger yet':(secs.length+' sector funds average '+f2v(scAvg)+' · '+secs.filter(r=>r.kind==='go').length+' leading · '+secs.filter(r=>r.kind==='avoid').length+' lagging'), val: scAvg==null?null:clamp(scAvg)});
-  const bows=secs.filter(r=>r.bowtie!=null); const bowAvg=bows.length? bows.reduce((t,r)=>t+r.bowtie,0)/bows.length : null;
-  v.push({key:'BOWTIE', speed:0.85, name:'SECTOR BOW TIE', sub: bowAvg==null?'—':('equal-weight minus cap-weight, '+bows.length+' sectors = '+f2v(bowAvg)+' · below zero: the biggest names carry each sector'), val: bowAvg==null?null:clamp(bowAvg)});
-  const mb1=(B1&&B1.market&&B1.market.bowtie!=null)?+B1.market.bowtie:null;
-  v.push({key:'MKT_BOWTIE', speed:0.85, name:'MARKET BOW TIE', sub: mb1==null?'— not read':('every listed name, equal-weight minus cap-weight = '+f2v(mb1)+' · as of the '+B1.asof+' close · '+(B1.market.n_read||'')+' names read'), val: mb1==null?null:clamp(mb1)});
+  /* PA5: ONE sector voter — the blended sector bow tie (it replaces SECTOR COMPARE, SECTOR BOW TIE and MARKET BOW TIE, which read the
+     same sectors three ways). The vote is the average blended reading of the eleven fund sectors; the sub line says the bow tie. */
+  const blended=blendTable().filter(r=>SECT_CW[r.key]);
+  const bAvg=blended.length? blended.reduce((t,r)=>t+r.score,0)/blended.length : null;
+  const bows=blended.filter(r=>r.blendBow!=null); const bowAvg=bows.length? bows.reduce((t,r)=>t+r.blendBow,0)/bows.length : null;
+  v.push({key:'SECTORS', speed:0.6, name:'SECTOR BOW TIE (blended)', sub: bAvg==null?'— the sectors carry no reading yet':(blended.length+' sectors, five readings each, average '+f2v(bAvg)+(bowAvg!=null?' · bow tie '+f2v(bowAvg)+(bowAvg<-0.1?' — the biggest names carry the sectors':bowAvg>0.1?' — the average stock leads':' — even'):'')+' · '+blended.filter(r=>r.kind==='go').length+' leading · '+blended.filter(r=>r.kind==='avoid').length+' lagging'), val: bAvg==null?null:clamp(bAvg)});
   // VIX TERM STRUCTURE — spot vs 3-month. Above 1 is backwardation, i.e. stress now.
   /* Only votes on a FRESH row. vix_term stopped on 2026-06-08, so today this reads
      stale and contributes nothing rather than voting on a two-month-old ratio. */
@@ -1673,6 +1746,7 @@ function render(){
   renderSectorRot();
   renderRotationTemplate();
   renderTreeRoll();
+  renderBowTie();
   { const w=mixWeights(); for(const o of ['SPDR','HUBCMP','MKTBOW','TREE']){ const e=document.getElementById('mix'+o); if(e){ e.value=w[o]; document.getElementById('mix'+o+'V').textContent=w[o]+' / '+(w.SPDR+w.HUBCMP+w.MKTBOW+w.TREE); } } }
   renderMixDial();
   drawDonut(sleeveShares(), inv);
@@ -2026,7 +2100,7 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const p1 = 'The market reads '+st.cond+' (heat '+f(h)+'). '+idx+breadth+'.'+sect+bow+bl+macro;
   const SHB = sleeveShares();
   const top = Object.entries(SHB).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,sh])=>(SECT_WORD[k]||k)+' '+Math.round(sh*inv*100)+'%');
-  const p2 = 'The sectors are read by '+methodWord().toLowerCase().replace('mix · ','a mix: ')+'. The policy for a '+st.cond.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?pct(dTot,0)+' of equity is to deploy':pct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in TARGET MIX).':'.');
+  const p2 = 'The sectors are read by one blended bow tie — five readings per sector, averaged. The policy for a '+st.cond.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?pct(dTot,0)+' of equity is to deploy':pct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in TARGET MIX).':'.');
   const ranked = (typeof rankCandidates==='function') ? rankCandidates().filter(r=>r.tag).slice(0,5) : [];
   const p3 = ranked.length ? 'Inside those sectors the names that rank first — fundamentals first, then the Geiger for timing — are '+ranked.map(r=>r.sym+' ('+(SECT_WORD[r.sleeves[0]]||r.sleeves[0]||'')+(r.vr?', '+r.vr.tag.toLowerCase()+' vs peers':'')+(r.target?', target '+(r.target.up>=0?'+':'')+Math.round(r.target.up*100)+'%':'')+')').join(', ')+'. Their comparables and the checked analyst targets are in 4b.' : '';
   el.innerHTML = p1 + '<br><br>' + p2 + (p3?'<br><br>'+p3:'');
@@ -2347,7 +2421,7 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   L.push('STEP B2 · THE SECTOR COMPARE AND THE BOW TIE (added 5 Oct)');
   const secs=Object.values(SECTOR_READ).filter(r=>r.src==='geiger').sort((a,b)=>b.score-a.score);
   for (const r of secs) L.push(`  ${groupWord(r.key).padEnd(24)} ${r.etf} ${f2(r.score)} (trend ${f2(r.trend)}, momentum ${f2(r.momentum)}, ${r.q.toLowerCase()})${r.bowtie!=null?'  ·  bow tie '+r.ewEtf+' − '+r.etf+' = '+f2(r.ew)+' − '+f2(r.score)+' = '+f2(r.bowtie):''}${b1Verdict(r.key)?'  ·  aggregate '+b1Verdict(r.key):''}`);
-  L.push(`  SECTOR COMPARE = average of the ${secs.length} fund scores → ${f2(V('SECTOR_CMP'))} · SECTOR BOW TIE = average of the bow ties → ${f2(V('BOWTIE'))} · MARKET BOW TIE (B1, ${B1?B1.asof:'—'}) → ${f2(V('MKT_BOWTIE'))}`);
+  L.push(`  SECTOR BOW TIE (blended) = average of the eleven fund sectors' blended readings → ${f2(V('SECTORS'))} · B1's whole-market bow tie (${B1?B1.asof:'—'}) = ${f2(B1&&B1.market?+B1.market.bowtie:null)} (soundness only, no longer a voter)`);
   const used = vv.filter(v => v.val != null && (S.wts[v.key]??0) > 0);
   L.push('STEP B3 · BREADTH, COMPUTED HERE (added 5 Oct)');
   if(BREADTH20) L.push(`  ADVANCE / DECLINE: ${BREADTH20.n} served names · ${BREADTH20.sessions.length} completed sessions to ${BREADTH20.asof} · net advances per session ${BREADTH20.sessions.map(s=>(s.net>=0?'+':'')+s.net).join(' ')} · line ${BREADTH20.cum>=0?'+':''}${BREADTH20.cum} · today ${BREADTH20.today.up} up / ${BREADTH20.today.down} down → vote ${f2(V('ADLINE'))}`); else L.push('  ADVANCE / DECLINE: daily bars not reachable — market_internals fallback → '+f2(V('ADLINE')));
@@ -2362,8 +2436,8 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   L.push(`  LC/SC lens = 50% + (IWM ${f2(gv('IWM'))} − SPY ${f2(gv('SPY'))})×50%${S.lcTilt?` + tilt ${S.lcTilt}×heat ${f2(h)}`:''} = ${pct(lc,0)} large / ${pct(1-lc,0)} small, capped 20–80%`);
   L.push('STEP E · YOUR STATE (from IBKR, adjusted by your sliders) → MOVES');
   L.push(`  current: invested ${pct(cInv,0)} · target ${pct(inv,0)} · TOTAL ${spct(dTot)} of equity`);
-  L.push('STEP F0 · THE SECTOR METHOD — '+methodWord());
-  for (const k of Object.keys(SECT_CW)) { const r=methodRead(k); if(!r||!r.parts) continue; const P=r.parts; L.push(`  ${groupWord(k).padEnd(24)} State Street ${f2(P.SPDR&&P.SPDR.score)} · Hub compare ${f2(P.HUBCMP&&P.HUBCMP.score)} · market bow tie ${f2(P.MKTBOW&&P.MKTBOW.score)}${P.MKTBOW&&P.MKTBOW.bowtie!=null?' (bow tie '+f2(P.MKTBOW.bowtie)+')':''} · tree ${f2(P.TREE&&P.TREE.score)}${P.TREE&&P.TREE.n?' ('+P.TREE.n+' names)':''} → used ${f2(r.score)}`); }
+  L.push('STEP F0 · '+methodWord()+' — blend = Σ weight × reading ÷ Σ weight over the readings present');
+  for (const r of blendTable()) { const P=r.parts||{}; L.push(`  ${groupWord(r.key).padEnd(24)} ${BLEND_SRC.map(([k,n])=>n+' '+f2(P[k]&&P[k].score)).join(' · ')} → blend ${f2(r.score)} (${(r.used||[]).length} of 5${r.missing&&r.missing.length?'; missing '+r.missing.join(', ')+'; weights renormalised to '+Object.entries(r.weights||{}).map(([k,v])=>k+' '+v).join('/'):''}) · cap side ${f2(r.cap)} · equal side ${f2(r.eq)} · bow tie ${f2(r.blendBow)}`); }
   L.push('STEP F · WHERE — each sector\'s share of the invested part (colder earns more; improving lifted ×1.35, weakening ×0.85, breakdown ×0.6; capped 2–35%)');
   const SH=sleeveShares();
   for (const [k,sh] of Object.entries(SH).sort((a,b)=>b[1]-a[1])) { const r=groupReadOf(k)||{}; L.push(`  ${groupWord(k).padEnd(24)} score ${f2(r.score)} → cold ${(Math.max(0.05,(1-(r.score??0))/2)).toFixed(2)} × turn (${r.kind||'—'}) → ${pct(sh,0)} of invested = ${pct(sh*inv)} of equity`); }
@@ -2378,13 +2452,13 @@ for (const id of ['dTrend','dRsi','vixCold','tenCold','maxInv','minInv','invCold
   const el=document.getElementById(id); if(!el) continue;
   document.getElementById(id).oninput = e => { S[id] = +e.target.value; save(); render(); };
 }
-for (const o of ['SPDR','HUBCMP','MKTBOW','TREE']) { const el=document.getElementById('mix'+o); if(el) el.oninput = e => { S.mixW=mixWeights(); S.mixW[o]=+e.target.value; save(); render(); }; }
+for (const o of ['SPDR','HUBCMP','MKTBOW','TREE','RANK']) { const el=document.getElementById('mix'+o); if(el) el.oninput = e => { S.mixW=mixWeights(); S.mixW[o]=+e.target.value; save(); render(); }; }
 document.getElementById('refresh').onclick = loadFeeds;
 if(localStorage.getItem('alloc-hidedesc')!=='0') document.body.classList.add('hidedesc');  // collapsed by default
 (function(){ const b=document.getElementById('descToggle'); const upd=()=>{ const hid=document.body.classList.contains('hidedesc'); b.textContent=(hid?'▸ ':'▾ ')+'what each voter is (proxy detail)'; }; upd(); b.onclick=()=>{ document.body.classList.toggle('hidedesc'); localStorage.setItem('alloc-hidedesc', document.body.classList.contains('hidedesc')?'1':'0'); upd(); }; })();
 /* ===== PA4 · THE FOLD ===== every section folds to one screen with a sticky bar at the top; INPUTS is a drawer over the page;
    THE BRIEF and the TARGET MIX pie sit on the first screen. Nothing is removed. Fold state is remembered on this device. */
-const SECTIONS=[['p-brief','THE BRIEF'],['p-heat','1 HEAT'],['p-inputs','INPUTS'],['p-mix','2 MIX'],['p-moves','3 MOVES'],['p-options','4 OPTIONS'],['p-comps','4b COMPS'],['p-map','5 MAP'],['p-state','6 STATE'],['p-trace','7 TRACE']];
+const SECTIONS=[['p-brief','THE BRIEF'],['p-heat','1 HEAT'],['p-inputs','INPUTS'],['p-bowtie','2 SECTORS'],['p-mix','3 MIX'],['p-moves','3 MOVES'],['p-options','4 OPTIONS'],['p-comps','4b COMPS'],['p-map','5 MAP'],['p-state','6 STATE'],['p-trace','7 TRACE']];
 let FOLDS={}; try{ FOLDS=JSON.parse(localStorage.getItem('alloc-folds')||'{}'); }catch(e){}
 function setFold(id, folded){ FOLDS[id]=folded?1:0; localStorage.setItem('alloc-folds',JSON.stringify(FOLDS)); applyFold(id); }
 function applyFold(id){ const p=document.getElementById(id); if(!p) return; const folded=(FOLDS[id]==null)?(id!=='p-brief'):!!FOLDS[id]; p.classList.toggle('folded',folded); const b=p.querySelector('.pfold'); if(b) b.textContent=folded?'ONE SCREEN · OPEN ▾':'OPEN · FOLD ▴'; }
