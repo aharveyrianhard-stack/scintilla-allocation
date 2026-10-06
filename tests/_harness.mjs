@@ -15,7 +15,7 @@ export const hours = (iso) => (Date.now() - Date.parse(iso)) / 36e5;
 export async function startServer() {
   const server = http.createServer(async (req, res) => {
     const u = new URL(req.url, "http://x"); const rw = rewrites.find((x) => x.source === u.pathname);
-    if (rw) { try { const r = await fetch(rw.destination + u.search); res.writeHead(r.status, { "content-type": "application/json" }); return res.end(Buffer.from(await r.arrayBuffer())); } catch (e) { res.writeHead(502); return res.end(String(e)); } }
+    if (rw) { try { const r = await fetch(rw.destination + u.search); res.writeHead(r.status, { "content-type": r.headers.get("content-type") || "application/json" }); return res.end(Buffer.from(await r.arrayBuffer())); } catch (e) { res.writeHead(502); return res.end(String(e)); } }   /* PA6: the upstream's own type — the C5 method is a JavaScript module */
     const f = path.join(ROOT, u.pathname === "/" ? "index.html" : u.pathname);
     if (!fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); return res.end(); }
     res.writeHead(200, { "content-type": f.endsWith(".json") ? "application/json" : "text/html" }); res.end(fs.readFileSync(f));

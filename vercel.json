@@ -19,6 +19,14 @@
     {
       "source": "/v1/scout-geiger",
       "destination": "https://scintilla-massive-chart-api.fly.dev/v1/scout-geiger"
+    },
+    {
+      "source": "/c5/lines.mjs",
+      "destination": "https://scintillahub.ai/deliverables/20261003/comps-c5/lines.mjs"
+    },
+    {
+      "source": "/c5/segments.json",
+      "destination": "https://scintillahub.ai/deliverables/20261003/comps-c5/segments-2026-10-03.json"
     }
   ]
 }

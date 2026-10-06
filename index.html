@@ -155,6 +155,8 @@
   .cohchip{display:inline-block;margin:3px 6px 3px 0;padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer;background:#0c0c13}
   .cohchip.on{border-color:var(--gold);background:rgba(255,209,102,.07)}
   .cohchip small{display:block;color:var(--dim);font-size:9.5px;margin-top:2px}
+  .koline{border-top:1px solid var(--line);margin-top:10px;padding-top:8px}
+  .koline h3{font-size:11px;letter-spacing:.14em;color:var(--txt);font-weight:600;margin:0 0 2px}.koline h3 small{color:var(--dim);font-weight:400;letter-spacing:.04em;margin-left:8px}
   .kopick{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
   .kopick .swcard{width:min(420px,94vw)}
   /* PA6 · the Hub's Geiger chip — CSS copied from the Hub's index.html (.sc-gmini, .sc-gmini__mid, .sc-gmini i; tokens --bull / --bear), so a
@@ -290,8 +292,8 @@
 
   <!-- 5 THE KNOCKOUT (PA5) -->
   <div class="panel full">
-    <h2>5 · THE COMPS KNOCKOUT — inside the chosen cohort, the names face off on fundamentals; the Geiger only says when</h2>
-    <div class="note">Seeded by fundamentals (each name's four readings against its own peers; a peer priced far from the group on the multiples is left out of the medians — the Hub's comps rule, C6b), first plays last. A duel is won on fundamentals; when two names are even, the Geiger decides the timing. The survivors of the last rounds are the cohort's picks: KEEP or DROP each — a decision is saved to the comps decisions table the moment you press it.</div>
+    <h2>5 · THE COMPS KNOCKOUT — inside the chosen cohort, business line by business line; the Geiger only says when</h2>
+    <div class="note">Only two names in the same business line may face each other (C5's lines: what each company actually sells — memory, data-center chips, semiconductor equipment …); a duel across business lines is impossible. Inside a line the names are seeded by fundamentals — four readings, each on its own scale against the line's field (the family when the line is thin), a peer priced strangely left out (C6b) — and first plays last until one is left, the line's champion. A duel is won on fundamentals; only when two names are even does the Geiger decide the timing. The champions stand on a podium, ordered by score, never duelling each other: the podium's first names are the cohort's picks — KEEP or DROP each; a decision is saved to the comps decisions table the moment you press it. The written concept: KNOCKOUT-CONCEPT (PA6) on the Hub.</div>
     <div id="knockout"></div>
   </div>
 
@@ -703,6 +705,41 @@ let QUOTES={}, PROFILES={}, TREAS=null, VIXDB=null, SECTOR_RANKS=null, OPW=null;
    The chart API answers only the Hub's origin in a browser, so vercel.json rewrites /geiger and /quotes on this
    site to it (same-origin); the direct address is tried second. */
 let GEIGER={}, GEIGER_META=null, TARGETS={}, B1=null, PEER_SRC='';
+/* PA6 · C5's business lines (the Hub's comps method, deliverables/20261003/comps-c5/lines.mjs, imported as it is through the
+   /c5/ rewrites) over FMP's revenue by segment and the company profiles: a line vector per served company. The knockout pairs
+   names only inside a line. One hand rule is PA6's own: FMP files the four wafer-fab equipment makers under "Semiconductors". */
+let C5=null, SEGMENTS=null, LINES={};
+const KO={lineMin:0.15, minField:5, even:0.02};
+const PA6_HAND={AMAT:1,LRCX:1,KLAC:1,ASML:1};
+function buildLines(){
+  LINES={};
+  for(const [t,p] of Object.entries(PROFILES)){ if(p.is_etf||!p.industry) continue;
+    let L;
+    if(C5){ L=C5.linesOf(t,p,(SEGMENTS&&SEGMENTS[t])||null); if(PA6_HAND[t]) L={...L, lines:{'semiconductor equipment':1}, family:'SEMIS', source:'hand', from:'hand rule (10-K): wafer-fab equipment, filed by FMP under Semiconductors (PA6)'}; }
+    else { const ind=String(INDUSTRY_OF[t]||p.industry).toLowerCase().replace(/_/g,' '); L={lines:{[ind]:1}, family:ind, source:'industry', from:'FMP industry — C5\'s method unreachable'}; }
+    LINES[t]=L; }
+  spineSet('c5_lines',null,C5?'LIVE':'FALLBACK',Object.keys(LINES).length+' served companies with a business-line vector · '+(C5?'C5\'s method (lines.mjs) over the FMP revenue segments of '+(SEGMENTS?Object.keys(SEGMENTS).length:0)+' companies':'the industry axis only — C5\'s method could not be reached'));
+}
+function dominantLine(t){ const L=LINES[t]; if(!L) return null; return Object.entries(L.lines).sort((a,b)=>b[1]-a[1])[0][0]; }
+function lineFamily(line){ return C5?C5.FAMILY_OF(line):line; }
+function lineMembers(line){ return Object.keys(LINES).filter(t=>(LINES[t].lines[line]||0)>=KO.lineMin && COMPS[t]); }
+function familyMembers(fam){ return Object.keys(LINES).filter(t=>lineFamily(dominantLine(t))===fam && COMPS[t]); }
+/* the scale a line is measured on: the line's served names when at least five carry a price measure, else the family */
+function scaleFor(line){ const lm=lineMembers(line); const measured=lm.filter(t=>COMPS[t].pe>0||COMPS[t].ps>0); if(measured.length>=KO.minField) return {level:'line',name:line,members:lm}; const fam=lineFamily(line); return {level:'family',name:fam,members:familyMembers(fam)}; }
+window.scaleFor=scaleFor;
+/* the four readings of one name against a given field, C6b's price-outliers out: the same arithmetic as fundScore, on the line's scale */
+function fieldReadings(sym, scale){
+  const c=COMPS[sym]; if(!c) return {score:null,parts:[],n:0,outliers:[],fieldN:0};
+  const others=scale.members.filter(m=>m!==sym); const O=c6bOutliers(others); const field=others.filter(m=>!O.out.has(m));
+  const quart=(key)=>{ const vals=field.map(m=>COMPS[m]&&COMPS[m][key]).filter(v=>v!=null&&isFinite(v)&&(!RATIO_KEYS.has(key)||v>0)).sort((a,b)=>a-b); if(vals.length<4) return null; const q=p=>{const i=(vals.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?vals[lo]:vals[lo]+(vals[hi]-vals[lo])*(i-lo)}; return {n:vals.length,q1:q(.25),med:q(.5),q3:q(.75)}; };
+  const parts=[]; const pk=c.pe>0?'pe':(c.ps>0?'ps':null);
+  if(pk){ const d=quart(pk); const t=vsPeers(c[pk],d,-1); if(t!=null) parts.push(['price',t,(pk==='pe'?'P/E ':'P/S ')+(+c[pk]).toFixed(1)+' vs field '+d.q1.toFixed(1)+' / '+d.med.toFixed(1)+' / '+d.q3.toFixed(1)+' ('+d.n+')',d]); }
+  for(const [key,label,dir] of [['rev_growth','growth',1],['net_m','margin',1],['de','leverage',-1]]){ if(c[key]==null) continue; const d=quart(key); const t=vsPeers(c[key],d,dir); if(t==null) continue;
+    const f=v=>key==='de'?(+v).toFixed(2):((+v)*100).toFixed(0)+'%'; parts.push([label,t,label+' '+f(c[key])+' vs field '+f(d.q1)+' / '+f(d.med)+' / '+f(d.q3)+' ('+d.n+')',d]); }
+  if(!parts.length) return {score:null,parts,n:0,outliers:[...O.out],outlierWhy:O.why,fieldN:field.length};
+  return {score:(parts.reduce((t,p)=>t+p[1],0)+0.5*(4-parts.length))/4, parts, n:parts.length, outliers:[...O.out], outlierWhy:O.why, fieldN:field.length};
+}
+window.fieldReadings=fieldReadings;
 /* PA4 (5 Oct 2026, Alan 14:15: "it does not have advance/decline line, concentration") — the breadth the tool
    computes itself from the daily bars the Hub reads, over the names the Hub serves to this tool. */
 /* PA4 — TARGET MIX says which sector methodology it uses (Alan: "what is it considering? State Street, or a mix of all the
@@ -1078,6 +1115,8 @@ async function refreshSSOT(){
   J.push(fetch('https://scintillahub.ai/deliverables/20260928/coverage-tree/data/holdings.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{ if(!j||!j.data) return;
     for(const [k,etf] of Object.entries(SECT_CW)){ const f=j.data[etf]; if(!f||!Array.isArray(f.h)) continue; SPDR_MEMBERS[etf]=f.h.map(x=>x[0]); for(const [t] of f.h) if(!SECTOR_MAP[t]) SECTOR_MAP[t]=k; } }).catch(()=>{}));
   J.push(loadDecisions());
+  // PA6 — C5's business-line method and the revenue segments, from the Hub through this site's rewrites
+  J.push(Promise.all([import('/c5/lines.mjs'), fetch('/c5/segments.json',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(new Error('segments '+r.status)))]).then(([m,seg])=>{ C5=m; SEGMENTS=seg.companies||{}; }).catch(e=>{ C5=null; SEGMENTS=null; spineSet('c5_lines',null,'FALLBACK','C5\'s method unreachable ('+e.message+') — lines from the industry axis'); }));
   // PA4 — the chart API's macro board (FMP ^VIX, ^TNX …): the live VIX for the VIX voter; the VIX table keeps the 3-month leg
   J.push(apiGet('/macro').then(j=>{ MACROAPI=j.macro||{}; const v=MACROAPI.VIX; const ts=j.generated_utc||null;
     spineSet('macro_api',ts,(v&&v.quote&&v.quote.price!=null)?'LIVE':'STALE','chart API /macro · VIX '+(v&&v.quote?v.quote.price:'—')+' ('+(v?v.state:'no VIX')+(v&&v.quote&&v.quote.session_et?', session '+v.quote.session_et:'')+')');
@@ -1102,7 +1141,7 @@ async function refreshSSOT(){
     OPW={rows:rows.length}; spineSet('operator_weights',null,'LIVE',rows.length+' rows — applied upstream by the hub inside composite_staged');
   }).catch(e=>spineSet('operator_weights',null,'FALLBACK','read failed')));
   await Promise.all(J);
-  buildSectorReads();
+  buildSectorReads(); buildLines();
   // second wave — these need the universe: live quotes, peers and checked targets for the candidate names
   const syms=candidateSyms();
   const K2=[];
@@ -1429,6 +1468,7 @@ async function loadFeeds(){
   try {
     const base = candidateSyms(), want = new Set(base);
     for (const s of base) for (const p of (PEERS[s]||[])) want.add(p);
+    for (const t of Object.keys(LINES)) want.add(t);   // PA6: every served company with a business line, so each line has its field
     const syms = [...want];
     const batches = []; for (let i = 0; i < syms.length; i += 60) batches.push(syms.slice(i, i+60).join(','));
     const texts = await Promise.all(batches.map(b => fetch(SB + '/comps-feed?syms=' + encodeURIComponent(b)).then(r=>r.text())));
@@ -1436,7 +1476,7 @@ async function loadFeeds(){
       const L = ct.trim().split('\n'); const head = L[0].split(',');
       for (const line of L.slice(1)) { const c = line.split(','); const o = {}; head.forEach((h,i)=>o[h]=c[i]===''?null:+c[i]); COMPS[c[0]] = o; }
     }
-    spineSet('comps-feed', null, 'LIVE', Object.keys(COMPS).length+' names priced (candidates + their peers) — fundamentals from the database');
+    spineSet('comps-feed', null, 'LIVE', Object.keys(COMPS).length+' names priced (candidates, their peers and every served company with a business line) — fundamentals from the database');
   } catch(e) { spineSet('comps-feed', null, 'FALLBACK', 'comps read failed'); }
   renderSpine();
   // IBKR state handoff: a Claude session syncs percentages (never dollars) to this file on schedule.
@@ -2431,8 +2471,7 @@ let KO_COHORT = localStorage.getItem('alloc-ko-cohort') || null;
 function setKoCohort(c){ KO_COHORT=c; localStorage.setItem('alloc-ko-cohort',c); render(); }
 window.setKoCohort=setKoCohort;
 function koTiming(sym){ const g=gv(sym); if(g==null) return null; const rg=REGIME[sym]||{}; return ((1-g)/2) * ((1-METHOD.regimeWeight) + METHOD.regimeWeight*2*intentFitKind(rg.kind)); }
-/* The comps field for one name: the four readings against its own peers with the outlier peers out (C6b: priced far
-   from the group on the multiples), plus who they are */
+/* The comps field for one name — kept for MOVE OPTIONS and the cards (its own named peers, C6b) */
 function koField(sym){
   const fund=fundScore(sym); const O=peerOutliers(sym); let peers=null;
   for(const key of ['pe','ps','rev_growth','net_m','de']){ const d=peerDist(sym,key); if(d){ peers=peers??d.members; } }
@@ -2449,8 +2488,9 @@ function cohortBoard(){
     const secs={}; for(const t of names){ const k=sectorKeyOfAny(t); if(k&&k!=='MACRO') secs[k]=(secs[k]||0)+1; }
     const top=Object.entries(secs).sort((a,b)=>b[1]-a[1])[0]; const isSector=!!SECTOR_READ[c]; const sector=isSector?c:(top?top[0]:null);
     const measured=names.filter(t=>(fundScore(t).n||0)>=2).length;
+    const lines=new Set(names.map(t=>dominantLine(t)).filter(Boolean));
     const tr=TREE_ROLL&&TREE_ROLL.cohorts[c]||null;
-    out.push({key:c, names, n:names.length, measured, sector, isSector, sectorShare:sector?(SH[sector]||0):0, sectorRank:sector?order.indexOf(sector):99, tree:tr, verdict:b1Verdict(c)});
+    out.push({key:c, names, n:names.length, measured, lines:lines.size, sector, isSector, sectorShare:sector?(SH[sector]||0):0, sectorRank:sector?order.indexOf(sector):99, tree:tr, verdict:b1Verdict(c)});
   }
   out.sort((a,b)=> (a.sectorRank-b.sectorRank) || ((a.isSector?1:0)-(b.isSector?1:0)) || (b.measured-a.measured));
   return out;
@@ -2458,42 +2498,53 @@ function cohortBoard(){
 window.cohortBoard=cohortBoard;
 function koDefaultCohort(board){ const ok=board.filter(c=>c.measured>=4&&!c.isSector); const ok2=board.filter(c=>c.measured>=4); return (ok[0]||ok2[0]||[...board].sort((a,b)=>b.measured-a.measured)[0]||{}).key||null; }
 function beats(w,l){ const L=Object.fromEntries((l.fund.parts||[]).map(p=>[p[0],p[1]])); return (w.fund.parts||[]).filter(p=>L[p[0]]!=null&&p[1]>L[p[0]]).map(p=>p[0]); }
+/* one duel: won on fundamentals when the two scores are at least KO.even apart; otherwise the Geiger decides the timing (the more washed-out name goes through) */
 function duel(a,b){
   const f2=x=>(x>=0?'+':'')+(+x).toFixed(2);
   const d=a.fund.score-b.fund.score;
-  if(Math.abs(d)>=0.02){ const w=d>0?a:b, l=d>0?b:a; const on=beats(w,l); return {a,b,winner:w,loser:l,on:'fundamentals',why:w.sym+' wins on fundamentals, '+w.fund.score.toFixed(2)+' against '+l.fund.score.toFixed(2)+(on.length?' — better on '+on.join(', '):'')+'. The Geiger only says when: '+w.sym+' '+f2(w.g)+(w.rg.label&&w.rg.label!=='NO READ'?' ('+w.rg.label.toLowerCase()+')':'')+'.'}; }
+  if(Math.abs(d)>=KO.even){ const w=d>0?a:b, l=d>0?b:a; const on=beats(w,l); return {a,b,winner:w,loser:l,on:'fundamentals',line:a.line,why:w.sym+' wins on fundamentals, '+w.fund.score.toFixed(2)+' against '+l.fund.score.toFixed(2)+(on.length?' — better on '+on.join(', '):'')+'. The Geiger only says when: '+w.sym+' '+f2(w.g)+(w.rg.label&&w.rg.label!=='NO READ'?' ('+w.rg.label.toLowerCase()+')':'')+'.'}; }
   const w=(a.timing??0)>=(b.timing??0)?a:b, l=w===a?b:a;
-  return {a,b,winner:w,loser:l,on:'timing',why:'Even on fundamentals ('+a.fund.score.toFixed(2)+' and '+b.fund.score.toFixed(2)+'), so the Geiger decides the timing: '+w.sym+' reads '+f2(w.g)+(w.rg.label?' ('+w.rg.label.toLowerCase()+')':'')+' against '+l.sym+' '+f2(l.g)+(l.rg.label?' ('+l.rg.label.toLowerCase()+')':'')+'.'};
+  return {a,b,winner:w,loser:l,on:'timing',line:a.line,why:'Even on fundamentals ('+a.fund.score.toFixed(2)+' and '+b.fund.score.toFixed(2)+', less than '+KO.even+' apart), so the Geiger decides the timing: '+w.sym+' reads '+f2(w.g)+(w.rg.label?' ('+w.rg.label.toLowerCase()+')':'')+' against '+l.sym+' '+f2(l.g)+(l.rg.label?' ('+l.rg.label.toLowerCase()+')':'')+'.'};
 }
-/* the bracket: seeded by fundamentals, first plays last, an odd name gets a bye; rounds until one is left; the order of elimination is the pick order */
+/* THE KNOCKOUT, built to KNOCKOUT-CONCEPT.html (PA6): the cohort's companies grouped by business line (each in the line that carries
+   most of its revenue); inside a line, seeded by fundamentals on the line's own scale, first plays last, an odd name gets a bye, rounds
+   until one is left — the line's champion; a lone name is champion unopposed. Champions never duel: they stand on a podium by score,
+   and the podium is the pick order. K.rounds keeps the round-indexed shape (every line's round i together) for the readouts. */
 function knockout(cohortKey){
   const board=cohortBoard(); const c=board.find(x=>x.key===cohortKey); if(!c) return null;
-  const mk=t=>{ const kf=koField(t); const q=QUOTES[t]||{}; const price=q.price!=null?+q.price:null; const tg=TARGETS[t];
-    return {sym:t, fund:kf.fund, outliers:kf.outliers, outlierPeers:kf.outlierPeers, g:gv(t), rg:REGIME[t]||{}, timing:koTiming(t), price, day:q.chg_pct!=null?(+q.chg_pct)/100:null, target:(tg&&price)?{median:tg.median,n:tg.n,up:tg.median/price-1}:null, fav:UNIVERSE.favs.has(t)}; };
-  const all=c.names.map(mk);
-  const entrants=all.filter(e=>e.fund.score!=null&&(e.fund.n||0)>=2).sort((a,b)=>(b.fund.score-a.fund.score)||((b.timing??0)-(a.timing??0)));
-  entrants.forEach((e,i)=>e.seed=i+1);
-  const sitOut=all.filter(e=>!entrants.includes(e));
-  const rounds=[]; let round=[...entrants]; const outOrder=[];
-  while(round.length>1){ const arr=[...round], matches=[], next=[];
-    while(arr.length>1){ const a=arr.shift(), b=arr.pop(); const m=duel(a,b); matches.push(m); next.push(m.winner); outOrder.unshift(m.loser); }
-    if(arr.length){ matches.push({a:arr[0],b:null,winner:arr[0],loser:null,on:'bye',why:arr[0].sym+' has no opponent left this round and goes through.'}); next.push(arr[0]); }
-    rounds.push(matches); round=next.sort((x,y)=>x.seed-y.seed); }
-  const champion=round[0]||null; const picksOrder=champion?[champion,...outOrder]:[];
-  return {cohort:c, entrants, sitOut, rounds, champion, picksOrder};
+  const names=c.names.filter(t=>!(PROFILES[t]&&PROFILES[t].is_etf));
+  const groups={}; for(const t of names){ const ln=dominantLine(t)||'(no business line)'; (groups[ln]=groups[ln]||[]).push(t); }
+  const mk=(t,ln,scale)=>{ const R=fieldReadings(t,scale); const q=QUOTES[t]||{}; const price=q.price!=null?+q.price:null; const tg=TARGETS[t];
+    return {sym:t, line:ln, lineShare:(LINES[t]&&LINES[t].lines[ln])||0, fund:{score:R.score,parts:R.parts,n:R.n}, outliers:R.outliers.length, outlierPeers:R.outliers, fieldN:R.fieldN, scale:scale.level+': '+scale.name, g:gv(t), rg:REGIME[t]||{}, timing:koTiming(t), price, day:q.chg_pct!=null?(+q.chg_pct)/100:null, target:(tg&&price)?{median:tg.median,n:tg.n,up:tg.median/price-1}:null, fav:UNIVERSE.favs.has(t)}; };
+  const lines=[];
+  for(const [ln,ts] of Object.entries(groups).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0]))){
+    const scale=scaleFor(ln); const all=ts.map(t=>mk(t,ln,scale));
+    const entrants=all.filter(e=>e.fund.score!=null&&(e.fund.n||0)>=2).sort((a,b)=>(b.fund.score-a.fund.score)||((b.timing??0)-(a.timing??0)));
+    entrants.forEach((e,i)=>e.seed=i+1);
+    const sitOut=all.filter(e=>!entrants.includes(e));
+    const rounds=[]; let round=[...entrants];
+    while(round.length>1){ const arr=[...round], matches=[], next=[];
+      while(arr.length>1){ const a=arr.shift(), b=arr.pop(); const m=duel(a,b); matches.push(m); next.push(m.winner); }
+      if(arr.length){ matches.push({a:arr[0],b:null,winner:arr[0],loser:null,on:'bye',line:ln,why:arr[0].sym+' has no opponent left this round and goes through.'}); next.push(arr[0]); }
+      rounds.push(matches); round=next.sort((x,y)=>x.seed-y.seed); }
+    lines.push({line:ln, scale, entrants, sitOut, rounds, champion:round[0]||null, unopposed:entrants.length===1});
+  }
+  const podium=lines.filter(l=>l.champion).map(l=>l.champion).sort((a,b)=>(b.fund.score-a.fund.score)||((b.timing??0)-(a.timing??0)));
+  const depth=Math.max(0,...lines.map(l=>l.rounds.length)); const rounds=[]; for(let i=0;i<depth;i++) rounds.push(lines.flatMap(l=>l.rounds[i]||[]));
+  return {cohort:c, lines, entrants:lines.flatMap(l=>l.entrants), sitOut:lines.flatMap(l=>l.sitOut), rounds, podium, champion:podium[0]||null, picksOrder:podium};
 }
 window.knockout=knockout;
 function fieldHtml(e){
   const P=Object.fromEntries((e.fund.parts||[]).map(p=>[p[0],p]));
   return '<div class="kofield">'+['price','growth','margin','leverage'].map(k=>{ const p=P[k]; return '<span>'+k.toUpperCase()+'</span><div class="fb" title="'+(p?esc2(p[2]):'no reading')+'">'+(p?'<b style="width:'+Math.round(p[1]*100)+'%"></b>':'')+'</div><i>'+(p?p[1].toFixed(2):'—')+'</i>'; }).join('')+'</div>'+
-    '<div class="cls" style="font-size:9.5px;margin-top:4px">'+e.fund.n+' of 4 readings vs its own peers'+(e.outliers?' · '+e.outliers+' outlier'+(e.outliers>1?'s':'')+' out on price ('+e.outlierPeers.join(', ')+')':' · no outliers to drop')+' · 1.00 = better than three quarters of them</div>';
+    '<div class="cls" style="font-size:9.5px;margin-top:4px">'+e.fund.n+' of 4 readings vs '+esc2(e.scale||'its own peers')+(e.fieldN?' ('+e.fieldN+' names)':'')+(e.outliers?' · '+e.outliers+' out on price ('+e.outlierPeers.join(', ')+')':' · no outlier to drop')+' · 1.00 = better than three quarters of them</div>';
 }
 function koCard(e, cls, pos){
   const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
   const up=e.target?((e.target.up>=0?'+':'')+Math.round(e.target.up*100)+'%'):'—';
   return '<div class="swcard '+(cls||'')+'"><div class="cbody">'+
     '<div class="chead"><b>'+esc2(e.sym)+'</b><span class="sec">seed '+e.seed+'</span><span class="pos">'+(pos||'')+'</span></div>'+
-    '<div class="ckinds">'+(e.fav?'<span class="ckind">★ ON HIS LIST</span>':'')+(e.rg&&e.rg.label&&e.rg.label!=='NO READ'?'<span class="ckind">'+esc2(e.rg.label)+'</span>':'')+'</div>'+
+    '<div class="ckinds">'+(e.line?'<span class="ckind on">'+esc2(e.line.toUpperCase())+(e.lineShare&&e.lineShare<1?' '+Math.round(e.lineShare*100)+'%':'')+'</span>':'')+(e.fav?'<span class="ckind">★ ON HIS LIST</span>':'')+(e.rg&&e.rg.label&&e.rg.label!=='NO READ'?'<span class="ckind">'+esc2(e.rg.label)+'</span>':'')+'</div>'+
     '<div class="cnums"><div><span>FUNDAMENTALS</span><b>'+e.fund.score.toFixed(2)+'</b><i>what to buy</i></div><div><span>GEIGER</span><b>'+f2(e.g)+'</b><i>when</i></div><div><span>TARGET</span><b class="'+(e.target?(e.target.up>=0?'up':'dn'):'')+'">'+up+'</b><i>'+(e.target?e.target.n+' firms':'none')+'</i></div></div>'+
     fieldHtml(e)+'</div></div>';
 }
@@ -2505,32 +2556,38 @@ function renderCohortBoard(){
   const bySec={}; for(const c of board) (bySec[c.sector||'(no sector)']=bySec[c.sector||'(no sector)']||[]).push(c);
   const secOrder=blendTable().map(r=>r.key); const keys=Object.keys(bySec).sort((a,b)=>(secOrder.indexOf(a)<0?99:secOrder.indexOf(a))-(secOrder.indexOf(b)<0?99:secOrder.indexOf(b)));
   el.innerHTML=keys.map(k=>{ const r=blendRead(k); const sh=(sleeveShares()[k]||0)*inv;
-    return '<div style="margin:8px 0 4px"><span class="cls" style="font-size:10px;letter-spacing:.08em">'+esc2(k==='(no sector)'?'NO SECTOR':groupWord(k).toUpperCase())+'</span>'+(r&&r.score!=null?' <span style="color:'+heatColor(r.score)+';font-size:11px">'+f2(r.score)+' blended</span>':'')+(sh?' <span class="cls" style="font-size:10px">· the plan gives it '+(Math.round(sh*1000)/10)+'% of equity</span>':'')+'</div>'+
-      '<div>'+bySec[k].map(c=>'<span class="cohchip'+(c.key===KO_COHORT?' on':'')+'" onclick="setKoCohort(\''+c.key+'\')"><b>'+esc2(c.key.replace(/_/g,' '))+(c.isSector?' <span class="cls">(the whole sector)</span>':'')+'</b>'+(c.tree?' <span style="color:'+heatColor(c.tree.score)+'">'+f2(c.tree.score)+'</span>':'')+'<small>'+c.n+' names · '+c.measured+' with measured fundamentals'+(c.verdict?' · '+esc2(c.verdict):'')+(c.key===KO_COHORT?' · IN THE KNOCKOUT ▾':'')+'</small></span>').join('')+'</div>'; }).join('');
+    return '<div style="margin:8px 0 4px"><span class="cls" style="font-size:10px;letter-spacing:.08em">'+esc2(k==='(no sector)'?'NO SECTOR':groupWord(k).toUpperCase())+'</span>'+(r&&r.score!=null?' <span style="color:'+(r.score>=0?'var(--bull)':'var(--bear)')+';font-size:11px">'+f2(r.score)+' '+sectorWord(r.score).toLowerCase()+'</span>':'')+(sh?' <span class="cls" style="font-size:10px">· the plan gives it '+(Math.round(sh*1000)/10)+'% of equity</span>':'')+'</div>'+
+      '<div>'+bySec[k].map(c=>'<span class="cohchip'+(c.key===KO_COHORT?' on':'')+'" onclick="setKoCohort(\''+c.key+'\')"><b>'+esc2(c.key.replace(/_/g,' '))+(c.isSector?' <span class="cls">(the whole sector)</span>':'')+'</b>'+(c.tree?' <span style="color:'+heatColor(c.tree.score)+'">'+f2(c.tree.score)+'</span>':'')+'<small>'+c.n+' names · '+c.measured+' with measured fundamentals · '+c.lines+' business line'+(c.lines===1?'':'s')+(c.verdict?' · '+esc2(c.verdict):'')+(c.key===KO_COHORT?' · IN THE KNOCKOUT ▾':'')+'</small></span>').join('')+'</div>'; }).join('');
 }
 function renderKnockout(){
   const el=document.getElementById('knockout'); if(!el) return;
   const K=KO_COHORT?knockout(KO_COHORT):null;
   if(!K){ el.innerHTML='<div class="note">pick a cohort above</div>'; return; }
   const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
-  const n=namesPer(heat());
-  const head='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:6px 0 8px">'+esc2(K.cohort.key.replace(/_/g,' '))+' · '+K.entrants.length+' names enter (two or more measured fundamentals) · '+K.rounds.length+' round'+(K.rounds.length===1?'':'s')+(K.sitOut.length?' · sitting out: '+K.sitOut.map(e=>e.sym).join(', ')+' (fewer than two measured readings)':'')+'</div>';
-  if(K.entrants.length<2){ el.innerHTML=head+'<div class="note">fewer than two names in this cohort carry measured fundamentals — nothing to face off. Pick another cohort.</div>'; return; }
+  const n=namesPer(heat()); const played=K.lines.filter(l=>l.entrants.length);
+  const head='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:6px 0 8px">'+esc2(K.cohort.key.replace(/_/g,' '))+' · '+K.entrants.length+' companies enter in '+played.length+' business line'+(played.length===1?'':'s')+' (two or more measured readings each)'+(K.sitOut.length?' · sitting out: '+K.sitOut.map(e=>e.sym).join(', ')+' (fewer than two measured readings)':'')+' · a duel across business lines is impossible</div>';
+  if(!K.entrants.length){ el.innerHTML=head+'<div class="note">no name in this cohort carries measured fundamentals — nothing to face off. Pick another cohort.</div>'; return; }
   const roundName=(i,tot)=> i===tot-1?'THE FINAL': i===tot-2?'SEMI-FINALS': 'ROUND '+(i+1);
   const mini=m=>'<div class="komini" title="'+esc2(m.why).replace(/"/g,'')+'"><b>'+esc2(m.winner.sym)+'</b> <span class="cls">'+m.winner.fund.score.toFixed(2)+'</span>'+(m.loser?' <span class="cls">beats</span> <s>'+esc2(m.loser.sym)+'</s> <span class="cls">'+m.loser.fund.score.toFixed(2)+(m.on==='timing'?' · on timing':'')+'</span>':' <span class="cls">bye</span>')+'</div>';
   const full=m=>'<div class="komatch">'+koCard(m.a, m.winner===m.a?'won':'lost', m.winner===m.a?'WINS':'')+(m.b?'<div class="vs">VS</div>'+koCard(m.b, m.winner===m.b?'won':'lost', m.winner===m.b?'WINS':''):'')+'<div class="kowhy">'+esc2(m.why)+'</div></div>';
-  const tot=K.rounds.length, cardsFrom=Math.max(0,tot-3);   // the last three rounds carry the full cards; earlier rounds are one line per duel (hover for the why)
-  const bracket='<div class="kobracket">'+K.rounds.map((ms,i)=>'<div class="koround'+(i<cardsFrom?' compact':'')+'"><h4>'+roundName(i,tot)+' · '+ms.length+' duel'+(ms.length===1?'':'s')+(i<cardsFrom?' · hover a line for the why':'')+'</h4>'+
-    ms.map(i<cardsFrom?mini:full).join('')+'</div>').join('')+'</div>';
-  const picks=K.picksOrder.slice(0,Math.max(1,n));
+  const blocks=played.map(l=>{ const tot=l.rounds.length, cardsFrom=Math.max(0,tot-3);
+    const scaleTxt=l.scale.level==='line'?'measured against the '+l.scale.members.length+' served names of this line':'measured against the '+l.scale.members.length+' served names of the '+esc2(l.scale.name)+' family (the line has fewer than '+KO.minField+' measured names)';
+    const h='<h3>'+esc2(l.line.toUpperCase())+'<small>'+l.entrants.length+' name'+(l.entrants.length===1?'':'s')+' · '+scaleTxt+(l.sitOut.length?' · sitting out: '+l.sitOut.map(e=>e.sym).join(', '):'')+' · champion <b style="color:var(--gold)">'+(l.champion?esc2(l.champion.sym):'—')+'</b>'+(l.unopposed?' — unopposed, the only '+esc2(l.line)+' name in the cohort; no comparison was made':'')+'</small></h3>';
+    const body=l.unopposed?'<div class="komatch">'+koCard(l.entrants[0],'won','UNOPPOSED')+'</div>'
+      :'<div class="kobracket">'+l.rounds.map((ms,i)=>'<div class="koround'+(i<cardsFrom?' compact':'')+'"><h4>'+roundName(i,tot)+' · '+ms.length+' duel'+(ms.length===1?'':'s')+(i<cardsFrom?' · hover a line for the why':'')+'</h4>'+ms.map(i<cardsFrom?mini:full).join('')+'</div>').join('')+'</div>';
+    return '<div class="koline" data-line="'+esc2(l.line)+'">'+h+body+'</div>'; }).join('');
+  const picks=K.podium.slice(0,Math.max(1,n));
   const pickCards=picks.map((e,i)=>{ const d=decisionOf(e.sym,e.sym); const state=d?((d.off?'DROPPED':'KEPT')+(d.saved?'':' · not saved — kept on this device')):'';
-    const why=(i===0?'won the knockout in '+K.cohort.key.replace(/_/g,' '):i===1?'runner-up in '+K.cohort.key.replace(/_/g,' '):'reached the last rounds in '+K.cohort.key.replace(/_/g,' '))+' — fundamentals '+e.fund.score.toFixed(2)+', Geiger '+f2(e.g)+(e.rg.label?' ('+e.rg.label.toLowerCase()+')':'');
-    return '<div class="swcard"><div class="cbody"><div class="chead"><b>'+esc2(e.sym)+'</b><span class="sec">'+(i===0?'CHAMPION':i===1?'RUNNER-UP':'LAST ROUNDS')+'</span><span class="pos">'+(i+1)+' / '+picks.length+'</span></div>'+
-      '<div class="ckinds">'+(d?'<span class="ckind '+(d.off?'dn':'up')+'">'+state+'</span>':'')+(e.fav?'<span class="ckind">★ ON HIS LIST</span>':'')+'</div>'+
-      '<div class="cnums"><div><span>FUNDAMENTALS</span><b>'+e.fund.score.toFixed(2)+'</b><i>'+e.fund.n+' of 4</i></div><div><span>GEIGER TIMING</span><b>'+(e.g==null?'—':((1-e.g)/2).toFixed(2))+'</b><i>'+(e.rg.label?esc2(e.rg.label.toLowerCase()):'')+'</i></div><div><span>CHECKED TARGET</span><b class="'+(e.target?(e.target.up>=0?'up':'dn'):'')+'">'+(e.target?((e.target.up>=0?'+':'')+Math.round(e.target.up*100)+'%'):'—')+'</b><i>'+(e.target?'$'+e.target.median.toFixed(0)+' · '+e.target.n+' firms':'none')+'</i></div></div>'+
+    const L=K.lines.find(l=>l.line===e.line); const how=(L&&L.unopposed)?'unopposed — the only '+e.line+' name in '+K.cohort.key.replace(/_/g,' ')+'; no comparison was made':'won the '+e.line+' knockout among '+(L?L.entrants.length:'?')+' in '+K.rounds.length+' round'+(L&&L.rounds.length===1?'':'s');
+    const why=how+' — fundamentals '+e.fund.score.toFixed(2)+' on '+e.scale+', Geiger '+f2(e.g)+(e.rg.label?' ('+e.rg.label.toLowerCase()+')':'');
+    return '<div class="swcard"><div class="cbody"><div class="chead"><b>'+esc2(e.sym)+'</b><span class="sec">'+esc2(e.line.toUpperCase())+'</span><span class="pos">'+(i+1)+' / '+picks.length+'</span></div>'+
+      '<div class="ckinds">'+(d?'<span class="ckind '+(d.off?'dn':'up')+'">'+state+'</span>':'')+(L&&L.unopposed?'<span class="ckind">UNOPPOSED</span>':'<span class="ckind on">LINE CHAMPION</span>')+(e.fav?'<span class="ckind">★ ON HIS LIST</span>':'')+'</div>'+
+      '<div class="cnums"><div><span>FUNDAMENTALS</span><b>'+e.fund.score.toFixed(2)+'</b><i>'+e.fund.n+' of 4 · '+esc2(e.scale)+'</i></div><div><span>GEIGER TIMING</span><b>'+(e.g==null?'—':((1-e.g)/2).toFixed(2))+'</b><i>'+(e.rg.label?esc2(e.rg.label.toLowerCase()):'')+'</i></div><div><span>CHECKED TARGET</span><b class="'+(e.target?(e.target.up>=0?'up':'dn'):'')+'">'+(e.target?((e.target.up>=0?'+':'')+Math.round(e.target.up*100)+'%'):'—')+'</b><i>'+(e.target?'$'+e.target.median.toFixed(0)+' · '+e.target.n+' firms':'none')+'</i></div></div>'+
       '<div class="cwhy">'+esc2(why)+'</div></div>'+
       '<div class="swbtns"><button onclick="koDecide(\''+e.sym+'\',true,\''+esc2(why).replace(/'/g,'')+'\')">✕ DROP</button><button onclick="koDecide(\''+e.sym+'\',false,\''+esc2(why).replace(/'/g,'')+'\')">✓ KEEP</button></div></div>'; }).join('');
-  el.innerHTML=head+bracket+'<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:12px 0 6px">THE PICKS FROM THIS KNOCKOUT — the last '+picks.length+' standing (the plan holds about '+n+' names per sector at today\'s heat) · KEEP puts a name into the allocation below, DROP takes it out · every press is saved</div><div class="kopick">'+pickCards+'</div>';
+  const podiumLine=K.podium.map((e,i)=>(i+1)+' '+e.sym+' <span class="cls">'+e.line+' '+e.fund.score.toFixed(2)+'</span>').join(' · ');
+  el.innerHTML=head+blocks+'<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:14px 0 4px">THE PODIUM — the line champions by score, each on its own line\'s scale; they never duel each other · '+podiumLine+'</div>'+
+    '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:6px 0 6px">THE PICKS — the first '+picks.length+' of the podium (the plan holds about '+n+' names per sector at today\'s heat) · KEEP puts a name into the allocation below, DROP takes it out · every press is saved</div><div class="kopick">'+pickCards+'</div>';
 }
 /* KEEP / DROP from the knockout: the same write path as the cards (comps_decisions, public insert), and the pick joins the pie */
 async function koDecide(sym, off, why){
@@ -2787,6 +2844,7 @@ loadFeeds();
 </script>
 <details class="sc-pagespecs"><summary>PAGE SPECS</summary>
 <p><b>The sources line (PA6, 6 Oct).</b> Under the title, one line says how many of the page's sources read live, how many are old and how many could not be reached; "details" opens the list. A source is LIVE when it was read just now and is within the age that source is allowed (the Geiger thirty minutes, the quotes fifteen, a profile a week, the sector ranking three hours); OLD when the read worked but the newest row is older than that; UNREACHABLE when the read failed, and the row then says what the page uses instead (an older table, or a voter that abstains). Nothing is faked: an unreachable source never shows a number.</p>
+<p><b>The knockout (PA6).</b> Built to KNOCKOUT-CONCEPT.html on the Hub and to nothing else. Who may face whom: only two companies in the same business line — C5's lines (lines.mjs, imported from the Hub as it is) over FMP's revenue by segment and the company profiles, each company placed in the line that carries most of its revenue; one hand rule added here (AMAT, LRCX, KLAC, ASML are semiconductor equipment). How a duel is scored: four readings (price = P/E or P/S for a loss-maker, revenue growth, net margin, leverage), each the name's position between the first and third quartile of the line's field (the family when the line has fewer than five measured names; the card says which), C6b's price-outliers out of the field first; the score is the average, a missing reading counting one half; a duel is won on fundamentals when the scores are at least 0.02 apart, otherwise the Geiger decides the timing. Seeds by score inside the line, first plays last, rounds until one is left; a lone name is champion unopposed and says so. The champions stand on a podium by score and never duel; the podium's first names are the picks. The fundamentals for every served company are loaded so each line has its field.</p>
 <p><b>3a and 3b (PA6).</b> Step 3 is two screens. 3a SECTORS says what each sector is doing and nothing else: the blended reading per sector (five readings averaged, the weights in INPUTS), drawn in the Hub's own Geiger chip — the same flat bar the Hub's board uses, the centre line at zero, the fill to the right when positive (overbought, stretched) and to the left when negative (oversold, washed out), green and red as on the Hub. The cap-weighted chip on the left and the equal-weighted chip on the right meet at the blend: that is the bow tie. The words are the ladder's own five rungs. 3b HOW THE MONEY SPLITS takes those readings and nothing else and shows, column by column, how the invested part is split: coldness = (1 − reading) ÷ 2 (never below 0.05); × the sector's turn (improving ×1.35, pullback inside an uptrend ×0.85, breakdown ×0.6, leading ×1); normalised; each sector held between 2% and 35% and renormalised; × the rung's % invested. The last column is the % of equity the pie and the picks use.</p>
 <p><b>What changed on 5 Oct (PA4).</b> Two breadth voters: ADVANCE / DECLINE is the line over the names the Hub serves to this tool — one up or down per name per completed session from the chart API's daily bars, summed over the last 20 sessions, plus today's session from the live quotes; the vote is that line's slope, scaled so two thirds of the names rising every day reads +1 (default weight 0.5). CONCENTRATION is the equal-weight twin (RSP) minus the cap-weight index (SPY) over the same 20 sessions, scaled so a five-point spread reads ±1, with the share of the served set's cap-weighted move that its ten largest names carried (default weight 0.5). The VIX votes live from the chart API's macro board; the VIX term structure (spot ÷ 3-month) uses the VIX table's last close for the 3-month leg because no live 3-month VIX exists in the estate, and says that date on its dial.</p>
 <p><b>The sector method dial.</b> TARGET MIX reads each sector one of four ways: STATE STREET SECTORS (the sector fund's own Geiger), HUB SECTOR COMPARE (the fund and its equal-weight twin, averaged), MARKET BOW TIE (the average served stock in the sector, every name equal-weight, live from the chart API, with the bow tie against the cap-weighted read), TREE READINGS (the tree's close tier, 5,316 common stocks and ADRs, rolled up by sector — 652 of them carry a sector in the estate today). The default is a mix, 40 / 20 / 20 / 20 in that order; the weights are dials in INPUTS. The pie, the moves and the ranking all follow the dial. Crypto, metals and oil have no fund, so every option reads them from their own constituents.</p>
