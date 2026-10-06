@@ -217,10 +217,7 @@
       <div class="heatlabel" id="heatlabel">—</div>
     </div>
     <details>
-      <summary>GEIGER DIALS (approved — touch only if you mean it)</summary>
-      <div class="ctl"><label>Trend / Momentum<small>inside each geiger</small></label><input type="range" id="dTrend" min="0" max="1" step="0.05"><div class="v" id="dTrendV"></div></div>
-      <div class="ctl"><label>RSI / W%R<small>momentum blend</small></label><input type="range" id="dRsi" min="0" max="1" step="0.05"><div class="v" id="dRsiV"></div></div>
-      <div class="note" style="margin:6px 0">TIMEFRAME WEIGHTS — locked to your live hub equalizer (reviewed off the hub, logo menu → Weight Equalizer): 2h 1.2 · 3h 3.6 · 4h 6.7 · 6h 9.3 · 12h 9.3 · 1d 9.3 · 3d 7.6 · 1w 2.9. Families TRND 50 / MOM 50. Change them in the hub and hit SAVE — once operator_weights carries rows, this page reads them live.</div>
+      <summary>THE TWO INVERTED VOTERS — where VIX and the 10-year read cold and hot</summary>
       <div class="ctl"><label>VIX cold ↔ hot<small>−1 at high, +1 at low</small></label><input type="range" id="vixCold" min="20" max="50" step="1"><div class="v" id="vixColdV"></div></div>
       <div class="ctl"><label>10Y cold end %<small>−1 at this yield</small></label><input type="range" id="tenCold" min="4" max="6" step="0.1"><div class="v" id="tenColdV"></div></div>
     </details>
@@ -300,19 +297,10 @@
   <!-- 2 TARGET MIX -->
   <div class="panel">
     <h2>6 · THE PICKS AND THEIR % — the allocation</h2>
-    <div class="note">What you kept, and what share of the money each gets: the rung says how much is invested, the blended bow tie splits it across the sectors, and inside a sector the kept names split its share. The pie is the same one as the first screen.</div>
+    <div class="note">What you kept, and what share of the money each gets: the rung (step 2) says how much is invested, 3b splits it across the sectors, and inside a sector the kept names split its share. The pie is the same one as the first screen.</div>
     <div id="picks"></div>
-    <div id="sectorrot"></div>
-    <div id="rotationtpl"></div>
     <canvas id="donut" width="640" height="300"></canvas>
     <div id="pickmix"></div>
-    <div id="targets"></div>
-    <details><summary>THE CURVE + split math — human words</summary>
-      <div class="note" id="autosplit" style="margin-top:8px"></div>
-      <canvas id="curve" width="640" height="300"></canvas>
-      <div class="axis"><span>−1 COLD → deploy</span><span>HEAT</span><span>+1 HOT → defend</span></div>
-      <div class="note" style="margin-top:8px;line-height:1.7">% INVESTED = the policy step of today's condition: deep oversold → ceiling · oversold · neutral · overbought · deep overbought → floor (the five dials in INPUTS). LC/SC split = 50% + (IWM geiger − SPY geiger)×50%, capped 20–80% — colder class earns the bigger sleeve.</div>
-    </details>
   </div>
 
   <!-- 3 THE MOVES -->
@@ -355,33 +343,10 @@
   <!-- 6 STATE & ROADMAP -->
   <div class="panel full">
     <h2>10 · STATE &amp; ROADMAP</h2>
-    <details><summary>read this first if you are a new session</summary>
-    <div class="note" style="line-height:1.75">
-    <b style="color:var(--gold)">PA4 · 5 OCT 2026 (evening) — Alan's 14:15 additions, in his tool.</b> "This is the old version without our new stuff." Added: ADVANCE / DECLINE and CONCENTRATION as MACRO HEAT voters (computed here from the daily bars over the served set); the VIX votes live from the chart API's macro board and the VIX term says its date; TARGET MIX says which sector methodology it uses — a dial (State Street · Hub compare · market bow tie, live · tree) with a stated 40/20/20/20 mix; the tree's close tier is an input, rolled up by sector and cohort beside the fund readings; ADD TO COMPS is a short list in the approved cards with KEEP / DROP written to the comps decisions table; the allocation writes what goes on the Hub (control/ALLOCATION-HUB-GUIDANCE.json); and the page folds — one screen per section, a sticky bar, the dials in a drawer. Open from PA3, now decided: the July ladder stays; the three new voters count by default; an ADD tag needs two measured readings.<br><br>
-    <b style="color:var(--gold)">PA3 · 5 OCT 2026 — strengthened in place, same look, same flow.</b> Alan: "it measured market regime, and from the regime it recommended what percentage of cash to deploy; then the sectors, to decide where to allocate between sectors; then the comps, down to actual companies." What changed underneath: the Geiger now comes from the chart API's /geiger (the Hub's own, fresh every cycle; composite_staged had the index rows 6 weeks old), prices from /quotes (live_quotes was 7 weeks old), each sector from its State Street fund's Geiger with the Invesco equal-weight twin giving the bow tie (sector_rankings was 3 days old), peers from peer_sources with C5's outlier rule (ticker_peers did not exist), analyst targets from A4's checked notes, soundness of each aggregate from B1. HOW MUCH is the July policy ladder (100 · 80 · 50 · 30 · 15 by condition; five dials under RISK POLICY). Three voters added to MACRO HEAT with dials: SECTOR COMPARE, SECTOR BOW TIE, MARKET BOW TIE. Names rank fundamentals first, then the Geiger for timing. The chart API answers only the Hub's origin in a browser, so vercel.json rewrites /geiger and /quotes on this site to it. Still stale and saying so: vix_term (2 Oct — VIX not voting), market_breadth (no table). Everything below this line is the history as it was.<br><br>
-    <b style="color:var(--txt)">WHAT THIS IS.</b> The SCINTILLA allocation module: market heat → % invested → LC/SC split → moves in % of equity / class / position, with ★FAV candidates ranked by their own geigers. Percent-only, never dollars. Canonical source: GitHub aharveyrianhard-stack/scintilla-allocation (main auto-deploys here). Served at scintillahub.ai/allocation and allocation.scintillahub.ai — same page.<br><br>
-    <b style="color:var(--txt)">DATA POLICY.</b> Test lane = YAHOO via Supabase functions macro-feed + cohort-feed (5-min server cache). Symbol map: BTCUSD→BTC-USD, GCUSD→GC=F, SIUSD→SI=F, CLUSD→CL=F. Proven voters graduate to the SCINTILLA database as primary with Yahoo as fallback. FMP is PROHIBITED everywhere in this module.<br><br>
-    <b style="color:var(--txt)">CONSOLIDATION (2026-08-05 · C7).</b> This module now reads the shared SCINTILLA source-of-truth directly: GEIGER = <code>composite_staged</code> (tf=D, the hub equalizer output — the client no longer computes scoring geigers; cohort-feed Yahoo primitives remain only as a flagged FALLBACK). UNIVERSE = <code>ticker_cohorts</code> + <code>hub_favorites</code> (hardcoded TICKER_STYLES retained only as fallback). QUOTE+RVOL = <code>live_quotes</code> ÷ <code>company_profile.avg_volume</code>. MACRO = <code>treasury_rates</code> (10Y) + <code>vix_term</code> (VIX; Yahoo fallback flagged when stale). SECTOR = <code>sector_rankings</code>, published hourly by the sector-rotation tool from the same composite_staged — displayed as a ranking strip and a per-name SECT chip (display/annotation only, no score-math change). Every data element carries a freshness/source badge in the strip under the title. etf_holdings/etf_info remain empty — nothing faked.<br><br>
-    <b style="color:var(--gold)">ANALYTICS SESSION 2026-08-11 — what changed, and the two gaps you inherit.</b><br>
-    &nbsp;&nbsp;<b>1 · The universe read was broken in production and is fixed.</b> <code>ticker_cohorts</code> is now a VIEW over <code>ticker_membership</code> and emits EVERY membership kind (cohort + industry + size + sector + sector_ext) = 1,285 rows, past the PostgREST 1,000 cap. The old <code>limit=1000</code> read tripped this module's own truncation guard, which correctly refused to run on a silently-cut universe and fell back to hardcoded <code>TICKER_STYLES</code>. The guard was right — the universe outgrew the read. Now read paged and ordered (<code>sbGetPaged</code>). <b>[MEASURED] live before: universe status error, 0 cohort keys, 42 candidates — exactly <code>hub_favorites</code>, i.e. zero cohort-driven discovery. After: 387 tickers, 265 candidates, 182 of them ranking.</b><br>
-    &nbsp;&nbsp;<b>2 · Parity re-run and clean.</b> Live page vs <code>composite_staged</code>: EXACT 9/9 to the decimal (SPY/QQQ/GOOGL × trend/momentum/composite). The hardcoded equalizer curve still matches <code>operator_weights</code> 8/8 in shape (constant ×2.93 scale, a no-op once normalized); families 50/50 and momentum mix 60/40 both match. Note the doc's old "operator_weights 0 rows" line was already stale — it holds 42 rows dated 30 Jun / 13 Jul, and the module reads it LIVE.<br>
-    &nbsp;&nbsp;<b style="color:var(--orange)">3 · GAP — the geiger only covers 210 of 390 tickers (46.2% missing).</b> <code>refresh_geiger</code> is healthy (rows seconds old) but scoped to the old 210-name universe. 83 of the 265 candidates have no geiger; <code>tickerG()</code> drops them safely so nothing is corrupted, but they are invisible rather than flagged. <b>P5 sleeve-competition and comparables cannot be trusted as "the whole universe" until this closes.</b> Cross-lane: the geiger spine belongs to the hub/data session — filed, not touched. See <code>system_facts</code> #45.<br>
-    &nbsp;&nbsp;<b style="color:var(--orange)">4 · GAP — fundamentals cover 41% of the universe.</b> <code>ratios_history</code> carries exactly your P5 list (P/E, P/S, P/B, margins, ROE, D/E) and is all-or-nothing per ticker: 161 of 390 have every field, 229 have none. Newest fiscal date 2026-06-30. Peer comparison does have a real axis — <code>ticker_membership</code> holds 93 industries. Also seen on screen: FWD P/E renders 0.0 for every row in COMPARABLES, i.e. forward estimates are not landing. See <code>system_facts</code> #49.<br>
-    &nbsp;&nbsp;<b>5 · SECTOR_ROTATION was already done by someone else.</b> The deployed page already reads <code>ohlcv_history</code> and has AUM charts the local file lacks (live 122KB vs local 32KB). The local <code>SECTOR_ROTATION.html</code> is a superseded 20 Jul snapshot — refresh it FROM the deployment; never push it over the live one. See <code>system_facts</code> #47.<br><br>
-    <b style="color:var(--txt)">PROXY MENU.</b> LC→SPY · SC→IWM · Growth→QQQ · Value→RSP · Semis→SMH · Crypto→BTC-USD · Oil→CL=F (LIVE as its own independent voter, inverted — per Alan; no other commodity voters unless Alan asks) · Defensives→XLP+XLU. Mechanics when added: SLEEVES are sized by relative coldness — colder sleeve earns more, its coldest favorites get ADD-tagged. STYLES (growth/value — cross-cap by nature) never become sleeves; they re-rank candidates INSIDE sleeves (cold QQQ pushes growth names up the ADD list in both classes). Sector geigers (already in macro-feed, all 11) will re-rank by sector the same way — integrates with the hub sectorrotation tool.<br><br>
-    <b style="color:var(--txt)">PARITY — EQUALIZER REVIEWED ON THE HUB 2026-07-19 (logo menu → Weight Equalizer).</b> Read-back of the live surface: TF curve 2h 1.2 · 3h 3.6 · 4h 6.7 · 6h 9.3 · 12h 9.3 · 1d 9.3 · 3d 7.6 · 1w 2.9 (1m–1h and 2w–1M at 0) · families TRND 50 / MOM 50 (only those two carry weight live) · momentum mix 60 RSI / 40 Williams · SAVE persists to operator_weights (currently 0 rows = hub running these defaults). THIS MODULE NOW RUNS THAT EXACT CURVE: cohort-feed v4 computes the primitives per TF, intraday resampled from Yahoo 60m bars (2h=2×60m, 3h=3, 4h=4, 6h=6, 12h=13 bars — test-lane approximation; database bars replace them on graduation). Remaining differences vs the hub can only come from Yahoo data lag/timestamps — by design, per Alan's doctrine. When operator_weights gains rows, read it live and drop the hardcoded curve.<br><br>
-    <b style="color:var(--txt)">RSI LEVELS — verified vs GOOGL_GEIGER_v2 (GEIGER!A24):</b> momentum is "mapped straight from its range to −1…+1". 23/77 are the ends of the map, not gates — every intermediate RSI level feeds proportionally, continuously.<br><br>
-    <b style="color:var(--txt)">PARITY TEST — RUN 2026-07-20, vs database table board_rsi.</b> RSI: EXACT match 3/3 to the decimal (SPY 48.42=48.42 · QQQ 42.00=42.00 · GOOGL 42.23=42.23) — same Wilder math, same close-series convention, Alan's post-market worry cleared (DB bar = Friday close; Google Finance's SPY ~752 was the outlier quote, Yahoo+hub+DB all agree). Williams %R: fixed to TRUE bar highs/lows in cohort-feed v5 (was close-only); QQQ now −85.4 vs DB −83.2. Residual gap on SPY/GOOGL (−33 vs −52 · −64 vs −82) is the LOOKBACK convention: this module uses 25 bars per the approved GOOGL_GEIGER_v2 spec; board_rsi appears to use a different period. RESOLVED BY ALAN 2026-07-20: indicators are calculated as normally calculated — Williams %R = standard 14-period on true highs/lows. With that, parity is EXACT 6/6 (RSI and W%R, SPY/QQQ/GOOGL all match the database to the decimal). Still open: wire operator_weights when it gains rows.<br><br>
-    <b style="color:var(--txt)">YOUR STATE / IBKR.</b> Panel 3 seeds from storage file inbox/ibkr-state.json (percentages only, never dollars). It updates ONLY when Alan tells a session "sync IBKR" (scheduled auto-sync was proposed and REJECTED — do not create one). IBKR connector is read-only OAuth; never touch orders.<br><br>
-    <b style="color:var(--txt)">ARCHITECTURE (v11, Alan doctrine): SCORE = HOW MUCH (total risk from heat); SLEEVES = WHERE (GROWTH/SMALL/BROAD/SEMIS/CRYPTO/CMDTY, shares proportional to coldness, capped 5-35%). Every proxy does real work in WHERE regardless of its score weight. Tickers can live in several sleeves. LC/SC survives as a lens readout only. Per-sleeve CURRENT arrives with IBKR position sync (all-cash today, so every sleeve reads BUILD). Schedule is multi-factor (vol + heat + breadth + style discounts), not VIX-only. Open on Alan word: breadth voters as RATIO geigers (IWM/SPY, RSP/SPY from macro-feed) instead of straight geigers.</b><br><br>
-    <b style="color:var(--txt)">STYLE LAYER — LIVE (2026-07-20): style proxies vs SPY (GROWTH=QQQ, SEMIS=SMH, VALUE=RSP, CRYPTO=BTC, DEFENSIVE=XLP+XLU) produce STYLE TILTS in the MOVES panel (lean into / avoid on adds) and re-rank the candidate list by style-adjusted coldness (geiger + 0.5 × avg style spread). Styles tilt WITHIN sleeves; sleeves remain LC/SC. Cold QQQ literally pushes growth names up the ADD list. THE BRIEF panel at the top is generated from the same numbers.</b><br><br>\n    <b style="color:var(--txt)">AGREED BASE (2026-07-20, starting point for testing):</b> weights SPY 1 · QQQ 1 · IWM 0.5 · SMH 0.5 · VIX 0.5 · US10Y 0.5 · OIL 0.5 · VALUE 0 (reading) · CRYPTO 0.25 · DEF 0.25. Policy: invested 100% at max cold, 15% at max hot, linear. LC/SC split data-driven (IWM vs SPY), tilt OFF. Positions 4 LC / 2 SC. All of it testable, none of it sacred.<br><br>
-    <b style="color:var(--gold)">ECOSYSTEM DIRECTION — ALAN 2026-07-23 (the tool must become one connected system, not stacked panels).</b> Core problem Alan named: nothing flows downstream — TARGET MIX is pure sleeve-coldness % and ignores his PICKS; PICK only highlights; the cap doesn't reach the pie; sleeves don't "compete." The spine to build: HEAT → total %invested → SLEEVES COMPETE (coldness + undervaluation) for the % → within each sleeve your PICKED names split that sleeve's % → cadence front-loads the most undervalued sleeves/names → the pies redraw live as you pick. Phases:<br>
-    &nbsp;&nbsp;<b>P1 legibility</b> — dials show a live readout of their effect; explain why manual names-per-sleeve greys under AUTO; label the build cadence explicitly as TRANCHES.<br>
-    &nbsp;&nbsp;<b style="color:var(--green)">P2 close the loop — ✅ BUILT 2026-08-11</b> — PICKS flow into TARGET MIX. Two-ring donut: outer = sleeves (WHERE), inner = your actual picked names sized inside each sleeve. Fewer names → bigger each; TOTAL cap limits count; diversification flows downstream so the pie moves as you select. <i>Shipped as specified: split is EQUAL within a sleeve (the literal reading of "fewer names → bigger each") — leaning it toward the cheaper name is P4 and was deliberately left alone. A name in several sleeves earns a slice in each and its combined real size is shown. A sleeve with no picks keeps its share as an explicit UNASSIGNED arc, never quietly handed to the sleeves that do have picks.</i><br>
-    &nbsp;&nbsp;<b>P3 selection workflow</b> — PICK opens a dedicated SELECTION stage: cards of the tickers, slide through to finalize takers, then it generates the per-name tranche plan in a visual way (Alan wants it to look cool, maybe its own pies).<br>
-    &nbsp;&nbsp;<b>P4 smarter cadence</b> — replace blind thirds. Build leans toward the MORE UNDERVALUED sleeves first; same per-name (which name is better to buy right now). Needs value signal (P5) + more data; Alan: "you don't have everything to decide with confidence, but you will."<br>
-    &nbsp;&nbsp;<b>P5 sleeves compete + VALUE OVERLAY</b> — fundamentals (P/E, P/S, rev growth, margins, D/E — Alan's list) enter ranking as a value axis alongside geiger; sleeves compete on cold + cheap, more automatically. Kept separate from geiger. Answers the SNDK-vs-MU question. Also parked here: ETF fund-level fundamentals (weighted P/E, P/B, yield, expense) so a sleeve proxy can sit in comps; empty-sleeve targets pulled from the hub-at-large by theme (not just blue-chips; RSP is the blue-chip case), favorites tagged.<br><br>
-    <b style="color:var(--txt)">AWAITING ALAN'S GO:</b> multi-class sleeve engine (classes beyond LC/SC) · style re-ranking wiring · sector re-ranking wiring · database graduation of voters · volume conviction coefficient (proposal exists: RVOL time-of-day, VWAP position, volume shelves — scales loudness + gates execution, never votes direction).
+    <details><summary>where this tool came from, and where it is going</summary>
+    <div class="note" style="line-height:1.75;margin-top:8px">
+    <b style="color:var(--gold)">PA6 · 6 OCT 2026.</b> Alan: "let's go little by little on how everything is built from top to bottom in the fresh version … there's a lot of filler and old stuff." The way back to the Hub; the sources as one line; step 3 split into 3a SECTORS (the reading, in the Hub's Geiger chip) and 3b HOW THE MONEY SPLITS; the knockout rebuilt to its written concept (business line by business line, the podium); the July-tool leftovers and the duplicated tables removed. The history of this tool — the July Google Sheets lineage, the August consolidation, the parity tests, PA3, PA4 and PA5 — is kept word for word in <code>HISTORY.md</code> in the repository, and the reports live on the Hub (deliverables/20261005/pa5-allocation, deliverables/20261006/pa6-allocation).<br><br>
+    <b style="color:var(--txt)">THE CHAIN.</b> 1 the market's heat (the voters) → 2 how much is invested (the ladder) → 3a which sectors are overbought and oversold (one blended reading each) → 3b how the invested part splits across them → 4 the cohorts in those sectors → 5 the knockout inside a cohort, by business line → 6 the picks and their % → 7 the moves. Percent only, never dollars. Canonical source: GitHub aharveyrianhard-stack/scintilla-allocation; served at allocation.scintillahub.ai.
     </div></details>
   </div>
 
@@ -433,8 +398,6 @@ let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={}, SR_FALLBACK={d:null,byEtf:{}};
    sector_rankings carries TREND and MOMENTUM per sector, so the rotation tool's own reading
    — the RRG quadrant — is reproducible here exactly, on the same trend x momentum logic the
    name-level regime uses. Nothing is re-derived from prices. */
-const SECTOR_ETF_OF={TECH:'XLK',HEALTH:'XLV',FINANCIALS:'XLF',DISCRET:'XLY',INDUSTRIAL:'XLI',
-  MATERIALS:'XLB',ENERGY:'XLE',STAPLES:'XLP',UTILITIES:'XLU',REAL_ESTATE:'XLRE',COMMS:'XLC'};
 function rrg(t,m){ return readOf(t,m) }   // sectors read exactly as names do
 /* THE SECTOR READINGS (PA3, 5 Oct 2026) — the Hub's sector compare, not the published table.
    Each sector is read from its own fund's Geiger: the State Street fund (cap-weight) gives trend, momentum
@@ -455,11 +418,6 @@ function buildSectorReads(){
   SECTOR_READ=out;
   const ts=GEIGER_META&&(GEIGER_META.computed_utc||GEIGER_META.published_utc)||null;
   spineSet('sector_compare',ts, live===11?'LIVE':live?'STALE':'FALLBACK', live+' of 11 sectors read from the funds\' own Geigers (cap-weight + equal-weight twin = the Hub\'s sector compare and bow tie)'+(live<11?' · the rest from sector_rankings '+(SR_FALLBACK.d||''):''));
-}
-function sectorRead(sym){
-  const k=SECTOR_OF[sym]; if(!k) return null;
-  const r=SECTOR_READ[k]; if(!r) return null;
-  return r;
 }
 /* WHAT TO BUY — coldness is not a reason on its own.
    Alan: "ride leaders would be recommending buying green. doesnt make sense... it would
@@ -490,15 +448,7 @@ const METHOD = {
 /* The intent applied to a READ KIND — used for a name and for its sector alike, so the two
    levels can never diverge in what "a dip" or "a turn" means. */
 function intentFitKind(kind){ return METHOD.regimeFit[kind||'none'] ?? 0.5 }
-function sectorReadOf(sym){
-  const k=SECTOR_OF[sym]; if(!k) return null;
-  return SECTOR_READ[k] || GROUP_READ[k] || null;
-}
 const E_SECREAD={};   // filled from SECTOR_READ each render so the ranking reads one place
-function intentFit(sym){
-  const r=REGIME[sym]; if(!r) return 0.5;
-  return intentFitKind(r.kind);
-}
 /* VALUE — the fundamentals file\'s method: compare against a PEER SET and flag by IQR
    outliers, not a percentile I invented. Peers = the name\'s sector when it has one,
    otherwise its cohort. Below Q1 = cheap, above Q3 = expensive. Loss-makers excluded
@@ -760,7 +710,6 @@ const BLEND_SRC=[
   ['TREE','tree close tier','the tree\'s close tier (every common stock and ADR with a close) rolled up by sector, equal-weight'],
   ['RANK','sector ranking','the live sector_rankings row — the constituents\' newest daily Geiger, equal-weight, published by the sector tool']];
 const MIX_DEFAULT={SPDR:20,HUBCMP:20,MKTBOW:20,TREE:20,RANK:20};
-const MIX_OPTS=[['BLEND','THE BLENDED SECTOR BOW TIE']];
 const FMP_SECTOR_KEY={'Technology':'TECH','Healthcare':'HEALTH','Financial Services':'FINANCIALS','Consumer Cyclical':'DISCRET','Industrials':'INDUSTRIAL','Basic Materials':'MATERIALS','Energy':'ENERGY','Consumer Defensive':'STAPLES','Utilities':'UTILITIES','Real Estate':'REAL_ESTATE','Communication Services':'COMMS'};
 function sectorKeyOfAny(sym){ return SECTOR_OF[sym] || SECTOR_MAP[sym] || (PROFILES[sym]&&FMP_SECTOR_KEY[PROFILES[sym].sector]) || null; }
 function rollup(rows){ const T=rows.map(r=>r.trend).filter(v=>v!=null), M=rows.map(r=>r.momentum).filter(v=>v!=null), C=rows.map(r=>r.composite).filter(v=>v!=null);
@@ -1002,7 +951,7 @@ function renderSpine(){
   const parts=[c.live+' live']; if(c.old) parts.push(c.old+' old'); if(c.gone) parts.push(c.gone+' unreachable');
   const rows=Object.entries(SPINE).sort((a,b)=>(a[1].mode==='LIVE'?1:0)-(b[1].mode==='LIVE'?1:0)||a[0].localeCompare(b[0])).map(([k,v])=>
     '<tr><td class="k">'+esc2(k.replace(/_/g,' '))+'</td><td class="st'+(v.mode==='STALE'?' old':v.mode==='FALLBACK'?' gone':'')+'">'+sourceWord(v.mode)+(v.ts?' · '+freshTxt(v.ts):'')+'</td><td>'+esc2(v.note||'')+'</td></tr>').join('');
-  el.innerHTML='<details class="srcline"'+(open?' open':'')+'><summary>sources: <b>'+parts.join(' · ')+'</b><u>details</u></summary>'+
+  el.innerHTML='<details class="srcline"'+(open?' open':'')+'><summary>sources: <b>'+parts.join(' · ')+'</b> <u>details</u></summary>'+
     '<table>'+rows+'</table><div style="font-size:10px;color:#5a5a70">live = read just now and fresh · old = read, but older than that source is allowed to be · unreachable = the read failed; the row says what the page uses instead</div></details>';
 }
 async function refreshSSOT(){
@@ -1116,7 +1065,8 @@ async function refreshSSOT(){
     for(const [k,etf] of Object.entries(SECT_CW)){ const f=j.data[etf]; if(!f||!Array.isArray(f.h)) continue; SPDR_MEMBERS[etf]=f.h.map(x=>x[0]); for(const [t] of f.h) if(!SECTOR_MAP[t]) SECTOR_MAP[t]=k; } }).catch(()=>{}));
   J.push(loadDecisions());
   // PA6 — C5's business-line method and the revenue segments, from the Hub through this site's rewrites
-  J.push(Promise.all([import('/c5/lines.mjs'), fetch('/c5/segments.json',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(new Error('segments '+r.status)))]).then(([m,seg])=>{ C5=m; SEGMENTS=seg.companies||{}; }).catch(e=>{ C5=null; SEGMENTS=null; spineSet('c5_lines',null,'FALLBACK','C5\'s method unreachable ('+e.message+') — lines from the industry axis'); }));
+  J.push((async()=>{ let last=null; for(let attempt=0; attempt<3; attempt++){ try{ const [m,seg]=await Promise.all([import('/c5/lines.mjs'), fetch('/c5/segments.json',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(new Error('segments '+r.status)))]); C5=m; SEGMENTS=seg.companies||{}; return; } catch(e){ last=e; await new Promise(ok=>setTimeout(ok,600*(attempt+1))); } }
+    C5=null; SEGMENTS=null; spineSet('c5_lines',null,'FALLBACK','C5\'s method unreachable after three tries ('+(last&&last.message)+') — lines from the industry axis'); })());   // three tries: the Hub answers through the rewrite, and a busy moment must not drop the method
   // PA4 — the chart API's macro board (FMP ^VIX, ^TNX …): the live VIX for the VIX voter; the VIX table keeps the 3-month leg
   J.push(apiGet('/macro').then(j=>{ MACROAPI=j.macro||{}; const v=MACROAPI.VIX; const ts=j.generated_utc||null;
     spineSet('macro_api',ts,(v&&v.quote&&v.quote.price!=null)?'LIVE':'STALE','chart API /macro · VIX '+(v&&v.quote?v.quote.price:'—')+' ('+(v?v.state:'no VIX')+(v&&v.quote&&v.quote.session_et?', session '+v.quote.session_et:'')+')');
@@ -1215,20 +1165,12 @@ function tickerG(sym){
 }
 function gv(sym){ const r=tickerG(sym); return r?r.g:null; }
 // FMP-style profile sector names -> GICS sector ETF
-const SECTOR_ETF={'Technology':'XLK','Communication Services':'XLC','Consumer Cyclical':'XLY','Consumer Discretionary':'XLY','Financial Services':'XLF','Financials':'XLF','Industrials':'XLI','Basic Materials':'XLB','Materials':'XLB','Energy':'XLE','Healthcare':'XLV','Health Care':'XLV','Consumer Defensive':'XLP','Consumer Staples':'XLP','Utilities':'XLU','Real Estate':'XLRE'};
 function sectorChip(sym){
   const key=SECTOR_OF[sym] || (groupsOfTicker(sym)[0]||null);
   const sr=key?SECTOR_READ[key]:null;
   if(!sr){ const p=PROFILES[sym]; return '<span class="cls">'+(p&&p.sector?p.sector.slice(0,12):'—')+'</span>'; }
   const col=sr.kind==='go'?'var(--green)':sr.kind==='avoid'?'var(--orange)':sr.kind==='improve'?'var(--cyan)':'var(--gold)';
   return '<span style="color:'+col+'" title="'+(sr.name||key)+' · '+(sr.etf||'')+' Geiger '+(+sr.score).toFixed(2)+' · '+sr.q+(sr.bowtie!=null?' · bow tie '+(sr.bowtie>=0?'+':'')+sr.bowtie.toFixed(2):'')+'">'+(sr.rank?'#'+sr.rank+' ':'')+(sr.name||key)+'</span>';
-}
-function rvolTxt(sym){
-  const q=QUOTES[sym],p=PROFILES[sym];
-  if(!q||!p||!q.volume||!p.avg_volume) return '<span class="cls">—</span>';
-  const rv=q.volume/p.avg_volume;
-  const col=rv>=1.5?'var(--gold)':rv>=1?'var(--txt)':'var(--dim)';
-  return '<span style="color:'+col+'" title="RVOL = live_quotes.volume ÷ company_profile.avg_volume">'+rv.toFixed(2)+'×</span>';
 }
 function renderSectorStrip(){
   const el=document.getElementById('sectorStrip'); if(!el) return;
@@ -1249,12 +1191,11 @@ function candidateSyms(){
   for(const [sym,cs] of Object.entries(UNIVERSE.cohorts)) if(cs.some(c=>pickCohorts.has(c))) out.add(sym);
   for(const f of UNIVERSE.favs) out.add(f);
   for(const s of CMDTY_SYMS) if(COMPOSITE[s]||GEIGER[s]) out.add(s);
-  if(!out.size) for(const s of Object.keys(COHORT)) out.add(s);   // FALLBACK universe (spine flags it)
+  // PA6: the Yahoo COHORT fallback universe is gone; with no cohorts the candidates are the favourites alone (the spine says so)
   return [...out];
 }
 /* =================== end C7 SSOT LAYER =================== */
 const CLASSES = {ANET:'LC',AMD:'LC',SPY:'IDX',CRDO:'SC',PSTG:'SC',ALAB:'SC',NVDA:'LC',QQQ:'IDX',SNDK:'SC',AMAT:'LC',AVGO:'LC',ASML:'LC',AMZN:'LC',LRCX:'LC',MU:'LC',TSM:'LC',GOOGL:'LC',NBIS:'SC',ARM:'LC',CIFR:'SC',DRAM:'IDX',MRVL:'LC',TSLA:'LC',USO:'ETF',CLUSD:'CMD',MSFT:'LC',WULF:'SC',BTCUSD:'CRY',PLTR:'LC',CRWV:'SC',RKLB:'SC',APLD:'SC',USAR:'SC',IREN:'SC',SLV:'ETF',ASTS:'SC',OKLO:'SC',GCUSD:'CMD',SIUSD:'CMD',MSTR:'SC',IWM:'IDX',SMH:'IDX'};
-const CLASSNAME = {LC:'Large Cap',SC:'Small Cap',IDX:'Index',ETF:'ETF',CMD:'Commodity',CRY:'Crypto'};
 // STYLE LAYER: proxies vs SPY decide which styles are discounted; styles never become sleeves — they tilt MOVES and re-rank candidates.
 const TICKER_STYLES = {NVDA:['GROWTH','SEMIS'],AMD:['GROWTH','SEMIS'],AVGO:['SEMIS'],ASML:['SEMIS'],AMAT:['SEMIS'],LRCX:['SEMIS'],MU:['SEMIS'],TSM:['SEMIS'],MRVL:['SEMIS'],SNDK:['SEMIS'],CRDO:['SEMIS'],ALAB:['SEMIS'],ANET:['GROWTH'],ARM:['GROWTH','SEMIS'],TSLA:['GROWTH'],PLTR:['GROWTH'],AMZN:['GROWTH'],GOOGL:['GROWTH'],MSFT:['GROWTH'],NBIS:['GROWTH'],CRWV:['GROWTH'],PSTG:['GROWTH'],ASTS:['GROWTH'],OKLO:['GROWTH'],RKLB:['GROWTH'],APLD:['CRYPTO'],IREN:['CRYPTO'],CIFR:['CRYPTO'],WULF:['CRYPTO'],MSTR:['CRYPTO'],BTCUSD:['CRYPTO'],USO:['CMDTY'],SLV:['CMDTY'],CLUSD:['CMDTY'],GCUSD:['CMDTY'],SIUSD:['CMDTY']};
 function styleSpreads(){
@@ -1266,13 +1207,6 @@ function styleSpreads(){
   const gp = gv('XLP'), gu = gv('XLU');
   if (gp != null && gu != null) sp['DEFENSIVE'] = (gp+gu)/2 - gS;
   return sp;
-}
-function styleAdj(sym, spreads){
-  const tags = TICKER_STYLES[sym] || [];
-  if (!tags.length) return 0;
-  let t = 0, n = 0;
-  for (const tg of tags) if (spreads[tg] != null) { t += spreads[tg]; n++; }
-  return n ? 0.5 * t / n : 0;
 }
 // SLEEVE ENGINE — the WHERE. Sleeves are themes (a ticker can live in several). Each sleeve has a proxy geiger;
 // the COLDER the sleeve, the BIGGER its share of invested. Shares capped 5-35% and renormalized. Score = HOW MUCH; sleeves = WHERE.
@@ -1339,53 +1273,14 @@ function sleeveShares(){ return groupShares() }
 function tickerSleeves(sym){ return groupsOfTicker(sym) }
 const GROUP_PALETTE=['#00d4ff','#7dd3fc','#ffd166','#a78bfa','#ff8c42','#38e07b','#f472b6','#facc15','#4ade80','#60a5fa','#fb923c','#c084fc','#2dd4bf','#f87171'];
 function groupColor(g){ let h=0; for(let i=0;i<g.length;i++) h=(h*31+g.charCodeAt(i))>>>0; return GROUP_PALETTE[h%GROUP_PALETTE.length]; }
-function sleeveG(name){
-  /* A sector or cohort has no single proxy ticker — its reading is its constituents,
-     which is also how the sector tool does it. The old proxy path (QQQ for GROWTH etc.)
-     is kept only for any legacy sleeve key still passed in. */
-  const r = groupReadOf(name);
-  if (r) return r.score;
-  const legacy = SLEEVES[name];
-  if (!legacy) return null;
-  const syms = legacy.filter(x => gv(x) != null);
-  if (!syms.length) return null;
-  return syms.reduce((t,x) => t + gv(x), 0) / syms.length;
-}
-function sleeveShares_OLD(){
-  const raw = {};
-  let tot = 0;
-  for (const k of Object.keys(SLEEVES)) { const g = sleeveG(k); if (g == null) continue; raw[k] = Math.max(0.05, 1 - g); tot += raw[k]; }
-  if (!tot) return {};
-  for (const k of Object.keys(raw)) raw[k] = raw[k] / tot;
-  let capTot = 0;
-  for (const k of Object.keys(raw)) { raw[k] = Math.min(0.35, Math.max(0.05, raw[k])); capTot += raw[k]; }
-  for (const k of Object.keys(raw)) raw[k] = raw[k] / capTot;
-  return raw;
-}
 // SSOT: sleeve membership derives from ticker_cohorts (DB); TICKER_STYLES only as flagged fallback.
-const COHORT_SLEEVE = {AI_HARDWARE:'SEMIS', AI_HW:'SEMIS', AI_SOFTWARE:'GROWTH', GROWTH:'GROWTH', THEMATIC:'GROWTH', CRYPTO:'CRYPTO', MEGACAP:'BROAD', BLUE_CHIP:'BROAD', INTL:'BROAD'};
 const CMDTY_SYMS = new Set(['GCUSD','SIUSD','CLUSD','USO','SLV']);
 function tickerCls(sym){
   const p = PROFILES[sym];
   if (p && p.market_cap != null && !p.is_etf) return p.market_cap < 10e9 ? 'SC' : 'LC';  // DB-driven cap class
   return CLASSES[sym] || null;
 }
-function tickerSleeves_OLD(sym){
-  const out = new Set();
-  if (CMDTY_SYMS.has(sym)) out.add('CMDTY');
-  const dbc = UNIVERSE.cohorts[sym];
-  if (dbc && dbc.length) {
-    for (const c of dbc) { const sl = COHORT_SLEEVE[c]; if (sl) out.add(sl); }
-  } else {
-    for (const t of (TICKER_STYLES[sym] || [])) if (SLEEVES[t]) out.add(t);   // FALLBACK map
-  }
-  const cls = tickerCls(sym);
-  if (cls === 'SC') out.add('SMALL');
-  if (!out.size && cls === 'LC') out.add('BROAD');
-  return [...out];
-}
 // internals direction & weight (mirrors the sheet's Feed map)
-const INTERNALS = {'RSP/SPY':[1,1],'IWM/SPY':[1,1],'QQQ/SPY':[1,1],'XLY/XLP':[1,1],'HYG/LQD':[1,1],'SMH/SPY':[1,1],'XLU/SPY':[-1,1],'BTC-USD':[1,1],'VIX':[-1,1],'VIX3M':[-1,0],'MOVE':[-1,1],'SKEW':[-1,1],'VVIX':[-1,1],'US10Y':[-1,1],'US5Y':[-1,0],'US3M':[-1,0],'US30Y':[-1,0],'CYC_DEF':[1,1]};
 
 const DEFAULTS = {
   dTrend:0.5, dRsi:0.6, dTf:0.763,          // approved geiger + equalizer 3.1785/0.9875
@@ -1424,32 +1319,9 @@ if (!S._v6) { S.mixMethod='BLEND'; S.mixW=structuredClone(MIX_DEFAULT); S.wts.SE
 if (S.invCold==null) S.invCold=80; if (S.invMid==null) S.invMid=50; if (S.invHot==null) S.invHot=30;   // PA3: the policy ladder's middle steps
 function save(){ localStorage.setItem('alloc-module-v1', JSON.stringify(S)); }
 
-let COHORT = {};
-let COMPS = {};  // sym -> fundamentals from comps-feed (SCINTILLA database)   // sym -> {price,day,td,rd,gd,tw,rw,gw,ma,maN}
-let MACRO = {};    // name -> {value,trend,rsi,range}
-let STAMPS = {cohort:'', macro:''};
+let COMPS = {};  // sym -> fundamentals from comps-feed (SCINTILLA database)
 
-function parseCSV(text){
-  const lines = text.trim().split('\n'); const head = lines[0].split(',');
-  return lines.slice(1).map(l => { const c = l.split(','); const o = {}; head.forEach((h,i)=>o[h]=c[i]); return o; });
-}
 // THE EQUALIZER CURVE — read off the live hub equalizer (logo menu) on 2026-07-19. SAVE writes operator_weights; when that table has rows we read it live instead.
-const EQ_W = {'2h':1.2, '3h':3.6, '4h':6.7, '6h':9.3, '12h':9.3, '1d':9.3, '3d':7.6, '1w':2.9};
-const TFS = Object.keys(EQ_W);
-function ingest(mr, cr){
-  for (const r of parseCSV(mr)) {
-    MACRO[r.name] = {value:+r.value, trend:r.trend===''?null:+r.trend, rsi:r.rsi_s===''?null:+r.rsi_s, range:r.range_s===''?null:+r.range_s};
-    STAMPS.macro = r.updated_utc;
-  }
-  for (const r of parseCSV(cr)) {
-    if (r.price === '' || r.t_1d === undefined) continue;
-    const [ma, maN] = (r.ma10||'0/10').split('/').map(Number);
-    const tf = {};
-    for (const t of TFS) tf[t] = {t: r['t_'+t]===''?null:+r['t_'+t], r: r['r_'+t]===''?null:+r['r_'+t], g: r['g_'+t]===''?null:+r['g_'+t]};
-    COHORT[r.sym] = {price:+r.price, day:+r.day_pct, tf, ma, maN};
-    STAMPS.cohort = r.updated_utc;
-  }
-}
 async function loadFeeds(){
   // instant paint from last data, refresh in background (server also caches geigers 5 min)
   document.getElementById('loading').style.display='flex';
@@ -1496,31 +1368,6 @@ async function loadFeeds(){
 const clamp = x => Math.max(-1, Math.min(1, x));
 // diversification: AUTO scales names with regime — HOT (defend) concentrate in best few, COLD (deploy) cast wider for the rebound.
 function namesPer(h){ const cap=S.maxNames??6; let n; if(!S.divAuto){ n=S.nPer; } else { const base=2 + (1-(h??0))/2 * 3; n=Math.round(base - (S.concLean??0)*1.5); } return Math.max(1, Math.min(cap, n)); } // AUTO: 2+(1-heat)/2*3, leaned by concLean, clamped 1..maxNames
-function geiger(c){
-  // Full equalizer: per-TF geiger = TRND 50% + MOM 50% (RSI 60 / W%R 40), weighted by the live curve.
-  let num = 0, den = 0;
-  for (const t of TFS) {
-    const p = c.tf?.[t]; if (!p || p.t == null || p.r == null || p.g == null) continue;
-    const g = p.t * S.dTrend + (p.r * S.dRsi + p.g * (1 - S.dRsi)) * (1 - S.dTrend);
-    num += g * EQ_W[t]; den += EQ_W[t];
-  }
-  return den ? clamp(num / den) : 0;
-}
-function rowGeiger(m){ // macro-feed row with primitives (daily-only series)
-  if (m.trend == null) return null;
-  return clamp(m.trend * S.dTrend + (m.rsi * S.dRsi + m.range * (1 - S.dRsi)) * (1 - S.dTrend));
-}
-function internalsScore(){
-  let num = 0, den = 0;
-  for (const [name, [dir, w]] of Object.entries(INTERNALS)) {
-    const m = MACRO[name]; if (!m || !w) continue;
-    const g = rowGeiger(m); if (g == null) continue;
-    num += dir * g * w; den += w;
-  }
-  const sect = MACRO['SECT_PCT_ABOVE_200D'];
-  if (sect && isFinite(sect.value)) { num += (sect.value * 2 - 1); den += 1; }
-  return den ? num / den : 0;
-}
 function f2v(x){return x==null?'—':(x>=0?'+':'')+(+x).toFixed(2)}
 function voters(){
   const v = [];
@@ -1732,7 +1579,6 @@ function heatAt(pos){
 function heatFast(){ return heatAt(0.15) }
 function heatSlow(){ return heatAt(0.85) }
 /* The whole curve, for reading the shape rather than two endpoints. */
-function heatCurve(n){ const out=[]; for(let i=0;i<(n||9);i++){ const p=i/((n||9)-1); out.push([+p.toFixed(2), heatAt(p)]) } return out }
 /* Is fast travelling toward the regime target or away from it? */
 function drift(){
   const f=heatFast(), sl=heatSlow();
@@ -1835,8 +1681,6 @@ function render(){
 
   // dials display
   const set = (id, v, fmt) => { const e = document.getElementById(id); e.value = v; document.getElementById(id+'V').textContent = fmt; };
-  set('dTrend', S.dTrend, S.dTrend.toFixed(2)+' / '+(1-S.dTrend).toFixed(2));
-  set('dRsi', S.dRsi, S.dRsi.toFixed(2)+' / '+(1-S.dRsi).toFixed(2));
   set('vixCold', S.vixCold, '−1 @ '+S.vixCold+' · +1 @ 12');
   set('tenCold', S.tenCold, '−1 @ '+(+S.tenCold).toFixed(1)+'% · +1 @ 3.5%');
   set('maxInv', S.maxInv, S.maxInv+'%');
@@ -1857,45 +1701,10 @@ function render(){
   document.getElementById('curLC').max = S.curInv;
   if (S.curLC > S.curInv) S.curLC = S.curInv;
 
-  drawCurve(h);
-
-  // data-driven split readout
-  const gS = gv('SPY'), gI = gv('IWM');                  // SSOT: composite_staged
-  if (gS != null && gI != null) {
-    const lcs = lcShareAuto(h);
-    const tiltTerm = (S.lcTilt || 0) * h;
-    document.getElementById('autosplit').innerHTML = `<b style="color:var(--gold)">LC/SC SPLIT — set by the data:</b> SPY geiger ${(gS>=0?'+':'')+gS.toFixed(2)} vs IWM geiger ${(gI>=0?'+':'')+gI.toFixed(2)} → LC share = 50% + (IWM ${(gI>=0?'+':'')+gI.toFixed(2)} − SPY ${(gS>=0?'+':'')+gS.toFixed(2)})×50%${S.lcTilt?` + heat-tilt ${(tiltTerm>=0?'+':'')+(tiltTerm*100).toFixed(1)}%`:''} = <b style="color:var(--txt)">${pct(lcs,0)} LC / ${pct(1-lcs,0)} SC</b>. The colder class earns the bigger sleeve — ${gI<gS?'small caps read colder today':'large caps read colder today'}${Math.abs(gI-gS)<0.06?' (barely: the two classes are near-even)':''}. Rails: LC is capped between 20% and 80% so one hot print can never zero out a whole class.`;
-  }
-  // internals breakdown
-  const ib = document.getElementById('intbreak');
-  if (ib) {
-    let rows2 = '<table style="margin-top:6px"><tr><th>INTERNAL</th><th class="r">VALUE</th><th class="r">DIR</th><th class="r">SCORE</th></tr>';
-    for (const [name, [dir, w]] of Object.entries(INTERNALS)) {
-      const m = MACRO[name]; if (!m || !w) continue;
-      const g = rowGeiger(m); if (g == null) continue;
-      const sc2 = dir * g;
-      rows2 += `<tr><td>${name}</td><td class="r cls">${(+m.value).toFixed(name.includes('/')?4:2)}</td><td class="r cls">${dir>0?'+':'−'}</td><td class="r" style="color:${sc2>=0?'var(--cyan)':'var(--orange)'}">${(sc2>=0?'+':'')+sc2.toFixed(2)}</td></tr>`;
-    }
-    const sect2 = MACRO['SECT_PCT_ABOVE_200D'];
-    if (sect2) rows2 += `<tr><td>SECTOR BREADTH</td><td class="r cls">${(sect2.value*100).toFixed(0)}% above 200d</td><td class="r cls">+</td><td class="r" style="color:${(sect2.value*2-1)>=0?'var(--cyan)':'var(--orange)'}">${((sect2.value*2-1)>=0?'+':'')+(sect2.value*2-1).toFixed(2)}</td></tr>`;
-    ib.innerHTML = rows2 + '</table>';
-  }
-
-  // targets
+  // targets (PA6: the table went to 3b; these numbers still feed the moves, the brief and the trace)
   const inv = investedAt(h), lc = lcShareAuto(h), sc = 1 - lc;
   const lcEq = inv*lc, scEq = inv*sc;
   const perLC = lcEq / S.nLC, perSC = scEq / S.nSC;
-  const SH = sleeveShares();
-  const sleeveRows = Object.entries(SH).sort((a,b)=>b[1]-a[1]).map(([k,sh]) => {
-    const gk = sleeveG(k), eq = sh * inv;
-    const sr=groupReadOf(k)||{}; const vd=b1Verdict(k);
-    return `<div class="move"><div class="mname" style="color:${SLEEVE_COLOR[k]||groupColor(k)}">${esc2(groupWord(k))}</div><div class="mval">${pct(eq)}<small>of equity · ${pct(sh,0)} of invested · geiger ${(gk>=0?'+':'')+gk.toFixed(2)}${sr.q?' · '+esc2(sr.q.toLowerCase()):''}${sr.bowtie!=null?' · bow tie '+(sr.bowtie>=0?'+':'')+sr.bowtie.toFixed(2):''}${vd?' · aggregate '+vd:''} · ${namesPer(h)} names × ${pct(eq/namesPer(h))}</small></div></div>`;
-  }).join('');
-  document.getElementById('targets').innerHTML = `
-    <div class="move"><div class="mname">INVESTED</div><div class="mval">${pct(inv)}<small>cash ${pct(1-inv)} — how much comes from the market's heat (the ladder); where it goes comes from the blended sector bow tie, below</small></div></div>
-    ${sleeveRows}
-    <div class="move"><div class="mname">BIG vs SMALL</div><div class="mval" style="font-size:12px">${pct(lc,0)} / ${pct(1-lc,0)}<small>the same money read as big companies against small ones (the S&amp;P 500 fund against the Russell 2000 fund) — a lens, not the mix</small></div></div>`;
-
   // moves
   const cInv = S.curInv/100, cLC = S.curLC/100, cSC = cInv - cLC;
   const dTot = inv - cInv, dLC = lcEq - cLC, dSC = scEq - cSC;
@@ -1904,12 +1713,9 @@ function render(){
   const SPR = styleSpreads();
   const SH2 = sleeveShares();
   const vixVote = voters().find(x=>x.key==='VIX');
-  const gI2b = COHORT['IWM'] ? geiger(COHORT['IWM']) : null, gR2b = COHORT['RSP'] ? geiger(COHORT['RSP']) : null;
-  const breadthAvg = (gI2b!=null && gR2b!=null) ? (gI2b+gR2b)/2 : null;
   let urgency = 0, factors = [];
   if (vixVote && vixVote.val != null) { urgency += (vixVote.val < 0 ? 1 : -1); factors.push('volatility ' + (vixVote.val<0?'fear':'complacent')); }
   urgency += (h < -0.15 ? 1 : h > 0.15 ? -1 : 0); factors.push('heat ' + (h<-0.15?'cold':h>0.15?'hot':'neutral'));
-  if (breadthAvg != null) { urgency += (breadthAvg < -0.15 ? 1 : 0); factors.push('breadth ' + (breadthAvg<-0.15?'washed':'intact')); }
   const deepDisc = Object.values(SPR).some(v => v < -0.35); if (deepDisc) { urgency += 1; factors.push('deep style discount'); }
   /* CADENCE — no thirds, no halves. Alan: "i dont want any deployments in 1/3 rounds.
      we use the information to decide in detail." The size of the first clip is computed
@@ -1946,8 +1752,6 @@ function render(){
   for(const k of Object.keys(E_SECREAD)) delete E_SECREAD[k];
   Object.assign(E_SECREAD, SECTOR_READ);
   buildPeerStats();
-  renderSectorRot();
-  renderRotationTemplate();
   renderTreeRoll();
   renderBowTie();
   renderMoney();
@@ -1986,38 +1790,6 @@ function renderPolicy(h, inv, cInv){
   el.innerHTML=`<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 4px">THE LADDER — five rungs, today's is lit · the number is the share of the money that goes to work</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">${rungs}</div>
     <div class="move" style="margin-top:8px"><div class="mname" style="color:${color}">TODAY</div><div class="mval" style="font-size:13px;font-weight:500;line-height:1.6">${esc2(pc.sentence)}<small style="display:block;margin:2px 0 0">You hold ${pct(cInv,0)} invested, so ${gap>0.005?pct(gap,0)+' of the money is to be put to work':gap<-0.005?pct(-gap,0)+' of the money is to be taken off':'you are already on the rung'}.</small></div></div>`;
-}
-function drawCurve(h){
-  const cv = document.getElementById('curve'), ctx = cv.getContext('2d');
-  const W = cv.width, H = cv.height, L = 40, R = 12, T = 12, B = 26;
-  ctx.clearRect(0,0,W,H);
-  ctx.strokeStyle = '#1c1c28'; ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) { const y = T + (H-T-B)*i/4; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(W-R,y); ctx.stroke();
-    ctx.fillStyle = '#8a8aa0'; ctx.font = '10px monospace'; ctx.fillText((100 - i*25)+'%', 6, y+3); }
-  const X = x => L + (x + 1) / 2 * (W - L - R);
-  const Y = y => T + (1 - y) * (H - T - B);
-  // invested curve
-  ctx.strokeStyle = '#00d4ff'; ctx.lineWidth = 2.5; ctx.beginPath();
-  for (let i = 0; i <= 100; i++) { const hx = -1 + i/50; const p = investedAt(hx); i ? ctx.lineTo(X(hx), Y(p)) : ctx.moveTo(X(hx), Y(p)); }
-  ctx.stroke();
-  // LC share line (data-driven; slopes only if heat-tilt sub-dial is on)
-  const lcs = lcShareAuto(h);
-  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.5; ctx.setLineDash([5,4]); ctx.beginPath();
-  for (let i = 0; i <= 100; i++) { const hx = -1 + i/50; const p = lcShareAuto(hx); i ? ctx.lineTo(X(hx), Y(p)) : ctx.moveTo(X(hx), Y(p)); }
-  ctx.stroke(); ctx.setLineDash([]);
-  // now marker
-  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
-  ctx.beginPath(); ctx.moveTo(X(h), T); ctx.lineTo(X(h), H-B); ctx.stroke(); ctx.setLineDash([]);
-  const iv = investedAt(h);
-  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(X(h), Y(iv), 4, 0, 7); ctx.fill();
-  ctx.font = 'bold 11px monospace'; ctx.fillStyle = '#ffffff';
-  const lbl = 'TODAY: ' + (iv*100).toFixed(1) + '% invested';
-  const lx = Math.min(W - R - 150, Math.max(L + 4, X(h) + 8));
-  ctx.fillText(lbl, lx, Y(iv) - 10);
-  ctx.font = '10px monospace'; ctx.fillStyle = '#ffd166';
-  ctx.fillText('LC share ' + (lcs*100).toFixed(0) + '% (data-set)', lx, Y(lcs) - 6);
-  ctx.fillStyle = '#8a8aa0'; ctx.font = '10px monospace';
-  ctx.fillText('── invested % target', L+8, T+12); ctx.fillStyle = '#ffd166'; ctx.fillText('╌╌ LC share of invested', L+150, T+12);
 }
 /* ===================== P2 · CLOSE THE LOOP (2026-08-11) =====================
    PICKS now flow into TARGET MIX. The sleeve's share (the WHERE) is split among
@@ -2110,26 +1882,6 @@ function compsEmit(){
   return out.sort((a,b)=>b.confidence-a.confidence);
 }
 window.compsEmit=compsEmit;
-function renderSectorRot(){
-  const el=document.getElementById('sectorrot'); if(!el) return;
-  const seg=(label,cur,opts,fn)=>'<div style="margin:0 16px 6px 0;display:inline-block"><span class="cls" style="margin-right:6px">'+label+'</span>'+opts.map(([v,t,tip])=>
-    `<button title="${tip||''}" onclick="${fn}('${v}')" style="background:${cur===v?'var(--gold)':'#14141f'};color:${cur===v?'#0a0a0f':'var(--gold)'};border:1px solid var(--line);border-radius:5px;padding:5px 11px;font-family:inherit;font-size:10px;letter-spacing:.06em;cursor:pointer;margin-right:4px">${t}</button>`).join('')+'</div>';
-  const rc={}; for(const k of Object.keys(REGIME)){const q=REGIME[k].label; rc[q]=(rc[q]||0)+1}
-  const rs=Object.values(SECTOR_READ).sort((a,b)=>(b.score??0)-(a.score??0));
-  const scol=k=>k==='lead'?'var(--green)':k==='improve'?'var(--cyan)':k==='weak'?'var(--gold)':'var(--orange)';
-  const chips=rs.map(r=>`<span title="${groupWord(r.key)} · trend ${(+r.trend).toFixed(2)} · momentum ${(+r.momentum).toFixed(2)}" style="display:inline-block;margin:2px 5px 2px 0;padding:2px 7px;border:1px solid var(--line);border-radius:5px;font-size:10px"><b style="color:${scol(r.kind)}">${esc2(groupWord(r.key))}</b> <span style="color:var(--dim)">${r.q}</span></span>`).join('');
-  el.innerHTML=
-   
-   seg('ALLOCATE ACROSS',AXIS,[['sector','SECTORS'],['cohort','COHORTS']],'setAxis')+
-   '<div class="note" style="margin:4px 0 8px;font-size:11px;line-height:1.7"><b style="color:var(--gold)">ONE METHOD, NO SETTINGS.</b> '+
-   'Each sector or cohort earns its share from its own trend and momentum — colder earns more, lifted when it is turning up, cut when it is still falling. '+
-   'Inside it, a name scores on how washed out it is, judged against what its own regime and its sector\'s regime say about whether that cheapness is merited. '+
-   'Price against its peer set tilts it. A breakdown is weighted down hard, never hidden. '+
-   'The score that ranks a name is the score that sizes it.</div>'+
-   '<div class="note" style="margin:6px 0 4px;font-size:11px">NAME REGIMES · '+Object.entries(rc).map(([k,v])=>k+' '+v).join(' · ')+'</div>'+
-   '<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 3px">SECTORS — a separate axis from the sleeves. A name has both.</div>'+
-   '<div style="margin-bottom:8px">'+chips+'</div>';
-}
 /* ===== SECTOR ROTATION TEMPLATE, BROUGHT INTO ALLOCATION (2026-08-11) =====
    Alan: "i asked for templates to begin with". The full sector-rotation template carries
    Leaders, Sector Heatmap, Relative Performance, Quadrant Positions, Rotation Map (RRG) and
@@ -2171,72 +1923,6 @@ function impliedPrices(sym){
   return {px, rows:out, lo, hi, mid, upside:mid/px-1, basis:pg.mode, usable:usable.length};
 }
 window.impliedPrices=impliedPrices;
-function renderRotationTemplate(){
-  const el=document.getElementById('rotationtpl'); if(!el) return;
-  const rs=Object.entries(SECTOR_READ).map(([k,r])=>({k,...r})).filter(r=>r.score!=null);
-  if(!rs.length){ el.innerHTML=''; return }
-  rs.sort((a,b)=>b.score-a.score);
-  const col=k=>k==='go'?'var(--green)':k==='improve'?'var(--cyan)':k==='buy'?'var(--gold)':'var(--orange)';
-  const f2s=x=>(x>=0?'+':'')+(+x).toFixed(2);
-
-  // LEADERS — ranked, with the reading that produced the rank
-  const leaders='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:10px 0 4px">LEADERS — ranked by their own trend and momentum</div>'+
-    '<table class="imap" style="font-size:11.5px"><tr><th style="text-align:left">#</th><th style="text-align:left">SECTOR</th>'+
-    '<th>TREND</th><th>MOM</th><th>SCORE</th><th style="text-align:left">READ</th><th>BOW TIE</th><th style="text-align:left">AGGREGATE</th></tr>'+
-    rs.map((r,i)=>`<tr><td>${i+1}</td><td><b>${esc2(groupWord(r.k))}</b> <span class="cls">${esc2(r.etf||'')}</span></td><td>${f2s(r.trend)}</td><td>${f2s(r.momentum)}</td>
-      <td><b>${f2s(r.score)}</b></td><td style="color:${col(r.kind)}">${esc2(r.q)}</td><td>${r.bowtie==null?'—':f2s(r.bowtie)}</td><td class="cls">${esc2(b1Verdict(r.k)||'—')}</td></tr>`).join('')+'</table>';
-
-  // SECTOR HEATMAP — one cell per sector, shaded by score
-  const heat='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:14px 0 4px">SECTOR HEATMAP</div>'+
-    '<div style="display:flex;flex-wrap:wrap;gap:4px">'+rs.map(r=>{
-      const t=Math.max(0,Math.min(1,(r.score+1)/2));
-      const bg=r.score>=0?`rgba(56,224,123,${(0.12+t*0.55).toFixed(2)})`:`rgba(255,140,66,${(0.12+(1-t)*0.55).toFixed(2)})`;
-      return `<div style="background:${bg};border:1px solid var(--line);border-radius:4px;padding:6px 9px;min-width:88px">
-        <div style="font-size:10.5px;font-weight:700">${esc2(groupWord(r.k))}</div>
-        <div style="font-size:13px;font-family:var(--mono,monospace)">${f2s(r.score)}</div></div>`}).join('')+'</div>';
-
-  // QUADRANT POSITIONS — the four RRG boxes, populated
-  const byKind={go:[],buy:[],improve:[],avoid:[]};
-  rs.forEach(r=>{ if(byKind[r.kind]) byKind[r.kind].push(r.k) });
-  const qbox=(t,kind,note)=>`<div style="flex:1;min-width:150px;border:1px solid var(--line);border-radius:4px;padding:8px">
-      <div class="cls" style="font-size:9.5px;color:${col(kind)}">${t}</div>
-      <div style="font-size:11.5px;margin-top:3px">${byKind[kind].length?byKind[kind].map(esc2).join(' · '):'<span style="color:var(--dim)">none</span>'}</div>
-      <div style="font-size:10px;color:var(--dim);margin-top:3px">${note}</div></div>`;
-  const quads='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:14px 0 4px">QUADRANT POSITIONS</div>'+
-    '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
-      qbox('LEADING','go','trend up, momentum up')+qbox('WEAKENING','buy','trend up, momentum rolling over')+
-      qbox('IMPROVING','improve','trend down, momentum turning up')+qbox('LAGGING','avoid','trend down, momentum down')+'</div>';
-
-  // ROTATION MAP (RRG) — trend on x, momentum on y, the actual scatter
-  const rrgSvg=(()=>{const W=560,H=260,P=34;
-    const X=v=>P+((v+1)/2)*(W-2*P), Y=v=>H-P-((v+1)/2)*(H-2*P);
-    return `<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:14px 0 4px">ROTATION MAP — trend across, momentum up</div>
-    <div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;height:auto">
-      <rect x="${P}" y="${P}" width="${W-2*P}" height="${H-2*P}" fill="none" stroke="var(--line)"/>
-      <line x1="${X(0)}" y1="${P}" x2="${X(0)}" y2="${H-P}" stroke="var(--line)" stroke-dasharray="3 3"/>
-      <line x1="${P}" y1="${Y(0)}" x2="${W-P}" y2="${Y(0)}" stroke="var(--line)" stroke-dasharray="3 3"/>
-      <text x="${W-P-4}" y="${Y(0)-6}" fill="#67707e" font-size="9" text-anchor="end">LEADING</text>
-      <text x="${P+4}" y="${Y(0)-6}" fill="#67707e" font-size="9">IMPROVING</text>
-      <text x="${P+4}" y="${H-P-5}" fill="#67707e" font-size="9">LAGGING</text>
-      <text x="${W-P-4}" y="${H-P-5}" fill="#67707e" font-size="9" text-anchor="end">WEAKENING</text>
-      ${rs.map(r=>`<g><circle cx="${X(r.trend).toFixed(1)}" cy="${Y(r.momentum).toFixed(1)}" r="4.5" fill="${col(r.kind)}"/>
-        <text x="${(X(r.trend)+7).toFixed(1)}" y="${(Y(r.momentum)+3.5).toFixed(1)}" fill="var(--txt)" font-size="9.5">${esc2(r.k)}</text></g>`).join('')}
-    </svg></div>`})();
-
-  // REGIME READ — the template's summary line, from the same numbers
-  const lead=byKind.go.length, lag=byKind.avoid.length, imp=byKind.improve.length, weak=byKind.buy.length;
-  const breadthWord = lead>=rs.length*0.6?'broad — most of the market is participating'
-                    : lag>=rs.length*0.4?'narrow — most sectors are still falling'
-                    : 'mixed — leadership is split';
-  const regime='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:14px 0 4px">REGIME READ</div>'+
-    `<div class="note" style="font-size:11.5px;line-height:1.7">${lead} of ${rs.length} sectors are LEADING, ${weak} WEAKENING, ${imp} IMPROVING and ${lag} LAGGING — ${breadthWord}. `+
-    `Strongest ${esc2(rs[0].k)} at ${f2s(rs[0].score)}, weakest ${esc2(rs[rs.length-1].k)} at ${f2s(rs[rs.length-1].score)}. `+
-    (imp?`Turning up from below: <b>${byKind.improve.map(esc2).join(', ')}</b>. `:'')+
-    (weak?`Losing momentum while still above water: <b>${byKind.buy.map(esc2).join(', ')}</b>.`:'')+'</div>';
-
-  el.innerHTML='<details style="margin-top:10px"><summary>SECTOR ROTATION — leaders, heatmap, quadrants, rotation map and regime read</summary>'+
-    leaders+heat+quads+rrgSvg+regime+'</details>';
-}
 function esc2(x){ return String(x).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) }
 function renderPickMix(shares, inv){
   const el=document.getElementById('pickmix'); if(!el) return;
@@ -2244,7 +1930,7 @@ function renderPickMix(shares, inv){
   if(!PM.nPicks){
     el.innerHTML='<div class="note" style="margin-top:10px;line-height:1.7">'+
       '<b style="color:var(--orange)">NO NAMES PICKED YET.</b> The outer ring is where the model wants the money; the inner ring is dark because you have not chosen which names hold it. '+
-      'Pick names in <b>4b · COMPARABLES</b> (the ★/PICK buttons) and both rings redraw as you go — fewer names means a bigger slice each, up to your TOTAL cap of '+cap+'.</div>';
+      'KEEP a name in <b>5 · THE KNOCKOUT</b> (or star one in MOVE OPTIONS) and both rings redraw as you go — fewer names means a bigger slice each, up to your TOTAL cap of '+cap+'.</div>';
     return;
   }
   const seg=(id,cur,opts,fn)=>'<span class="lbl" style="margin-right:6px">'+id+'</span>'+opts.map(([v,t])=>
@@ -2275,19 +1961,6 @@ function renderPickMix(shares, inv){
   el.innerHTML='<div class="note" style="margin:10px 0 4px;letter-spacing:.06em">YOUR NAMES INSIDE THE MIX</div>'+toggles+
     rows+'<div class="note" style="margin-top:6px;line-height:1.7">'+notes.join(' · ')+'</div>';
 }
-function drawMix(tLC, tSC, tCash, cLC2, cSC2, cCash){
-  const el = document.getElementById('mix'); if (!el) return;
-  const COLORS = {LC: 'var(--gold)', SC: 'var(--cyan)', CASH: '#23233a'};
-  const bar = parts => '<div class="stack">' + parts.map(([k, v]) => {
-    if (v <= 0.001) return '';
-    const lbl = v > 0.09 ? `${k} ${Math.round(v*100)}%` : (v > 0.045 ? Math.round(v*100)+'%' : '');
-    const txtColor = k === 'CASH' ? 'style="color:#8a8aa0;"' : '';
-    return `<div class="seg" ${txtColor} style="width:${v*100}%;background:${COLORS[k]};${k==='CASH'?'color:#8a8aa0;':''}">${lbl}</div>`;
-  }).join('') + '</div>';
-  el.innerHTML =
-    '<div class="stacklbl">YOU NOW</div>' + bar([['LC', cLC2], ['SC', cSC2], ['CASH', cCash]]) +
-    '<div class="stacklbl">TARGET (model)</div>' + bar([['LC', tLC], ['SC', tSC], ['CASH', tCash]]);
-}
 function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const el = document.getElementById('brief'); if (!el) return;
   const f = x => x==null?'—':(x>=0?'+':'')+x.toFixed(2);
@@ -2309,7 +1982,7 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const p1 = pc.sentence+' '+idx+breadth+'.'+sect+bow+bl+macro;
   const SHB = sleeveShares();
   const top = Object.entries(SHB).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,sh])=>(SECT_WORD[k]||k)+' '+Math.round(sh*inv*100)+'%');
-  const p2 = 'The sectors are read by one blended bow tie — five readings per sector, averaged. The rung for a '+pc.word.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?pct(dTot,0)+' of equity is to deploy':pct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in 6 · THE PICKS AND THEIR %).':'.');
+  const p2 = 'The sectors are read by one blended bow tie — five readings per sector, averaged. The rung for a '+pc.word.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?pct(dTot,0)+' of equity is to deploy':pct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in 3b · HOW THE MONEY SPLITS).':'.');
   const ranked = (typeof rankCandidates==='function') ? rankCandidates().filter(r=>r.tag).slice(0,5) : [];
   const p3 = ranked.length ? 'Inside those sectors the names that rank first — fundamentals first, then the Geiger for timing — are '+ranked.map(r=>r.sym+' ('+(SECT_WORD[r.sleeves[0]]||r.sleeves[0]||'')+(r.vr?', '+r.vr.tag.toLowerCase()+' vs peers':'')+(r.target?', target '+(r.target.up>=0?'+':'')+Math.round(r.target.up*100)+'%':'')+')').join(', ')+'. The knockout inside a cohort is section 5; their comparables and the checked analyst targets are in 8b.' : '';
   el.innerHTML = p1 + '<br><br>' + p2 + (p3?'<br><br>'+p3:'');
@@ -2329,7 +2002,6 @@ function renderInputMap(h){
     ['10Y endpoints', SUB, '−1 @ '+(+S.tenCold).toFixed(1)+'% · +1 @ 3.5%', 'Same shape for the yield voter.'],
     ['LC share rails', RAIL, '20% – 80%', 'Clamp on the data split so one hot print can’t zero a class. Constant, not a dial — stays internal as classes are added.'],
     ['Momentum clamp anchors', APPR, 'RSI 23 / 77', 'Your geiger levels — where RSI reads fully washed-out / fully stretched.'],
-    ['Trend/Momentum · RSI/W%R', APPR, S.dTrend.toFixed(2)+'/'+(1-S.dTrend).toFixed(2)+' · '+S.dRsi.toFixed(2)+'/'+(1-S.dRsi).toFixed(2), 'The approved geiger family blends (match the hub equalizer: TRND 50/MOM 50, RSI 60/W%R 40). Changing them changes every geiger at once.'],
     ['Equalizer TF curve', APPR, (OPW && OPW.rows ? 'operator_weights: '+OPW.rows+' rows (read live)' : Object.entries(EQ_W).map(([t,w])=>t+' '+w).join(' · ')), 'The Hub applies the equalizer curve (operator_weights) upstream inside the Geiger this page reads; nothing is re-computed here.'],
     ['Geiger', SRC, SPINE['geiger']?(SPINE['geiger'].mode+' · '+(SPINE['geiger'].note||'')):'—', 'Every Geiger on this page (voters, sectors, names): the chart API /geiger, the Hub\'s own, fresh every cycle. composite_staged only for CLUSD, BTCUSD, GCUSD, SIUSD, which the API does not carry. Nothing from Yahoo.'],
     ['Sector readings', SRC, SPINE['sector_compare']?(SPINE['sector_compare'].mode+' · '+(SPINE['sector_compare'].note||'')):'—', 'Each sector = its State Street fund\'s Geiger (trend, momentum, score) from the same /geiger call; the Invesco equal-weight twin minus it = the bow tie. The sector split, the SECTOR COMPARE and SECTOR BOW TIE voters and the sector chips all read this. sector_rankings is the fallback only.'],
@@ -2350,7 +2022,6 @@ function renderInputMap(h){
   t.innerHTML = '<tr><th>INPUT</th><th>KIND</th><th>NOW</th><th>WHAT IT DOES, MATHEMATICALLY</th></tr>' +
     rows.map(r => `<tr><td class="n">${r[0]}</td><td class="k">${r[1]}</td><td class="cls">${r[2]}</td><td class="cls">${r[3]}</td></tr>`).join('');
 }
-const CATS=['ALL','GROWTH','SEMIS','SMALL','CRYPTO','CMDTY','BROAD'];
 let CATFILTER='ALL';
 function setCat(c){ CATFILTER=c; render(); }
 function renderCohort(dLC, dSC){
@@ -2807,7 +2478,7 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   document.getElementById('trace').textContent = L.join('\n');
 }
 // slider wiring
-for (const id of ['dTrend','dRsi','vixCold','tenCold','maxInv','minInv','invCold','invMid','invHot','lcTilt','nPer','maxTotal','maxNames','concLean','curInv','curLC']) {
+for (const id of ['vixCold','tenCold','maxInv','minInv','invCold','invMid','invHot','lcTilt','nPer','maxTotal','maxNames','concLean','curInv','curLC']) {
   const el=document.getElementById(id); if(!el) continue;
   document.getElementById(id).oninput = e => { S[id] = +e.target.value; save(); render(); };
 }

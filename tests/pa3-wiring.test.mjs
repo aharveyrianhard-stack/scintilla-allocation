@@ -17,7 +17,7 @@ const hours = (iso) => (Date.now() - Date.parse(iso)) / 36e5;
 
 const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, "http://x"); const rw = rewrites.find((x) => x.source === u.pathname);
-  if (rw) { const r = await fetch(rw.destination + u.search); res.writeHead(r.status, { "content-type": "application/json" }); return res.end(Buffer.from(await r.arrayBuffer())); }
+  if (rw) { const r = await fetch(rw.destination + u.search); res.writeHead(r.status, { "content-type": r.headers.get("content-type") || "application/json" })   /* PA6: the upstream's own type — the C5 method is a JavaScript module */; return res.end(Buffer.from(await r.arrayBuffer())); }
   const f = path.join(ROOT, u.pathname === "/" ? "index.html" : u.pathname);
   if (!fs.existsSync(f)) { res.writeHead(404); return res.end(); }
   res.writeHead(200, { "content-type": "text/html" }); res.end(fs.readFileSync(f));
@@ -31,7 +31,7 @@ test("the page loads headless with no errors and no non-GET request", async () =
   const errors = [];
   await page.route("**/*", (r) => { if (r.request().method() !== "GET") { nonGet++; return r.abort(); } r.continue(); });
   page.on("pageerror", (e) => errors.push(String(e)));
-  await page.goto(`http://127.0.0.1:${PORT}/`, { waitUntil: "networkidle", timeout: 120000 }); await page.waitForTimeout(2500);
+  await page.goto(`http://127.0.0.1:${PORT}/`, { waitUntil: "networkidle", timeout: 120000 }); await page.waitForTimeout(2500); await page.waitForSelector("#cohort tr:nth-child(2)", { timeout: 120000 });   /* PA6: the page now loads the fundamentals of every served company (each business line needs its field), so the names table arrives a few seconds later */
   state = await page.evaluate(() => ({
     spine: Object.fromEntries(Object.entries(SPINE).map(([k, v]) => [k, v.mode])),
     spy: tickerG("SPY"), xlk: SECTOR_READ.TECH, rspt: GEIGER.RSPT && GEIGER.RSPT.composite, geigerN: Object.keys(GEIGER).length,

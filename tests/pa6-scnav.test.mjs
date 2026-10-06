@@ -5,8 +5,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { openPage } from "./_harness.mjs";
 
+let P;
 test("the scnav pair is on the page, inline above the title, and both buttons lead to the Hub", async () => {
-  const P = await openPage();
+  P = await openPage();
   const s = await P.page.evaluate(() => {
     const nav = document.querySelector("nav.scnav"), h1 = document.querySelector("h1");
     const r = nav.getBoundingClientRect(), hr = h1.getBoundingClientRect();
@@ -32,5 +33,6 @@ test("the scnav pair is on the page, inline above the title, and both buttons le
     await P.page.click('nav.scnav button[data-go="close"]'); await P.page.waitForTimeout(600);
     assert.equal(hrefs[hrefs.length - 1], "https://scintillahub.ai/", "CLOSE falls back to the Hub when the tab cannot close");
   }
-  await P.close();
 });
+/* the browser always closes, even after a failed assertion — otherwise the test process never exits */
+test("teardown", async () => { if (P) await P.close(); });

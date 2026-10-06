@@ -74,5 +74,6 @@ test("a made-up cohort of the pairs Alan named: a duel across business lines is 
   const eq = r.lines.find((l) => l.line === "semiconductor equipment"); assert.ok(eq && eq.duels.length === 1 && eq.duels[0].sort().join("-") === "ASML-LRCX", JSON.stringify(eq));
   assert.equal(r.podium.length, r.lines.filter((l) => l.champion).length, "one champion per line on the podium");
   console.log("PA6 made-up cohort: " + JSON.stringify(r.lines.map((l) => l.line + ":" + l.names.join("/") + "→" + l.champion)));
-  await P.close();
 });
+/* the browser always closes, even after a failed assertion — otherwise the test process never exits */
+test("teardown", async () => { if (P) await P.close(); });

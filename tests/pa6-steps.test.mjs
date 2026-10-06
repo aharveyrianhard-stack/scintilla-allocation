@@ -51,6 +51,7 @@ test("3b HOW THE MONEY SPLITS: every number follows from the 3a reading by the s
   assert.equal(s.rows3b.length, M.rows.length + 1, "one row per sector and the total"); const last = s.rows3b[s.rows3b.length - 1]; assert.ok(last[last.length - 2] === (s.inv * 100).toFixed(1) + "%", "the total is the rung's % invested: " + JSON.stringify(last));
   for (let i = 0; i < M.rows.length; i++) { const r = s.rows3b[i]; assert.equal(r[7], (M.rows[i].equity * 100).toFixed(1) + "%", M.rows[i].key + " % of equity"); assert.equal(r[6], (M.rows[i].share * 100).toFixed(1) + "%"); }
   assert.ok(/THE RULE/.test(s.moneyText) && /2% and 35%/.test(s.moneyText) && /coldness/.test(s.moneyText));
-  await P.close();
 });
 function sectorWordJS(v) { if (v == null) return "NO READ"; return v <= -0.5 ? "DEEP OVERSOLD" : v <= -0.2 ? "OVERSOLD" : v < 0.2 ? "NEUTRAL" : v < 0.5 ? "OVERBOUGHT" : "DEEP OVERBOUGHT"; }
+/* the browser always closes, even after a failed assertion — otherwise the test process never exits */
+test("teardown", async () => { if (P) await P.close(); });

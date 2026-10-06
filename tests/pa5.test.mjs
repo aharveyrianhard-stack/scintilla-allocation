@@ -16,7 +16,7 @@ test("the page loads with the blend live and no stray write", async () => {
     svg: { polygons: document.querySelectorAll("#bowtie td[data-side=cap] .sc-gmini, #bowtie td[data-side=eq] .sc-gmini").length, circles: document.querySelectorAll("#bowtie td[data-side=blend] .sc-gmini").length, text: document.getElementById("bowtie").innerText },
     mixdialButtons: document.querySelectorAll("#mixdial button").length, rankDial: !!document.getElementById("mixRANK"),
     ko: KO_COHORT, K: (() => { const K = knockout(KO_COHORT); return K && { cohort: K.cohort.key, entrants: K.entrants.map((e) => [e.sym, e.seed, e.fund.score, e.fund.n, e.timing]), sitOut: K.sitOut.map((e) => [e.sym, e.fund.n]), rounds: K.rounds.map((ms) => ms.map((m) => ({ a: m.a.sym, b: m.b && m.b.sym, w: m.winner.sym, on: m.on, fa: m.a.fund.score, fb: m.b && m.b.fund.score, ta: m.a.timing, tb: m.b && m.b.timing, why: m.why }))), champion: K.champion && K.champion.sym, picks: K.picksOrder.map((e) => e.sym) }; })(),
-    dom: { minis: document.querySelectorAll("#knockout .komini").length, matches: document.querySelectorAll("#knockout .komatch").length, won: [...document.querySelectorAll("#knockout .koround:last-child .swcard.won .chead b")].map((b) => b.innerText), pickCards: document.querySelectorAll("#knockout .kopick .swcard").length, picksTxt: document.getElementById("picks").innerText },
+    dom: { minis: document.querySelectorAll("#knockout .komini").length, matches: document.querySelectorAll("#knockout .komatch").length, won: [...document.querySelectorAll("#knockout .koline")].map((l) => [...l.querySelectorAll(".koround:last-child .swcard.won .chead b")].map((b) => b.innerText)), pickCards: document.querySelectorAll("#knockout .kopick .swcard").length, picksTxt: document.getElementById("picks").innerText },
     plain: plainCondition(heat()), heatLabelTxt: document.getElementById("heatlabel").innerText, policyTxt: document.getElementById("policy").innerText,
     spine: Object.fromEntries(Object.entries(SPINE).map(([k, v]) => [k, v.mode])),
   }));
@@ -72,18 +72,15 @@ test("the chain on one page, in order: heat → how much → the bow tie → coh
   assert.ok(/^The market's heat is .*, so the plan .*: \d+% invested, \d+% in cash\.$/.test(state.plain.sentence), state.plain.sentence);
   assert.ok(state.policyTxt.includes(state.plain.sentence), "the ladder's TODAY line is the sentence");
 });
-test("the knockout: seeded by fundamentals, first plays last, a duel is won on fundamentals and only an even one on the Geiger's timing", () => {
+test("the knockout (PA6: by business line — see pa6-knockout.test.mjs): inside each line seeded by fundamentals, first plays last, won on fundamentals, the Geiger only when even; the champion is the podium's first", () => {
   const K = state.K; assert.ok(K && K.entrants.length >= 4, "a cohort with at least four measured names is chosen by default: " + JSON.stringify(K && K.cohort));
-  for (let i = 1; i < K.entrants.length; i++) assert.ok(K.entrants[i][2] <= K.entrants[i - 1][2], "seeded by fundamentals");
   for (const e of K.entrants) assert.ok(e[3] >= 2, e[0] + " enters with " + e[3] + " readings"); for (const s of K.sitOut) assert.ok(s[1] < 2, s[0] + " sits out with " + s[1]);
-  const r1 = K.rounds[0]; assert.equal(r1[0].a, K.entrants[0][0]); assert.equal(r1[0].b, K.entrants[K.entrants.length - 1][0], "first plays last");
   let total = 0; for (const ms of K.rounds) for (const m of ms) { if (!m.b) { assert.equal(m.on, "bye"); continue; } total++;
     const d = m.fa - m.fb; if (Math.abs(d) >= 0.02) { assert.equal(m.on, "fundamentals"); assert.equal(m.w, d > 0 ? m.a : m.b, m.why); assert.ok(/wins on fundamentals/.test(m.why)); }
     else { assert.equal(m.on, "timing"); assert.equal(m.w, (m.ta ?? 0) >= (m.tb ?? 0) ? m.a : m.b); assert.ok(/Geiger decides the timing/.test(m.why), m.why); } }
-  assert.ok(total >= K.entrants.length - 1 && K.rounds[K.rounds.length - 1].length === 1, "rounds until one is left");
-  assert.equal(K.champion, K.rounds[K.rounds.length - 1][0].w); assert.equal(K.picks[0], K.champion);
-  assert.deepEqual(state.dom.won, [K.champion], "the final's winning card is marked"); assert.ok(state.dom.matches >= 3 && state.dom.pickCards >= 1);
-  if (K.rounds.length > 3) assert.ok(state.dom.minis > 0, "early rounds are one line per duel");
+  assert.ok(total >= 3, "duels tonight " + total);
+  assert.equal(K.champion, K.picks[0], "the champion is the podium's first"); assert.ok(state.dom.matches >= 3 && state.dom.pickCards >= 1);
+  assert.ok(state.dom.won.every((w) => w.length <= 1), "at most one winner card per final");
 });
 test("KEEP in the knockout: the page's own write path (test row) lands in comps_decisions, and a kept name takes its % of its sector", async () => {
   const reason = "PA5 test row " + new Date().toISOString();
