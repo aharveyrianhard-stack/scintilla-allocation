@@ -1,0 +1,175 @@
+{
+ "read_utc": "2026-10-06T19:35:54.804Z",
+ "heat": 0.04492099975389779,
+ "rung": {
+  "cond": "NEUTRAL",
+  "pct": 50
+ },
+ "brief": "The market's heat is middling (+0.04 on a scale from −1 washed out to +1 stretched), so the plan keeps about half the money in cash: 50% invested, 50% in cash. The index is hot (S&P +0.82, Nasdaq +0.85), but the average stock is not (equal-weight +0.13, small caps -0.06): the biggest names carry the tape. 2 of 11 sectors lead (Technology, Energy), 6 lag, 2 turning up from below (Industrials, Utilities), 1 pulling back (Health care). Read beside them, not counted in: Crypto +0.60, Oil +0.46, Metals -0.08. Inside the sectors the bow tie reads -0.18: the big names carry each sector. Across the 315 served names the advance/decline line fell 396 over the last 20 sessions, and 78% of the set's move came from its ten largest names. Rates are a headwind at 5.31%. Volatility is calm (VIX 15.1).",
+ "rows": [
+  {
+   "key": "SPY",
+   "name": "SPY GEIGER",
+   "val": 0.8189,
+   "w": 1,
+   "sub": "chart API · fresh"
+  },
+  {
+   "key": "QQQ",
+   "name": "QQQ GEIGER",
+   "val": 0.8517,
+   "w": 1,
+   "sub": "chart API · fresh"
+  },
+  {
+   "key": "IWM",
+   "name": "IWM GEIGER",
+   "val": -0.0617,
+   "w": 0.5,
+   "sub": "small caps · chart API · fresh"
+  },
+  {
+   "key": "SMH",
+   "name": "SMH GEIGER",
+   "val": 0.8143,
+   "w": 0.5,
+   "sub": "semis · chart API · fresh"
+  },
+  {
+   "key": "VIX",
+   "name": "VIX (inv)",
+   "val": 0.6589,
+   "w": 0.5,
+   "sub": "15.1 · chart API macro (FMP), live · session 2026-10-06"
+  },
+  {
+   "key": "US10Y",
+   "name": "US 10Y (inv)",
+   "val": -1,
+   "w": 0.5,
+   "sub": "5.31% · treasury_rates (db) 2026-10-05"
+  },
+  {
+   "key": "OIL",
+   "name": "OIL (inv)",
+   "val": -0.6251,
+   "w": 0.5,
+   "sub": "CL · composite_staged · just now"
+  },
+  {
+   "key": "CRYPTO",
+   "name": "CRYPTO (BTC)",
+   "val": 0.6789,
+   "w": 0.25,
+   "sub": "risk appetite · composite_staged · just now"
+  },
+  {
+   "key": "BREADTH_EW",
+   "name": "EQUAL-WEIGHT vs INDEX",
+   "val": -0.6893,
+   "w": 0.5,
+   "sub": "RSP − SPY = -0.69 · negative means the average stock is colder than the index"
+  },
+  {
+   "key": "BREADTH_SC",
+   "name": "SMALL vs LARGE",
+   "val": -0.8805,
+   "w": 0.25,
+   "sub": "IWM − SPY = -0.88"
+  },
+  {
+   "key": "SECTORS",
+   "name": "SECTOR BOW TIE (blended)",
+   "val": -0.0685,
+   "w": 0.75,
+   "sub": "11 sectors, five readings each, average -0.07 · bow tie -0.18 — the biggest names carry the sectors · 2 leading · 6 lagging · 2 turning up · 1 pulling back"
+  },
+  {
+   "key": "VIX_TERM",
+   "name": "VIX TERM (spot ÷ 3m)",
+   "val": 0.6511,
+   "w": 0.25,
+   "sub": "0.837 · 3-month leg from the VIX table's 2026-10-05 close, spot live · above 1.00 = stress priced now"
+  },
+  {
+   "key": "CURVE",
+   "name": "YIELD CURVE (10y − 2y)",
+   "val": 0.3133,
+   "w": 0.5,
+   "sub": "0.47% · negative = inverted"
+  },
+  {
+   "key": "ADLINE",
+   "name": "ADVANCE / DECLINE",
+   "val": -0.1905,
+   "w": 0.5,
+   "sub": "served set, 315 names · line -396 over 20 sessions to 2026-10-05 · today 0 up / 0 down · last close 178 up / 134 down"
+  },
+  {
+   "key": "CONC",
+   "name": "CONCENTRATION",
+   "val": -0.8401,
+   "w": 0.5,
+   "sub": "20 sessions: S&P +0.6% vs equal-weight -3.6% = -4.2% · the big names carry it · 78% of the served set's 20-session move came from its ten largest names (NVDA, AAPL, GOOGL, GOOG, MSFT …), which are 47% of its value"
+  },
+  {
+   "key": "TRIN",
+   "name": "TRIN (inv)",
+   "val": -0.319,
+   "w": 0.25,
+   "sub": "1.159 · below 1.00 = volume confirming the advance"
+  },
+  {
+   "key": "B_VOL",
+   "name": "UP vs DOWN VOLUME",
+   "val": 0.2596,
+   "w": 0.25,
+   "sub": "8.7% net up-volume"
+  },
+  {
+   "key": "CREDIT",
+   "name": "CREDIT (HYG)",
+   "val": -0.5094,
+   "w": 0.5,
+   "sub": "high yield · composite_staged"
+  },
+  {
+   "key": "DURATION",
+   "name": "DURATION (TLT)",
+   "val": -0.7855,
+   "w": 0.25,
+   "sub": "long treasuries · composite_staged"
+  },
+  {
+   "key": "HAVEN",
+   "name": "GOLD (inv)",
+   "val": -0.1631,
+   "w": 0.25,
+   "sub": "haven bid · composite_staged"
+  },
+  {
+   "key": "DEF",
+   "name": "DEFENSIVES (inv)",
+   "val": 0.0928,
+   "w": 0.25,
+   "sub": "XLP+XLU · db"
+  }
+ ],
+ "notVoting": [
+  "PUT / CALL (IB, market estimate)",
+  "SKEW (put protection bid)",
+  "MARKET % ABOVE 200-DAY",
+  "MARKET % ABOVE 50-DAY",
+  "PUT / CALL (CBOE)",
+  "NYSE TICK",
+  "NYSE ADVANCE / DECLINE"
+ ],
+ "sectors": {
+  "n": 11,
+  "leading": 2,
+  "lagging": 6,
+  "turning": 2,
+  "bow": -0.17756129772643
+ },
+ "weightsAreDefaults": true
+}

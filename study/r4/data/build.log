@@ -6,85 +6,85 @@
   D_from: '2021-08-02',
   D_to: '2026-10-05'
 } vix D 1300
-2s multi 1d 25 / 590
-3s multi 1d 50 / 590
-4s multi 1d 75 / 590
+3s multi 1d 25 / 590
+4s multi 1d 50 / 590
+5s multi 1d 75 / 590
 5s multi 1d 100 / 590
-5s multi 1d 125 / 590
-6s multi 1d 150 / 590
-7s multi 1d 175 / 590
-7s multi 1d 200 / 590
-8s multi 1d 225 / 590
-9s multi 1d 250 / 590
-9s multi 1d 275 / 590
-11s multi 1d 300 / 590
-11s multi 1d 325 / 590
-12s multi 1d 350 / 590
-13s multi 1d 375 / 590
-14s multi 1d 400 / 590
-14s multi 1d 425 / 590
-15s multi 1d 450 / 590
-16s multi 1d 475 / 590
-16s multi 1d 500 / 590
-17s multi 1d 525 / 590
-18s multi 1d 550 / 590
-19s multi 1d 575 / 590
-20s multi 1d 590 / 590
-20s multi 3d 25 / 590
-21s multi 3d 50 / 590
-21s multi 3d 75 / 590
-22s multi 3d 100 / 590
-22s multi 3d 125 / 590
-23s multi 3d 150 / 590
-23s multi 3d 175 / 590
-24s multi 3d 200 / 590
-24s multi 3d 225 / 590
-25s multi 3d 250 / 590
-25s multi 3d 275 / 590
-26s multi 3d 300 / 590
-26s multi 3d 325 / 590
-27s multi 3d 350 / 590
-27s multi 3d 375 / 590
-27s multi 3d 400 / 590
-28s multi 3d 425 / 590
-28s multi 3d 450 / 590
-28s multi 3d 475 / 590
-29s multi 3d 500 / 590
-29s multi 3d 525 / 590
-30s multi 3d 550 / 590
-30s multi 3d 575 / 590
-30s multi 3d 590 / 590
-31s multi W 25 / 590
-32s multi W 50 / 590
+6s multi 1d 125 / 590
+7s multi 1d 150 / 590
+8s multi 1d 175 / 590
+9s multi 1d 200 / 590
+10s multi 1d 225 / 590
+11s multi 1d 250 / 590
+12s multi 1d 275 / 590
+13s multi 1d 300 / 590
+13s multi 1d 325 / 590
+14s multi 1d 350 / 590
+15s multi 1d 375 / 590
+15s multi 1d 400 / 590
+16s multi 1d 425 / 590
+17s multi 1d 450 / 590
+18s multi 1d 475 / 590
+19s multi 1d 500 / 590
+19s multi 1d 525 / 590
+20s multi 1d 550 / 590
+21s multi 1d 575 / 590
+22s multi 1d 590 / 590
+22s multi 3d 25 / 590
+23s multi 3d 50 / 590
+23s multi 3d 75 / 590
+24s multi 3d 100 / 590
+24s multi 3d 125 / 590
+25s multi 3d 150 / 590
+25s multi 3d 175 / 590
+26s multi 3d 200 / 590
+26s multi 3d 225 / 590
+27s multi 3d 250 / 590
+27s multi 3d 275 / 590
+28s multi 3d 300 / 590
+28s multi 3d 325 / 590
+29s multi 3d 350 / 590
+29s multi 3d 375 / 590
+30s multi 3d 400 / 590
+30s multi 3d 425 / 590
+30s multi 3d 450 / 590
+30s multi 3d 475 / 590
+31s multi 3d 500 / 590
+31s multi 3d 525 / 590
+31s multi 3d 550 / 590
+32s multi 3d 575 / 590
+32s multi 3d 590 / 590
+32s multi W 25 / 590
+33s multi W 50 / 590
 33s multi W 75 / 590
-33s multi W 100 / 590
-34s multi W 125 / 590
-34s multi W 150 / 590
-35s multi W 175 / 590
-35s multi W 200 / 590
-36s multi W 225 / 590
+34s multi W 100 / 590
+35s multi W 125 / 590
+35s multi W 150 / 590
+36s multi W 175 / 590
+36s multi W 200 / 590
+37s multi W 225 / 590
 37s multi W 250 / 590
-37s multi W 275 / 590
-37s multi W 300 / 590
-38s multi W 325 / 590
+38s multi W 275 / 590
+38s multi W 300 / 590
+39s multi W 325 / 590
 39s multi W 350 / 590
-39s multi W 375 / 590
-39s multi W 400 / 590
-40s multi W 425 / 590
-40s multi W 450 / 590
-41s multi W 475 / 590
-42s multi W 500 / 590
-42s multi W 525 / 590
-42s multi W 550 / 590
-43s multi W 575 / 590
-43s multi W 590 / 590
+40s multi W 375 / 590
+40s multi W 400 / 590
+41s multi W 425 / 590
+41s multi W 450 / 590
+42s multi W 475 / 590
+43s multi W 500 / 590
+43s multi W 525 / 590
+44s multi W 550 / 590
+44s multi W 575 / 590
+44s multi W 590 / 590
 47s comps 590
 47s breadth sessions 800 companies 454
 47s index + 10y Geigers
 53s company Geigers 450
 53s osc + vix
-53s two dials replayed 502 sessions; with both dials: 502
-53s breakouts {
+54s two dials replayed 502 sessions; with both dials: 502
+54s breakouts {
   breakouts: 9,
   scored: 9,
   followedThrough: 6,
@@ -122,4 +122,31 @@
     total: 18
   }
 }
-53s tree 63 cohorts; 9 cold with growth
+54s tree 63 cohorts; 9 cold with growth
+55s long daily bars { SPY: 1300, QQQ: 1300, IWM: 1300, RSP: 1300 } IWM/RSP 2W pivots 54 43
+55s index pullbacks {
+  SPY: '11 pullbacks, 23 leader-on-pullback visits',
+  QQQ: '11 pullbacks, 27 leader-on-pullback visits',
+  IWM: '10 pullbacks, 24 leader-on-pullback visits',
+  RSP: '12 pullbacks, 24 leader-on-pullback visits'
+}
+55s midpoint {
+  'middling heat, narrow leadership': '34 sessions / 10 stretches; SPY>RSP 0/21 at 60',
+  'middling heat, broad': '192 sessions / 49 stretches; SPY>RSP 116/155 at 60',
+  'stretched heat, narrow leadership': '17 sessions / 10 stretches; SPY>RSP 3/17 at 60',
+  'stretched heat, broad': '236 sessions / 41 stretches; SPY>RSP 146/228 at 60',
+  'every session': '502 sessions / 1 stretches; SPY>RSP 285/442 at 60'
+}
+60s estimates 453 reported history 454 revision news 450 market caps 454
+60s oversold 171 { DESERVED: 40, MIXED: 86, UNDESERVED: 34, UNKNOWN: 11 } {
+  withForwardGrowth: 452,
+  withTrailing: 441,
+  withRevisionNews: 435,
+  of: 454
+}
+60s cohort bow tie {
+  'THE AVERAGE NAME LEADS': 5,
+  LEVEL: 33,
+  'THE GIANTS CARRY IT': 25,
+  'one reading only': 0
+} five reads 60

@@ -1,0 +1,154 @@
+{
+ "390": {
+  "indexes": "SPY and QQQ are at their highs: QQQ closed over its two-week line on 2 Oct 2026 and sits +1.0% above it (resistance turned support, RSI 68); SPY closed −0.6% from its line and is +0.0% from it live.\n\nIWM and RSP are not there. Both sit under their 21-, 50- and 100-day averages and over a rising 200-day, −7.1% and −5.2% from their August highs, with RSI 44 and 43 and Geigers in the lowest 13% of their own year. The rebound so far is +2.0% and +1.5% off the low and +1.2% and +0.7% over five sessions: a bounce inside a pullback, not yet a turn (neither has its 21-day back).\n\nRead together: the two cap-weighted indexes say uptrend at resistance; the two that count every stock say an uptrend that has pulled back to where leaders-on-a-pullback are bought. That is the same split REGIME shows as \"breadth not joining\".",
+  "midpoint": "Today is that case: heat +0.08 (middling) with leadership narrow (the heat's own concentration and equal-weight readings average −0.88). In two years it happened on 34 sessions in 10 separate stretches; the current stretch is the longest.\n\nWhat followed, counted. Over the next 60 sessions SPY beat the equal-weight S&P on 0 of 21 of those sessions and beat our median company on 7 of 21; over the next 20, on 3 and 4 of 21. On middling days with broad leadership it was the other way round: SPY beat equal-weight on 116 of 155.\n\nSo: the July ladder has no index sleeve at all — at 50% it spreads the money across sectors by their readings — so \"more index\" is not its natural answer; it is something we would add. And the count does not back adding the cap-weighted index at this point: after narrow, middling stretches the average stock caught up every time it could be measured. If the midpoint calls for an index, the count points to the equal-weight one (RSP) or simply to the names that are cold for themselves. It is 21 sessions in three clusters (Dec 2024, Nov 2025, Apr–May 2026): a hint, not a rule.",
+  "coresat": "Today: the two dials say 49% invested. That splits into a core of 39.2% (19.6% index, 19.6% long-term leaders) and a satellite of 9.8% for conviction picks (20% of the invested money, because REGIME reads a range or retest). 51% is cash. New satellite buys are open (STRETCH +0.04).\n\n19.6%\nCORE · INDEX\n19.6%\nCORE · LONG-TERM LEADERS\n9.8%\nSATELLITE · CONVICTION\n51.0%\nCASH\n\nWhen a conviction pick is sold (here one pick of 3.3%): the money goes back to the core's index sleeve, not to cash. Cash stays at 51%; only the REGIME dial changes that.\n\nbefore the sale\n19.6%\nCORE · INDEX\n19.6%\nCORE · LONG-TERM LEADERS\n9.8%\nSATELLITE · CONVICTION\n51.0%\nCASH\nafter the sale — satellite 9.8% → 6.5%, index 19.",
+  "oversold": "oversold for themselves tonight\n171\nof 450 companies (lowest fifth of their own year, under zero live)\nUNDESERVED — growing, analysts not cutting\n34\nDESERVED — growth falling or estimates cut\n40\nmixed · unknown\n86 · 11",
+  "bowgroups": "Cohorts of their own. The gap sorts the 63 cohorts into three groups that can each stand as a cohort: THE AVERAGE NAME LEADS (5): IT SERVICES & CONSULTING, BUSINESS SERVICES & PAYROLL, BIOTECH, INSURERS & HEALTH SERVICES, AEROSPACE & DEFENCE PRIMES. THE GIANTS CARRY IT (25): AI SOFTWARE & DATA PLATFORMS, AI ACCELERATORS & LOGIC, ASIA-PACIFIC ex-CHINA, AI SERVERS & DATACENTER KIT, ANALOG, RF & POWER SEMIS, OIL & GAS · PRODUCERS, LATIN AMERICA, INTERNET & CONSUMER PLATFORMS, MACHINERY & CAPITAL GOODS, CANADA, SPACE, EUROPE (listed here), CRYPTO EQUITIES, QUANTUM, AI POWERTRAIN, INSURANCE, RETAIL & E-COMMERCE (US), DEFENCE TECH, CHEMICALS & BUILDING MATERIALS, CONSUMER STAPLES, AUTOS & EV, NEOCLOUDS & AI MINERS, NUCLEAR & URANIUM, CHINA (ADRs), AUTONOMY, eVTOL & DRONES. LEVEL: the other 33.\n\n60 cohorts carry all five reads, 3 carry four (no reference fund is served for them). Hot → cold by the blend.",
+  "stamp": "study page on branch r4-regime-stretch-20261006 · nothing here is on the live tool · built 2026-10-06 19:25 UTC · last completed session 5 Oct 2026 · the live tool read 19:35 UTC",
+  "ready": {
+   "invested": 49,
+   "regime": 0.0977,
+   "stretch": 0.0444,
+   "check": {
+    "breakouts": 9,
+    "scored": 9,
+    "followedThrough": 6,
+    "failed": 3,
+    "rule": "followed through = the broken fund closed higher twenty sessions after the break (HEAT1's +20 column); the heat 'holds back' at or above +0.2 (its STRETCHED rung), the two dials 'hold back' under 50% invested and 'add' at or above 70%",
+    "heat": {
+     "holdBack_followed": 6,
+     "holdBack_failed": 2,
+     "hold_followed": 0,
+     "hold_failed": 1,
+     "add_followed": 0,
+     "add_failed": 0,
+     "meanFollowed": 0.34791122338569935,
+     "meanFailed": 0.21082549586089128,
+     "meanRungFollowed": 30,
+     "meanRungFailed": 36.666666666666664
+    },
+    "two": {
+     "holdBack_followed": 0,
+     "holdBack_failed": 0,
+     "hold_followed": 1,
+     "hold_failed": 0,
+     "add_followed": 5,
+     "add_failed": 3,
+     "meanInvFollowed": 80,
+     "meanInvFailed": 77.66666666666667,
+     "meanRegimeFollowed": 0.6000333333333333,
+     "meanRegimeFailed": 0.48629999999999995,
+     "meanStretchFollowed": 0.3780833333333333,
+     "meanStretchFailed": 0.12549999999999997
+    },
+    "pairs": {
+     "heat": {
+      "pairs": 6,
+      "rightOrder": 0
+     },
+     "two": {
+      "pairs": 18,
+      "rightOrder": 11
+     },
+     "total": 18
+    }
+   },
+   "cold": 12,
+   "oversold": {
+    "DESERVED": 40,
+    "MIXED": 86,
+    "UNDESERVED": 34,
+    "UNKNOWN": 11
+   },
+   "satellite": 9.8
+  },
+  "dials": "REGIME — how much is invested\n+0.10\nRANGE OR RETEST · CREDIT NOT CONFIRMING\n−1 WASHED OUT\n0\n+1 STRETCHED\n\nBase 60% invested minus 10 for credit. Structure +0.40 carries 60%, breadth −0.36 carries 40%.\n\nSPY uptrend, under resistance (2W P1 779.37, −0.6% from it, over the 200-day). QQQ retesting from above (resistance turned support) (2W P1 748.65, +1.0%, over the 200-day).\n\nBreadth of our own 453 served companies: 47.6% over their 200-day, 34.7% over their 50-day; 256 up, 193 down on the last session — the average name is not joining.\n\nCredit: HYG's Geiger −0.84 — credit is not confirming, 10 points come off.\n\nSTRETCH — when to add or trim\n+0.04\nMIDDLING — hold\n−1 WASHED OUT\n0\n+1 STRETCHED\n\nFour blocks, equal say: index and semis Geigers +0.43 · RSI and Williams +0.64 · VIX +0.06 · the 10-year's own Geiger, inverted −0.95. It moves the base by -1 points.\n\nIndex and semis Geigers: SPY +0.81 (77% of its own year), QQQ +0.78 (76%), SMH +0.78 (60%) → block +0.43.\n\nRSI and Williams, daily: SPY RSI 58.8 (68%), W%R -6.6 (81%); QQQ RSI 68.4 (84%), W%R -1.3 (96%) → block +0.64.\n\nVIX against its own spikes: close 15.5 against a 60-session baseline of 15.8 (−2.0%); last spike 30 Mar 2026, 130 sessions ago; live 15.1 (−4.9% vs the baseline) → block +0.06.\n\nThe 10-year by its own Geiger: yield 5.3% (live 5.27%), Geiger +0.95 (99% of its own year), inverted → block −0.95. The fixed 3.5–4.8% band would say −1.00.\n\nTHE TWO-DIAL ANSWER\n49% invested\n\nrange or retest · credit not confirming; middling — hold. 51% stays in cash. The July ladder, from the same session's heat (+0.08), says 50%; the live tool right now says 50% at heat +0.04.",
+  "template": "THE JULY LADDER (the template)\n50% invested\n\nOne number, the heat, +0.04: 21 voters averaged by weight. It sits in the middle band (−0.2 to +0.2), so the ladder says 50%. It has no line, no support or resistance, no breadth of our own names; the 10-year votes −1.00 from a fixed 3.5–4.8% band.\n\nTHE TWO DIALS (us)\n49% invested\n\nREGIME +0.10 — range or retest · credit not confirming → base 60%. STRETCH +0.04 — middling — hold → -1 points; credit −10.\nWhere they agree. Both see the same stretched index Geigers (SPY +0.81, QQQ +0.78, SMH +0.78) and the same cold average stock (47.6% over the 200-day).\n\nWhy they differ. The template averages hot indices against cold rates, breadth and credit into one number near zero and reads \"nothing is happening\". The two dials keep them apart: REGIME says the structure is an uptrend under or at resistance, while breadth is not joining; STRETCH says the indices are middling for themselves, so add or trim on the lines, not on the dial.\n\nThe 10-year. The template's fixed band reads 5.31% as −1.00 (pinned at the cold end once past 4.8%). Its own Geiger reads +0.95 (99% of its own year), so the dial reads −0.95: yields are stretched up — a headwind now, and the one most likely to ease.\n\nThe VIX. The template maps the level to a 12–30 band; the dial reads it against its own baseline (15.8), last spike 30 Mar 2026, 130 sessions ago. It is near its own baseline.\n\nThe tree. The template is blind to cohorts. Tonight 12 cohorts are cold for themselves with growth of 10% or more expected: AUTONOMY, eVTOL & DRONES, NUCLEAR & URANIUM, AUTOS & EV, AEROSPACE & DEFENCE PRIMES, ASSET MANAGERS & ALTS, CHINA (ADRs), DATACENTER PROPERTY, AI POWERTRAIN, NEOCLOUDS & AI MINERS, SPACE, DEFENCE TECH, BIOTECH — that is where the tree says to look first, and panel 10 says which of their names have earned the fall.",
+  "counts": "followed through = the broken fund closed higher twenty sessions after the break (HEAT1's +20 column); the heat 'holds back' at or above +0.2 (its STRETCHED rung), the two dials 'hold back' under 50% invested and 'add' at or above 70%.\nbreakouts scored\n9\n6 followed through · 3 failed\nTHE HEAT said \"hold back\" on\n6 of 6\nthat followed through, and on 2 of 3 that failed\nTHE TWO DIALS said \"hold back\" on\n0 of 6\nthat followed through, and on 0 of 3 that failed · said \"add\" on 5 that followed and 3 that failed\npairs in the right order (followed-through above failed)\n0 / 6 heat · 11 / 18 two dials\nof 18 followed-through × failed pairs; ties left out\naverage two-dial % invested\n80% · 78%\non the breaks that followed through · that failed (the ladder: 30% · 37%)\nCounts only, nine events: this is a look, not a proof.",
+  "summary": "Over those sessions the two dials averaged 75% invested against the ladder's 41%; they were within 15 points of each other on 63 of 502 sessions. REGIME words: uptrend, broad 251 · uptrend, under resistance 119 · range or retest 54 · downtrend 54 · breakdown 13 · uptrend, narrow 11. STRETCH words: middling 163 · stretched 119 · washed out 107 · deeply washed out 83 · deeply stretched 30. VIX spikes: 6; sessions over the spike mark: 49.",
+  "width": 390,
+  "errors": [],
+  "nonGet": {
+   "blocked": 0,
+   "allowed": 0,
+   "urls": []
+  }
+ },
+ "1680": {
+  "indexes": "SPY and QQQ are at their highs: QQQ closed over its two-week line on 2 Oct 2026 and sits +1.0% above it (resistance turned support, RSI 68); SPY closed −0.6% from its line and is +0.0% from it live.\n\nIWM and RSP are not there. Both sit under their 21-, 50- and 100-day averages and over a rising 200-day, −7.1% and −5.2% from their August highs, with RSI 44 and 43 and Geigers in the lowest 13% of their own year. The rebound so far is +2.0% and +1.5% off the low and +1.2% and +0.7% over five sessions: a bounce inside a pullback, not yet a turn (neither has its 21-day back).\n\nRead together: the two cap-weighted indexes say uptrend at resistance; the two that count every stock say an uptrend that has pulled back to where leaders-on-a-pullback are bought. That is the same split REGIME shows as \"breadth not joining\".",
+  "midpoint": "Today is that case: heat +0.08 (middling) with leadership narrow (the heat's own concentration and equal-weight readings average −0.88). In two years it happened on 34 sessions in 10 separate stretches; the current stretch is the longest.\n\nWhat followed, counted. Over the next 60 sessions SPY beat the equal-weight S&P on 0 of 21 of those sessions and beat our median company on 7 of 21; over the next 20, on 3 and 4 of 21. On middling days with broad leadership it was the other way round: SPY beat equal-weight on 116 of 155.\n\nSo: the July ladder has no index sleeve at all — at 50% it spreads the money across sectors by their readings — so \"more index\" is not its natural answer; it is something we would add. And the count does not back adding the cap-weighted index at this point: after narrow, middling stretches the average stock caught up every time it could be measured. If the midpoint calls for an index, the count points to the equal-weight one (RSP) or simply to the names that are cold for themselves. It is 21 sessions in three clusters (Dec 2024, Nov 2025, Apr–May 2026): a hint, not a rule.",
+  "coresat": "Today: the two dials say 49% invested. That splits into a core of 39.2% (19.6% index, 19.6% long-term leaders) and a satellite of 9.8% for conviction picks (20% of the invested money, because REGIME reads a range or retest). 51% is cash. New satellite buys are open (STRETCH +0.04).\n\n19.6%\nCORE · INDEX\n19.6%\nCORE · LONG-TERM LEADERS\n9.8%\nSATELLITE · CONVICTION\n51.0%\nCASH\n\nWhen a conviction pick is sold (here one pick of 3.3%): the money goes back to the core's index sleeve, not to cash. Cash stays at 51%; only the REGIME dial changes that.\n\nbefore the sale\n19.6%\nCORE · INDEX\n19.6%\nCORE · LONG-TERM LEADERS\n9.8%\nSATELLITE · CONVICTION\n51.0%\nCASH\nafter the sale — satellite 9.8% → 6.5%, index 19.",
+  "oversold": "oversold for themselves tonight\n171\nof 450 companies (lowest fifth of their own year, under zero live)\nUNDESERVED — growing, analysts not cutting\n34\nDESERVED — growth falling or estimates cut\n40\nmixed · unknown\n86 · 11",
+  "bowgroups": "Cohorts of their own. The gap sorts the 63 cohorts into three groups that can each stand as a cohort: THE AVERAGE NAME LEADS (5): IT SERVICES & CONSULTING, BUSINESS SERVICES & PAYROLL, BIOTECH, INSURERS & HEALTH SERVICES, AEROSPACE & DEFENCE PRIMES. THE GIANTS CARRY IT (25): AI SOFTWARE & DATA PLATFORMS, AI ACCELERATORS & LOGIC, ASIA-PACIFIC ex-CHINA, AI SERVERS & DATACENTER KIT, ANALOG, RF & POWER SEMIS, OIL & GAS · PRODUCERS, LATIN AMERICA, INTERNET & CONSUMER PLATFORMS, MACHINERY & CAPITAL GOODS, CANADA, SPACE, EUROPE (listed here), CRYPTO EQUITIES, QUANTUM, AI POWERTRAIN, INSURANCE, RETAIL & E-COMMERCE (US), DEFENCE TECH, CHEMICALS & BUILDING MATERIALS, CONSUMER STAPLES, AUTOS & EV, NEOCLOUDS & AI MINERS, NUCLEAR & URANIUM, CHINA (ADRs), AUTONOMY, eVTOL & DRONES. LEVEL: the other 33.\n\n60 cohorts carry all five reads, 3 carry four (no reference fund is served for them). Hot → cold by the blend.",
+  "stamp": "study page on branch r4-regime-stretch-20261006 · nothing here is on the live tool · built 2026-10-06 19:25 UTC · last completed session 5 Oct 2026 · the live tool read 19:35 UTC",
+  "ready": {
+   "invested": 49,
+   "regime": 0.0977,
+   "stretch": 0.0444,
+   "check": {
+    "breakouts": 9,
+    "scored": 9,
+    "followedThrough": 6,
+    "failed": 3,
+    "rule": "followed through = the broken fund closed higher twenty sessions after the break (HEAT1's +20 column); the heat 'holds back' at or above +0.2 (its STRETCHED rung), the two dials 'hold back' under 50% invested and 'add' at or above 70%",
+    "heat": {
+     "holdBack_followed": 6,
+     "holdBack_failed": 2,
+     "hold_followed": 0,
+     "hold_failed": 1,
+     "add_followed": 0,
+     "add_failed": 0,
+     "meanFollowed": 0.34791122338569935,
+     "meanFailed": 0.21082549586089128,
+     "meanRungFollowed": 30,
+     "meanRungFailed": 36.666666666666664
+    },
+    "two": {
+     "holdBack_followed": 0,
+     "holdBack_failed": 0,
+     "hold_followed": 1,
+     "hold_failed": 0,
+     "add_followed": 5,
+     "add_failed": 3,
+     "meanInvFollowed": 80,
+     "meanInvFailed": 77.66666666666667,
+     "meanRegimeFollowed": 0.6000333333333333,
+     "meanRegimeFailed": 0.48629999999999995,
+     "meanStretchFollowed": 0.3780833333333333,
+     "meanStretchFailed": 0.12549999999999997
+    },
+    "pairs": {
+     "heat": {
+      "pairs": 6,
+      "rightOrder": 0
+     },
+     "two": {
+      "pairs": 18,
+      "rightOrder": 11
+     },
+     "total": 18
+    }
+   },
+   "cold": 12,
+   "oversold": {
+    "DESERVED": 40,
+    "MIXED": 86,
+    "UNDESERVED": 34,
+    "UNKNOWN": 11
+   },
+   "satellite": 9.8
+  },
+  "dials": "REGIME — how much is invested\n+0.10\nRANGE OR RETEST · CREDIT NOT CONFIRMING\n−1 WASHED OUT\n0\n+1 STRETCHED\n\nBase 60% invested minus 10 for credit. Structure +0.40 carries 60%, breadth −0.36 carries 40%.\n\nSPY uptrend, under resistance (2W P1 779.37, −0.6% from it, over the 200-day). QQQ retesting from above (resistance turned support) (2W P1 748.65, +1.0%, over the 200-day).\n\nBreadth of our own 453 served companies: 47.6% over their 200-day, 34.7% over their 50-day; 256 up, 193 down on the last session — the average name is not joining.\n\nCredit: HYG's Geiger −0.84 — credit is not confirming, 10 points come off.\n\nSTRETCH — when to add or trim\n+0.04\nMIDDLING — hold\n−1 WASHED OUT\n0\n+1 STRETCHED\n\nFour blocks, equal say: index and semis Geigers +0.43 · RSI and Williams +0.64 · VIX +0.06 · the 10-year's own Geiger, inverted −0.95. It moves the base by -1 points.\n\nIndex and semis Geigers: SPY +0.81 (77% of its own year), QQQ +0.78 (76%), SMH +0.78 (60%) → block +0.43.\n\nRSI and Williams, daily: SPY RSI 58.8 (68%), W%R -6.6 (81%); QQQ RSI 68.4 (84%), W%R -1.3 (96%) → block +0.64.\n\nVIX against its own spikes: close 15.5 against a 60-session baseline of 15.8 (−2.0%); last spike 30 Mar 2026, 130 sessions ago; live 15.1 (−4.9% vs the baseline) → block +0.06.\n\nThe 10-year by its own Geiger: yield 5.3% (live 5.27%), Geiger +0.95 (99% of its own year), inverted → block −0.95. The fixed 3.5–4.8% band would say −1.00.\n\nTHE TWO-DIAL ANSWER\n49% invested\n\nrange or retest · credit not confirming; middling — hold. 51% stays in cash. The July ladder, from the same session's heat (+0.08), says 50%; the live tool right now says 50% at heat +0.04.",
+  "template": "THE JULY LADDER (the template)\n50% invested\n\nOne number, the heat, +0.04: 21 voters averaged by weight. It sits in the middle band (−0.2 to +0.2), so the ladder says 50%. It has no line, no support or resistance, no breadth of our own names; the 10-year votes −1.00 from a fixed 3.5–4.8% band.\n\nTHE TWO DIALS (us)\n49% invested\n\nREGIME +0.10 — range or retest · credit not confirming → base 60%. STRETCH +0.04 — middling — hold → -1 points; credit −10.\nWhere they agree. Both see the same stretched index Geigers (SPY +0.81, QQQ +0.78, SMH +0.78) and the same cold average stock (47.6% over the 200-day).\n\nWhy they differ. The template averages hot indices against cold rates, breadth and credit into one number near zero and reads \"nothing is happening\". The two dials keep them apart: REGIME says the structure is an uptrend under or at resistance, while breadth is not joining; STRETCH says the indices are middling for themselves, so add or trim on the lines, not on the dial.\n\nThe 10-year. The template's fixed band reads 5.31% as −1.00 (pinned at the cold end once past 4.8%). Its own Geiger reads +0.95 (99% of its own year), so the dial reads −0.95: yields are stretched up — a headwind now, and the one most likely to ease.\n\nThe VIX. The template maps the level to a 12–30 band; the dial reads it against its own baseline (15.8), last spike 30 Mar 2026, 130 sessions ago. It is near its own baseline.\n\nThe tree. The template is blind to cohorts. Tonight 12 cohorts are cold for themselves with growth of 10% or more expected: AUTONOMY, eVTOL & DRONES, NUCLEAR & URANIUM, AUTOS & EV, AEROSPACE & DEFENCE PRIMES, ASSET MANAGERS & ALTS, CHINA (ADRs), DATACENTER PROPERTY, AI POWERTRAIN, NEOCLOUDS & AI MINERS, SPACE, DEFENCE TECH, BIOTECH — that is where the tree says to look first, and panel 10 says which of their names have earned the fall.",
+  "counts": "followed through = the broken fund closed higher twenty sessions after the break (HEAT1's +20 column); the heat 'holds back' at or above +0.2 (its STRETCHED rung), the two dials 'hold back' under 50% invested and 'add' at or above 70%.\nbreakouts scored\n9\n6 followed through · 3 failed\nTHE HEAT said \"hold back\" on\n6 of 6\nthat followed through, and on 2 of 3 that failed\nTHE TWO DIALS said \"hold back\" on\n0 of 6\nthat followed through, and on 0 of 3 that failed · said \"add\" on 5 that followed and 3 that failed\npairs in the right order (followed-through above failed)\n0 / 6 heat · 11 / 18 two dials\nof 18 followed-through × failed pairs; ties left out\naverage two-dial % invested\n80% · 78%\non the breaks that followed through · that failed (the ladder: 30% · 37%)\nCounts only, nine events: this is a look, not a proof.",
+  "summary": "Over those sessions the two dials averaged 75% invested against the ladder's 41%; they were within 15 points of each other on 63 of 502 sessions. REGIME words: uptrend, broad 251 · uptrend, under resistance 119 · range or retest 54 · downtrend 54 · breakdown 13 · uptrend, narrow 11. STRETCH words: middling 163 · stretched 119 · washed out 107 · deeply washed out 83 · deeply stretched 30. VIX spikes: 6; sessions over the spike mark: 49.",
+  "width": 1680,
+  "errors": [],
+  "nonGet": {
+   "blocked": 0,
+   "allowed": 0,
+   "urls": []
+  }
+ }
+}

@@ -36,22 +36,22 @@
   },
   "live": {
    "vix": {
-    "price": 15.01,
+    "price": 15.06,
     "session": "2026-10-06",
-    "observed": "2026-10-06T18:56:46.000Z",
-    "vsBase": -0.052
+    "observed": "2026-10-06T19:24:46.000Z",
+    "vsBase": -0.049
    },
    "tenYear": {
-    "price": 5.272,
+    "price": 5.27,
     "session": "2026-10-06",
-    "observed": "2026-10-06T18:56:34.000Z"
+    "observed": "2026-10-06T18:57:24.000Z"
    },
    "quotes": {
-    "SPY": 780.16,
-    "QQQ": 760.97,
-    "SMH": 635.145
+    "SPY": 779.69412,
+    "QQQ": 760.6077,
+    "SMH": 634.3
    },
-   "read_utc": "2026-10-06T18:57:49.410Z"
+   "read_utc": "2026-10-06T19:25:48.403Z"
   }
  },
  "check": {
@@ -136,11 +136,624 @@
   "REGIONAL_BANKS",
   "PACKAGING"
  ],
+ "coldWithGrowthFmp": [
+  "AUTONOMY_EVTOL",
+  "NUCLEAR_URANIUM",
+  "AUTOS_EV",
+  "DEFENCE_PRIMES",
+  "ASSET_MANAGERS",
+  "CHINA",
+  "DC_PROPERTY",
+  "AI_POWERTRAIN",
+  "NEOCLOUDS_MINERS",
+  "SPACE",
+  "DEFENCE_TECH",
+  "BIOTECH"
+ ],
  "macroProof": {
   "D": 1300,
   "3D": 800,
   "W": 800,
   "D_from": "2021-08-02",
   "D_to": "2026-10-05"
+ },
+ "coreSatellite": {
+  "invested": 49,
+  "cash": 51,
+  "satelliteShareOfInvested": 20,
+  "satellite": 9.8,
+  "core": 39.2,
+  "indexShareOfCore": 50,
+  "coreIndex": 19.6,
+  "coreLeaders": 19.6,
+  "newSatelliteBuys": "open"
+ },
+ "oversold": {
+  "n": 171,
+  "counts": {
+   "DESERVED": 40,
+   "MIXED": 86,
+   "UNDESERVED": 34,
+   "UNKNOWN": 11
+  },
+  "coverage": {
+   "withForwardGrowth": 452,
+   "withTrailing": 441,
+   "withRevisionNews": 435,
+   "of": 454
+  }
+ },
+ "midpoint": {
+  "middling heat, narrow leadership": {
+   "sessions": 34,
+   "stretches": 10,
+   "next20": {
+    "sessions": 21,
+    "spyBeatEqualWeight": 3,
+    "spyBeatMedianCompany": 4,
+    "meanSpy": 0.015,
+    "meanEqualWeight": 0.0287,
+    "meanMedianCompany": 0.0236,
+    "meanShareOfCompaniesBeatingSpy": 0.556
+   },
+   "next60": {
+    "sessions": 21,
+    "spyBeatEqualWeight": 0,
+    "spyBeatMedianCompany": 7,
+    "meanSpy": -0.0113,
+    "meanEqualWeight": 0.0254,
+    "meanMedianCompany": -0.0001,
+    "meanShareOfCompaniesBeatingSpy": 0.526
+   }
+  },
+  "middling heat, broad": {
+   "sessions": 192,
+   "stretches": 49,
+   "next20": {
+    "sessions": 187,
+    "spyBeatEqualWeight": 112,
+    "spyBeatMedianCompany": 105,
+    "meanSpy": 0.0144,
+    "meanEqualWeight": 0.008,
+    "meanMedianCompany": 0.0105,
+    "meanShareOfCompaniesBeatingSpy": 0.486
+   },
+   "next60": {
+    "sessions": 155,
+    "spyBeatEqualWeight": 116,
+    "spyBeatMedianCompany": 105,
+    "meanSpy": 0.0559,
+    "meanEqualWeight": 0.0344,
+    "meanMedianCompany": 0.0439,
+    "meanShareOfCompaniesBeatingSpy": 0.473
+   }
+  },
+  "stretched heat, narrow leadership": {
+   "sessions": 17,
+   "stretches": 10,
+   "next20": {
+    "sessions": 17,
+    "spyBeatEqualWeight": 5,
+    "spyBeatMedianCompany": 9,
+    "meanSpy": 0.0186,
+    "meanEqualWeight": 0.024,
+    "meanMedianCompany": 0.0118,
+    "meanShareOfCompaniesBeatingSpy": 0.486
+   },
+   "next60": {
+    "sessions": 17,
+    "spyBeatEqualWeight": 3,
+    "spyBeatMedianCompany": 13,
+    "meanSpy": 0.0364,
+    "meanEqualWeight": 0.0574,
+    "meanMedianCompany": 0.0313,
+    "meanShareOfCompaniesBeatingSpy": 0.489
+   }
+  },
+  "stretched heat, broad": {
+   "sessions": 236,
+   "stretches": 41,
+   "next20": {
+    "sessions": 236,
+    "spyBeatEqualWeight": 152,
+    "spyBeatMedianCompany": 125,
+    "meanSpy": 0.0063,
+    "meanEqualWeight": 0.0017,
+    "meanMedianCompany": 0.0033,
+    "meanShareOfCompaniesBeatingSpy": 0.481
+   },
+   "next60": {
+    "sessions": 228,
+    "spyBeatEqualWeight": 146,
+    "spyBeatMedianCompany": 166,
+    "meanSpy": 0.0209,
+    "meanEqualWeight": 0.0113,
+    "meanMedianCompany": 0.0131,
+    "meanShareOfCompaniesBeatingSpy": 0.478
+   }
+  },
+  "every session": {
+   "sessions": 502,
+   "stretches": 1,
+   "next20": {
+    "sessions": 482,
+    "spyBeatEqualWeight": 290,
+    "spyBeatMedianCompany": 252,
+    "meanSpy": 0.0124,
+    "meanEqualWeight": 0.0076,
+    "meanMedianCompany": 0.0095,
+    "meanShareOfCompaniesBeatingSpy": 0.487
+   },
+   "next60": {
+    "sessions": 442,
+    "spyBeatEqualWeight": 285,
+    "spyBeatMedianCompany": 304,
+    "meanSpy": 0.0372,
+    "meanEqualWeight": 0.0255,
+    "meanMedianCompany": 0.0285,
+    "meanShareOfCompaniesBeatingSpy": 0.479
+   }
+  }
+ },
+ "indexes": {
+  "SPY": {
+   "now": {
+    "close": 774.83,
+    "high": 777.88,
+    "highDate": "2026-08-13",
+    "fromHigh": -0.0039,
+    "rsi": 58.8,
+    "over21": true,
+    "over50": true,
+    "over100": true,
+    "over200": true,
+    "rising200": true,
+    "vs50": 0.0136,
+    "vs200": 0.0747,
+    "ret5": 0.012,
+    "ret20": 0.006,
+    "ret63": 0.0363,
+    "offLow63": 0.0622,
+    "geiger": 0.813,
+    "geigerOwnPct": 0.774,
+    "structure": {
+     "state": "uptrend, under resistance",
+     "level": 779.37,
+     "pivotDate": "2026-08-02",
+     "broke": null,
+     "dist": -0.0058,
+     "score": 0.2
+    },
+    "live": 779.69412,
+    "liveVsLevel": 0.0004
+   },
+   "pullbacks": {
+    "rule": "from a closing high, a fall of 3% or more on closes before that high is closed over again; the RSI low is the lowest daily RSI(14) between the high and the low; the average tagged is the deepest of the 21-day (exponential), 50-, 100- and 200-day the session's low reached",
+    "count": 11,
+    "inUptrend": 11,
+    "medianDepth": -0.0535,
+    "medianRsiLow": 32.9,
+    "medianSessionsToLow": 16,
+    "rsiLowBands": {
+     "over50": 0,
+     "from40to50": 2,
+     "from30to40": 6,
+     "under30": 3,
+     "of": 11
+    },
+    "tagged": {
+     "21-day": 2,
+     "50-day": 3,
+     "100-day": 3,
+     "200-day": 3,
+     "none (stayed over the 21-day)": 0
+    },
+    "open": {
+     "peak": "2026-08-13",
+     "low": "2026-09-16",
+     "recovered": null,
+     "depth": -0.0306,
+     "sessionsToLow": 23,
+     "sessionsToRecover": null,
+     "rsiLow": 41.8,
+     "rsiAtLow": 41.8,
+     "deepestAverageTagged": "50-day",
+     "uptrendAtPeak": true
+    }
+   },
+   "wouldRank": [
+    {
+     "to": "21-day",
+     "level": 766.43,
+     "depthFromHigh": -0.0147,
+     "alreadyThere": false,
+     "shallower": 0,
+     "of": 11
+    },
+    {
+     "to": "50-day",
+     "level": 764.42,
+     "depthFromHigh": -0.0173,
+     "alreadyThere": false,
+     "shallower": 0,
+     "of": 11
+    },
+    {
+     "to": "100-day",
+     "level": 754.74,
+     "depthFromHigh": -0.0297,
+     "alreadyThere": false,
+     "shallower": 0,
+     "of": 11
+    },
+    {
+     "to": "200-day",
+     "level": 720.95,
+     "depthFromHigh": -0.0732,
+     "alreadyThere": false,
+     "shallower": 7,
+     "of": 11
+    }
+   ],
+   "leader": {
+    "rule": "over a rising 200-day with the daily RSI(14) at or under 50; sessions five or fewer apart are one visit",
+    "visits": 23,
+    "last": {
+     "first": "2026-09-29",
+     "last": "2026-10-01",
+     "sessions": 3,
+     "rsiLow": 47.8,
+     "lowDate": "2026-09-30",
+     "fromHigh": -0.0196,
+     "next20": null
+    },
+    "lastTwoYears": 16,
+    "lastTwoYears_higher20Later": 11,
+    "lastTwoYears_scored": 14
+   }
+  },
+  "QQQ": {
+   "now": {
+    "close": 756.2,
+    "high": 756.2,
+    "highDate": "2026-10-05",
+    "fromHigh": 0,
+    "rsi": 68.4,
+    "over21": true,
+    "over50": true,
+    "over100": true,
+    "over200": true,
+    "rising200": true,
+    "vs50": 0.0528,
+    "vs200": 0.1298,
+    "ret5": 0.0267,
+    "ret20": 0.0518,
+    "ret63": 0.0659,
+    "offLow63": 0.1428,
+    "geiger": 0.781,
+    "geigerOwnPct": 0.762,
+    "structure": {
+     "state": "retesting from above (resistance turned support)",
+     "level": 748.65,
+     "pivotDate": "2026-05-24",
+     "broke": "2026-10-02",
+     "dist": 0.0101,
+     "score": 0.6
+    },
+    "live": 760.6077,
+    "liveVsLevel": 0.016
+   },
+   "pullbacks": {
+    "rule": "from a closing high, a fall of 3% or more on closes before that high is closed over again; the RSI low is the lowest daily RSI(14) between the high and the low; the average tagged is the deepest of the 21-day (exponential), 50-, 100- and 200-day the session's low reached",
+    "count": 11,
+    "inUptrend": 11,
+    "medianDepth": -0.0772,
+    "medianRsiLow": 30.2,
+    "medianSessionsToLow": 19,
+    "rsiLowBands": {
+     "over50": 0,
+     "from40to50": 4,
+     "from30to40": 2,
+     "under30": 5,
+     "of": 11
+    },
+    "tagged": {
+     "21-day": 4,
+     "50-day": 1,
+     "100-day": 2,
+     "200-day": 4,
+     "none (stayed over the 21-day)": 0
+    },
+    "open": null
+   },
+   "wouldRank": [
+    {
+     "to": "21-day",
+     "level": 733.43,
+     "depthFromHigh": -0.0301,
+     "alreadyThere": false,
+     "shallower": 0,
+     "of": 11
+    },
+    {
+     "to": "50-day",
+     "level": 718.26,
+     "depthFromHigh": -0.0502,
+     "alreadyThere": false,
+     "shallower": 3,
+     "of": 11
+    },
+    {
+     "to": "100-day",
+     "level": 718.27,
+     "depthFromHigh": -0.0502,
+     "alreadyThere": false,
+     "shallower": 3,
+     "of": 11
+    },
+    {
+     "to": "200-day",
+     "level": 669.33,
+     "depthFromHigh": -0.1149,
+     "alreadyThere": false,
+     "shallower": 7,
+     "of": 11
+    }
+   ],
+   "leader": {
+    "rule": "over a rising 200-day with the daily RSI(14) at or under 50; sessions five or fewer apart are one visit",
+    "visits": 27,
+    "last": {
+     "first": "2026-08-20",
+     "last": "2026-09-16",
+     "sessions": 19,
+     "rsiLow": 44,
+     "lowDate": "2026-09-15",
+     "fromHigh": -0.0558,
+     "next20": null
+    },
+    "lastTwoYears": 18,
+    "lastTwoYears_higher20Later": 14,
+    "lastTwoYears_scored": 17
+   }
+  },
+  "IWM": {
+   "now": {
+    "close": 283.38,
+    "high": 305.09,
+    "highDate": "2026-08-14",
+    "fromHigh": -0.0712,
+    "rsi": 44,
+    "over21": false,
+    "over50": false,
+    "over100": false,
+    "over200": true,
+    "rising200": true,
+    "vs50": -0.0309,
+    "vs200": 0.0249,
+    "ret5": 0.012,
+    "ret20": -0.0427,
+    "ret63": -0.0432,
+    "offLow63": 0.0198,
+    "geiger": -0.176,
+    "geigerOwnPct": 0.107,
+    "structure": {
+     "state": "uptrend, under resistance",
+     "level": 305.18,
+     "pivotDate": "2026-08-02",
+     "broke": null,
+     "dist": -0.0714,
+     "score": 0.2
+    },
+    "live": 280.9868,
+    "liveVsLevel": -0.0793
+   },
+   "pullbacks": {
+    "rule": "from a closing high, a fall of 3% or more on closes before that high is closed over again; the RSI low is the lowest daily RSI(14) between the high and the low; the average tagged is the deepest of the 21-day (exponential), 50-, 100- and 200-day the session's low reached",
+    "count": 10,
+    "inUptrend": 10,
+    "medianDepth": -0.0499,
+    "medianRsiLow": 41.8,
+    "medianSessionsToLow": 12,
+    "rsiLowBands": {
+     "over50": 0,
+     "from40to50": 5,
+     "from30to40": 3,
+     "under30": 1,
+     "of": 10
+    },
+    "tagged": {
+     "21-day": 5,
+     "50-day": 2,
+     "100-day": 1,
+     "200-day": 2,
+     "none (stayed over the 21-day)": 0
+    },
+    "open": {
+     "peak": "2026-08-14",
+     "low": "2026-09-30",
+     "recovered": null,
+     "depth": -0.0892,
+     "sessionsToLow": 32,
+     "sessionsToRecover": null,
+     "rsiLow": 29.7,
+     "rsiAtLow": 29.7,
+     "deepestAverageTagged": "100-day",
+     "uptrendAtPeak": true
+    }
+   },
+   "wouldRank": [
+    {
+     "to": "21-day",
+     "level": 284.81,
+     "depthFromHigh": -0.0665,
+     "alreadyThere": true,
+     "shallower": 7,
+     "of": 10
+    },
+    {
+     "to": "50-day",
+     "level": 292.42,
+     "depthFromHigh": -0.0415,
+     "alreadyThere": true,
+     "shallower": 3,
+     "of": 10
+    },
+    {
+     "to": "100-day",
+     "level": 291.81,
+     "depthFromHigh": -0.0435,
+     "alreadyThere": true,
+     "shallower": 3,
+     "of": 10
+    },
+    {
+     "to": "200-day",
+     "level": 276.49,
+     "depthFromHigh": -0.0938,
+     "alreadyThere": false,
+     "shallower": 8,
+     "of": 10
+    }
+   ],
+   "leader": {
+    "rule": "over a rising 200-day with the daily RSI(14) at or under 50; sessions five or fewer apart are one visit",
+    "visits": 24,
+    "last": {
+     "first": "2026-08-20",
+     "last": "2026-10-05",
+     "sessions": 32,
+     "rsiLow": 29.7,
+     "lowDate": "2026-09-30",
+     "fromHigh": -0.0892,
+     "next20": null
+    },
+    "lastTwoYears": 14,
+    "lastTwoYears_higher20Later": 11,
+    "lastTwoYears_scored": 13
+   }
+  },
+  "RSP": {
+   "now": {
+    "close": 211.12,
+    "high": 222.77,
+    "highDate": "2026-08-14",
+    "fromHigh": -0.0523,
+    "rsi": 43,
+    "over21": false,
+    "over50": false,
+    "over100": false,
+    "over200": true,
+    "rising200": true,
+    "vs50": -0.0254,
+    "vs200": 0.0257,
+    "ret5": 0.0066,
+    "ret20": -0.036,
+    "ret63": -0.0168,
+    "offLow63": 0.0149,
+    "geiger": -0.105,
+    "geigerOwnPct": 0.127,
+    "structure": {
+     "state": "uptrend, under resistance",
+     "level": 223.435,
+     "pivotDate": "2026-08-16",
+     "broke": null,
+     "dist": -0.0551,
+     "score": 0.2
+    },
+    "live": 212.215,
+    "liveVsLevel": -0.0502
+   },
+   "pullbacks": {
+    "rule": "from a closing high, a fall of 3% or more on closes before that high is closed over again; the RSI low is the lowest daily RSI(14) between the high and the low; the average tagged is the deepest of the 21-day (exponential), 50-, 100- and 200-day the session's low reached",
+    "count": 12,
+    "inUptrend": 12,
+    "medianDepth": -0.0517,
+    "medianRsiLow": 32.7,
+    "medianSessionsToLow": 13,
+    "rsiLowBands": {
+     "over50": 0,
+     "from40to50": 3,
+     "from30to40": 5,
+     "under30": 4,
+     "of": 12
+    },
+    "tagged": {
+     "21-day": 2,
+     "50-day": 4,
+     "100-day": 3,
+     "200-day": 3,
+     "none (stayed over the 21-day)": 0
+    },
+    "open": {
+     "peak": "2026-08-14",
+     "low": "2026-09-30",
+     "recovered": null,
+     "depth": -0.0662,
+     "sessionsToLow": 32,
+     "sessionsToRecover": null,
+     "rsiLow": 29.2,
+     "rsiAtLow": 29.2,
+     "deepestAverageTagged": "100-day",
+     "uptrendAtPeak": true
+    }
+   },
+   "wouldRank": [
+    {
+     "to": "21-day",
+     "level": 212.35,
+     "depthFromHigh": -0.0468,
+     "alreadyThere": true,
+     "shallower": 4,
+     "of": 12
+    },
+    {
+     "to": "50-day",
+     "level": 216.62,
+     "depthFromHigh": -0.0276,
+     "alreadyThere": true,
+     "shallower": 0,
+     "of": 12
+    },
+    {
+     "to": "100-day",
+     "level": 213.34,
+     "depthFromHigh": -0.0423,
+     "alreadyThere": true,
+     "shallower": 4,
+     "of": 12
+    },
+    {
+     "to": "200-day",
+     "level": 205.84,
+     "depthFromHigh": -0.076,
+     "alreadyThere": false,
+     "shallower": 9,
+     "of": 12
+    }
+   ],
+   "leader": {
+    "rule": "over a rising 200-day with the daily RSI(14) at or under 50; sessions five or fewer apart are one visit",
+    "visits": 24,
+    "last": {
+     "first": "2026-09-01",
+     "last": "2026-10-05",
+     "sessions": 24,
+     "rsiLow": 29.2,
+     "lowDate": "2026-09-30",
+     "fromHigh": -0.0662,
+     "next20": null
+    },
+    "lastTwoYears": 14,
+    "lastTwoYears_higher20Later": 10,
+    "lastTwoYears_scored": 13
+   }
+  }
+ },
+ "bowGroups": {
+  "THE AVERAGE NAME LEADS": 5,
+  "LEVEL": 33,
+  "THE GIANTS CARRY IT": 25,
+  "one reading only": 0
  }
 }
