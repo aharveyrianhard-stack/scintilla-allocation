@@ -731,7 +731,7 @@ function methodRead(k){
   const parts=blendParts(k), w=mixWeights();
   const b=blendFrom(parts,w), sides=bowSides(parts,w);
   if(b.score==null) return {...base, parts, used:[], missing:b.missing, method:'BLEND', spdrScore:base.score, cap:sides.cap, eq:sides.eq, blendBow:sides.bowtie};
-  return {...base, score:b.score, trend:b.trend, momentum:b.momentum, ...rrg(b.trend,b.momentum), parts, used:b.used, missing:b.missing, weights:b.weights, method:'BLEND', spdrScore:base.score, cap:sides.cap, eq:sides.eq, blendBow:sides.bowtie};
+  return {...base, trend:b.trend, momentum:b.momentum, ...rrg(b.trend,b.momentum), score:b.score, parts, used:b.used, missing:b.missing, weights:b.weights, method:'BLEND', spdrScore:base.score, cap:sides.cap, eq:sides.eq, blendBow:sides.bowtie};
 }
 const blendRead=methodRead;
 function methodWord(){ const w=mixWeights(); return 'THE BLENDED SECTOR BOW TIE · five readings, weights '+BLEND_SRC.map(([k,n])=>n+' '+w[k]).join(' / '); }
@@ -2165,9 +2165,9 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const p1 = pc.sentence+' '+idx+breadth+'.'+sect+bow+bl+macro;
   const SHB = sleeveShares();
   const top = Object.entries(SHB).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,sh])=>(SECT_WORD[k]||k)+' '+Math.round(sh*inv*100)+'%');
-  const p2 = 'The sectors are read by one blended bow tie — five readings per sector, averaged. The rung for a '+pc.word.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?pct(dTot,0)+' of equity is to deploy':pct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in TARGET MIX).':'.');
+  const p2 = 'The sectors are read by one blended bow tie — five readings per sector, averaged. The rung for a '+pc.word.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?pct(dTot,0)+' of equity is to deploy':pct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in 6 · THE PICKS AND THEIR %).':'.');
   const ranked = (typeof rankCandidates==='function') ? rankCandidates().filter(r=>r.tag).slice(0,5) : [];
-  const p3 = ranked.length ? 'Inside those sectors the names that rank first — fundamentals first, then the Geiger for timing — are '+ranked.map(r=>r.sym+' ('+(SECT_WORD[r.sleeves[0]]||r.sleeves[0]||'')+(r.vr?', '+r.vr.tag.toLowerCase()+' vs peers':'')+(r.target?', target '+(r.target.up>=0?'+':'')+Math.round(r.target.up*100)+'%':'')+')').join(', ')+'. Their comparables and the checked analyst targets are in 4b.' : '';
+  const p3 = ranked.length ? 'Inside those sectors the names that rank first — fundamentals first, then the Geiger for timing — are '+ranked.map(r=>r.sym+' ('+(SECT_WORD[r.sleeves[0]]||r.sleeves[0]||'')+(r.vr?', '+r.vr.tag.toLowerCase()+' vs peers':'')+(r.target?', target '+(r.target.up>=0?'+':'')+Math.round(r.target.up*100)+'%':'')+')').join(', ')+'. The knockout inside a cohort is section 5; their comparables and the checked analyst targets are in 8b.' : '';
   el.innerHTML = p1 + '<br><br>' + p2 + (p3?'<br><br>'+p3:'');
 }
 function renderInputMap(h){

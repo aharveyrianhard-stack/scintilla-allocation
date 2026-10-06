@@ -1,19 +1,19 @@
 {
  "what": "Allocation → Hub guidance (PA4, 5 Oct 2026): per recommended name, whether it needs the live Hub (Alan likes it or will trade it: a pick, on his lists, or a KEEP decision) or fundamentals only (a comps peer: off-Hub is enough). Read by U5's served-set decision.",
- "built_utc": "2026-10-05T19:50:27.434Z",
+ "built_utc": "2026-10-06T01:13:26.774Z",
  "regime": "NEUTRAL",
  "invested_pct": 50,
- "sector_method": "MIX · State Street 40 / Hub compare 20 / market bow tie 20 / tree 20",
+ "sector_method": "THE BLENDED SECTOR BOW TIE · five readings, weights State Street fund 20 / Hub sector compare 20 / market bow tie 20 / tree close tier 20 / sector ranking 20",
  "counts": {
   "needs_live_hub": 8,
-  "fundamentals_only": 7
+  "fundamentals_only": 12
  },
  "names": [
   {
    "ticker": "AME",
    "tag": "NEEDS THE LIVE HUB",
    "reason": "recommended by the allocation — Industrials pick #1",
-   "date": "2026-10-05",
+   "date": "2026-10-06",
    "sector": "Industrials",
    "of": null
   },
@@ -21,7 +21,7 @@
    "ticker": "PH",
    "tag": "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH",
    "reason": "comps peer of AME — the fundamentals compare does not need the live Hub",
-   "date": "2026-10-05",
+   "date": "2026-10-06",
    "sector": "Industrials",
    "of": "AME"
   },
@@ -29,7 +29,7 @@
    "ticker": "EMR",
    "tag": "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH",
    "reason": "comps peer of AME — the fundamentals compare does not need the live Hub",
-   "date": "2026-10-05",
+   "date": "2026-10-06",
    "sector": "Industrials",
    "of": "AME"
   },
@@ -37,7 +37,7 @@
    "ticker": "ADP",
    "tag": "NEEDS THE LIVE HUB",
    "reason": "recommended by the allocation — Industrials pick #2",
-   "date": "2026-10-05",
+   "date": "2026-10-06",
    "sector": "Industrials",
    "of": null
   },
@@ -45,7 +45,7 @@
    "ticker": "NOC",
    "tag": "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH",
    "reason": "comps peer of ADP — the fundamentals compare does not need the live Hub",
-   "date": "2026-10-05",
+   "date": "2026-10-06",
    "sector": "Industrials",
    "of": "ADP"
   },
@@ -53,7 +53,7 @@
    "ticker": "TT",
    "tag": "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH",
    "reason": "comps peer of ADP — the fundamentals compare does not need the live Hub",
-   "date": "2026-10-05",
+   "date": "2026-10-06",
    "sector": "Industrials",
    "of": "ADP"
   },
@@ -61,7 +61,7 @@
    "ticker": "RTX",
    "tag": "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH",
    "reason": "comps peer of NOC — the fundamentals compare does not need the live Hub",
-   "date": "2026-10-05",
+   "date": "2026-10-06",
    "sector": "Industrials",
    "of": "NOC"
   },
@@ -69,15 +69,79 @@
    "ticker": "TDG",
    "tag": "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH",
    "reason": "comps peer of NOC — the fundamentals compare does not need the live Hub",
-   "date": "2026-10-05",
+   "date": "2026-10-06",
    "sector": "Industrials",
    "of": "NOC"
+  },
+  {
+   "ticker": "BSX",
+   "tag": "NEEDS THE LIVE HUB",
+   "reason": "recommended by the allocation — Health care pick #1",
+   "date": "2026-10-06",
+   "sector": "Health care",
+   "of": null
+  },
+  {
+   "ticker": "AMGN",
+   "tag": "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH",
+   "reason": "comps peer of BSX — the fundamentals compare does not need the live Hub",
+   "date": "2026-10-06",
+   "sector": "Health care",
+   "of": "BSX"
+  },
+  {
+   "ticker": "MCK",
+   "tag": "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH",
+   "reason": "comps peer of BSX — the fundamentals compare does not need the live Hub",
+   "date": "2026-10-06",
+   "sector": "Health care",
+   "of": "BSX"
+  },
+  {
+   "ticker": "VRTX",
+   "tag": "NEEDS THE LIVE HUB",
+   "reason": "recommended by the allocation — Health care pick #2",
+   "date": "2026-10-06",
+   "sector": "Health care",
+   "of": null
+  },
+  {
+   "ticker": "BMY",
+   "tag": "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH",
+   "reason": "comps peer of VRTX — the fundamentals compare does not need the live Hub",
+   "date": "2026-10-06",
+   "sector": "Health care",
+   "of": "VRTX"
+  },
+  {
+   "ticker": "ABBV",
+   "tag": "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH",
+   "reason": "comps peer of VRTX — the fundamentals compare does not need the live Hub",
+   "date": "2026-10-06",
+   "sector": "Health care",
+   "of": "VRTX"
+  },
+  {
+   "ticker": "JNJ",
+   "tag": "NEEDS THE LIVE HUB",
+   "reason": "comps peer of BMY · on his favourites",
+   "date": "2026-10-06",
+   "sector": "Health care",
+   "of": "BMY"
+  },
+  {
+   "ticker": "LLY",
+   "tag": "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH",
+   "reason": "comps peer of BMY — the fundamentals compare does not need the live Hub",
+   "date": "2026-10-06",
+   "sector": "Health care",
+   "of": "BMY"
   },
   {
    "ticker": "BKNG",
    "tag": "NEEDS THE LIVE HUB",
    "reason": "recommended by the allocation — Consumer discretionary pick #1",
-   "date": "2026-10-05",
+   "date": "2026-10-06",
    "sector": "Consumer discretionary",
    "of": null
   },
@@ -85,7 +149,7 @@
    "ticker": "MCD",
    "tag": "NEEDS THE LIVE HUB",
    "reason": "comps peer of BKNG · on his favourites",
-   "date": "2026-10-05",
+   "date": "2026-10-06",
    "sector": "Consumer discretionary",
    "of": "BKNG"
   },
@@ -93,7 +157,7 @@
    "ticker": "LOW",
    "tag": "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH",
    "reason": "comps peer of BKNG — the fundamentals compare does not need the live Hub",
-   "date": "2026-10-05",
+   "date": "2026-10-06",
    "sector": "Consumer discretionary",
    "of": "BKNG"
   },
@@ -101,32 +165,8 @@
    "ticker": "TSLA",
    "tag": "NEEDS THE LIVE HUB",
    "reason": "recommended by the allocation — Consumer discretionary pick #2 · on his favourites",
-   "date": "2026-10-05",
+   "date": "2026-10-06",
    "sector": "Consumer discretionary",
-   "of": null
-  },
-  {
-   "ticker": "GOOG",
-   "tag": "NEEDS THE LIVE HUB",
-   "reason": "recommended by the allocation — Communications pick #1",
-   "date": "2026-10-05",
-   "sector": "Communications",
-   "of": null
-  },
-  {
-   "ticker": "GOOGL",
-   "tag": "NEEDS THE LIVE HUB",
-   "reason": "recommended by the allocation — Communications pick #2 · on his favourites",
-   "date": "2026-10-05",
-   "sector": "Communications",
-   "of": null
-  },
-  {
-   "ticker": "DIS",
-   "tag": "NEEDS THE LIVE HUB",
-   "reason": "recommended by the allocation — Communications pick #3 · on his favourites",
-   "date": "2026-10-05",
-   "sector": "Communications",
    "of": null
   }
  ]

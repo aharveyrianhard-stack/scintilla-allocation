@@ -56,8 +56,9 @@ test("sectors: Technology on the page = XLK's Geiger, and the bow tie = RSPT −
   const j = await (await fetch(API + "/geiger?symbols=XLK,RSPT")).json();
   assert.equal(state.spine.sector_compare, "LIVE"); assert.equal(state.xlk.src, "geiger"); assert.equal(state.xlk.etf, "XLK");
   assert.ok(Math.abs(state.xlk.score - j.symbols.XLK.composite) < 0.05); assert.ok(Math.abs(state.xlk.bowtie - (j.symbols.RSPT.composite - j.symbols.XLK.composite)) < 0.05);
-  assert.ok(state.voters.SECTOR_CMP != null && state.voters.BOWTIE != null, "the two new voters vote");
-  assert.equal(state.wts.SECTOR_CMP, 0.5); assert.equal(state.wts.BOWTIE, 0.5); assert.equal(state.wts.MKT_BOWTIE, 0.25);
+  // PA5: the three sector voters (SECTOR COMPARE, SECTOR BOW TIE, MARKET BOW TIE) became ONE blended voter
+  assert.ok(state.voters.SECTORS != null, "the blended sector voter votes"); assert.equal(state.wts.SECTORS, 0.75);
+  for (const k of ["SECTOR_CMP", "BOWTIE", "MKT_BOWTIE"]) assert.equal(state.voters[k], undefined, k + " no longer votes on its own");
 });
 test("the policy ladder: the shown heat maps to the rung and the invested %", () => {
   assert.equal(state.heatShown, (state.heat >= 0 ? "+" : "") + state.heat.toFixed(2));
@@ -87,7 +88,7 @@ test("peers: peer_sources is read for the candidates and NVDA's set matches", as
 test("B1: the soundness verdicts and the whole-market bow tie are read from the Hub", async () => {
   const j = await (await fetch("https://scintillahub.ai/deliverables/20261003/b1-market-bowtie/data/market-bowtie-20261003.json")).json();
   assert.equal(state.spine.b1_soundness, "LIVE"); assert.equal(state.b1.asof, j.as_of.close); assert.equal(state.b1.market, j.modes.blend.market.bowtie);
-  assert.equal(state.voters.MKT_BOWTIE, Math.max(-1, Math.min(1, j.modes.blend.market.bowtie)));
+  assert.equal(state.voters.MKT_BOWTIE, undefined, "PA5: B1's whole-market figure is shown and dated but no longer votes on its own");
   assert.equal(state.b1.tech, j.modes.blend.sectors.find((s) => s.label === "TECH").verdict);
 });
 test("names: sound sectors come first in the tabs, the first row is tagged ADD, the brief names the rung and the cash", () => {

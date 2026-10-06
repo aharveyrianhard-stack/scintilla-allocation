@@ -13,7 +13,6 @@ test("the page loads headless with the new sources live and no stray write", asy
     voters: Object.fromEntries(voters().map((v) => [v.key, { val: v.val, sub: v.sub, w: S.wts[v.key] }])),
     b20: BREADTH20 && { n: BREADTH20.n, cum: BREADTH20.cum, asof: BREADTH20.asof, k: BREADTH20.sessions.length, today: BREADTH20.today, dir: Object.fromEntries(Object.entries(BREADTH20.dir).slice(0, 40)), last: BREADTH20.sessions[BREADTH20.sessions.length - 1] },
     conc: CONC20, method: methodWord(), mixW: mixWeights(),
-    under: Object.fromEntries(["MIX", "SPDR", "HUBCMP", "MKTBOW", "TREE"].map((m) => [m, sharesUnder(m)])),
     tree: TREE_ROLL && { names: TREE_ROLL.names, mapped: TREE_ROLL.mapped, sectors: Object.keys(TREE_ROLL.sectors).length, cohorts: Object.keys(TREE_ROLL.cohorts).length, tech: TREE_ROLL.sectors.TECH },
     mb: MKTBOW && { n: MKTBOW.n, market: MKTBOW.market && MKTBOW.market.bowtie, tech: MKTBOW.sectors.TECH },
     shortList: shortList().map((c) => ({ sym: c.sym, of: c.of, sector: c.sector, reason: c.reason })),
@@ -55,16 +54,14 @@ test("VIX: votes live from the chart API's macro board; VIX TERM votes on the ta
   if (age <= 4) { assert.ok(t.val != null, "votes when the close is within four days"); assert.ok(Math.abs((px / row.vix3m) - +t.sub.split(" ")[0]) < 0.02); }
   else assert.equal(t.val, null, "says it is not voting");
 });
-test("the sector-method dial: a stated default mix, and moving the dial changes the pie", async () => {
-  assert.deepEqual(state.mixW, { SPDR: 40, HUBCMP: 20, MKTBOW: 20, TREE: 20 }); assert.ok(/^MIX · State Street 40/.test(state.method));
-  const top = (sh) => Object.entries(sh).sort((a, b) => b[1] - a[1])[0];
-  assert.notDeepEqual(state.under.SPDR, state.under.TREE, "State Street and the tree read the sectors differently");
-  const before = await P.page.evaluate(() => { const cv = document.getElementById("donut"); return [cv.toDataURL().length, cv.toDataURL().slice(-200), document.getElementById("mixdial").innerText.split("\n")[0]]; });
-  await P.page.evaluate(() => setMixMethod("TREE")); await P.page.waitForTimeout(300);
-  const after = await P.page.evaluate(() => { const cv = document.getElementById("donut"); return [cv.toDataURL().length, cv.toDataURL().slice(-200), document.getElementById("mixdial").innerText.split("\n")[0], methodWord(), Object.entries(sleeveShares()).sort((a, b) => b[1] - a[1])[0], document.getElementById("brief").innerText]; });
-  assert.ok(before[0] !== after[0] || before[1] !== after[1], "the pie redrew"); assert.equal(after[3], "TREE READINGS"); assert.ok(/TREE READINGS/.test(after[2]));
-  assert.deepEqual(after[4][0], top(state.under.TREE)[0]); assert.ok(after[5].includes("read by tree readings"));
-  await P.page.evaluate(() => setMixMethod("MIX"));
+test("the blend (PA5, in place of the dial): stated default weights, and moving a weight changes the pie", async () => {
+  assert.deepEqual(state.mixW, { SPDR: 20, HUBCMP: 20, MKTBOW: 20, TREE: 20, RANK: 20 }); assert.ok(/^THE BLENDED SECTOR BOW TIE · five readings, weights State Street fund 20/.test(state.method), state.method);
+  const before = await P.page.evaluate(() => { const cv = document.getElementById("donut"); return [cv.toDataURL().length, cv.toDataURL().slice(-200), Object.entries(sleeveShares()).sort((a, b) => b[1] - a[1])[0], blendTable()[0].key]; });
+  await P.page.evaluate(() => { S.mixW = { SPDR: 0, HUBCMP: 0, MKTBOW: 0, TREE: 100, RANK: 0 }; save(); render(); }); await P.page.waitForTimeout(300);
+  const after = await P.page.evaluate(() => { const cv = document.getElementById("donut"); return [cv.toDataURL().length, cv.toDataURL().slice(-200), Object.entries(sleeveShares()).sort((a, b) => b[1] - a[1])[0], methodWord(), document.getElementById("mixdial").innerText, blendTable().map((r) => [r.key, r.used])]; });
+  assert.ok(before[0] !== after[0] || before[1] !== after[1], "the pie redrew"); assert.ok(/tree close tier 100/.test(after[3]), after[3]); assert.ok(/weights/.test(after[4]));
+  for (const [k, used] of after[5]) assert.ok(used.length <= 1 && (used.length === 0 || used[0] === "TREE"), k + " reads the tree only: " + used);
+  await P.page.evaluate(() => { S.mixW = { SPDR: 20, HUBCMP: 20, MKTBOW: 20, TREE: 20, RANK: 20 }; save(); render(); });
   assert.ok(state.tree && state.tree.names > 5000 && state.tree.sectors === 11 && state.tree.cohorts >= 10, JSON.stringify(state.tree));
   assert.ok(state.mb && state.mb.n > 300 && state.mb.tech && state.mb.tech.bowtie != null);
 });
@@ -96,8 +93,8 @@ test("the guidance file validates and matches the page's list", () => {
   const live = state.guidance; assert.ok(live.names.length >= 6);
   for (const n of live.names) assert.ok(n.tag === (n.of && !/favourites|KEEP/.test(n.reason) ? "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH" : "NEEDS THE LIVE HUB"), n.ticker + " " + n.tag + " " + n.reason);
 });
-test("the fold: a sticky section bar with the ten sections, every section but THE BRIEF folded to one screen", () => {
-  for (const t of ["THE BRIEF", "1 HEAT", "INPUTS", "2 MIX", "3 MOVES", "4 OPTIONS", "4b COMPS", "5 MAP", "6 STATE", "7 TRACE"]) assert.ok(state.bar.includes(t), t);
+test("the fold: a sticky section bar with the fourteen sections (PA5), every section but THE BRIEF folded to one screen", () => {
+  for (const t of ["THE BRIEF", "1 HEAT", "INPUTS", "2 HOW MUCH", "3 SECTORS", "4 COHORTS", "5 KNOCKOUT", "6 PICKS & %", "7 MOVES", "8 OPTIONS", "8b COMPS", "9 MAP", "10 STATE", "11 TRACE"]) assert.ok(state.bar.includes(t), t);
   for (const [id, folded, h] of state.folded) { if (id === "p-brief" || id === "p-inputs") { assert.equal(folded, false); continue; } assert.equal(folded, true, id); assert.ok(h <= 1050 - 200, id + " body " + h + "px"); }
 });
 test("teardown", async () => { await P.close(); });
