@@ -1388,6 +1388,7 @@ async function loadFeeds(){
   } catch(e) { /* note keeps its default text */ }
   document.getElementById('loading').style.display='none';
   document.getElementById('refresh').textContent = '↻ REFRESH FEEDS';
+  loadHeatPast().then(renderHeatPast);   // R3 5: the stored past, read once, beside the first paint
   render();
 }
 
@@ -1868,7 +1869,84 @@ function render(){
   renderSpine(); renderSectorStrip();
   save();
 }
-function renderHeatPast(){ }   // R3 5 fills this
+/* R3 (6 Oct 2026) — TODAY'S HEAT AGAINST ITS OWN PAST (display only). The same voter formulas, fed each past day's stored readings:
+     the Geiger rows from composite_history (H11) — only rows that were really computed that evening; a row marked carried-forward is left out;
+     the 10-year and the curve from treasury_rates; the VIX and its 3-month leg from vix_term (the close, where today's row is live).
+   Two like-for-like sets, never mixed: REPLAY = every voter with a stored past (16 of them), counted only on evenings when all 16 are there;
+   YEAR = the four that have a full twelve months (VIX, VIX term, 10-year, curve). Today is measured on the same set it is compared with.
+   No stored past: the blended sectors, the advance/decline line, concentration; TRIN and up/down volume are stored with gaps and are left out.
+   The percentile is the share of past evenings that read lower than today (ties count half). */
+const PAST_REPLAY=['SPY','QQQ','IWM','SMH','VIX','US10Y','OIL','CRYPTO','BREADTH_EW','BREADTH_SC','VIX_TERM','CURVE','CREDIT','DURATION','HAVEN','DEF'];
+const PAST_YEAR=['VIX','US10Y','VIX_TERM','CURVE'];
+const PAST_SYMS=['SPY','QQQ','IWM','SMH','RSP','CLUSD','BTCUSD','HYG','TLT','GCUSD','XLP','XLU'];
+let HEATPAST=null;   // {days:{date:{g:{},vix,vix3m,y10,y2}}, carried, from, error}
+/* one day's readings → each replayable voter's value, with the formulas voters() uses */
+function pastVoterVals(d){
+  const g=sym=>(d.g&&d.g[sym]!=null)?clamp(+d.g[sym]):null, o={};
+  o.SPY=g('SPY'); o.QQQ=g('QQQ'); o.IWM=g('IWM'); o.SMH=g('SMH');
+  o.VIX = d.vix!=null ? clamp(((S.vixCold+12)/2 - d.vix) / ((S.vixCold-12)/2)) : null;
+  o.US10Y = d.y10!=null ? clamp(((+S.tenCold+3.5)/2 - d.y10) / ((+S.tenCold-3.5)/2)) : null;
+  o.OIL = g('CLUSD')!=null ? clamp(-g('CLUSD')) : null;
+  o.CRYPTO = g('BTCUSD');
+  o.BREADTH_EW = (g('RSP')!=null&&g('SPY')!=null) ? clamp(g('RSP')-g('SPY')) : null;
+  o.BREADTH_SC = (g('IWM')!=null&&g('SPY')!=null) ? clamp(g('IWM')-g('SPY')) : null;
+  o.VIX_TERM = (d.vix!=null&&d.vix3m) ? clamp((1-d.vix/d.vix3m)*4) : null;
+  o.CURVE = (d.y10!=null&&d.y2!=null) ? clamp((d.y10-d.y2)/1.5) : null;
+  o.CREDIT = g('HYG'); o.DURATION = g('TLT');
+  o.HAVEN = g('GCUSD')!=null ? clamp(-g('GCUSD')) : null;
+  o.DEF = (g('XLP')!=null&&g('XLU')!=null) ? clamp(-(g('XLP')+g('XLU'))/2) : null;
+  return o;
+}
+/* the heat over one fixed set of rows; null unless every row of the set that carries weight has a value (like for like) */
+function heatOnSet(vals, keys){ let num=0, den=0; for(const k of keys){ const w=S.wts[k]??0; if(!w) continue; if(vals[k]==null) return null; num+=vals[k]*w; den+=w; } return den?num/den:null; }
+function placeIn(today, past){ if(today==null||!past.length) return null; const below=past.filter(x=>x<today).length, ties=past.filter(x=>x===today).length;
+  return {n:past.length, below, pct:100*(below+ties/2)/past.length, min:Math.min(...past), max:Math.max(...past)}; }
+function heatPastRead(){
+  if(!HEATPAST||HEATPAST.error) return null;
+  const live={}; for(const v of voters()) if(canVote(v)) live[v.key]=v.val;
+  const todayET=new Date().toLocaleDateString('en-CA',{timeZone:'America/New_York'});
+  const dates=Object.keys(HEATPAST.days).filter(d=>d<todayET).sort();
+  const one=keys=>{ const used=keys.filter(k=>(S.wts[k]??0)>0), series=[]; for(const d of dates){ const h=heatOnSet(pastVoterVals(HEATPAST.days[d]),keys); if(h!=null) series.push([d,h]); }
+    const today=heatOnSet(live,keys); return {keys:used, today, series, place:placeIn(today, series.map(x=>x[1])), first:series.length?series[0][0]:null, last:series.length?series[series.length-1][0]:null}; };
+  const voting=voters().filter(v=>canVote(v)&&(S.wts[v.key]??0)>0).map(v=>v.key);
+  const replay=one(PAST_REPLAY), year=one(PAST_YEAR);
+  return {replay, year, voting, noPast:voting.filter(k=>!PAST_REPLAY.includes(k)), carried:HEATPAST.carried, from:HEATPAST.from};
+}
+function buildHeatPast(tr, vt, ch, from){
+  const days={}, day=d=>(days[d]=days[d]||{g:{}}); let carried=0;
+  for(const r of tr||[]){ const x=day(r.date); if(r.y10!=null) x.y10=+r.y10; if(r.y2!=null) x.y2=+r.y2; }
+  for(const r of vt||[]){ const x=day(r.date); if(r.vix!=null) x.vix=+r.vix; if(r.vix3m!=null) x.vix3m=+r.vix3m; }
+  for(const r of ch||[]){ if(r.composite==null) continue; if(/CARRIED/i.test(r.source||'')){ carried++; continue; } day(r.snapshot_date).g[r.ticker]=+r.composite; }
+  return {days, carried, from};
+}
+async function loadHeatPast(){
+  if(HEATPAST&&!HEATPAST.error) return;
+  const from=new Date(Date.now()-366*864e5).toISOString().slice(0,10);
+  try{
+    const [tr,vt,ch]=await Promise.all([
+      sbGetPaged('treasury_rates?select=date,y2,y10&date=gte.'+from+'&order=date.asc'),
+      sbGetPaged('vix_term?select=date,vix,vix3m&date=gte.'+from+'&order=date.asc'),
+      sbGetPaged('composite_history?select=snapshot_date,ticker,composite,source&tf=eq.D&ticker=in.('+PAST_SYMS.join(',')+')&snapshot_date=gte.'+from+'&order=snapshot_date.asc,ticker.asc')]);
+    HEATPAST=buildHeatPast(tr,vt,ch,from);
+  }catch(e){ HEATPAST={error:e.message}; }
+}
+const PAST_THIN=60;   // fewer evenings than this and the line says the coverage is thin
+function heatPastSentence(R){
+  const f=x=>x==null?'—':(x>=0?'+':'−')+Math.abs(x).toFixed(2), nm=k=>VOTER_SHORT[k]||k, dm=d=>{ const [y,m,dd]=d.split('-'); return (+dd)+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1]+' '+y; };
+  const part=(x,what)=>{ if(x.today==null) return 'Today cannot be read on '+what+'.'; if(!x.place) return 'On '+what+' today reads '+f(x.today)+', and no past evening can be replayed.';
+    const p=x.place; return 'On '+what+' today reads '+f(x.today)+': hotter than '+p.below+' of the '+p.n+' past evenings that can be replayed ('+dm(x.first)+' – '+dm(x.last)+', which ran from '+f(p.min)+' to '+f(p.max)+') — percentile '+Math.round(p.pct)+'.'+(p.n<PAST_THIN?' THIN: '+p.n+' evenings is too few to call anything rare.':''); };
+  return 'Against its own past: '+R.replay.keys.length+' of today\'s '+R.voting.length+' voters keep a stored past. '+part(R.replay,'those '+R.replay.keys.length)
+    +(R.carried?' The Hub\'s Geiger was stored for real on few evenings; '+R.carried+' stored readings are carried-forward copies and are left out.':'')
+    +' '+part(R.year,'the four with a full year ('+R.year.keys.map(nm).join(', ')+')')
+    +(R.noPast.length?' No usable stored past: '+R.noPast.map(nm).join(', ')+'.':'');
+}
+function renderHeatPast(){
+  const el=document.getElementById('heatpast'); if(!el) return;
+  if(!HEATPAST){ el.textContent=''; return; }
+  if(HEATPAST.error){ el.textContent='Against its own past: the stored history could not be read ('+HEATPAST.error+'), so today has no place yet.'; return; }
+  el.textContent=heatPastSentence(heatPastRead());
+}
+window.pastVoterVals=pastVoterVals; window.heatOnSet=heatOnSet; window.placeIn=placeIn; window.heatPastRead=heatPastRead; window.buildHeatPast=buildHeatPast; window.heatPastSentence=heatPastSentence;
 /* The ladder, with today's rung lit: condition → % invested → cash to deploy. */
 function renderPolicy(h, inv, cInv){
   const el=document.getElementById('policy'); if(!el) return;
