@@ -131,6 +131,31 @@
   .swbtns{display:flex;gap:2px;margin-top:2px}
   .swbtns button{flex:1;padding:14px 4px;background:var(--panel2);border:1px solid var(--line2);font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink2);cursor:pointer}
   .swbtns button:active{background:var(--line)}
+  /* PA5 · the knockout bracket — the same card, condensed; rounds are columns left → right */
+  .kobracket{display:flex;gap:18px;overflow-x:auto;padding:4px 0 10px;align-items:flex-start}
+  .koround{flex:0 0 auto;display:flex;flex-direction:column;gap:14px;min-width:280px}
+  .koround h4{margin:0 0 2px;font-size:10px;letter-spacing:.14em;color:var(--dim);font-weight:400}
+  .koround.compact{min-width:200px;gap:4px}
+  .komini{font-size:11px;padding:3px 6px;border:1px solid var(--line);border-radius:4px;background:#0c0c13;white-space:nowrap}.komini s{color:var(--dim);text-decoration-color:var(--red)}
+  .komatch{border:1px solid var(--line);border-radius:6px;padding:8px;background:#0c0c13;width:max-content}
+  .komatch .swcard{width:262px}
+  .komatch .swcard .cbody{padding:8px 10px}
+  .komatch .chead b{font-size:18px}
+  .komatch .cnums b{font-size:14px}
+  .komatch .cnums div{padding:5px 7px}
+  .komatch .cwhy{font-size:11px;margin-top:8px}
+  .komatch .swcard.won{border-color:var(--gold);box-shadow:0 0 0 1px rgba(255,209,102,.25) inset}
+  .komatch .swcard.lost{opacity:.45}
+  .komatch .vs{text-align:center;color:var(--dim);font-size:10px;letter-spacing:.2em;margin:4px 0}
+  .komatch .kowhy{font-size:10.5px;color:#c8c8d8;line-height:1.5;margin-top:8px;border-top:1px solid var(--line);padding-top:6px}
+  .kofield{display:grid;grid-template-columns:62px 1fr 34px;gap:2px 8px;font-size:10px;margin-top:8px;align-items:center}
+  .kofield span{color:var(--dim);letter-spacing:.08em}.kofield i{font-style:normal;text-align:right;color:#c8c8d8}
+  .kofield .fb{height:6px;background:#1a1a26;border-radius:3px;position:relative}.kofield .fb b{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--cyan)}
+  .cohchip{display:inline-block;margin:3px 6px 3px 0;padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer;background:#0c0c13}
+  .cohchip.on{border-color:var(--gold);background:rgba(255,209,102,.07)}
+  .cohchip small{display:block;color:var(--dim);font-size:9.5px;margin-top:2px}
+  .kopick{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+  .kopick .swcard{width:min(420px,94vw)}
 </style>
 </head>
 <body>
@@ -153,7 +178,7 @@
 
   <!-- 1 MACRO HEAT -->
   <div class="panel">
-    <h2>1 · MACRO HEAT — the voters</h2>
+    <h2>1 · MARKET HEAT — the voters</h2>
     <div class="note">Every voter on one scale: −1 washed-out (cold) → +1 stretched (hot). Geigers enter straight; VIX &amp; 10Y are inverted. Drag a weight to change who counts — the score recomputes live.</div>
     <button id="descToggle" style="background:#14141f;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:4px 12px;font-family:inherit;font-size:10px;letter-spacing:.1em;cursor:pointer;margin-bottom:8px">▸ what each voter is (proxy detail)</button>
     <div id="gauges"></div>
@@ -208,22 +233,42 @@
     </details>
   </div>
 
-  <!-- 1 MACRO HEAT weights (voters live above already; this panel holds weight sliders) -->
+  <!-- 2 HOW MUCH (PA5: its own screen) -->
+  <div class="panel full">
+    <h2>2 · HOW MUCH TO INVEST — the ladder</h2>
+    <div class="note">The market's heat picks one of five rungs; the rung is the share of the money that goes to work, the rest stays in cash. The five numbers are yours (RISK POLICY in INPUTS).</div>
+    <div id="policy"></div>
+  </div>
+
 
   <!-- 2b THE BLENDED SECTOR BOW TIE (PA5) -->
   <div class="panel full">
-    <h2>THE BLENDED SECTOR BOW TIE — which sectors are hot, which are cold, read five ways and blended into one</h2>
+    <h2>3 · THE BLENDED SECTOR BOW TIE — which sectors are hot, which are cold, read five ways and blended into one</h2>
     <div class="note">One reading per sector drives TARGET MIX. Each bar is a sector: the left half is the cap-weighted read (the index names), the right half the equal-weighted read (the average stock); they meet in the middle at the blend. Hot at the top, cold at the bottom. Colder sectors earn a bigger share of what is invested.</div>
     <div id="bowtie"></div>
     <div id="mixdial"></div>
     <div id="treeroll"></div>
   </div>
 
+  <!-- 4 THE COHORTS (PA5) -->
+  <div class="panel full">
+    <h2>4 · THE COHORTS IN THOSE SECTORS — from the tree, as they are</h2>
+    <div class="note">The Hub's cohorts, grouped under the sector most of their names sit in, in the bow tie's order. Each shows how many names it holds, how many carry measured fundamentals, and the tree's reading. Pick a cohort and its names face off below.</div>
+    <div id="cohorts"></div>
+  </div>
+
+  <!-- 5 THE KNOCKOUT (PA5) -->
+  <div class="panel full">
+    <h2>5 · THE COMPS KNOCKOUT — inside the chosen cohort, the names face off on fundamentals; the Geiger only says when</h2>
+    <div class="note">Seeded by fundamentals (each name's four readings against its own peers, outliers out — C5's comps field), first plays last. A duel is won on fundamentals; when two names are even, the Geiger decides the timing. The survivors of the last rounds are the cohort's picks: KEEP or DROP each — a decision is saved to the comps decisions table the moment you press it.</div>
+    <div id="knockout"></div>
+  </div>
+
   <!-- 2 TARGET MIX -->
   <div class="panel">
-    <h2>2 · TARGET MIX — where the money goes</h2>
-    <div class="note">The market's condition sets HOW MUCH is invested (your policy ladder); each sector's blended reading sets WHERE. Big picture first, detail on demand.</div>
-    <div id="policy"></div>
+    <h2>6 · THE PICKS AND THEIR % — the allocation</h2>
+    <div class="note">What you kept, and what share of the money each gets: the rung says how much is invested, the blended bow tie splits it across the sectors, and inside a sector the kept names split its share. The pie is the same one as the first screen.</div>
+    <div id="picks"></div>
     <div id="sectorrot"></div>
     <div id="rotationtpl"></div>
     <canvas id="donut" width="640" height="300"></canvas>
@@ -239,14 +284,14 @@
 
   <!-- 3 THE MOVES -->
   <div class="panel">
-    <h2>3 · THE MOVES — what to do, split by schedule</h2>
+    <h2>7 · THE MOVES — what to do, split by schedule</h2>
     <div class="note">The gap between where you are and the target mix, per sleeve, split into tranches you can actually execute.</div>
     <div id="moves"></div>
   </div>
 
   <!-- 4 MOVE OPTIONS -->
   <div class="panel full">
-    <h2>4 · MOVE OPTIONS — pick your names, by category</h2>
+    <h2>8 · MOVE OPTIONS — every name in the sectors the plan funds, by category</h2>
     <div class="note">The names inside the sectors the model funds, from the Hub's cohorts — the sectors whose aggregate is statistically sound come first. Ranked fundamentals first (price, growth, margin and leverage against each name's own peers, outliers out), then the Geiger for timing. The first three in each sector are tagged ADD. Star a name to send it to COMPARABLES.</div>
     <div id="sectorStrip" style="margin-bottom:10px"></div>
     <div id="catTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
@@ -256,7 +301,7 @@
 
   <!-- 4b COMPARABLES -->
   <div class="panel full">
-    <h2>4b · COMPARABLES — study the suggestions by category</h2>
+    <h2>8b · COMPARABLES — the short list and the comps sheet</h2>
     <div class="note">The ADD names, lined up like a comps sheet with median/mean/min/max — judge relative value before acting. Each name is compared with its own named peers (FMP and Massive), far-out multiples dropped the way the Hub's comps tab does it; TARGET is the median of the checked analyst targets (one per firm, last 90 days) and UPSIDE is that against today's price. Cells are shaded vs the peer median: <span style="color:var(--green)">green = better than peers</span>, <span style="color:var(--orange)">orange = worse</span> (cheaper P/E, higher margins &amp; growth, lower debt = better). <b>Drop</b> greys a row and pulls it out of the stats without deleting it; <b>pick</b> marks your keepers (capped at your TOTAL-names hard cap). Star more names in the table above to add non-suggested candidates.</div>
     <div id="cards"></div>
     <div id="pickNote" class="note" style="font-size:10px;min-height:12px"></div>
@@ -268,7 +313,7 @@
 
   <!-- 5 INPUT MAP -->
   <div class="panel full">
-    <h2>5 · INPUT MAP</h2>
+    <h2>9 · INPUT MAP</h2>
     <details><summary>every dial in the system, in one place</summary>
     <div class="note" style="margin-top:8px">The complete list of what you can touch, what kind of input it is, its current value, and its exact mathematical effect.</div>
     <table class="imap" id="imap"></table></details>
@@ -276,7 +321,7 @@
 
   <!-- 6 STATE & ROADMAP -->
   <div class="panel full">
-    <h2>6 · STATE &amp; ROADMAP</h2>
+    <h2>10 · STATE &amp; ROADMAP</h2>
     <details><summary>read this first if you are a new session</summary>
     <div class="note" style="line-height:1.75">
     <b style="color:var(--gold)">PA4 · 5 OCT 2026 (evening) — Alan's 14:15 additions, in his tool.</b> "This is the old version without our new stuff." Added: ADVANCE / DECLINE and CONCENTRATION as MACRO HEAT voters (computed here from the daily bars over the served set); the VIX votes live from the chart API's macro board and the VIX term says its date; TARGET MIX says which sector methodology it uses — a dial (State Street · Hub compare · market bow tie, live · tree) with a stated 40/20/20/20 mix; the tree's close tier is an input, rolled up by sector and cohort beside the fund readings; ADD TO COMPS is a short list in the approved cards with KEEP / DROP written to the comps decisions table; the allocation writes what goes on the Hub (control/ALLOCATION-HUB-GUIDANCE.json); and the page folds — one screen per section, a sticky bar, the dials in a drawer. Open from PA3, now decided: the July ladder stays; the three new voters count by default; an ADD tag needs two measured readings.<br><br>
@@ -309,7 +354,7 @@
 
   <!-- 7 AUDIT TRACE -->
   <div class="panel full">
-    <h2>7 · AUDIT TRACE</h2>
+    <h2>11 · AUDIT TRACE</h2>
     <details>
       <summary>Full arithmetic chain with today's numbers — for Claude sessions and audits, skip freely</summary>
       <pre id="trace" style="font-size:11.5px; line-height:1.75; color:var(--txt); white-space:pre-wrap; margin-top:8px;"></pre>
@@ -1747,6 +1792,9 @@ function render(){
   renderRotationTemplate();
   renderTreeRoll();
   renderBowTie();
+  renderCohortBoard();
+  renderKnockout();
+  renderPicks();
   { const w=mixWeights(); for(const o of ['SPDR','HUBCMP','MKTBOW','TREE']){ const e=document.getElementById('mix'+o); if(e){ e.value=w[o]; document.getElementById('mix'+o+'V').textContent=w[o]+' / '+(w.SPDR+w.HUBCMP+w.MKTBOW+w.TREE); } } }
   renderMixDial();
   drawDonut(sleeveShares(), inv);
@@ -2207,7 +2255,7 @@ let PICKS = new Set(JSON.parse(localStorage.getItem('alloc-picks')||'[]'));
 let DECISIONS = {};   // 'company|peer' -> {off, reason, set_at, saved}
 try { Object.assign(DECISIONS, JSON.parse(localStorage.getItem('alloc-decisions')||'{}')); } catch(e){}
 async function loadDecisions(){
-  try { const rows=await sbGet('comps_decisions?select=company,peer,off,reason,set_at&source=eq.allocation-pa4&measure=eq.ALL&order=set_at.asc&limit=1000');
+  try { const rows=await sbGet('comps_decisions?select=company,peer,off,reason,set_at&source=in.(allocation-pa4,allocation-pa5)&measure=eq.ALL&order=set_at.asc&limit=1000');
     for(const r of rows) DECISIONS[r.company+'|'+r.peer]={off:!!r.off, reason:r.reason||'', set_at:r.set_at, saved:true};
     localStorage.setItem('alloc-decisions', JSON.stringify(DECISIONS));
     spineSet('comps_decisions',rows.length?rows[rows.length-1].set_at:null,'LIVE',rows.length+' decisions on file from this tool (KEEP / DROP)'); }
@@ -2254,6 +2302,137 @@ function shortList(){
     }
   }
   return out;
+}
+/* ===== PA5 · THE CHAIN, STEPS 4–6: the cohorts of the hot sectors → the comps knockout → the saved picks (Alan, 5 Oct 20:45:
+   "the actual execution and comps and the tinder and the knockouts … you use kind of all of those below them for the comps";
+   the 25 Sep lineage: heat → themes × rotation → knockout in a cohort → saved picks; "fundamentals tell what to buy, the Geiger tells when"). ===== */
+let KO_COHORT = localStorage.getItem('alloc-ko-cohort') || null;
+function setKoCohort(c){ KO_COHORT=c; localStorage.setItem('alloc-ko-cohort',c); render(); }
+window.setKoCohort=setKoCohort;
+function koTiming(sym){ const g=gv(sym); if(g==null) return null; const rg=REGIME[sym]||{}; return ((1-g)/2) * ((1-METHOD.regimeWeight) + METHOD.regimeWeight*2*intentFitKind(rg.kind)); }
+/* C5's comps field for one name: the four readings against its own peers with outliers out, plus how many outliers were dropped */
+function koField(sym){
+  const fund=fundScore(sym); let out=0, peers=null;
+  for(const key of ['pe','ps','rev_growth','net_m','de']){ const d=peerDist(sym,key); if(d){ out+=d.out||0; peers=peers??d.members; } }
+  return {fund, outliers:out, peers};
+}
+/* the cohorts, grouped under the sector most of their names sit in, in the bow tie's order (hot → cold) */
+function cohortBoard(){
+  const SH=sleeveShares(), order=blendTable().map(r=>r.key);
+  const members={};
+  for(const t of candidateSyms()){ if(PROFILES[t]&&PROFILES[t].is_etf) continue; for(const c of (UNIVERSE.cohorts[t]||[])) if(TRUE_COHORT_SET.has(c)) (members[c]=members[c]||[]).push(t); }
+  const out=[];
+  for(const [c,names] of Object.entries(members)){
+    if(c==='MACRO'||c==='INDEXES') continue;   // not places money goes (the same rule as the shares)
+    const secs={}; for(const t of names){ const k=sectorKeyOfAny(t); if(k&&k!=='MACRO') secs[k]=(secs[k]||0)+1; }
+    const top=Object.entries(secs).sort((a,b)=>b[1]-a[1])[0]; const isSector=!!SECTOR_READ[c]; const sector=isSector?c:(top?top[0]:null);
+    const measured=names.filter(t=>(fundScore(t).n||0)>=2).length;
+    const tr=TREE_ROLL&&TREE_ROLL.cohorts[c]||null;
+    out.push({key:c, names, n:names.length, measured, sector, isSector, sectorShare:sector?(SH[sector]||0):0, sectorRank:sector?order.indexOf(sector):99, tree:tr, verdict:b1Verdict(c)});
+  }
+  out.sort((a,b)=> (a.sectorRank-b.sectorRank) || ((a.isSector?1:0)-(b.isSector?1:0)) || (b.measured-a.measured));
+  return out;
+}
+window.cohortBoard=cohortBoard;
+function koDefaultCohort(board){ const ok=board.filter(c=>c.measured>=4&&!c.isSector); const ok2=board.filter(c=>c.measured>=4); return (ok[0]||ok2[0]||[...board].sort((a,b)=>b.measured-a.measured)[0]||{}).key||null; }
+function beats(w,l){ const L=Object.fromEntries((l.fund.parts||[]).map(p=>[p[0],p[1]])); return (w.fund.parts||[]).filter(p=>L[p[0]]!=null&&p[1]>L[p[0]]).map(p=>p[0]); }
+function duel(a,b){
+  const f2=x=>(x>=0?'+':'')+(+x).toFixed(2);
+  const d=a.fund.score-b.fund.score;
+  if(Math.abs(d)>=0.02){ const w=d>0?a:b, l=d>0?b:a; const on=beats(w,l); return {a,b,winner:w,loser:l,on:'fundamentals',why:w.sym+' wins on fundamentals, '+w.fund.score.toFixed(2)+' against '+l.fund.score.toFixed(2)+(on.length?' — better on '+on.join(', '):'')+'. The Geiger only says when: '+w.sym+' '+f2(w.g)+(w.rg.label&&w.rg.label!=='NO READ'?' ('+w.rg.label.toLowerCase()+')':'')+'.'}; }
+  const w=(a.timing??0)>=(b.timing??0)?a:b, l=w===a?b:a;
+  return {a,b,winner:w,loser:l,on:'timing',why:'Even on fundamentals ('+a.fund.score.toFixed(2)+' and '+b.fund.score.toFixed(2)+'), so the Geiger decides the timing: '+w.sym+' reads '+f2(w.g)+(w.rg.label?' ('+w.rg.label.toLowerCase()+')':'')+' against '+l.sym+' '+f2(l.g)+(l.rg.label?' ('+l.rg.label.toLowerCase()+')':'')+'.'};
+}
+/* the bracket: seeded by fundamentals, first plays last, an odd name gets a bye; rounds until one is left; the order of elimination is the pick order */
+function knockout(cohortKey){
+  const board=cohortBoard(); const c=board.find(x=>x.key===cohortKey); if(!c) return null;
+  const mk=t=>{ const kf=koField(t); const q=QUOTES[t]||{}; const price=q.price!=null?+q.price:null; const tg=TARGETS[t];
+    return {sym:t, fund:kf.fund, outliers:kf.outliers, g:gv(t), rg:REGIME[t]||{}, timing:koTiming(t), price, day:q.chg_pct!=null?(+q.chg_pct)/100:null, target:(tg&&price)?{median:tg.median,n:tg.n,up:tg.median/price-1}:null, fav:UNIVERSE.favs.has(t)}; };
+  const all=c.names.map(mk);
+  const entrants=all.filter(e=>e.fund.score!=null&&(e.fund.n||0)>=2).sort((a,b)=>(b.fund.score-a.fund.score)||((b.timing??0)-(a.timing??0)));
+  entrants.forEach((e,i)=>e.seed=i+1);
+  const sitOut=all.filter(e=>!entrants.includes(e));
+  const rounds=[]; let round=[...entrants]; const outOrder=[];
+  while(round.length>1){ const arr=[...round], matches=[], next=[];
+    while(arr.length>1){ const a=arr.shift(), b=arr.pop(); const m=duel(a,b); matches.push(m); next.push(m.winner); outOrder.unshift(m.loser); }
+    if(arr.length){ matches.push({a:arr[0],b:null,winner:arr[0],loser:null,on:'bye',why:arr[0].sym+' has no opponent left this round and goes through.'}); next.push(arr[0]); }
+    rounds.push(matches); round=next.sort((x,y)=>x.seed-y.seed); }
+  const champion=round[0]||null; const picksOrder=champion?[champion,...outOrder]:[];
+  return {cohort:c, entrants, sitOut, rounds, champion, picksOrder};
+}
+window.knockout=knockout;
+function fieldHtml(e){
+  const P=Object.fromEntries((e.fund.parts||[]).map(p=>[p[0],p]));
+  return '<div class="kofield">'+['price','growth','margin','leverage'].map(k=>{ const p=P[k]; return '<span>'+k.toUpperCase()+'</span><div class="fb" title="'+(p?esc2(p[2]):'no reading')+'">'+(p?'<b style="width:'+Math.round(p[1]*100)+'%"></b>':'')+'</div><i>'+(p?p[1].toFixed(2):'—')+'</i>'; }).join('')+'</div>'+
+    '<div class="cls" style="font-size:9.5px;margin-top:4px">'+e.fund.n+' of 4 readings vs its own peers'+(e.outliers?' · '+e.outliers+' outlier'+(e.outliers>1?'s':'')+' out (C5)':' · no outliers to drop')+' · 1.00 = better than three quarters of them</div>';
+}
+function koCard(e, cls, pos){
+  const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
+  const up=e.target?((e.target.up>=0?'+':'')+Math.round(e.target.up*100)+'%'):'—';
+  return '<div class="swcard '+(cls||'')+'"><div class="cbody">'+
+    '<div class="chead"><b>'+esc2(e.sym)+'</b><span class="sec">seed '+e.seed+'</span><span class="pos">'+(pos||'')+'</span></div>'+
+    '<div class="ckinds">'+(e.fav?'<span class="ckind">★ ON HIS LIST</span>':'')+(e.rg&&e.rg.label&&e.rg.label!=='NO READ'?'<span class="ckind">'+esc2(e.rg.label)+'</span>':'')+'</div>'+
+    '<div class="cnums"><div><span>FUNDAMENTALS</span><b>'+e.fund.score.toFixed(2)+'</b><i>what to buy</i></div><div><span>GEIGER</span><b>'+f2(e.g)+'</b><i>when</i></div><div><span>TARGET</span><b class="'+(e.target?(e.target.up>=0?'up':'dn'):'')+'">'+up+'</b><i>'+(e.target?e.target.n+' firms':'none')+'</i></div></div>'+
+    fieldHtml(e)+'</div></div>';
+}
+function renderCohortBoard(){
+  const el=document.getElementById('cohorts'); if(!el) return;
+  const board=cohortBoard(); if(!board.length){ el.innerHTML='<div class="note">no cohorts carry served names tonight</div>'; return; }
+  if(!KO_COHORT||!board.find(c=>c.key===KO_COHORT)) KO_COHORT=koDefaultCohort(board);
+  const inv=investedAt(heat()); const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
+  const bySec={}; for(const c of board) (bySec[c.sector||'(no sector)']=bySec[c.sector||'(no sector)']||[]).push(c);
+  const secOrder=blendTable().map(r=>r.key); const keys=Object.keys(bySec).sort((a,b)=>(secOrder.indexOf(a)<0?99:secOrder.indexOf(a))-(secOrder.indexOf(b)<0?99:secOrder.indexOf(b)));
+  el.innerHTML=keys.map(k=>{ const r=blendRead(k); const sh=(sleeveShares()[k]||0)*inv;
+    return '<div style="margin:8px 0 4px"><span class="cls" style="font-size:10px;letter-spacing:.08em">'+esc2(k==='(no sector)'?'NO SECTOR':groupWord(k).toUpperCase())+'</span>'+(r&&r.score!=null?' <span style="color:'+heatColor(r.score)+';font-size:11px">'+f2(r.score)+' blended</span>':'')+(sh?' <span class="cls" style="font-size:10px">· the plan gives it '+(Math.round(sh*1000)/10)+'% of equity</span>':'')+'</div>'+
+      '<div>'+bySec[k].map(c=>'<span class="cohchip'+(c.key===KO_COHORT?' on':'')+'" onclick="setKoCohort(\''+c.key+'\')"><b>'+esc2(c.key.replace(/_/g,' '))+(c.isSector?' <span class="cls">(the whole sector)</span>':'')+'</b>'+(c.tree?' <span style="color:'+heatColor(c.tree.score)+'">'+f2(c.tree.score)+'</span>':'')+'<small>'+c.n+' names · '+c.measured+' with measured fundamentals'+(c.verdict?' · '+esc2(c.verdict):'')+(c.key===KO_COHORT?' · IN THE KNOCKOUT ▾':'')+'</small></span>').join('')+'</div>'; }).join('');
+}
+function renderKnockout(){
+  const el=document.getElementById('knockout'); if(!el) return;
+  const K=KO_COHORT?knockout(KO_COHORT):null;
+  if(!K){ el.innerHTML='<div class="note">pick a cohort above</div>'; return; }
+  const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
+  const n=namesPer(heat());
+  const head='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:6px 0 8px">'+esc2(K.cohort.key.replace(/_/g,' '))+' · '+K.entrants.length+' names enter (two or more measured fundamentals) · '+K.rounds.length+' round'+(K.rounds.length===1?'':'s')+(K.sitOut.length?' · sitting out: '+K.sitOut.map(e=>e.sym).join(', ')+' (fewer than two measured readings)':'')+'</div>';
+  if(K.entrants.length<2){ el.innerHTML=head+'<div class="note">fewer than two names in this cohort carry measured fundamentals — nothing to face off. Pick another cohort.</div>'; return; }
+  const roundName=(i,tot)=> i===tot-1?'THE FINAL': i===tot-2?'SEMI-FINALS': 'ROUND '+(i+1);
+  const mini=m=>'<div class="komini" title="'+esc2(m.why).replace(/"/g,'')+'"><b>'+esc2(m.winner.sym)+'</b> <span class="cls">'+m.winner.fund.score.toFixed(2)+'</span>'+(m.loser?' <span class="cls">beats</span> <s>'+esc2(m.loser.sym)+'</s> <span class="cls">'+m.loser.fund.score.toFixed(2)+(m.on==='timing'?' · on timing':'')+'</span>':' <span class="cls">bye</span>')+'</div>';
+  const full=m=>'<div class="komatch">'+koCard(m.a, m.winner===m.a?'won':'lost', m.winner===m.a?'WINS':'')+(m.b?'<div class="vs">VS</div>'+koCard(m.b, m.winner===m.b?'won':'lost', m.winner===m.b?'WINS':''):'')+'<div class="kowhy">'+esc2(m.why)+'</div></div>';
+  const tot=K.rounds.length, cardsFrom=Math.max(0,tot-3);   // the last three rounds carry the full cards; earlier rounds are one line per duel (hover for the why)
+  const bracket='<div class="kobracket">'+K.rounds.map((ms,i)=>'<div class="koround'+(i<cardsFrom?' compact':'')+'"><h4>'+roundName(i,tot)+' · '+ms.length+' duel'+(ms.length===1?'':'s')+(i<cardsFrom?' · hover a line for the why':'')+'</h4>'+
+    ms.map(i<cardsFrom?mini:full).join('')+'</div>').join('')+'</div>';
+  const picks=K.picksOrder.slice(0,Math.max(1,n));
+  const pickCards=picks.map((e,i)=>{ const d=decisionOf(e.sym,e.sym); const state=d?((d.off?'DROPPED':'KEPT')+(d.saved?'':' · not saved — kept on this device')):'';
+    const why=(i===0?'won the knockout in '+K.cohort.key.replace(/_/g,' '):i===1?'runner-up in '+K.cohort.key.replace(/_/g,' '):'reached the last rounds in '+K.cohort.key.replace(/_/g,' '))+' — fundamentals '+e.fund.score.toFixed(2)+', Geiger '+f2(e.g)+(e.rg.label?' ('+e.rg.label.toLowerCase()+')':'');
+    return '<div class="swcard"><div class="cbody"><div class="chead"><b>'+esc2(e.sym)+'</b><span class="sec">'+(i===0?'CHAMPION':i===1?'RUNNER-UP':'LAST ROUNDS')+'</span><span class="pos">'+(i+1)+' / '+picks.length+'</span></div>'+
+      '<div class="ckinds">'+(d?'<span class="ckind '+(d.off?'dn':'up')+'">'+state+'</span>':'')+(e.fav?'<span class="ckind">★ ON HIS LIST</span>':'')+'</div>'+
+      '<div class="cnums"><div><span>FUNDAMENTALS</span><b>'+e.fund.score.toFixed(2)+'</b><i>'+e.fund.n+' of 4</i></div><div><span>GEIGER TIMING</span><b>'+(e.g==null?'—':((1-e.g)/2).toFixed(2))+'</b><i>'+(e.rg.label?esc2(e.rg.label.toLowerCase()):'')+'</i></div><div><span>CHECKED TARGET</span><b class="'+(e.target?(e.target.up>=0?'up':'dn'):'')+'">'+(e.target?((e.target.up>=0?'+':'')+Math.round(e.target.up*100)+'%'):'—')+'</b><i>'+(e.target?'$'+e.target.median.toFixed(0)+' · '+e.target.n+' firms':'none')+'</i></div></div>'+
+      '<div class="cwhy">'+esc2(why)+'</div></div>'+
+      '<div class="swbtns"><button onclick="koDecide(\''+e.sym+'\',true,\''+esc2(why).replace(/'/g,'')+'\')">✕ DROP</button><button onclick="koDecide(\''+e.sym+'\',false,\''+esc2(why).replace(/'/g,'')+'\')">✓ KEEP</button></div></div>'; }).join('');
+  el.innerHTML=head+bracket+'<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:12px 0 6px">THE PICKS FROM THIS KNOCKOUT — the last '+picks.length+' standing (the plan holds about '+n+' names per sector at today\'s heat) · KEEP puts a name into the allocation below, DROP takes it out · every press is saved</div><div class="kopick">'+pickCards+'</div>';
+}
+/* KEEP / DROP from the knockout: the same write path as the cards (comps_decisions, public insert), and the pick joins the pie */
+async function koDecide(sym, off, why){
+  if(off) PICKS.delete(sym); else PICKS.add(sym);
+  localStorage.setItem('alloc-picks',JSON.stringify([...PICKS]));
+  const k=sym+'|'+sym; DECISIONS[k]={off, reason:why, set_at:new Date().toISOString(), saved:false};
+  localStorage.setItem('alloc-decisions', JSON.stringify(DECISIONS)); render();
+  try { await writeDecision({company:sym, peer:sym, off, reason:(off?'dropped':'kept')+' in ALLOCATION — knockout: '+why, source:'allocation-pa5'}); DECISIONS[k].saved=true; }
+  catch(e){ DECISIONS[k].saved=false; DECISIONS[k].why=String(e.message||e); }
+  localStorage.setItem('alloc-decisions', JSON.stringify(DECISIONS)); render();
+}
+window.koDecide=koDecide;
+/* STEP 6 · the picks and their % — the kept names, each with its share of equity */
+function renderPicks(){
+  const el=document.getElementById('picks'); if(!el) return;
+  const inv=investedAt(heat()), SH=sleeveShares(), PM=pickMix(SH,inv);
+  const rows=[...PICKS].map(s=>{ const d=decisionOf(s,s); const secs=tickerSleeves(s).filter(k=>SH[k]); const eq=PM.perName[s]||0; const g=gv(s); const rg=REGIME[s]||{}; const fund=fundScore(s);
+    return {sym:s, secs, eq, g, rg, fund, d}; }).sort((a,b)=>b.eq-a.eq);
+  const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
+  if(!rows.length){ el.innerHTML='<div class="note" style="margin:6px 0 10px">No name is kept yet. KEEP a name in the knockout above (or star one in MOVE OPTIONS) and it takes its share of its sector here and in the pie.</div>'; return; }
+  const tot=rows.reduce((t,r)=>t+r.eq,0);
+  el.innerHTML='<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:6px 0 4px">THE PICKS — '+rows.length+' kept · '+(Math.round(tot*1000)/10)+'% of equity placed · '+(Math.round((inv-tot)*1000)/10)+'% of the invested part still unassigned (sectors with no pick keep their share as UNASSIGNED in the pie)</div>'+
+    '<table class="imap" style="font-size:11px"><tr><th style="text-align:left">NAME</th><th style="text-align:left">SECTOR</th><th style="text-align:left">% OF EQUITY</th><th style="text-align:left">HOW IT GOT HERE</th><th style="text-align:left">FUNDAMENTALS</th><th style="text-align:left">GEIGER (when)</th><th style="text-align:left">SAVED</th></tr>'+
+    rows.map(r=>'<tr><td><b>'+esc2(r.sym)+'</b></td><td>'+esc2(r.secs.map(groupWord).join(' / ')||'—')+'</td><td><b>'+(Math.round(r.eq*1000)/10)+'%</b></td><td class="cls">'+esc2(r.d?r.d.reason.slice(0,90):'starred in MOVE OPTIONS')+'</td><td>'+(r.fund.score==null?'—':r.fund.score.toFixed(2))+'</td><td>'+f2(r.g)+(r.rg.label?' <span class="cls">'+esc2(r.rg.label.toLowerCase())+'</span>':'')+'</td><td class="cls">'+(r.d?(r.d.saved?'yes':'on this device only'):'—')+'</td></tr>').join('')+'</table>';
 }
 function renderCards(){
   const el=document.getElementById('cards'); if(!el) return;
@@ -2458,7 +2637,7 @@ if(localStorage.getItem('alloc-hidedesc')!=='0') document.body.classList.add('hi
 (function(){ const b=document.getElementById('descToggle'); const upd=()=>{ const hid=document.body.classList.contains('hidedesc'); b.textContent=(hid?'▸ ':'▾ ')+'what each voter is (proxy detail)'; }; upd(); b.onclick=()=>{ document.body.classList.toggle('hidedesc'); localStorage.setItem('alloc-hidedesc', document.body.classList.contains('hidedesc')?'1':'0'); upd(); }; })();
 /* ===== PA4 · THE FOLD ===== every section folds to one screen with a sticky bar at the top; INPUTS is a drawer over the page;
    THE BRIEF and the TARGET MIX pie sit on the first screen. Nothing is removed. Fold state is remembered on this device. */
-const SECTIONS=[['p-brief','THE BRIEF'],['p-heat','1 HEAT'],['p-inputs','INPUTS'],['p-bowtie','2 SECTORS'],['p-mix','3 MIX'],['p-moves','3 MOVES'],['p-options','4 OPTIONS'],['p-comps','4b COMPS'],['p-map','5 MAP'],['p-state','6 STATE'],['p-trace','7 TRACE']];
+const SECTIONS=[['p-brief','THE BRIEF'],['p-heat','1 HEAT'],['p-inputs','INPUTS'],['p-howmuch','2 HOW MUCH'],['p-bowtie','3 SECTORS'],['p-cohorts','4 COHORTS'],['p-knockout','5 KNOCKOUT'],['p-mix','6 PICKS & %'],['p-moves','7 MOVES'],['p-options','8 OPTIONS'],['p-comps','8b COMPS'],['p-map','9 MAP'],['p-state','10 STATE'],['p-trace','11 TRACE']];
 let FOLDS={}; try{ FOLDS=JSON.parse(localStorage.getItem('alloc-folds')||'{}'); }catch(e){}
 function setFold(id, folded){ FOLDS[id]=folded?1:0; localStorage.setItem('alloc-folds',JSON.stringify(FOLDS)); applyFold(id); }
 function applyFold(id){ const p=document.getElementById(id); if(!p) return; const folded=(FOLDS[id]==null)?(id!=='p-brief'):!!FOLDS[id]; p.classList.toggle('folded',folded); const b=p.querySelector('.pfold'); if(b) b.textContent=folded?'ONE SCREEN · OPEN ▾':'OPEN · FOLD ▴'; }
