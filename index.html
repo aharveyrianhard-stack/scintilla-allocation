@@ -186,7 +186,7 @@
       <div class="heatnum" id="heatnum">—</div>
       <div style="flex:1">
         <div class="barwrap" style="height:20px"><div class="mid"></div><div class="bar" id="heatbar"></div></div>
-        <div class="axis"><span>−1 WASHED OUT</span><span>0</span><span>+1 STRETCHED</span></div>
+        <div class="axis"><span>−1 WASHED OUT — everything sold down, buy</span><span>0 middling</span><span>+1 STRETCHED — everything run up, hold back</span></div>
       </div>
       <div class="heatlabel" id="heatlabel">—</div>
     </div>
@@ -1624,6 +1624,20 @@ function lcShareAuto(h){
   if (s == null || i == null) return 0.5;
   return Math.min(.8, Math.max(.2, 0.5 + (i - s) * 0.5 + (S.lcTilt || 0) * (h || 0)));
 }
+/* PA5 · PLAIN WORDS (Alan, 5 Oct 20:45: "Neutral? Why are you talking to me about neutral … I don't get it."). The trader's word stays
+   as the rung's name in the code; what the page shows is one sentence: what the market is doing and what that does to the money. */
+const PLAIN_COND={
+  'DEEP OVERSOLD':  {word:'DEEPLY WASHED OUT', does:'so the plan puts nearly all the money to work'},
+  'OVERSOLD':       {word:'WASHED OUT',        does:'so the plan puts most of the money to work'},
+  'NEUTRAL':        {word:'MIDDLING',          does:'so the plan keeps about half the money in cash'},
+  'OVERBOUGHT':     {word:'STRETCHED',         does:'so the plan holds most of the money back in cash'},
+  'DEEP OVERBOUGHT':{word:'DEEPLY STRETCHED',  does:'so the plan keeps nearly all the money in cash'}};
+function plainCondition(h){
+  const st=policyStep(h), p=PLAIN_COND[st.cond]||{word:st.cond,does:''};
+  const sentence='The market\'s heat is '+p.word.toLowerCase()+' ('+(h>=0?'+':'')+h.toFixed(2)+' on a scale from −1 washed out to +1 stretched), '+p.does+': '+st.pct+'% invested, '+(100-st.pct)+'% in cash.';
+  return {word:p.word, does:p.does, sentence, cond:st.cond, pct:st.pct};
+}
+window.plainCondition=plainCondition;
 function heatLabel(h){
   if (h >= .5) return ['DEEP OVERBOUGHT', 'var(--red)'];
   if (h >= .2) return ['OVERBOUGHT', 'var(--orange)'];
@@ -1673,7 +1687,7 @@ function render(){
   document.getElementById('heatnum').textContent = (h>=0?'+':'') + h.toFixed(2);
   document.getElementById('heatnum').style.color = color;
   const hb = document.getElementById('heatbar'); barCSS(hb, h);
-  const hl = document.getElementById('heatlabel'); hl.textContent = lbl; hl.style.color = color;
+  const hl = document.getElementById('heatlabel'); const pc=plainCondition(h); hl.innerHTML = pc.word+'<small style="display:block;font-size:10px;letter-spacing:0;color:var(--dim);max-width:260px;line-height:1.5;margin-top:2px">'+esc2(pc.does)+' — '+pc.pct+'% invested</small>'; hl.style.color = color;
 
   // dials display
   const set = (id, v, fmt) => { const e = document.getElementById(id); e.value = v; document.getElementById(id+'V').textContent = fmt; };
@@ -1734,9 +1748,9 @@ function render(){
     return `<div class="move"><div class="mname" style="color:${SLEEVE_COLOR[k]||groupColor(k)}">${esc2(groupWord(k))}</div><div class="mval">${pct(eq)}<small>of equity · ${pct(sh,0)} of invested · geiger ${(gk>=0?'+':'')+gk.toFixed(2)}${sr.q?' · '+esc2(sr.q.toLowerCase()):''}${sr.bowtie!=null?' · bow tie '+(sr.bowtie>=0?'+':'')+sr.bowtie.toFixed(2):''}${vd?' · aggregate '+vd:''} · ${namesPer(h)} names × ${pct(eq/namesPer(h))}</small></div></div>`;
   }).join('');
   document.getElementById('targets').innerHTML = `
-    <div class="move"><div class="mname">INVESTED</div><div class="mval">${pct(inv)}<small>cash ${pct(1-inv)} — HOW MUCH comes from the heat score; WHERE comes from the sleeves below</small></div></div>
+    <div class="move"><div class="mname">INVESTED</div><div class="mval">${pct(inv)}<small>cash ${pct(1-inv)} — how much comes from the market's heat (the ladder); where it goes comes from the blended sector bow tie, below</small></div></div>
     ${sleeveRows}
-    <div class="move"><div class="mname">LC/SC LENS</div><div class="mval" style="font-size:12px">${pct(lc,0)} / ${pct(1-lc,0)}<small>the same book read as large-vs-small (IWM vs SPY) — a lens, not the mix</small></div></div>`;
+    <div class="move"><div class="mname">BIG vs SMALL</div><div class="mval" style="font-size:12px">${pct(lc,0)} / ${pct(1-lc,0)}<small>the same money read as big companies against small ones (the S&amp;P 500 fund against the Russell 2000 fund) — a lens, not the mix</small></div></div>`;
 
   // moves
   const cInv = S.curInv/100, cLC = S.curLC/100, cSC = cInv - cLC;
@@ -1817,15 +1831,16 @@ function render(){
 function renderPolicy(h, inv, cInv){
   const el=document.getElementById('policy'); if(!el) return;
   const st=policyStep(h); const [lbl,color]=heatLabel(h);
-  const rungs=policyLadder().map(([c,range,v])=>{ const on=c===st.cond;
+  const pc=plainCondition(h);
+  const rungs=policyLadder().map(([c,range,v])=>{ const on=c===st.cond; const p=PLAIN_COND[c]||{word:c};
     return `<div style="flex:1;min-width:118px;border:1px solid ${on?color:'var(--line)'};border-radius:6px;padding:8px 10px;background:${on?'rgba(255,255,255,.04)':'transparent'};opacity:${on?1:.55}">
-      <div style="font-size:9.5px;letter-spacing:.12em;color:${on?color:'var(--dim)'}">${c}</div>
-      <div style="font-size:22px;font-weight:700;color:${on?'var(--txt)':'var(--dim)'};margin:2px 0">${v}%</div>
-      <div class="cls" style="font-size:9.5px">${range}</div></div>`; }).join('');
+      <div style="font-size:9.5px;letter-spacing:.12em;color:${on?color:'var(--dim)'}">${p.word}</div>
+      <div style="font-size:22px;font-weight:700;color:${on?'var(--txt)':'var(--dim)'};margin:2px 0">${v}%<small style="font-size:10px;color:var(--dim);font-weight:400"> invested</small></div>
+      <div class="cls" style="font-size:9.5px">${range} · ${c.toLowerCase()}</div></div>`; }).join('');
   const gap=inv-cInv;
-  el.innerHTML=`<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 4px">HOW MUCH — the policy ladder · today's condition is lit</div>
+  el.innerHTML=`<div class="cls" style="font-size:10px;letter-spacing:.08em;margin:8px 0 4px">THE LADDER — five rungs, today's is lit · the number is the share of the money that goes to work</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">${rungs}</div>
-    <div class="move" style="margin-top:8px"><div class="mname" style="color:${color}">TODAY</div><div class="mval">${lbl} → ${pct(inv,0)} invested<small>cash ${pct(1-inv,0)} · you hold ${pct(cInv,0)} invested, so ${gap>0.005?pct(gap,0)+' of equity is to deploy':gap<-0.005?pct(-gap,0)+' of equity is to trim':'you are on the rung'} · heat ${(h>=0?'+':'')+h.toFixed(2)}</small></div></div>`;
+    <div class="move" style="margin-top:8px"><div class="mname" style="color:${color}">TODAY</div><div class="mval" style="font-size:13px;font-weight:500;line-height:1.6">${esc2(pc.sentence)}<small style="display:block;margin:2px 0 0">You hold ${pct(cInv,0)} invested, so ${gap>0.005?pct(gap,0)+' of the money is to be put to work':gap<-0.005?pct(-gap,0)+' of the money is to be taken off':'you are already on the rung'}.</small></div></div>`;
 }
 function drawCurve(h){
   const cv = document.getElementById('curve'), ctx = cv.getContext('2d');
@@ -2145,10 +2160,11 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   const sect = secs.length? ' '+leading.length+' of '+secs.length+' sectors lead'+(leading.length?' ('+leading.slice(0,3).map(word).join(', ')+')':'')+(lagging.length?', '+lagging.length+' lag'+(lagging.length<=4?' ('+lagging.map(word).join(', ')+')':''):'')+(turning.length?', '+turning.length+' turning up from below ('+turning.map(word).join(', ')+')':'')+'.':'';
   const bow = bowAvg==null?'': ' Inside the sectors the bow tie reads '+f(bowAvg)+(bowAvg<-0.1?': the big names carry each sector.':bowAvg>0.1?': the average stock leads its sector.':': even.');
   const macro = (ten!=null?(ten>4.15?' Rates are a headwind at '+ten.toFixed(2)+'%.':' Rates are supportive at '+ten.toFixed(2)+'%.'):'')+(vix!=null?(vix<21?' Volatility is calm (VIX '+vix.toFixed(1)+').':' Fear is on the tape (VIX '+vix.toFixed(1)+').'):' The VIX table is stale, so volatility is not voting.');
-  const p1 = 'The market reads '+st.cond+' (heat '+f(h)+'). '+idx+breadth+'.'+sect+bow+bl+macro;
+  const pc=plainCondition(h);
+  const p1 = pc.sentence+' '+idx+breadth+'.'+sect+bow+bl+macro;
   const SHB = sleeveShares();
   const top = Object.entries(SHB).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,sh])=>(SECT_WORD[k]||k)+' '+Math.round(sh*inv*100)+'%');
-  const p2 = 'The sectors are read by one blended bow tie — five readings per sector, averaged. The policy for a '+st.cond.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?pct(dTot,0)+' of equity is to deploy':pct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in TARGET MIX).':'.');
+  const p2 = 'The sectors are read by one blended bow tie — five readings per sector, averaged. The rung for a '+pc.word.toLowerCase()+' market is '+st.pct+'% invested, '+(100-st.pct)+'% cash. You hold '+Math.round((S.curInv||0))+'% invested, so '+(Math.abs(dTot)<.005?'you are on the rung.':dTot>0?pct(dTot,0)+' of equity is to deploy':pct(-dTot,0)+' of equity is to trim')+(dTot>0.005&&top.length?', spread by each sector\'s own coldness — the biggest shares go to '+top.join(', ')+' of equity (the full split is in TARGET MIX).':'.');
   const ranked = (typeof rankCandidates==='function') ? rankCandidates().filter(r=>r.tag).slice(0,5) : [];
   const p3 = ranked.length ? 'Inside those sectors the names that rank first — fundamentals first, then the Geiger for timing — are '+ranked.map(r=>r.sym+' ('+(SECT_WORD[r.sleeves[0]]||r.sleeves[0]||'')+(r.vr?', '+r.vr.tag.toLowerCase()+' vs peers':'')+(r.target?', target '+(r.target.up>=0?'+':'')+Math.round(r.target.up*100)+'%':'')+')').join(', ')+'. Their comparables and the checked analyst targets are in 4b.' : '';
   el.innerHTML = p1 + '<br><br>' + p2 + (p3?'<br><br>'+p3:'');

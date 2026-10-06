@@ -63,7 +63,8 @@ test("the policy ladder: the shown heat maps to the rung and the invested %", ()
   assert.equal(state.heatShown, (state.heat >= 0 ? "+" : "") + state.heat.toFixed(2));
   const ladder = { "DEEP OVERSOLD": 100, OVERSOLD: 80, NEUTRAL: 50, OVERBOUGHT: 30, "DEEP OVERBOUGHT": 15 };
   assert.equal(state.step.pct, ladder[state.step.cond]); assert.equal(state.inv, state.step.pct / 100);
-  assert.ok(state.policyText.includes(state.step.cond + " → " + state.step.pct + "% invested"));
+  const PLAIN = { "DEEP OVERSOLD": "DEEPLY WASHED OUT", OVERSOLD: "WASHED OUT", NEUTRAL: "MIDDLING", OVERBOUGHT: "STRETCHED", "DEEP OVERBOUGHT": "DEEPLY STRETCHED" };
+  assert.ok(state.policyText.includes(PLAIN[state.step.cond]) && state.policyText.includes(state.step.pct + "% invested, " + (100 - state.step.pct) + "% in cash"), "PA5: the rung in plain words with what it does to the money: " + state.policyText.slice(0, 200));
 });
 test("prices: the chart API quotes are fresh and NVDA on the page equals the source", async () => {
   const j = await (await fetch(API + "/quotes?symbols=NVDA")).json();
@@ -93,7 +94,7 @@ test("names: sound sectors come first in the tabs, the first row is tagged ADD, 
   const tabs = state.tabs.split("\n").filter((t) => /^[●◐○] /.test(t) && !/sound ·/.test(t)); const order = tabs.map((t) => t[0]);
   const rank = { "●": 0, "◐": 1, "○": 2 }; for (let i = 1; i < order.length; i++) assert.ok(rank[order[i]] >= rank[order[i - 1]], "sound first: " + order.join(""));
   assert.ok(state.firstRow.includes("ADD")); assert.ok(state.ranked.length === 5);
-  assert.ok(state.brief.includes("The market reads " + state.step.cond)); assert.ok(state.brief.includes(state.step.pct + "% invested"));
+  assert.ok(/^The market's heat is (deeply washed out|washed out|middling|stretched|deeply stretched) \(/.test(state.brief), "PA5: plain words, no bare NEUTRAL: " + state.brief.slice(0, 120)); assert.ok(!/\bNEUTRAL\b/.test(state.brief)); assert.ok(state.brief.includes(state.step.pct + "% invested"));
   assert.ok(state.stamp.includes("the Hub's Geiger")); assert.ok(!/composite_staged|SSOT|sbGet/.test(state.brief), "no codes in the brief");
 });
 test("what still says STALE or FALLBACK is only what has no live source", () => {
