@@ -261,7 +261,7 @@
   <!-- 5 THE KNOCKOUT (PA5) -->
   <div class="panel full">
     <h2>5 · THE COMPS KNOCKOUT — inside the chosen cohort, the names face off on fundamentals; the Geiger only says when</h2>
-    <div class="note">Seeded by fundamentals (each name's four readings against its own peers, outliers out — C5's comps field), first plays last. A duel is won on fundamentals; when two names are even, the Geiger decides the timing. The survivors of the last rounds are the cohort's picks: KEEP or DROP each — a decision is saved to the comps decisions table the moment you press it.</div>
+    <div class="note">Seeded by fundamentals (each name's four readings against its own peers; a peer priced far from the group on the multiples is left out of the medians — the Hub's comps rule, C6b), first plays last. A duel is won on fundamentals; when two names are even, the Geiger decides the timing. The survivors of the last rounds are the cohort's picks: KEEP or DROP each — a decision is saved to the comps decisions table the moment you press it.</div>
     <div id="knockout"></div>
   </div>
 
@@ -484,18 +484,53 @@ function c5Clean(vals){
 }
 const RATIO_KEYS=new Set(['pe','fwd_pe','ps','pb']);
 const PV_CACHE={};
+/* C6b's outlier rule (5 Oct, PA5b) — the Hub's comps rule, applied to the peer sets the knockout and COMPARABLES read:
+   an outlier is a PEER whose PRICE is strange next to the group, not a peer that grows fast. Per price column, on a
+   log scale, a peer's distance from the peers' median in units of the typical spread (MAD × 1.4826; the mean absolute
+   deviation × 1.2533 when MAD is 0); beyond 3.5 the cell is flagged; a column needs 5 peers to judge anyone.
+   Only the price multiples VOTE, and correlated columns count once: P/E (trailing or forward) · P/S · P/B.
+   A peer flagged on 3+ votes, or on at least half the votes it has (and at least 2), is out of EVERY median of that
+   peer set (price, growth, margin, leverage) — never deleted. Growth, margin and leverage never vote. */
+const C6B={votes:[['P/E',['pe','fwd_pe']],['P/S',['ps']],['P/B',['pb']]], cut:3.5, minN:5, minFlags:3, share:0.5, shareMinFlags:2};
+function c6bColumn(members,key){
+  const have=members.map(m=>[m,COMPS[m]&&COMPS[m][key]]).filter(([,v])=>v!=null&&isFinite(v)&&v>0);
+  if(have.length<C6B.minN) return null;
+  const med=a=>{const b=[...a].sort((x,y)=>x-y);const m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2};
+  const xs=have.map(([,v])=>Math.log(v)), m=med(xs), dev=xs.map(x=>Math.abs(x-m));
+  let spread=med(dev)*1.4826; if(!(spread>0)) spread=dev.reduce((t,x)=>t+x,0)/dev.length*1.2533;
+  if(!(spread>0)) return null;
+  const d={}; have.forEach(([t],i)=>{ d[t]=(xs[i]-m)/spread; }); return d;
+}
+/* the outlier peers of one peer list: { out:Set, why:{T:{n,have,on:[vote names]}} } */
+function c6bOutliers(members){
+  const cols={}; for(const [,keys] of C6B.votes) for(const k of keys) cols[k]=c6bColumn(members,k);
+  const out=new Set(), why={};
+  for(const t of members){
+    let have=0; const on=[];
+    for(const [name,keys] of C6B.votes){ const judged=keys.filter(k=>cols[k]&&t in cols[k]); if(!judged.length) continue; have++;
+      if(judged.some(k=>Math.abs(cols[k][t])>C6B.cut)) on.push(name); }
+    const n=on.length;
+    if(n>=C6B.minFlags || (n>=C6B.shareMinFlags && n/have>=C6B.share)){ out.add(t); why[t]={n,have,on}; }
+  }
+  return {out,why};
+}
+function peerOutliers(sym){
+  const pm=peerMembers(sym); const ck=(pm.mode==='fmp_peers'?sym:pm.key)+'|#c6b';
+  if(!(ck in PV_CACHE)) PV_CACHE[ck]=c6bOutliers(pm.members);
+  return PV_CACHE[ck];
+}
 function peerMembers(sym){
   const pg=peerGroupOf(sym); if(!pg) return {members:[],mode:null};
   const members = pg.mode==='fmp_peers' ? pg.members.filter(m=>m!==sym) : Object.keys(COMPS).filter(o=>o!==sym && peerKeys(o)[0]===pg.key);
   return {members, mode:pg.mode, key:pg.key||null};
 }
-/* The peers' values for one measure, outliers out (C5) for ratios, with quartiles. */
+/* The peers' values for one measure, the outlier PEERS out of every measure (C6b), with quartiles. */
 function peerDist(sym,key){
   const pm=peerMembers(sym); const ck=(pm.mode==='fmp_peers'?sym:pm.key)+'|'+key;
   if(ck in PV_CACHE) return PV_CACHE[ck];
-  let vals=pm.members.map(m=>COMPS[m]&&COMPS[m][key]).filter(v=>v!=null&&isFinite(v));
-  let out=[];
-  if(RATIO_KEYS.has(key)){ const c=c5Clean(vals); vals=c.kept; out=c.out; }
+  const O=peerOutliers(sym).out;
+  let vals=pm.members.filter(m=>!O.has(m)).map(m=>COMPS[m]&&COMPS[m][key]).filter(v=>v!=null&&isFinite(v)&&(!RATIO_KEYS.has(key)||v>0));
+  const out=[...O];
   let d=null;
   if(vals.length>=4){ const b=[...vals].sort((x,y)=>x-y); const q=p=>{const i=(b.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?b[lo]:b[lo]+(b[hi]-b[lo])*(i-lo)};
     d={n:b.length,q1:q(.25),med:q(.5),q3:q(.75),out:out.length,mode:pm.mode,members:pm.members.length}; }
@@ -632,7 +667,8 @@ let QUOTES={}, PROFILES={}, TREAS=null, VIXDB=null, SECTOR_RANKS=null, OPW=null;
    SECTORS  the Hub's sector compare: the eleven State Street sector funds (cap-weight) and the eleven Invesco
             equal-weight twins, both from /geiger — the bow tie is equal-weight minus cap-weight, per sector.
    SOUND    B1's market bow tie (3 Oct): which sectors and cohorts carry a statistically sound aggregate.
-   PEERS    peer_sources (FMP + Massive peers) with C5's outlier rule (log-MAD, K=3, at least 5 peers).
+   PEERS    peer_sources (FMP + Massive peers) with the Hub's C6b outlier rule (a peer priced far from the group on the
+            multiples leaves every median; log scale, 3.5 spreads, at least 5 peers).
    TARGETS  A4's checked analyst targets: analyst_target_news, kind TARGET, quality ok, last 90 days, one per firm.
    The chart API answers only the Hub's origin in a browser, so vercel.json rewrites /geiger and /quotes on this
    site to it (same-origin); the direct address is tried second. */
@@ -1019,7 +1055,7 @@ async function refreshSSOT(){
       for(const r of rows){ const a=(m[r.ticker]=m[r.ticker]||[]); if(!a.includes(r.peer)&&r.peer!==r.ticker) a.push(r.peer); }
     }
     PEERS=m; PEER_SRC='peer_sources';
-    spineSet('peer_sources',null,'LIVE',Object.keys(m).length+' names with named peers (FMP + Massive) — C5\'s outlier rule applied in COMPARABLES');
+    spineSet('peer_sources',null,'LIVE',Object.keys(m).length+' names with named peers (FMP + Massive) — the Hub\'s price-only outlier rule (C6b) applied in the knockout and COMPARABLES');
   })().catch(e=>{ PEERS={}; spineSet('peer_sources',null,'FALLBACK','read failed ('+e.message+') — comps on the membership hierarchy'); }));
   K2.push((async()=>{
     const since=new Date(Date.now()-90*864e5).toISOString().slice(0,10);
@@ -2327,11 +2363,12 @@ let KO_COHORT = localStorage.getItem('alloc-ko-cohort') || null;
 function setKoCohort(c){ KO_COHORT=c; localStorage.setItem('alloc-ko-cohort',c); render(); }
 window.setKoCohort=setKoCohort;
 function koTiming(sym){ const g=gv(sym); if(g==null) return null; const rg=REGIME[sym]||{}; return ((1-g)/2) * ((1-METHOD.regimeWeight) + METHOD.regimeWeight*2*intentFitKind(rg.kind)); }
-/* C5's comps field for one name: the four readings against its own peers with outliers out, plus how many outliers were dropped */
+/* The comps field for one name: the four readings against its own peers with the outlier peers out (C6b: priced far
+   from the group on the multiples), plus who they are */
 function koField(sym){
-  const fund=fundScore(sym); let out=0, peers=null;
-  for(const key of ['pe','ps','rev_growth','net_m','de']){ const d=peerDist(sym,key); if(d){ out+=d.out||0; peers=peers??d.members; } }
-  return {fund, outliers:out, peers};
+  const fund=fundScore(sym); const O=peerOutliers(sym); let peers=null;
+  for(const key of ['pe','ps','rev_growth','net_m','de']){ const d=peerDist(sym,key); if(d){ peers=peers??d.members; } }
+  return {fund, outliers:O.out.size, outlierPeers:[...O.out], outlierWhy:O.why, peers};
 }
 /* the cohorts, grouped under the sector most of their names sit in, in the bow tie's order (hot → cold) */
 function cohortBoard(){
@@ -2364,7 +2401,7 @@ function duel(a,b){
 function knockout(cohortKey){
   const board=cohortBoard(); const c=board.find(x=>x.key===cohortKey); if(!c) return null;
   const mk=t=>{ const kf=koField(t); const q=QUOTES[t]||{}; const price=q.price!=null?+q.price:null; const tg=TARGETS[t];
-    return {sym:t, fund:kf.fund, outliers:kf.outliers, g:gv(t), rg:REGIME[t]||{}, timing:koTiming(t), price, day:q.chg_pct!=null?(+q.chg_pct)/100:null, target:(tg&&price)?{median:tg.median,n:tg.n,up:tg.median/price-1}:null, fav:UNIVERSE.favs.has(t)}; };
+    return {sym:t, fund:kf.fund, outliers:kf.outliers, outlierPeers:kf.outlierPeers, g:gv(t), rg:REGIME[t]||{}, timing:koTiming(t), price, day:q.chg_pct!=null?(+q.chg_pct)/100:null, target:(tg&&price)?{median:tg.median,n:tg.n,up:tg.median/price-1}:null, fav:UNIVERSE.favs.has(t)}; };
   const all=c.names.map(mk);
   const entrants=all.filter(e=>e.fund.score!=null&&(e.fund.n||0)>=2).sort((a,b)=>(b.fund.score-a.fund.score)||((b.timing??0)-(a.timing??0)));
   entrants.forEach((e,i)=>e.seed=i+1);
@@ -2381,7 +2418,7 @@ window.knockout=knockout;
 function fieldHtml(e){
   const P=Object.fromEntries((e.fund.parts||[]).map(p=>[p[0],p]));
   return '<div class="kofield">'+['price','growth','margin','leverage'].map(k=>{ const p=P[k]; return '<span>'+k.toUpperCase()+'</span><div class="fb" title="'+(p?esc2(p[2]):'no reading')+'">'+(p?'<b style="width:'+Math.round(p[1]*100)+'%"></b>':'')+'</div><i>'+(p?p[1].toFixed(2):'—')+'</i>'; }).join('')+'</div>'+
-    '<div class="cls" style="font-size:9.5px;margin-top:4px">'+e.fund.n+' of 4 readings vs its own peers'+(e.outliers?' · '+e.outliers+' outlier'+(e.outliers>1?'s':'')+' out (C5)':' · no outliers to drop')+' · 1.00 = better than three quarters of them</div>';
+    '<div class="cls" style="font-size:9.5px;margin-top:4px">'+e.fund.n+' of 4 readings vs its own peers'+(e.outliers?' · '+e.outliers+' outlier'+(e.outliers>1?'s':'')+' out on price ('+e.outlierPeers.join(', ')+')':' · no outliers to drop')+' · 1.00 = better than three quarters of them</div>';
 }
 function koCard(e, cls, pos){
   const f2=x=>x==null?'—':(x>=0?'+':'')+(+x).toFixed(2);
@@ -2555,8 +2592,9 @@ function renderComps(){
     const pg=peerGroupOf(sym); if(!pg) return null;
     let members = pg.mode==='fmp_peers' ? pg.members
                 : Object.keys(COMPS).filter(o=>peerKeys(o)[0]===pg.key);
-    let vs=members.map(m=>COMPS[m]&&COMPS[m][key]).filter(v=>valid(key,v)); let out=0;
-    if(RATIO_KEYS.has(key)){ const c=c5Clean(vs); out=c.out.length; vs=c.kept; }   // C5: outliers out of the pack
+    const ck='#c6bS|'+(pg.mode==='fmp_peers'?sym:pg.key); if(!(ck in PV_CACHE)) PV_CACHE[ck]=c6bOutliers(members);
+    const O=PV_CACHE[ck].out; const out=[...O].filter(m=>m!==sym).length;   // C6b: the outlier PEERS (priced far from the group) out of every column; the name itself is kept
+    let vs=members.filter(m=>m===sym||!O.has(m)).map(m=>COMPS[m]&&COMPS[m][key]).filter(v=>valid(key,v));
     if(vs.length<4) return null;
     vs.sort((a,b)=>a-b);
     const q=(p)=>{const i=(vs.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?vs[lo]:vs[lo]+(vs[hi]-vs[lo])*(i-lo)};
@@ -2638,7 +2676,7 @@ function renderTrace(h, inv, lc, lcEq, scEq, perLC, perSC, cInv, cLC, cSC, dTot,
   const SH=sleeveShares();
   for (const [k,sh] of Object.entries(SH).sort((a,b)=>b[1]-a[1])) { const r=groupReadOf(k)||{}; L.push(`  ${groupWord(k).padEnd(24)} score ${f2(r.score)} → cold ${(Math.max(0.05,(1-(r.score??0))/2)).toFixed(2)} × turn (${r.kind||'—'}) → ${pct(sh,0)} of invested = ${pct(sh*inv)} of equity`); }
   L.push('STEP G · WHICH — fundamentals first, then the Geiger for timing');
-  L.push('  fundamentals = mean of up to four readings against the name\'s own peers (outliers out, C5): price (P/E, or P/S for a loss-maker), growth, net margin, leverage — each 1 when better than three quarters of the peers, 0 when worse than three quarters; a missing reading counts 0.5');
+  L.push('  fundamentals = mean of up to four readings against the name\'s own peers (a peer priced far from the group on 2+ of P/E, P/S, P/B is left out of every median — C6b; growth, margin and leverage never make an outlier): price (P/E, or P/S for a loss-maker), growth, net margin, leverage — each 1 when better than three quarters of the peers, 0 when worse than three quarters; a missing reading counts 0.5');
   L.push('  timing = (1 − geiger)/2 × (0.45 + 0.55 × 2 × regime fit) — washed out earns more, and only when the regime says the cheapness is merited (pullback 1.0 · uptrend 0.62 · bounce 0.45 · breakdown 0.12)');
   for (const r of RANKED.filter(r=>r.tag).slice(0,12)) L.push(`  ${r.sym.padEnd(6)} ${groupWord(r.tag.group).padEnd(24)} #${r.tag.rank}  fundamentals ${r.fund.score==null?'—':r.fund.score.toFixed(2)} (${r.fund.parts.map(p=>p[2]).join('; ')||'no reading'})  ·  geiger ${f2(r.g)} ${r.rg.label||''} → timing ${r.timing.toFixed(2)}${r.target?'  ·  checked target $'+r.target.median.toFixed(0)+' ('+r.target.n+' firms) '+spct(r.target.up,0):''}`);
   document.getElementById('trace').textContent = L.join('\n');
