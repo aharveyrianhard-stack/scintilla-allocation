@@ -1,0 +1,410 @@
+{
+ "390": {
+  "stamp": "study page on branch heat1-history-20261006 · nothing here is on the live tool · history built 2026-10-06 15:39 UTC · today's voters read 2026-10-06 15:44 UTC from the headless page",
+  "percentile": "Today (+0.063 on the same 20 voters, live readings) sits at the 27th percentile of its own last year (251 sessions, which ran −0.39 to +0.44) and the 26th of its last two years (502 sessions, −0.39 to +0.49). The last stored close (5 Oct 2026) read +0.081, the 28th percentile of the two years before it. Over the two years the replayed heat spent 0% of sessions deeply stretched, 50% stretched, 45% middling, 5% washed out and 0% deeply washed out.",
+  "liveReplay": 0.0634638888888889,
+  "lesson": {
+   "rows": [
+    {
+     "k": "B_VOL",
+     "upD": 2,
+     "dnD": 2,
+     "up20": 4,
+     "dn20": 4,
+     "avgD": -0.08380000000000001,
+     "avg20": -0.2811777777777778
+    },
+    {
+     "k": "DEF",
+     "upD": 4,
+     "dnD": 4,
+     "up20": 2,
+     "dn20": 7,
+     "avgD": 0.020569999999999998,
+     "avg20": -0.1988111111111111
+    },
+    {
+     "k": "IWM",
+     "upD": 4,
+     "dnD": 1,
+     "up20": 2,
+     "dn20": 3,
+     "avgD": 0.0759,
+     "avg20": -0.17626666666666668
+    },
+    {
+     "k": "BREADTH_SC",
+     "upD": 2,
+     "dnD": 5,
+     "up20": 2,
+     "dn20": 6,
+     "avgD": -0.035,
+     "avg20": -0.12477777777777778
+    },
+    {
+     "k": "SMH",
+     "upD": 3,
+     "dnD": 0,
+     "up20": 3,
+     "dn20": 3,
+     "avgD": 0.07572999999999999,
+     "avg20": -0.12145555555555558
+    },
+    {
+     "k": "TRIN",
+     "upD": 1,
+     "dnD": 6,
+     "up20": 3,
+     "dn20": 6,
+     "avgD": -0.29834,
+     "avg20": -0.11562222222222222
+    },
+    {
+     "k": "ADLINE",
+     "upD": 4,
+     "dnD": 2,
+     "up20": 4,
+     "dn20": 5,
+     "avgD": 0.20204000000000005,
+     "avg20": -0.0969222222222222
+    },
+    {
+     "k": "CRYPTO",
+     "upD": 4,
+     "dnD": 2,
+     "up20": 4,
+     "dn20": 2,
+     "avgD": 0.04746,
+     "avg20": 0.06558888888888886
+    },
+    {
+     "k": "CREDIT",
+     "upD": 4,
+     "dnD": 0,
+     "up20": 3,
+     "dn20": 4,
+     "avgD": 0.05419999999999999,
+     "avg20": -0.06533333333333334
+    },
+    {
+     "k": "US10Y",
+     "upD": 1,
+     "dnD": 3,
+     "up20": 3,
+     "dn20": 6,
+     "avgD": -0.04155000000000001,
+     "avg20": -0.06325555555555556
+    },
+    {
+     "k": "HAVEN",
+     "upD": 4,
+     "dnD": 2,
+     "up20": 4,
+     "dn20": 4,
+     "avgD": 0.04479,
+     "avg20": 0.0602888888888889
+    },
+    {
+     "k": "SPY",
+     "upD": 6,
+     "dnD": 0,
+     "up20": 4,
+     "dn20": 4,
+     "avgD": 0.11091,
+     "avg20": -0.05150000000000002
+    },
+    {
+     "k": "CONC",
+     "upD": 1,
+     "dnD": 6,
+     "up20": 4,
+     "dn20": 4,
+     "avgD": -0.07242000000000001,
+     "avg20": 0.04902222222222222
+    },
+    {
+     "k": "OIL",
+     "upD": 3,
+     "dnD": 1,
+     "up20": 3,
+     "dn20": 4,
+     "avgD": 0.024709999999999996,
+     "avg20": -0.02910000000000004
+    },
+    {
+     "k": "QQQ",
+     "upD": 4,
+     "dnD": 0,
+     "up20": 7,
+     "dn20": 2,
+     "avgD": 0.13017,
+     "avg20": 0.027644444444444416
+    },
+    {
+     "k": "CURVE",
+     "upD": 1,
+     "dnD": 0,
+     "up20": 0,
+     "dn20": 1,
+     "avgD": 0.012650000000000005,
+     "avg20": -0.022222222222222223
+    },
+    {
+     "k": "VIX",
+     "upD": 4,
+     "dnD": 2,
+     "up20": 5,
+     "dn20": 4,
+     "avgD": 0.06733,
+     "avg20": -0.013455555555555554
+    },
+    {
+     "k": "BREADTH_EW",
+     "upD": 3,
+     "dnD": 2,
+     "up20": 3,
+     "dn20": 4,
+     "avgD": -0.004309999999999992,
+     "avg20": -0.010800000000000002
+    },
+    {
+     "k": "VIX_TERM",
+     "upD": 5,
+     "dnD": 2,
+     "up20": 5,
+     "dn20": 4,
+     "avgD": 0.05780999999999999,
+     "avg20": -0.008311111111111096
+    },
+    {
+     "k": "DURATION",
+     "upD": 2,
+     "dnD": 5,
+     "up20": 5,
+     "dn20": 4,
+     "avgD": -0.046789999999999984,
+     "avg20": 0.0030777777777777965
+    }
+   ],
+   "E": 10,
+   "E20": 9,
+   "heatMoveDay": 0.040542317812843974,
+   "heatMove20": -0.04985558907875406,
+   "narrow": 1,
+   "upAfter": 3,
+   "spyUp": 6
+  },
+  "todayTable": "voter\treading\tweight\tshare of the heat\tpull\twhat it measures, and why it sits on this side of zero today\nNasdaq (QQQ Geiger)\t+0.84\t1\t+0.086\t\tthe same Geiger on the Nasdaq-100 fund, straight. HOT today: chart API · fresh\nS&P (SPY Geiger)\t+0.79\t1\t+0.081\t\tthe Hub's Geiger on the S&P 500 fund: trend (the order of nine moving averages) and momentum (RSI and Williams) across seven timeframes, straight — a hot index pushes the heat up. HOT today: chart API · fresh\n10-year yield\t−1.00\t0.5\t−0.051\t\tthe 10-year yield, inverted: below 4.15% yields are fuel (hot), above they are a headwind (cold); +1 at 3.5%, −1 at 4.8%. COLD today: 5.31% · treasury_rates (db) 2026-10-05\nconcentration\t−0.84\t0.5\t−0.043\t\tthe equal-weight fund's 20-session return minus the index's: negative means the biggest names carry the tape, which reads cold for everything else. COLD today: 20 sessions: S&P +0.6% vs equal-weight -3.6% = -4.2% · the big names carry it · 78% of the served set's 20-session move came from its ten largest names (NVDA, AAPL, GOOGL, GOOG, MSFT …), which are 47% of its value\nsemis (SMH Geiger)\t+0.83\t0.5\t+0.042\t\tthe same Geiger on semiconductors, straight. HOT today: semis · chart API · fresh\nequal-weight vs index\t−0.73\t0.5\t−0.038\t\tthe equal-weight fund's Geiger minus the index's: below zero the average stock is colder than the index — a narrow market. COLD today: RSP − SPY = -0.73 · negative means the average stock is colder than the index\ncredit (HYG)\t−0.70\t0.5\t−0.036\t\tthe Geiger on high-yield bonds, straight: weak credit reads cold. COLD today: high yield · composite_staged\nVIX\t+0.64\t0.5\t+0.033\t\tthe VIX level, inverted: calm (below about 21) reads hot, fear reads cold; +1 at 12, −1 at 30. HOT today: 15.3 · chart API macro (FMP), live · session 2026-10-06\noil\t−0.44\t0.5\t−0.023\t\tthe Geiger on crude, inverted: hot oil is a cost on everything else, so it reads cold. COLD today: CL · composite_staged · just now\nlong bonds (TLT)\t−0.82\t0.25\t−0.021\t\tthe Geiger on long treasuries, straight: falling long bonds read cold. COLD today: long treasuries · composite_staged\nbitcoin\t+0.78\t0.25\t+0.020\t\tthe Geiger on bitcoin, straight — speculative appetite. HOT today: risk appetite · composite_staged · just now\nsmall vs large\t−0.74\t0.25\t−0.019\t\tsmall caps' Geiger minus the index's: below zero the big names lead. COLD today: IWM − SPY = -0.74\nyield curve\t+0.31\t0.5\t+0.016\t\t10-year minus 2-year yield: an inverted curve reads cold; +1 at a 1.5-point spread. HOT today: 0.47% · negative = inverted\nVIX term\t+0.61\t0.25\t+0.016\t\tspot VIX ÷ 3-month VIX: above 1 the market prices stress now, which reads cold. HOT today: 0.848 · 3-month leg from the VIX table's 2026-10-05 close, spot live · above 1.00 = stress priced now\nsector bow tie\t−0.12\t0.75\t−0.009\t\tthe eleven sector funds, each a blend of five readings, averaged: most sectors hot pushes the heat up. COLD today: 11 sectors, five readings each, average -0.12 · bow tie -0.13 — the biggest names carry the sectors · 3 leading · 7 lagging\nTRIN\t−0.32\t0.25\t−0.008\t\tadvancing issues against advancing volume, inverted: above 1 the advance is not being paid for. COLD today: 1.159 · below 1.00 = volume confirming the advance\ngold\t−0.28\t0.25\t−0.007\t\tthe Geiger on gold, inverted: a haven bid is fear. COLD today: haven bid · composite_staged\ndefensives\t+0.27\t0.25\t+0.007\t\tthe Geigers on staples and utilities, averaged and inverted: money hiding in defensives is risk-off. HOT today: XLP+XLU · db\nup/down volume\t+0.26\t0.25\t+0.007\t\tup-volume minus down-volume over their sum: conviction behind the count. HOT today: 8.7% net up-volume\nadvance/decline\t−0.10\t0.5\t−0.005\t\tthe advance/decline line of the served names over 20 sessions: more rising than falling pushes the heat up. COLD today: served set, 315 names · line -396 over 20 sessions to 2026-10-05 · today 244 up / 67 down · last close 178 up / 134 down\nsmall caps (IWM Geiger)\t+0.05\t0.5\t+0.002\t\tthe same Geiger on small caps, straight. HOT today: small caps · chart API · fresh\nthe heat\t\t9.75\t+0.049\t\tthe shares add to the heat (hand check: Σ reading × weight ÷ 9.75)",
+  "events": "break\tfund\t2W pivot (P1)\tpivot bar · confirmed\tclose that broke it\theat day before\theat day of\t+5\t+10\t+20\tSPY next 20\tQQQ next 20\twho moved most, day before → day of\n2 Oct 2026\tQQQ\t748.65\t24 May 2026 · 4 Jul 2026\t749.58\t−0.02\t+0.02\t—\t—\t—\t—\t—\tS&P (SPY Geiger) +0.32, equal-weight vs index −0.23, small vs large −0.18, small caps (IWM Geiger) +0.13\n4 Aug 2026\tSPY\t760.40\t24 May 2026 · 4 Jul 2026\t771.33\t+0.16\t+0.14\t+0.20\t+0.17\t−0.04\t−1.2%\t−2.2%\tup/down volume −1.60, advance/decline −1.14, TRIN −1.09, Nasdaq (QQQ Geiger) +0.40\n15 Apr 2026\tQQQ\t636.60\t18 Jan 2026 · 28 Feb 2026\t637.40\t+0.27\t+0.31\t+0.21\t+0.23\t+0.26\t+6.0%\t+12.1%\tTRIN −0.82, advance/decline +0.77, concentration −0.22, Nasdaq (QQQ Geiger) +0.21\n15 Apr 2026\tSPY\t697.84\t18 Jan 2026 · 28 Feb 2026\t699.94\t+0.27\t+0.31\t+0.21\t+0.23\t+0.26\t+6.0%\t+12.1%\tTRIN −0.82, advance/decline +0.77, concentration −0.22, Nasdaq (QQQ Geiger) +0.21\n24 Dec 2025\tSPY\t689.70\t26 Oct 2025 · 6 Dec 2025\t690.38\t+0.34\t+0.36\t+0.37\t+0.44\t+0.40\t+0.3%\t+0.3%\tlong bonds (TLT) +0.23, credit (HYG) +0.15, defensives −0.14, VIX term +0.11\n27 Jun 2025\tSPY\t613.23\t16 Feb 2025 · 29 Mar 2025\t614.91\t+0.34\t+0.34\t+0.28\t+0.22\t+0.28\t+3.6%\t+3.7%\tgold +0.19, defensives −0.11, VIX term +0.06\n25 Jun 2025\tQQQ\t540.81\t16 Feb 2025 · 29 Mar 2025\t541.16\t+0.25\t+0.38\t+0.42\t+0.30\t+0.33\t+4.5%\t+4.4%\tadvance/decline +1.72, up/down volume +1.37, defensives +0.34, TRIN −0.26\n18 Feb 2025\tQQQ\t539.15\t8 Dec 2024 · 18 Jan 2025\t539.37\t+0.23\t+0.27\t+0.07\t−0.03\t−0.02\t−8.3%\t−12.0%\tadvance/decline +0.53, TRIN −0.45, up/down volume +0.32, bitcoin −0.24\n23 Jan 2025\tSPY\t609.07\t24 Nov 2024 · 4 Jan 2025\t609.75\t+0.28\t+0.23\t+0.19\t+0.17\t+0.04\t−1.6%\t−1.2%\tup/down volume −0.97, advance/decline −0.61, long bonds (TLT) −0.14, concentration −0.13\n6 Nov 2024\tQQQ\t503.52\t7 Jul 2024 · 17 Aug 2024\t505.58\t+0.22\t+0.39\t+0.29\t+0.29\t+0.41\t+2.6%\t+3.2%\tTRIN +0.53, VIX +0.47, S&P (SPY Geiger) +0.44, gold +0.40",
+  "errors": [],
+  "nonGet": {
+   "blocked": 0,
+   "allowed": 0,
+   "urls": []
+  }
+ },
+ "1680": {
+  "stamp": "study page on branch heat1-history-20261006 · nothing here is on the live tool · history built 2026-10-06 15:39 UTC · today's voters read 2026-10-06 15:44 UTC from the headless page",
+  "percentile": "Today (+0.063 on the same 20 voters, live readings) sits at the 27th percentile of its own last year (251 sessions, which ran −0.39 to +0.44) and the 26th of its last two years (502 sessions, −0.39 to +0.49). The last stored close (5 Oct 2026) read +0.081, the 28th percentile of the two years before it. Over the two years the replayed heat spent 0% of sessions deeply stretched, 50% stretched, 45% middling, 5% washed out and 0% deeply washed out.",
+  "liveReplay": 0.0634638888888889,
+  "lesson": {
+   "rows": [
+    {
+     "k": "B_VOL",
+     "upD": 2,
+     "dnD": 2,
+     "up20": 4,
+     "dn20": 4,
+     "avgD": -0.08380000000000001,
+     "avg20": -0.2811777777777778
+    },
+    {
+     "k": "DEF",
+     "upD": 4,
+     "dnD": 4,
+     "up20": 2,
+     "dn20": 7,
+     "avgD": 0.020569999999999998,
+     "avg20": -0.1988111111111111
+    },
+    {
+     "k": "IWM",
+     "upD": 4,
+     "dnD": 1,
+     "up20": 2,
+     "dn20": 3,
+     "avgD": 0.0759,
+     "avg20": -0.17626666666666668
+    },
+    {
+     "k": "BREADTH_SC",
+     "upD": 2,
+     "dnD": 5,
+     "up20": 2,
+     "dn20": 6,
+     "avgD": -0.035,
+     "avg20": -0.12477777777777778
+    },
+    {
+     "k": "SMH",
+     "upD": 3,
+     "dnD": 0,
+     "up20": 3,
+     "dn20": 3,
+     "avgD": 0.07572999999999999,
+     "avg20": -0.12145555555555558
+    },
+    {
+     "k": "TRIN",
+     "upD": 1,
+     "dnD": 6,
+     "up20": 3,
+     "dn20": 6,
+     "avgD": -0.29834,
+     "avg20": -0.11562222222222222
+    },
+    {
+     "k": "ADLINE",
+     "upD": 4,
+     "dnD": 2,
+     "up20": 4,
+     "dn20": 5,
+     "avgD": 0.20204000000000005,
+     "avg20": -0.0969222222222222
+    },
+    {
+     "k": "CRYPTO",
+     "upD": 4,
+     "dnD": 2,
+     "up20": 4,
+     "dn20": 2,
+     "avgD": 0.04746,
+     "avg20": 0.06558888888888886
+    },
+    {
+     "k": "CREDIT",
+     "upD": 4,
+     "dnD": 0,
+     "up20": 3,
+     "dn20": 4,
+     "avgD": 0.05419999999999999,
+     "avg20": -0.06533333333333334
+    },
+    {
+     "k": "US10Y",
+     "upD": 1,
+     "dnD": 3,
+     "up20": 3,
+     "dn20": 6,
+     "avgD": -0.04155000000000001,
+     "avg20": -0.06325555555555556
+    },
+    {
+     "k": "HAVEN",
+     "upD": 4,
+     "dnD": 2,
+     "up20": 4,
+     "dn20": 4,
+     "avgD": 0.04479,
+     "avg20": 0.0602888888888889
+    },
+    {
+     "k": "SPY",
+     "upD": 6,
+     "dnD": 0,
+     "up20": 4,
+     "dn20": 4,
+     "avgD": 0.11091,
+     "avg20": -0.05150000000000002
+    },
+    {
+     "k": "CONC",
+     "upD": 1,
+     "dnD": 6,
+     "up20": 4,
+     "dn20": 4,
+     "avgD": -0.07242000000000001,
+     "avg20": 0.04902222222222222
+    },
+    {
+     "k": "OIL",
+     "upD": 3,
+     "dnD": 1,
+     "up20": 3,
+     "dn20": 4,
+     "avgD": 0.024709999999999996,
+     "avg20": -0.02910000000000004
+    },
+    {
+     "k": "QQQ",
+     "upD": 4,
+     "dnD": 0,
+     "up20": 7,
+     "dn20": 2,
+     "avgD": 0.13017,
+     "avg20": 0.027644444444444416
+    },
+    {
+     "k": "CURVE",
+     "upD": 1,
+     "dnD": 0,
+     "up20": 0,
+     "dn20": 1,
+     "avgD": 0.012650000000000005,
+     "avg20": -0.022222222222222223
+    },
+    {
+     "k": "VIX",
+     "upD": 4,
+     "dnD": 2,
+     "up20": 5,
+     "dn20": 4,
+     "avgD": 0.06733,
+     "avg20": -0.013455555555555554
+    },
+    {
+     "k": "BREADTH_EW",
+     "upD": 3,
+     "dnD": 2,
+     "up20": 3,
+     "dn20": 4,
+     "avgD": -0.004309999999999992,
+     "avg20": -0.010800000000000002
+    },
+    {
+     "k": "VIX_TERM",
+     "upD": 5,
+     "dnD": 2,
+     "up20": 5,
+     "dn20": 4,
+     "avgD": 0.05780999999999999,
+     "avg20": -0.008311111111111096
+    },
+    {
+     "k": "DURATION",
+     "upD": 2,
+     "dnD": 5,
+     "up20": 5,
+     "dn20": 4,
+     "avgD": -0.046789999999999984,
+     "avg20": 0.0030777777777777965
+    }
+   ],
+   "E": 10,
+   "E20": 9,
+   "heatMoveDay": 0.040542317812843974,
+   "heatMove20": -0.04985558907875406,
+   "narrow": 1,
+   "upAfter": 3,
+   "spyUp": 6
+  },
+  "todayTable": "voter\treading\tweight\tshare of the heat\tpull\twhat it measures, and why it sits on this side of zero today\nNasdaq (QQQ Geiger)\t+0.84\t1\t+0.086\t\tthe same Geiger on the Nasdaq-100 fund, straight. HOT today: chart API · fresh\nS&P (SPY Geiger)\t+0.79\t1\t+0.081\t\tthe Hub's Geiger on the S&P 500 fund: trend (the order of nine moving averages) and momentum (RSI and Williams) across seven timeframes, straight — a hot index pushes the heat up. HOT today: chart API · fresh\n10-year yield\t−1.00\t0.5\t−0.051\t\tthe 10-year yield, inverted: below 4.15% yields are fuel (hot), above they are a headwind (cold); +1 at 3.5%, −1 at 4.8%. COLD today: 5.31% · treasury_rates (db) 2026-10-05\nconcentration\t−0.84\t0.5\t−0.043\t\tthe equal-weight fund's 20-session return minus the index's: negative means the biggest names carry the tape, which reads cold for everything else. COLD today: 20 sessions: S&P +0.6% vs equal-weight -3.6% = -4.2% · the big names carry it · 78% of the served set's 20-session move came from its ten largest names (NVDA, AAPL, GOOGL, GOOG, MSFT …), which are 47% of its value\nsemis (SMH Geiger)\t+0.83\t0.5\t+0.042\t\tthe same Geiger on semiconductors, straight. HOT today: semis · chart API · fresh\nequal-weight vs index\t−0.73\t0.5\t−0.038\t\tthe equal-weight fund's Geiger minus the index's: below zero the average stock is colder than the index — a narrow market. COLD today: RSP − SPY = -0.73 · negative means the average stock is colder than the index\ncredit (HYG)\t−0.70\t0.5\t−0.036\t\tthe Geiger on high-yield bonds, straight: weak credit reads cold. COLD today: high yield · composite_staged\nVIX\t+0.64\t0.5\t+0.033\t\tthe VIX level, inverted: calm (below about 21) reads hot, fear reads cold; +1 at 12, −1 at 30. HOT today: 15.3 · chart API macro (FMP), live · session 2026-10-06\noil\t−0.44\t0.5\t−0.023\t\tthe Geiger on crude, inverted: hot oil is a cost on everything else, so it reads cold. COLD today: CL · composite_staged · just now\nlong bonds (TLT)\t−0.82\t0.25\t−0.021\t\tthe Geiger on long treasuries, straight: falling long bonds read cold. COLD today: long treasuries · composite_staged\nbitcoin\t+0.78\t0.25\t+0.020\t\tthe Geiger on bitcoin, straight — speculative appetite. HOT today: risk appetite · composite_staged · just now\nsmall vs large\t−0.74\t0.25\t−0.019\t\tsmall caps' Geiger minus the index's: below zero the big names lead. COLD today: IWM − SPY = -0.74\nyield curve\t+0.31\t0.5\t+0.016\t\t10-year minus 2-year yield: an inverted curve reads cold; +1 at a 1.5-point spread. HOT today: 0.47% · negative = inverted\nVIX term\t+0.61\t0.25\t+0.016\t\tspot VIX ÷ 3-month VIX: above 1 the market prices stress now, which reads cold. HOT today: 0.848 · 3-month leg from the VIX table's 2026-10-05 close, spot live · above 1.00 = stress priced now\nsector bow tie\t−0.12\t0.75\t−0.009\t\tthe eleven sector funds, each a blend of five readings, averaged: most sectors hot pushes the heat up. COLD today: 11 sectors, five readings each, average -0.12 · bow tie -0.13 — the biggest names carry the sectors · 3 leading · 7 lagging\nTRIN\t−0.32\t0.25\t−0.008\t\tadvancing issues against advancing volume, inverted: above 1 the advance is not being paid for. COLD today: 1.159 · below 1.00 = volume confirming the advance\ngold\t−0.28\t0.25\t−0.007\t\tthe Geiger on gold, inverted: a haven bid is fear. COLD today: haven bid · composite_staged\ndefensives\t+0.27\t0.25\t+0.007\t\tthe Geigers on staples and utilities, averaged and inverted: money hiding in defensives is risk-off. HOT today: XLP+XLU · db\nup/down volume\t+0.26\t0.25\t+0.007\t\tup-volume minus down-volume over their sum: conviction behind the count. HOT today: 8.7% net up-volume\nadvance/decline\t−0.10\t0.5\t−0.005\t\tthe advance/decline line of the served names over 20 sessions: more rising than falling pushes the heat up. COLD today: served set, 315 names · line -396 over 20 sessions to 2026-10-05 · today 244 up / 67 down · last close 178 up / 134 down\nsmall caps (IWM Geiger)\t+0.05\t0.5\t+0.002\t\tthe same Geiger on small caps, straight. HOT today: small caps · chart API · fresh\nthe heat\t\t9.75\t+0.049\t\tthe shares add to the heat (hand check: Σ reading × weight ÷ 9.75)",
+  "events": "break\tfund\t2W pivot (P1)\tpivot bar · confirmed\tclose that broke it\theat day before\theat day of\t+5\t+10\t+20\tSPY next 20\tQQQ next 20\twho moved most, day before → day of\n2 Oct 2026\tQQQ\t748.65\t24 May 2026 · 4 Jul 2026\t749.58\t−0.02\t+0.02\t—\t—\t—\t—\t—\tS&P (SPY Geiger) +0.32, equal-weight vs index −0.23, small vs large −0.18, small caps (IWM Geiger) +0.13\n4 Aug 2026\tSPY\t760.40\t24 May 2026 · 4 Jul 2026\t771.33\t+0.16\t+0.14\t+0.20\t+0.17\t−0.04\t−1.2%\t−2.2%\tup/down volume −1.60, advance/decline −1.14, TRIN −1.09, Nasdaq (QQQ Geiger) +0.40\n15 Apr 2026\tQQQ\t636.60\t18 Jan 2026 · 28 Feb 2026\t637.40\t+0.27\t+0.31\t+0.21\t+0.23\t+0.26\t+6.0%\t+12.1%\tTRIN −0.82, advance/decline +0.77, concentration −0.22, Nasdaq (QQQ Geiger) +0.21\n15 Apr 2026\tSPY\t697.84\t18 Jan 2026 · 28 Feb 2026\t699.94\t+0.27\t+0.31\t+0.21\t+0.23\t+0.26\t+6.0%\t+12.1%\tTRIN −0.82, advance/decline +0.77, concentration −0.22, Nasdaq (QQQ Geiger) +0.21\n24 Dec 2025\tSPY\t689.70\t26 Oct 2025 · 6 Dec 2025\t690.38\t+0.34\t+0.36\t+0.37\t+0.44\t+0.40\t+0.3%\t+0.3%\tlong bonds (TLT) +0.23, credit (HYG) +0.15, defensives −0.14, VIX term +0.11\n27 Jun 2025\tSPY\t613.23\t16 Feb 2025 · 29 Mar 2025\t614.91\t+0.34\t+0.34\t+0.28\t+0.22\t+0.28\t+3.6%\t+3.7%\tgold +0.19, defensives −0.11, VIX term +0.06\n25 Jun 2025\tQQQ\t540.81\t16 Feb 2025 · 29 Mar 2025\t541.16\t+0.25\t+0.38\t+0.42\t+0.30\t+0.33\t+4.5%\t+4.4%\tadvance/decline +1.72, up/down volume +1.37, defensives +0.34, TRIN −0.26\n18 Feb 2025\tQQQ\t539.15\t8 Dec 2024 · 18 Jan 2025\t539.37\t+0.23\t+0.27\t+0.07\t−0.03\t−0.02\t−8.3%\t−12.0%\tadvance/decline +0.53, TRIN −0.45, up/down volume +0.32, bitcoin −0.24\n23 Jan 2025\tSPY\t609.07\t24 Nov 2024 · 4 Jan 2025\t609.75\t+0.28\t+0.23\t+0.19\t+0.17\t+0.04\t−1.6%\t−1.2%\tup/down volume −0.97, advance/decline −0.61, long bonds (TLT) −0.14, concentration −0.13\n6 Nov 2024\tQQQ\t503.52\t7 Jul 2024 · 17 Aug 2024\t505.58\t+0.22\t+0.39\t+0.29\t+0.29\t+0.41\t+2.6%\t+3.2%\tTRIN +0.53, VIX +0.47, S&P (SPY Geiger) +0.44, gold +0.40",
+  "errors": [],
+  "nonGet": {
+   "blocked": 0,
+   "allowed": 0,
+   "urls": []
+  }
+ }
+}

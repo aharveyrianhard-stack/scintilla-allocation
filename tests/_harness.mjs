@@ -24,7 +24,7 @@ export async function startServer() {
   return { server, port: server.address().port, url: `http://127.0.0.1:${server.address().port}/` };
 }
 /* opts.allowPost: a predicate(url) for the one write path a test lets through (it is still counted in nonGet.allowed) */
-export async function openPage({ width = 1680, height = 1050, allowPost = null, storage = null } = {}) {
+export async function openPage({ width = 1680, height = 1050, allowPost = null, storage = null, path: pagePath = "" } = {}) {   /* HEAT1: pagePath opens a page other than index.html on the same local server */
   const srv = await startServer();
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width, height } });
@@ -33,7 +33,7 @@ export async function openPage({ width = 1680, height = 1050, allowPost = null, 
   const errors = [], nonGet = { blocked: 0, allowed: 0, urls: [] };
   await page.route("**/*", (r) => { const m = r.request().method(); if (m !== "GET") { nonGet.urls.push(m + " " + r.request().url()); if (allowPost && allowPost(r.request().url())) { nonGet.allowed++; return r.continue(); } nonGet.blocked++; return r.abort(); } r.continue(); });
   page.on("pageerror", (e) => errors.push(String(e)));
-  await page.goto(srv.url, { waitUntil: "networkidle", timeout: 180000 }); await page.waitForTimeout(2500);
+  await page.goto(srv.url + pagePath, { waitUntil: "networkidle", timeout: 180000 }); await page.waitForTimeout(2500);
   const close = async () => { await browser.close(); srv.server.close(); };
   return { page, browser, errors, nonGet, close, url: srv.url };
 }
