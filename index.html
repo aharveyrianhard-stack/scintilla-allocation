@@ -388,6 +388,7 @@ async function sbGetPaged(path, pageSize=1000, maxPages=12){
   }
   throw new Error('paged read exceeded '+maxPages+' pages');
 }
+let PUTCALL=null, SKEWLAST=null;   // R3: the IB collector's market put/call (newest measured session) · the newest VIX-table row that carries a SKEW
 let MKTINT=null, MKTBREADTH={}, PEERS={}, QUOTES_DB={};   // FMP algorithmic peers, per fundamentals-spec   // broad-market series — sourced OUTSIDE the hub universe   // market_internals — the real advance/decline line
 let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={}, SR_FALLBACK={d:null,byEtf:{}};   // industry = the sub-sector axis (93 groups, 317 names)   // ticker -> our sector key ; sector key -> the rotation read
 /* SECTOR ROTATION, ACTUALLY WIRED IN (2026-08-11).
@@ -1004,6 +1005,13 @@ async function refreshSSOT(){
     if(rows[0]){ MKTINT=rows[0]; const old=(Date.now()-Date.parse(MKTINT.asof))/864e5>5; if(old) MKTINT=null;
       spineSet('market_internals',rows[0].asof,old?'STALE':'LIVE','A/D '+rows[0].advancers+'/'+rows[0].decliners+' · '+rows[0].universe+' issues @ '+rows[0].asof+(old?' — too old to vote':'')); }
   }).catch(e=>spineSet('market_internals',null,'FALLBACK','read failed')));
+  /* R3 (6 Oct 2026) — PUT / CALL from the IB collector (com.scintilla.ibkr-putcall → putcall_daily, scope MARKET_ESTIMATE). The row reads the
+     newest session that MEASURED something (measured > 0): a Monday with the gateway logged out writes measured 0, and a four-day-old real
+     reading beats an empty one from yesterday. The empty sessions newer than it are counted and said. */
+  J.push(sbGet('putcall_daily?select=session_et,put_call,put_vol,call_vol,measured,of_members,as_of,computed_at&scope=eq.MARKET_ESTIMATE&order=session_et.desc&limit=30').then(rows=>{
+    PUTCALL=putcallPick(rows);
+  }).catch(e=>{ PUTCALL={row:null,error:e.message,empty:[],sessions:0}; }));
+  J.push(sbGet('vix_term?select=date,skew&skew=not.is.null&order=date.desc&limit=1').then(rows=>{ SKEWLAST=rows[0]||null; }).catch(()=>{ SKEWLAST=null; }));
   // SECTOR ROTATION — membership + the rotation tool's own published read
   J.push((async()=>{
     const mem=await sbGetPaged('ticker_membership?select=ticker,group_key&kind=eq.sector&order=ticker.asc');
@@ -1369,6 +1377,16 @@ const clamp = x => Math.max(-1, Math.min(1, x));
 // diversification: AUTO scales names with regime — HOT (defend) concentrate in best few, COLD (deploy) cast wider for the rebound.
 function namesPer(h){ const cap=S.maxNames??6; let n; if(!S.divAuto){ n=S.nPer; } else { const base=2 + (1-(h??0))/2 * 3; n=Math.round(base - (S.concLean??0)*1.5); } return Math.max(1, Math.min(cap, n)); } // AUTO: 2+(1-heat)/2*3, leaned by concLean, clamped 1..maxNames
 function f2v(x){return x==null?'—':(x>=0?'+':'')+(+x).toFixed(2)}
+/* R3 — which put/call session the row reads: the newest with measured > 0 and a ratio; `empty` = the newer sessions that measured nothing */
+function putcallPick(rows){
+  const list=(rows||[]).slice().sort((a,b)=>String(b.session_et).localeCompare(String(a.session_et)));
+  const ok=r=>r&&+r.measured>0&&r.put_call!=null&&isFinite(+r.put_call);
+  const i=list.findIndex(ok);
+  return {row:i<0?null:list[i], empty:(i<0?list:list.slice(0,i)).map(r=>r.session_et), sessions:list.filter(ok).length, newest:list[0]||null};
+}
+window.putcallPick=putcallPick;
+function daysOld(iso){ return iso?(Date.now()-Date.parse(iso))/864e5:null; }
+function ageWord(d){ return d==null?'':d<1?'today':d<1.5?'1 day old':Math.round(d)+' days old'; }
 function voters(){
   const v = [];
   const idx = sym => gv(sym);                                            // SSOT: composite_staged
@@ -1432,8 +1450,17 @@ function voters(){
   v.push({key:'CURVE', speed:0.85, name:'YIELD CURVE (10y − 2y)',
           sub:(c10!=null&&c2!=null)?((c10-c2).toFixed(2)+'% · negative = inverted'):'— not read',
           val:(c10!=null&&c2!=null)?clamp((c10-c2)/1.5):null});
-  // PUT/CALL — wired and empty on purpose. No data in put_call_history after 2019-10-04.
-  v.push({key:'PCC', speed:0.85, name:'PUT / CALL (breadth)', sub:'no data in the database after 2019-10-04 — wired, contributing nothing', val:null});
+  /* PUT / CALL — R3 (6 Oct 2026): the IB collector's own measurement (putcall_daily, scope MARKET_ESTIMATE), no longer put_call_history
+     (whose newest row is 2019-10-04). The row shows the ratio, its session, how many names were measured and its age. Weight stays 0 and it has
+     NO place on the −1…+1 scale yet: a level has to come from this number's own history, and the collector has only a handful of sessions. */
+  { const pcr=PUTCALL&&PUTCALL.row, pcAge=pcr?daysOld(pcr.as_of||pcr.session_et):null;
+    v.push({key:'PCC', speed:0.85, name:'PUT / CALL (IB, market estimate)', val:null,
+            reading:pcr?+pcr.put_call:null, show:pcr?(+pcr.put_call).toFixed(2):null, asof:pcr?pcr.session_et:null,
+            why:pcr?null:(PUTCALL&&PUTCALL.error?'the IB put/call table could not be read ('+PUTCALL.error+')':'the IB collector has no session that measured anything yet'),
+            sub:pcr?('puts ÷ calls '+(+pcr.put_call).toFixed(3)+' · session '+pcr.session_et+' · measured '+pcr.measured+' of '+pcr.of_members+' names · '+ageWord(pcAge)
+                     +(PUTCALL.empty.length?' · '+PUTCALL.empty.length+' newer session'+(PUTCALL.empty.length>1?'s':'')+' measured nothing ('+PUTCALL.empty.join(', ')+': the gateway was logged out)':'')
+                     +' · reading only: weight 0, and no hot/cold level until it has its own history ('+PUTCALL.sessions+' measured sessions so far)')
+                    :'— no measured session in the IB put/call table'}); }
   /* SKEW — how expensive out-of-the-money puts are against calls. It answers the question a
      put/call ratio is read for, and unlike a contract count it does not lurch on one large hedge.
      SLOW: this is a sentiment/regime reading, not an intraday one. */
@@ -1653,7 +1680,7 @@ function render(){
     const val = v.val == null ? 0 : v.val;
     row.innerHTML = `<div class="gname">${v.name}<small>${v.sub}</small></div>
       <div class="barwrap"><div class="mid"></div><div class="bar"></div></div>
-      <div class="gval">${v.val==null?'—':(val>=0?'+':'')+val.toFixed(2)}</div>
+      <div class="gval"${v.val==null&&v.show?' title="the reading itself — it has no place on the −1…+1 scale yet"':''}>${v.val==null?(v.show?v.show+'<small style="display:block;font-size:9px;color:var(--dim);font-weight:400">ratio</small>':'—'):(val>=0?'+':'')+val.toFixed(2)}</div>
       <div class="wt"><input type="range" min="0" max="1" step="0.25" value="${S.wts[v.key]??0}"><span>w ${S.wts[v.key]??0}</span></div>`;
     barCSS(row.querySelector('.bar'), val);
     row.querySelector('input').oninput = e => { S.wts[v.key] = +e.target.value; save(); render(); };
