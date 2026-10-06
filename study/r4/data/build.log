@@ -1,0 +1,125 @@
+0s served 590
+2s 10y bars {
+  D: 1300,
+  '3D': 800,
+  W: 800,
+  D_from: '2021-08-02',
+  D_to: '2026-10-05'
+} vix D 1300
+2s multi 1d 25 / 590
+3s multi 1d 50 / 590
+4s multi 1d 75 / 590
+5s multi 1d 100 / 590
+5s multi 1d 125 / 590
+6s multi 1d 150 / 590
+7s multi 1d 175 / 590
+7s multi 1d 200 / 590
+8s multi 1d 225 / 590
+9s multi 1d 250 / 590
+9s multi 1d 275 / 590
+11s multi 1d 300 / 590
+11s multi 1d 325 / 590
+12s multi 1d 350 / 590
+13s multi 1d 375 / 590
+14s multi 1d 400 / 590
+14s multi 1d 425 / 590
+15s multi 1d 450 / 590
+16s multi 1d 475 / 590
+16s multi 1d 500 / 590
+17s multi 1d 525 / 590
+18s multi 1d 550 / 590
+19s multi 1d 575 / 590
+20s multi 1d 590 / 590
+20s multi 3d 25 / 590
+21s multi 3d 50 / 590
+21s multi 3d 75 / 590
+22s multi 3d 100 / 590
+22s multi 3d 125 / 590
+23s multi 3d 150 / 590
+23s multi 3d 175 / 590
+24s multi 3d 200 / 590
+24s multi 3d 225 / 590
+25s multi 3d 250 / 590
+25s multi 3d 275 / 590
+26s multi 3d 300 / 590
+26s multi 3d 325 / 590
+27s multi 3d 350 / 590
+27s multi 3d 375 / 590
+27s multi 3d 400 / 590
+28s multi 3d 425 / 590
+28s multi 3d 450 / 590
+28s multi 3d 475 / 590
+29s multi 3d 500 / 590
+29s multi 3d 525 / 590
+30s multi 3d 550 / 590
+30s multi 3d 575 / 590
+30s multi 3d 590 / 590
+31s multi W 25 / 590
+32s multi W 50 / 590
+33s multi W 75 / 590
+33s multi W 100 / 590
+34s multi W 125 / 590
+34s multi W 150 / 590
+35s multi W 175 / 590
+35s multi W 200 / 590
+36s multi W 225 / 590
+37s multi W 250 / 590
+37s multi W 275 / 590
+37s multi W 300 / 590
+38s multi W 325 / 590
+39s multi W 350 / 590
+39s multi W 375 / 590
+39s multi W 400 / 590
+40s multi W 425 / 590
+40s multi W 450 / 590
+41s multi W 475 / 590
+42s multi W 500 / 590
+42s multi W 525 / 590
+42s multi W 550 / 590
+43s multi W 575 / 590
+43s multi W 590 / 590
+47s comps 590
+47s breadth sessions 800 companies 454
+47s index + 10y Geigers
+53s company Geigers 450
+53s osc + vix
+53s two dials replayed 502 sessions; with both dials: 502
+53s breakouts {
+  breakouts: 9,
+  scored: 9,
+  followedThrough: 6,
+  failed: 3,
+  rule: "followed through = the broken fund closed higher twenty sessions after the break (HEAT1's +20 column); the heat 'holds back' at or above +0.2 (its STRETCHED rung), the two dials 'hold back' under 50% invested and 'add' at or above 70%",
+  heat: {
+    holdBack_followed: 6,
+    holdBack_failed: 2,
+    hold_followed: 0,
+    hold_failed: 1,
+    add_followed: 0,
+    add_failed: 0,
+    meanFollowed: 0.34791122338569935,
+    meanFailed: 0.21082549586089128,
+    meanRungFollowed: 30,
+    meanRungFailed: 36.666666666666664
+  },
+  two: {
+    holdBack_followed: 0,
+    holdBack_failed: 0,
+    hold_followed: 1,
+    hold_failed: 0,
+    add_followed: 5,
+    add_failed: 3,
+    meanInvFollowed: 80,
+    meanInvFailed: 77.66666666666667,
+    meanRegimeFollowed: 0.6000333333333333,
+    meanRegimeFailed: 0.48629999999999995,
+    meanStretchFollowed: 0.3780833333333333,
+    meanStretchFailed: 0.12549999999999997
+  },
+  pairs: {
+    heat: { pairs: 6, rightOrder: 0 },
+    two: { pairs: 18, rightOrder: 11 },
+    total: 18
+  }
+}
+53s tree 63 cohorts; 9 cold with growth

@@ -1,0 +1,146 @@
+{
+ "today": {
+  "session": "2026-10-05",
+  "regime": 0.0977,
+  "regimeWord": "RANGE OR RETEST · CREDIT NOT CONFIRMING",
+  "stretch": 0.0444,
+  "stretchWord": "MIDDLING — hold",
+  "invested": 49,
+  "heat": 0.0811,
+  "heatRung": 50,
+  "breadth": {
+   "pct200": 47.6,
+   "pct50": 34.7,
+   "adv": 256,
+   "dec": 193,
+   "ad": 10277,
+   "n": 453
+  },
+  "ten": {
+   "yield": 5.31,
+   "fixed": -1,
+   "ownGeiger": 0.947,
+   "ownPct": 0.988,
+   "inverted": -0.947
+  },
+  "vix": {
+   "vix": 15.52,
+   "base": 15.84,
+   "ratio": -0.02,
+   "spike": false,
+   "lastSpike": "2026-03-30",
+   "since": 130,
+   "peak": null,
+   "decay": null,
+   "read": 0.0577
+  },
+  "live": {
+   "vix": {
+    "price": 15.01,
+    "session": "2026-10-06",
+    "observed": "2026-10-06T18:56:46.000Z",
+    "vsBase": -0.052
+   },
+   "tenYear": {
+    "price": 5.272,
+    "session": "2026-10-06",
+    "observed": "2026-10-06T18:56:34.000Z"
+   },
+   "quotes": {
+    "SPY": 780.16,
+    "QQQ": 760.97,
+    "SMH": 635.145
+   },
+   "read_utc": "2026-10-06T18:57:49.410Z"
+  }
+ },
+ "check": {
+  "breakouts": 9,
+  "scored": 9,
+  "followedThrough": 6,
+  "failed": 3,
+  "rule": "followed through = the broken fund closed higher twenty sessions after the break (HEAT1's +20 column); the heat 'holds back' at or above +0.2 (its STRETCHED rung), the two dials 'hold back' under 50% invested and 'add' at or above 70%",
+  "heat": {
+   "holdBack_followed": 6,
+   "holdBack_failed": 2,
+   "hold_followed": 0,
+   "hold_failed": 1,
+   "add_followed": 0,
+   "add_failed": 0,
+   "meanFollowed": 0.34791122338569935,
+   "meanFailed": 0.21082549586089128,
+   "meanRungFollowed": 30,
+   "meanRungFailed": 36.666666666666664
+  },
+  "two": {
+   "holdBack_followed": 0,
+   "holdBack_failed": 0,
+   "hold_followed": 1,
+   "hold_failed": 0,
+   "add_followed": 5,
+   "add_failed": 3,
+   "meanInvFollowed": 80,
+   "meanInvFailed": 77.66666666666667,
+   "meanRegimeFollowed": 0.6000333333333333,
+   "meanRegimeFailed": 0.48629999999999995,
+   "meanStretchFollowed": 0.3780833333333333,
+   "meanStretchFailed": 0.12549999999999997
+  },
+  "pairs": {
+   "heat": {
+    "pairs": 6,
+    "rightOrder": 0
+   },
+   "two": {
+    "pairs": 18,
+    "rightOrder": 11
+   },
+   "total": 18
+  }
+ },
+ "summary": {
+  "sessions": 502,
+  "withBothDials": 502,
+  "from": "2024-10-03",
+  "to": "2026-10-05",
+  "investedMean": 74.91235059760956,
+  "heatRungMean": 41.29482071713147,
+  "regimeWords": {
+   "UPTREND, BROAD": 251,
+   "UPTREND, UNDER RESISTANCE": 119,
+   "RANGE OR RETEST": 54,
+   "DOWNTREND": 54,
+   "BREAKDOWN": 13,
+   "UPTREND, NARROW": 11
+  },
+  "stretchWords": {
+   "MIDDLING": 163,
+   "STRETCHED": 119,
+   "WASHED OUT": 107,
+   "DEEPLY WASHED OUT": 83,
+   "DEEPLY STRETCHED": 30
+  },
+  "creditFlagDays": 52,
+  "spikeDays": 49,
+  "spikes": 6,
+  "agree": 63
+ },
+ "coldWithGrowth": [
+  "AUTONOMY_EVTOL",
+  "AUTOS_EV",
+  "ASSET_MANAGERS",
+  "CRITICAL_MINERALS",
+  "TRANSPORT",
+  "NEOCLOUDS_MINERS",
+  "SPACE",
+  "REGIONAL_BANKS",
+  "PACKAGING"
+ ],
+ "macroProof": {
+  "D": 1300,
+  "3D": 800,
+  "W": 800,
+  "D_from": "2021-08-02",
+  "D_to": "2026-10-05"
+ }
+}

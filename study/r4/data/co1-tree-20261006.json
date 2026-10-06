@@ -1,0 +1,1966 @@
+{
+ "built_utc": "2026-10-06T15:44:29.139283Z",
+ "source": "hub branch hub/co1-cohorts-20261006 @12a4bc6 \u00b7 deliverables/20261006/cohort-proposal/proposal.json",
+ "headings": {
+  "MARKET": {
+   "label": "THE MARKET",
+   "parent": null
+  },
+  "AI": {
+   "label": "AI",
+   "parent": "MARKET",
+   "gics": "Technology (mostly)",
+   "why": "Alan: 'we have AI'. The theme heading; its cohorts also hang under the sector they came from."
+  },
+  "SEMIS": {
+   "label": "SEMICONDUCTORS",
+   "parent": "TECH",
+   "gics": "Technology",
+   "why": "the open spine is SMH/SOXX/XSD holdings plus the FMP industry 'Semiconductors'"
+  },
+  "SOFTWARE_INTERNET": {
+   "label": "SOFTWARE & INTERNET",
+   "parent": "TECH",
+   "gics": "Technology / Communication Services"
+  },
+  "ENERGY_POWER": {
+   "label": "ENERGY & POWER",
+   "parent": "MARKET",
+   "gics": "Energy + Utilities",
+   "why": "Alan: 'AI powertrain \u2026 is a mix of AI and energy'"
+  },
+  "FRONTIER": {
+   "label": "FRONTIER",
+   "parent": "MARKET",
+   "gics": "Industrials / Technology",
+   "why": "THEMATIC split by topic: space, quantum, autonomy, defence tech"
+  },
+  "FINANCE": {
+   "label": "FINANCE",
+   "parent": "MARKET",
+   "gics": "Financial Services"
+  },
+  "HEALTH": {
+   "label": "HEALTH",
+   "parent": "MARKET",
+   "gics": "Healthcare"
+  },
+  "MATERIALS_METALS": {
+   "label": "MATERIALS & METALS",
+   "parent": "MARKET",
+   "gics": "Basic Materials"
+  },
+  "INDUSTRIAL": {
+   "label": "INDUSTRIAL",
+   "parent": "MARKET",
+   "gics": "Industrials"
+  },
+  "CONSUMER": {
+   "label": "CONSUMER",
+   "parent": "MARKET",
+   "gics": "Consumer Cyclical / Defensive / Communication"
+  },
+  "CRYPTO": {
+   "label": "CRYPTO",
+   "parent": "MARKET",
+   "gics": "none (coins + equities)"
+  },
+  "INTERNATIONAL": {
+   "label": "INTERNATIONAL",
+   "parent": "MARKET",
+   "gics": "none",
+   "why": "INTL split by region and listing; the index funds of each region are its reference lines"
+  },
+  "INDEX_LAYER": {
+   "label": "INDEX LAYER (reference lines)",
+   "parent": "MARKET",
+   "gics": "none"
+  },
+  "TECH": {
+   "label": "TECHNOLOGY (sector)",
+   "parent": "MARKET",
+   "gics": "Technology"
+  },
+  "REAL_ESTATE": {
+   "label": "REAL ESTATE (sector)",
+   "parent": "MARKET",
+   "gics": "Real Estate"
+  }
+ },
+ "cohorts": [
+  {
+   "id": "AI_ACCELERATORS",
+   "label": "AI ACCELERATORS & LOGIC",
+   "parents": [
+    "AI",
+    "SEMIS"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "ALAB",
+    "AMD",
+    "ARM",
+    "AVGO",
+    "CBRS",
+    "GFS",
+    "INTC",
+    "MRVL",
+    "NVDA",
+    "QCOM",
+    "RMBS",
+    "SIMO",
+    "TSM"
+   ],
+   "n": 13,
+   "moves_together": {
+    "n_priced": 12,
+    "avg_pair_corr": 0.546,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.182,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "MEMORY_STORAGE",
+   "label": "MEMORY & STORAGE",
+   "parents": [
+    "AI",
+    "SEMIS"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "MU",
+    "NTAP",
+    "P",
+    "SNDK",
+    "STX",
+    "WDC"
+   ],
+   "n": 6,
+   "moves_together": {
+    "n_priced": 6,
+    "avg_pair_corr": 0.495,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.193,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "SEMICAP_EDA",
+   "label": "SEMICAP, MATERIALS & CHIP DESIGN",
+   "parents": [
+    "SEMIS",
+    "AI"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "ACMR",
+    "AMAT",
+    "AMKR",
+    "ASML",
+    "CDNS",
+    "ENTG",
+    "FORM",
+    "KLAC",
+    "LRCX",
+    "ONTO",
+    "SNPS",
+    "TER",
+    "UCTT"
+   ],
+   "n": 13,
+   "moves_together": {
+    "n_priced": 13,
+    "avg_pair_corr": 0.641,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.174,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "ANALOG_RF_POWER",
+   "label": "ANALOG, RF & POWER SEMIS",
+   "parents": [
+    "SEMIS"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "ADI",
+    "MCHP",
+    "MPWR",
+    "NVTS",
+    "NXPI",
+    "ON",
+    "QRVO",
+    "STM",
+    "SWKS",
+    "TSEM",
+    "TXN",
+    "VSH"
+   ],
+   "n": 12,
+   "moves_together": {
+    "n_priced": 11,
+    "avg_pair_corr": 0.623,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.166,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "AI_NETWORKING_OPTICAL",
+   "label": "AI NETWORKING & OPTICAL",
+   "parents": [
+    "AI"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "AAOI",
+    "ANET",
+    "APH",
+    "AXTI",
+    "CIEN",
+    "COHR",
+    "CRDO",
+    "CSCO",
+    "FN",
+    "GLW",
+    "LITE",
+    "POET",
+    "TEL",
+    "UI"
+   ],
+   "n": 14,
+   "moves_together": {
+    "n_priced": 14,
+    "avg_pair_corr": 0.438,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.159,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "AI_SERVERS_DC_KIT",
+   "label": "AI SERVERS & DATACENTER KIT",
+   "parents": [
+    "AI"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "DELL",
+    "SHAZ",
+    "SMCI",
+    "VRT"
+   ],
+   "n": 4,
+   "moves_together": {
+    "n_priced": 4,
+    "avg_pair_corr": 0.441,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.3,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "NEOCLOUDS_MINERS",
+   "label": "NEOCLOUDS & AI MINERS",
+   "parents": [
+    "AI",
+    "CRYPTO"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "APLD",
+    "BTDR",
+    "CIFR",
+    "CORZ",
+    "CRWV",
+    "HIVE",
+    "HUT",
+    "IREN",
+    "MARA",
+    "NBIS",
+    "RIOT",
+    "WULF"
+   ],
+   "n": 12,
+   "moves_together": {
+    "n_priced": 12,
+    "avg_pair_corr": 0.666,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.182,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "DC_PROPERTY",
+   "label": "DATACENTER PROPERTY",
+   "parents": [
+    "AI",
+    "REAL_ESTATE"
+   ],
+   "home_sector": "Real Estate",
+   "members": [
+    "DLR",
+    "EQIX",
+    "GDS",
+    "IRM"
+   ],
+   "n": 4,
+   "moves_together": {
+    "n_priced": 4,
+    "avg_pair_corr": 0.469,
+    "sector_avg_pair_corr": 0.346,
+    "null95_same_size": 0.3,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "AI_SOFTWARE_DATA",
+   "label": "AI SOFTWARE & DATA PLATFORMS",
+   "parents": [
+    "AI",
+    "SOFTWARE_INTERNET"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "ADBE",
+    "APP",
+    "CRM",
+    "DDOG",
+    "FROG",
+    "INTU",
+    "MDB",
+    "MSFT",
+    "NOW",
+    "NTNX",
+    "ORCL",
+    "PATH",
+    "PLTR",
+    "SNOW",
+    "TWLO",
+    "ZETA"
+   ],
+   "n": 16,
+   "moves_together": {
+    "n_priced": 16,
+    "avg_pair_corr": 0.451,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.176,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "CYBER",
+   "label": "CYBERSECURITY",
+   "parents": [
+    "SOFTWARE_INTERNET"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "CRWD",
+    "FTNT",
+    "NET",
+    "OKTA",
+    "PANW",
+    "S",
+    "ZS"
+   ],
+   "n": 7,
+   "moves_together": {
+    "n_priced": 7,
+    "avg_pair_corr": 0.636,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.245,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "AI_POWERTRAIN",
+   "label": "AI POWERTRAIN",
+   "parents": [
+    "AI",
+    "ENERGY_POWER"
+   ],
+   "home_sector": "Utilities",
+   "members": [
+    "BE",
+    "CCJ",
+    "CEG",
+    "EOSE",
+    "GEV",
+    "LEU",
+    "NRG",
+    "OKLO",
+    "SMR",
+    "TLN",
+    "UUUU",
+    "VST"
+   ],
+   "n": 12,
+   "moves_together": {
+    "n_priced": 12,
+    "avg_pair_corr": 0.5,
+    "sector_avg_pair_corr": 0.515,
+    "null95_same_size": 0.182,
+    "verdict": "moves together, but no tighter than its sector"
+   }
+  },
+  {
+   "id": "ROBOTICS_AUTOMATION",
+   "label": "ROBOTICS & AUTOMATION",
+   "parents": [
+    "AI",
+    "INDUSTRIAL"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "AUR",
+    "ISRG",
+    "OUST",
+    "SERV",
+    "SYM"
+   ],
+   "n": 5,
+   "moves_together": {
+    "n_priced": 5,
+    "avg_pair_corr": 0.298,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.197,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "SPACE",
+   "label": "SPACE",
+   "parents": [
+    "FRONTIER"
+   ],
+   "home_sector": "Industrials",
+   "members": [
+    "ASTS",
+    "BKSY",
+    "LUNR",
+    "PL",
+    "RDW",
+    "RKLB",
+    "SATL",
+    "SIDU",
+    "SPCX",
+    "SPIR",
+    "VSAT"
+   ],
+   "n": 11,
+   "moves_together": {
+    "n_priced": 10,
+    "avg_pair_corr": 0.662,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.179,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "QUANTUM",
+   "label": "QUANTUM",
+   "parents": [
+    "FRONTIER"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "IONQ",
+    "QBTS",
+    "QUBT",
+    "RGTI"
+   ],
+   "n": 4,
+   "moves_together": {
+    "n_priced": 4,
+    "avg_pair_corr": 0.868,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.3,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "AUTONOMY_EVTOL",
+   "label": "AUTONOMY, eVTOL & DRONES",
+   "parents": [
+    "FRONTIER"
+   ],
+   "home_sector": "Industrials",
+   "members": [
+    "ACHR",
+    "AUR",
+    "EH",
+    "EVTL",
+    "JOBY",
+    "ONDS"
+   ],
+   "n": 6,
+   "moves_together": {
+    "n_priced": 6,
+    "avg_pair_corr": 0.456,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.193,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "DEFENCE_TECH",
+   "label": "DEFENCE TECH",
+   "parents": [
+    "FRONTIER",
+    "INDUSTRIAL"
+   ],
+   "home_sector": "Industrials",
+   "members": [
+    "AVAV",
+    "AXON",
+    "KTOS",
+    "LDOS",
+    "PLTR"
+   ],
+   "n": 5,
+   "moves_together": {
+    "n_priced": 5,
+    "avg_pair_corr": 0.434,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.197,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "MAG7",
+   "label": "MAGNIFICENT 7",
+   "parents": [
+    "MARKET"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "AAPL",
+    "AMZN",
+    "GOOG",
+    "GOOGL",
+    "META",
+    "MSFT",
+    "NVDA",
+    "TSLA"
+   ],
+   "n": 8,
+   "moves_together": {
+    "n_priced": 8,
+    "avg_pair_corr": 0.255,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.207,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "INTERNET_PLATFORMS",
+   "label": "INTERNET & CONSUMER PLATFORMS",
+   "parents": [
+    "SOFTWARE_INTERNET",
+    "CONSUMER"
+   ],
+   "home_sector": "Communication Services",
+   "members": [
+    "ABNB",
+    "AMZN",
+    "BKNG",
+    "DASH",
+    "DKNG",
+    "GOOG",
+    "GOOGL",
+    "LYFT",
+    "META",
+    "MTCH",
+    "NFLX",
+    "PINS",
+    "RBLX",
+    "RDDT",
+    "SNAP",
+    "SPOT",
+    "TTWO",
+    "UBER"
+   ],
+   "n": 18,
+   "moves_together": {
+    "n_priced": 18,
+    "avg_pair_corr": 0.315,
+    "sector_avg_pair_corr": 0.182,
+    "null95_same_size": 0.149,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "PAYMENTS_FINTECH",
+   "label": "PAYMENTS & FINTECH",
+   "parents": [
+    "FINANCE",
+    "SOFTWARE_INTERNET"
+   ],
+   "home_sector": "Financial Services",
+   "members": [
+    "AFRM",
+    "AXP",
+    "COF",
+    "FIS",
+    "GPN",
+    "HOOD",
+    "MA",
+    "NU",
+    "PAYC",
+    "PYPL",
+    "SOFI",
+    "SYF",
+    "TOST",
+    "V",
+    "XYZ"
+   ],
+   "n": 15,
+   "moves_together": {
+    "n_priced": 15,
+    "avg_pair_corr": 0.365,
+    "sector_avg_pair_corr": 0.238,
+    "null95_same_size": 0.178,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "CRYPTO_EQUITIES",
+   "label": "CRYPTO EQUITIES",
+   "parents": [
+    "CRYPTO"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "BTDR",
+    "CIFR",
+    "COIN",
+    "CORZ",
+    "HIVE",
+    "HOOD",
+    "HUT",
+    "IREN",
+    "MARA",
+    "MSTR",
+    "RIOT",
+    "WULF"
+   ],
+   "n": 12,
+   "moves_together": {
+    "n_priced": 12,
+    "avg_pair_corr": 0.563,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.182,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "NUCLEAR_URANIUM",
+   "label": "NUCLEAR & URANIUM",
+   "parents": [
+    "ENERGY_POWER"
+   ],
+   "home_sector": "Energy",
+   "members": [
+    "CCJ",
+    "LEU",
+    "OKLO",
+    "SMR",
+    "UUUU"
+   ],
+   "n": 5,
+   "moves_together": {
+    "n_priced": 5,
+    "avg_pair_corr": 0.795,
+    "sector_avg_pair_corr": 0.221,
+    "null95_same_size": 0.197,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "SOLAR_RENEWABLE",
+   "label": "SOLAR & RENEWABLE",
+   "parents": [
+    "ENERGY_POWER"
+   ],
+   "home_sector": "Energy",
+   "members": [
+    "AMRC",
+    "ENPH",
+    "FSLR",
+    "NXT",
+    "RUN",
+    "SEDG"
+   ],
+   "n": 6,
+   "moves_together": {
+    "n_priced": 6,
+    "avg_pair_corr": 0.558,
+    "sector_avg_pair_corr": 0.221,
+    "null95_same_size": 0.193,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "OIL_UPSTREAM",
+   "label": "OIL & GAS \u00b7 PRODUCERS",
+   "parents": [
+    "ENERGY_POWER"
+   ],
+   "home_sector": "Energy",
+   "members": [
+    "COP",
+    "CVX",
+    "DVN",
+    "EOG",
+    "OXY",
+    "SM",
+    "XOM"
+   ],
+   "n": 7,
+   "moves_together": {
+    "n_priced": 7,
+    "avg_pair_corr": 0.849,
+    "sector_avg_pair_corr": 0.221,
+    "null95_same_size": 0.245,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "OIL_MIDSTREAM",
+   "label": "OIL & GAS \u00b7 PIPELINES",
+   "parents": [
+    "ENERGY_POWER"
+   ],
+   "home_sector": "Energy",
+   "members": [
+    "KMI",
+    "OKE",
+    "TRGP",
+    "WMB"
+   ],
+   "n": 4,
+   "moves_together": {
+    "n_priced": 4,
+    "avg_pair_corr": 0.753,
+    "sector_avg_pair_corr": 0.221,
+    "null95_same_size": 0.3,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "OIL_REFINERS",
+   "label": "OIL & GAS \u00b7 REFINERS",
+   "parents": [
+    "ENERGY_POWER"
+   ],
+   "home_sector": "Energy",
+   "members": [
+    "MPC",
+    "PSX",
+    "VLO"
+   ],
+   "n": 3,
+   "moves_together": {
+    "n_priced": 3,
+    "avg_pair_corr": 0.892,
+    "sector_avg_pair_corr": 0.221,
+    "null95_same_size": 0.319,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "OIL_SERVICES",
+   "label": "OIL & GAS \u00b7 SERVICES",
+   "parents": [
+    "ENERGY_POWER"
+   ],
+   "home_sector": "Energy",
+   "members": [
+    "BKR",
+    "FTI",
+    "SLB"
+   ],
+   "n": 3,
+   "moves_together": {
+    "n_priced": 3,
+    "avg_pair_corr": 0.56,
+    "sector_avg_pair_corr": 0.221,
+    "null95_same_size": 0.319,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "REGULATED_UTILITIES",
+   "label": "REGULATED UTILITIES",
+   "parents": [
+    "ENERGY_POWER"
+   ],
+   "home_sector": "Utilities",
+   "members": [
+    "AEE",
+    "AEP",
+    "ATO",
+    "CNP",
+    "D",
+    "DTE",
+    "DUK",
+    "ED",
+    "ES",
+    "ETR",
+    "EVRG",
+    "EXC",
+    "FE",
+    "LNT",
+    "NEE",
+    "NI",
+    "PCG",
+    "PEG",
+    "PNW",
+    "PPL",
+    "SO",
+    "SRE",
+    "WEC",
+    "XEL"
+   ],
+   "n": 24,
+   "moves_together": {
+    "n_priced": 24,
+    "avg_pair_corr": 0.689,
+    "sector_avg_pair_corr": 0.515,
+    "null95_same_size": 0.129,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "POWER_GENERATORS",
+   "label": "INDEPENDENT POWER",
+   "parents": [
+    "ENERGY_POWER"
+   ],
+   "home_sector": "Utilities",
+   "members": [
+    "CEG",
+    "NRG",
+    "TLN",
+    "VST"
+   ],
+   "n": 4,
+   "moves_together": {
+    "n_priced": 4,
+    "avg_pair_corr": 0.742,
+    "sector_avg_pair_corr": 0.515,
+    "null95_same_size": 0.3,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "GRID_ELECTRICAL",
+   "label": "GRID & ELECTRICAL EQUIPMENT",
+   "parents": [
+    "ENERGY_POWER",
+    "INDUSTRIAL"
+   ],
+   "home_sector": "Industrials",
+   "members": [
+    "AME",
+    "EMR",
+    "ETN",
+    "FIX",
+    "GEV",
+    "HUBB",
+    "NVT",
+    "PWR",
+    "VRT"
+   ],
+   "n": 9,
+   "moves_together": {
+    "n_priced": 9,
+    "avg_pair_corr": 0.647,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.168,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "BIG_BANKS_BROKERS",
+   "label": "BIG BANKS & BROKERS",
+   "parents": [
+    "FINANCE"
+   ],
+   "home_sector": "Financial Services",
+   "members": [
+    "BAC",
+    "C",
+    "GS",
+    "JPM",
+    "MS",
+    "PNC",
+    "SCHW",
+    "USB",
+    "WFC"
+   ],
+   "n": 9,
+   "moves_together": {
+    "n_priced": 9,
+    "avg_pair_corr": 0.544,
+    "sector_avg_pair_corr": 0.238,
+    "null95_same_size": 0.168,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "REGIONAL_BANKS",
+   "label": "REGIONAL BANKS",
+   "parents": [
+    "FINANCE"
+   ],
+   "home_sector": "Financial Services",
+   "members": [
+    "CATY",
+    "CVBF",
+    "FULT",
+    "HWC",
+    "SFNC",
+    "TRMK",
+    "UMBF"
+   ],
+   "n": 7,
+   "moves_together": {
+    "n_priced": 7,
+    "avg_pair_corr": 0.802,
+    "sector_avg_pair_corr": 0.238,
+    "null95_same_size": 0.245,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "EXCHANGES_DATA",
+   "label": "EXCHANGES & MARKET DATA",
+   "parents": [
+    "FINANCE"
+   ],
+   "home_sector": "Financial Services",
+   "members": [
+    "CME",
+    "ICE",
+    "MCO",
+    "SPGI"
+   ],
+   "n": 4,
+   "moves_together": {
+    "n_priced": 4,
+    "avg_pair_corr": 0.498,
+    "sector_avg_pair_corr": 0.238,
+    "null95_same_size": 0.3,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "ASSET_MANAGERS",
+   "label": "ASSET MANAGERS & ALTS",
+   "parents": [
+    "FINANCE"
+   ],
+   "home_sector": "Financial Services",
+   "members": [
+    "BLK",
+    "BNY",
+    "BX",
+    "KKR"
+   ],
+   "n": 4,
+   "moves_together": {
+    "n_priced": 4,
+    "avg_pair_corr": 0.556,
+    "sector_avg_pair_corr": 0.238,
+    "null95_same_size": 0.3,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "INSURANCE",
+   "label": "INSURANCE",
+   "parents": [
+    "FINANCE"
+   ],
+   "home_sector": "Financial Services",
+   "members": [
+    "AON",
+    "BRK-B",
+    "CB",
+    "MRSH",
+    "PGR",
+    "TRV"
+   ],
+   "n": 6,
+   "moves_together": {
+    "n_priced": 6,
+    "avg_pair_corr": 0.514,
+    "sector_avg_pair_corr": 0.238,
+    "null95_same_size": 0.193,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "BIG_PHARMA",
+   "label": "BIG PHARMA",
+   "parents": [
+    "HEALTH"
+   ],
+   "home_sector": "Healthcare",
+   "members": [
+    "ABBV",
+    "AMGN",
+    "BIIB",
+    "BMY",
+    "GILD",
+    "JNJ",
+    "LLY",
+    "MRK",
+    "PFE"
+   ],
+   "n": 9,
+   "moves_together": {
+    "n_priced": 9,
+    "avg_pair_corr": 0.469,
+    "sector_avg_pair_corr": 0.178,
+    "null95_same_size": 0.168,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "BIOTECH",
+   "label": "BIOTECH",
+   "parents": [
+    "HEALTH"
+   ],
+   "home_sector": "Healthcare",
+   "members": [
+    "ALNY",
+    "ARGX",
+    "HALO",
+    "KRYS",
+    "MRNA",
+    "PTGX",
+    "REGN",
+    "RVMD",
+    "TGTX",
+    "TWST",
+    "TXG",
+    "VRTX"
+   ],
+   "n": 12,
+   "moves_together": {
+    "n_priced": 12,
+    "avg_pair_corr": 0.237,
+    "sector_avg_pair_corr": 0.178,
+    "null95_same_size": 0.182,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "MEDTECH",
+   "label": "MEDTECH",
+   "parents": [
+    "HEALTH"
+   ],
+   "home_sector": "Healthcare",
+   "members": [
+    "ABT",
+    "BSX",
+    "DXCM",
+    "EW",
+    "GEHC",
+    "GKOS",
+    "ISRG",
+    "MDT",
+    "RMD",
+    "SYK"
+   ],
+   "n": 10,
+   "moves_together": {
+    "n_priced": 10,
+    "avg_pair_corr": 0.393,
+    "sector_avg_pair_corr": 0.178,
+    "null95_same_size": 0.179,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "TOOLS_DIAGNOSTICS",
+   "label": "LIFE-SCIENCE TOOLS & DIAGNOSTICS",
+   "parents": [
+    "HEALTH"
+   ],
+   "home_sector": "Healthcare",
+   "members": [
+    "DHR",
+    "IDXX",
+    "ILMN",
+    "NTRA",
+    "TMO"
+   ],
+   "n": 5,
+   "moves_together": {
+    "n_priced": 5,
+    "avg_pair_corr": 0.402,
+    "sector_avg_pair_corr": 0.178,
+    "null95_same_size": 0.197,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "HEALTH_SERVICES",
+   "label": "INSURERS & HEALTH SERVICES",
+   "parents": [
+    "HEALTH"
+   ],
+   "home_sector": "Healthcare",
+   "members": [
+    "BTSG",
+    "CI",
+    "CVS",
+    "ELV",
+    "HCA",
+    "HIMS",
+    "HUM",
+    "MCK",
+    "UNH"
+   ],
+   "n": 9,
+   "moves_together": {
+    "n_priced": 9,
+    "avg_pair_corr": 0.175,
+    "sector_avg_pair_corr": 0.178,
+    "null95_same_size": 0.168,
+    "verdict": "moves together, but no tighter than its sector"
+   }
+  },
+  {
+   "id": "PRECIOUS_METALS",
+   "label": "PRECIOUS METALS",
+   "parents": [
+    "MATERIALS_METALS"
+   ],
+   "home_sector": "Basic Materials",
+   "members": [
+    "AEM",
+    "AU",
+    "CDE",
+    "FNV",
+    "HL",
+    "KGC",
+    "NEM",
+    "PAAS",
+    "RGLD",
+    "WPM"
+   ],
+   "n": 10,
+   "moves_together": {
+    "n_priced": 10,
+    "avg_pair_corr": 0.85,
+    "sector_avg_pair_corr": 0.325,
+    "null95_same_size": 0.179,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "COPPER_STEEL",
+   "label": "COPPER & STEEL",
+   "parents": [
+    "MATERIALS_METALS"
+   ],
+   "home_sector": "Basic Materials",
+   "members": [
+    "CLF",
+    "FCX",
+    "NUE",
+    "RS",
+    "SCCO",
+    "STLD",
+    "TECK"
+   ],
+   "n": 7,
+   "moves_together": {
+    "n_priced": 7,
+    "avg_pair_corr": 0.5,
+    "sector_avg_pair_corr": 0.325,
+    "null95_same_size": 0.245,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "CRITICAL_MINERALS",
+   "label": "CRITICAL MINERALS & LITHIUM",
+   "parents": [
+    "MATERIALS_METALS"
+   ],
+   "home_sector": "Basic Materials",
+   "members": [
+    "ALB",
+    "CRML",
+    "LAC",
+    "MP",
+    "SQM",
+    "USAR"
+   ],
+   "n": 6,
+   "moves_together": {
+    "n_priced": 6,
+    "avg_pair_corr": 0.519,
+    "sector_avg_pair_corr": 0.325,
+    "null95_same_size": 0.193,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "CHEMICALS_BUILDING",
+   "label": "CHEMICALS & BUILDING MATERIALS",
+   "parents": [
+    "MATERIALS_METALS"
+   ],
+   "home_sector": "Basic Materials",
+   "members": [
+    "APD",
+    "CRH",
+    "CTVA",
+    "DOW",
+    "ECL",
+    "JCI",
+    "LIN",
+    "MLM",
+    "PPG",
+    "SHW",
+    "VMC"
+   ],
+   "n": 11,
+   "moves_together": {
+    "n_priced": 11,
+    "avg_pair_corr": 0.273,
+    "sector_avg_pair_corr": 0.325,
+    "null95_same_size": 0.166,
+    "verdict": "moves together, but no tighter than its sector"
+   }
+  },
+  {
+   "id": "DEFENCE_PRIMES",
+   "label": "AEROSPACE & DEFENCE PRIMES",
+   "parents": [
+    "INDUSTRIAL"
+   ],
+   "home_sector": "Industrials",
+   "members": [
+    "ATI",
+    "BA",
+    "GD",
+    "GE",
+    "HEI",
+    "HWM",
+    "LHX",
+    "LMT",
+    "MOG.A",
+    "NOC",
+    "RTX",
+    "TDG"
+   ],
+   "n": 12,
+   "moves_together": {
+    "n_priced": 12,
+    "avg_pair_corr": 0.406,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.182,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "MACHINERY_CAPGOODS",
+   "label": "MACHINERY & CAPITAL GOODS",
+   "parents": [
+    "INDUSTRIAL"
+   ],
+   "home_sector": "Industrials",
+   "members": [
+    "CAT",
+    "CMI",
+    "DE",
+    "FAST",
+    "GWW",
+    "HON",
+    "ITW",
+    "MMM",
+    "PCAR",
+    "PH",
+    "TT",
+    "URI"
+   ],
+   "n": 12,
+   "moves_together": {
+    "n_priced": 12,
+    "avg_pair_corr": 0.392,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.182,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "TRANSPORT",
+   "label": "RAIL, FREIGHT & AIRLINES",
+   "parents": [
+    "INDUSTRIAL"
+   ],
+   "home_sector": "Industrials",
+   "members": [
+    "CSX",
+    "DAL",
+    "FDX",
+    "NSC",
+    "ODFL",
+    "UAL",
+    "UNP",
+    "UPS",
+    "XPO"
+   ],
+   "n": 9,
+   "moves_together": {
+    "n_priced": 9,
+    "avg_pair_corr": 0.394,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.168,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "HOUSING",
+   "label": "HOUSING & HOME IMPROVEMENT",
+   "parents": [
+    "INDUSTRIAL",
+    "CONSUMER"
+   ],
+   "home_sector": "Consumer Cyclical",
+   "members": [
+    "DHI",
+    "HD",
+    "LOW"
+   ],
+   "n": 3,
+   "moves_together": {
+    "n_priced": 3,
+    "avg_pair_corr": 0.799,
+    "sector_avg_pair_corr": 0.193,
+    "null95_same_size": 0.319,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "BUSINESS_SERVICES",
+   "label": "BUSINESS SERVICES & PAYROLL",
+   "parents": [
+    "INDUSTRIAL"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "ADP",
+    "CTAS",
+    "PAYC",
+    "WM"
+   ],
+   "n": 4,
+   "moves_together": {
+    "n_priced": 4,
+    "avg_pair_corr": 0.437,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.3,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "AUTOS_EV",
+   "label": "AUTOS & EV",
+   "parents": [
+    "CONSUMER"
+   ],
+   "home_sector": "Consumer Cyclical",
+   "members": [
+    "F",
+    "GM",
+    "LCID",
+    "LI",
+    "NIO",
+    "QS",
+    "RIVN",
+    "TSLA",
+    "XPEV"
+   ],
+   "n": 9,
+   "moves_together": {
+    "n_priced": 9,
+    "avg_pair_corr": 0.305,
+    "sector_avg_pair_corr": 0.193,
+    "null95_same_size": 0.168,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "RETAIL",
+   "label": "RETAIL & E-COMMERCE (US)",
+   "parents": [
+    "CONSUMER"
+   ],
+   "home_sector": "Consumer Cyclical",
+   "members": [
+    "AMZN",
+    "COST",
+    "KR",
+    "NKE",
+    "ORLY",
+    "ROST",
+    "TGT",
+    "TJX",
+    "WMT"
+   ],
+   "n": 9,
+   "moves_together": {
+    "n_priced": 9,
+    "avg_pair_corr": 0.269,
+    "sector_avg_pair_corr": 0.193,
+    "null95_same_size": 0.168,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "TRAVEL_LEISURE",
+   "label": "TRAVEL & LEISURE",
+   "parents": [
+    "CONSUMER"
+   ],
+   "home_sector": "Consumer Cyclical",
+   "members": [
+    "ABNB",
+    "BKNG",
+    "DIS",
+    "DKNG",
+    "HLT",
+    "LYV",
+    "MAR",
+    "RCL"
+   ],
+   "n": 8,
+   "moves_together": {
+    "n_priced": 8,
+    "avg_pair_corr": 0.308,
+    "sector_avg_pair_corr": 0.193,
+    "null95_same_size": 0.207,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "RESTAURANTS",
+   "label": "RESTAURANTS",
+   "parents": [
+    "CONSUMER"
+   ],
+   "home_sector": "Consumer Cyclical",
+   "members": [
+    "DPZ",
+    "EAT",
+    "MCD",
+    "SBUX"
+   ],
+   "n": 4,
+   "moves_together": {
+    "n_priced": 4,
+    "avg_pair_corr": 0.31,
+    "sector_avg_pair_corr": 0.193,
+    "null95_same_size": 0.3,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "STAPLES",
+   "label": "CONSUMER STAPLES",
+   "parents": [
+    "CONSUMER"
+   ],
+   "home_sector": "Consumer Defensive",
+   "members": [
+    "ADM",
+    "BYND",
+    "CL",
+    "KDP",
+    "KMB",
+    "KO",
+    "KR",
+    "KVUE",
+    "MDLZ",
+    "MNST",
+    "MO",
+    "PEP",
+    "PG",
+    "PM",
+    "SYY",
+    "USFD"
+   ],
+   "n": 16,
+   "moves_together": {
+    "n_priced": 16,
+    "avg_pair_corr": 0.291,
+    "sector_avg_pair_corr": 0.287,
+    "null95_same_size": 0.176,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "MEDIA_TELECOM",
+   "label": "MEDIA & TELECOM",
+   "parents": [
+    "CONSUMER"
+   ],
+   "home_sector": "Communication Services",
+   "members": [
+    "CHTR",
+    "CMCSA",
+    "DIS",
+    "FOXA",
+    "OMC",
+    "T",
+    "TMUS",
+    "VZ",
+    "WBD"
+   ],
+   "n": 9,
+   "moves_together": {
+    "n_priced": 9,
+    "avg_pair_corr": 0.273,
+    "sector_avg_pair_corr": 0.182,
+    "null95_same_size": 0.168,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "REITS",
+   "label": "REITs (property)",
+   "parents": [
+    "REAL_ESTATE"
+   ],
+   "home_sector": "Real Estate",
+   "members": [
+    "CBRE",
+    "EXR",
+    "O",
+    "PLD",
+    "PSA",
+    "RHP",
+    "SPG",
+    "VICI",
+    "VTR",
+    "WELL"
+   ],
+   "n": 10,
+   "moves_together": {
+    "n_priced": 10,
+    "avg_pair_corr": 0.471,
+    "sector_avg_pair_corr": 0.346,
+    "null95_same_size": 0.179,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "TOWERS",
+   "label": "TELECOM TOWERS",
+   "parents": [
+    "REAL_ESTATE"
+   ],
+   "home_sector": "Real Estate",
+   "members": [
+    "AMT",
+    "CCI",
+    "SBAC"
+   ],
+   "n": 3,
+   "moves_together": {
+    "n_priced": 3,
+    "avg_pair_corr": 0.823,
+    "sector_avg_pair_corr": 0.346,
+    "null95_same_size": 0.319,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "IT_SERVICES",
+   "label": "IT SERVICES & CONSULTING",
+   "parents": [
+    "SOFTWARE_INTERNET"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "ACN",
+    "IBM",
+    "SNX"
+   ],
+   "n": 3,
+   "moves_together": {
+    "n_priced": 3,
+    "avg_pair_corr": 0.205,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.319,
+    "verdict": "no tighter than a random set of that size"
+   }
+  },
+  {
+   "id": "PACKAGING",
+   "label": "PACKAGING",
+   "parents": [
+    "MATERIALS_METALS"
+   ],
+   "home_sector": "Consumer Cyclical",
+   "members": [
+    "AMCR",
+    "PKG",
+    "SW"
+   ],
+   "n": 3,
+   "moves_together": {
+    "n_priced": 3,
+    "avg_pair_corr": 0.704,
+    "sector_avg_pair_corr": 0.193,
+    "null95_same_size": 0.319,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "CHINA",
+   "label": "CHINA (ADRs)",
+   "parents": [
+    "INTERNATIONAL"
+   ],
+   "home_sector": "Consumer Cyclical",
+   "members": [
+    "BABA",
+    "BIDU",
+    "EH",
+    "GDS",
+    "JD",
+    "LI",
+    "NIO",
+    "PDD",
+    "XPEV"
+   ],
+   "n": 9,
+   "moves_together": {
+    "n_priced": 9,
+    "avg_pair_corr": 0.372,
+    "sector_avg_pair_corr": 0.193,
+    "null95_same_size": 0.168,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "EUROPE",
+   "label": "EUROPE (listed here)",
+   "parents": [
+    "INTERNATIONAL"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "ARGX",
+    "ARM",
+    "ASML",
+    "EVTL",
+    "NBIS",
+    "NOK",
+    "SPOT",
+    "STM"
+   ],
+   "n": 8,
+   "moves_together": {
+    "n_priced": 8,
+    "avg_pair_corr": 0.221,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.207,
+    "verdict": "moves together, but no tighter than its sector"
+   }
+  },
+  {
+   "id": "ASIA_PACIFIC",
+   "label": "ASIA-PACIFIC ex-CHINA",
+   "parents": [
+    "INTERNATIONAL"
+   ],
+   "home_sector": "Technology",
+   "members": [
+    "IREN",
+    "SIMO",
+    "TSEM",
+    "TSM"
+   ],
+   "n": 4,
+   "moves_together": {
+    "n_priced": 4,
+    "avg_pair_corr": 0.477,
+    "sector_avg_pair_corr": 0.223,
+    "null95_same_size": 0.3,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "CANADA",
+   "label": "CANADA",
+   "parents": [
+    "INTERNATIONAL"
+   ],
+   "home_sector": "Basic Materials",
+   "members": [
+    "AEM",
+    "CCJ",
+    "FNV",
+    "KGC",
+    "LAC",
+    "PAAS",
+    "SHOP",
+    "TECK",
+    "WPM"
+   ],
+   "n": 9,
+   "moves_together": {
+    "n_priced": 9,
+    "avg_pair_corr": 0.572,
+    "sector_avg_pair_corr": 0.325,
+    "null95_same_size": 0.168,
+    "verdict": "STRONGER than its sector"
+   }
+  },
+  {
+   "id": "LATAM",
+   "label": "LATIN AMERICA",
+   "parents": [
+    "INTERNATIONAL"
+   ],
+   "home_sector": "Basic Materials",
+   "members": [
+    "MELI",
+    "NU",
+    "SCCO",
+    "SQM"
+   ],
+   "n": 4,
+   "moves_together": {
+    "n_priced": 4,
+    "avg_pair_corr": 0.253,
+    "sector_avg_pair_corr": 0.325,
+    "null95_same_size": 0.3,
+    "verdict": "no tighter than a random set of that size"
+   }
+  },
+  {
+   "id": "IDX_US_BROAD",
+   "label": "US BROAD",
+   "parents": [
+    "INDEX_LAYER"
+   ],
+   "home_sector": null,
+   "members": [
+    "SPY",
+    "QQQ",
+    "QQQE",
+    "DIA",
+    "IWM",
+    "RSP",
+    "MDY",
+    "IJR",
+    "VTI",
+    "ITOT",
+    "IWV"
+   ],
+   "n": 11,
+   "moves_together": null
+  },
+  {
+   "id": "IDX_WORLD",
+   "label": "WORLD & REGIONS",
+   "parents": [
+    "INDEX_LAYER"
+   ],
+   "home_sector": null,
+   "members": [
+    "VT",
+    "VXUS",
+    "EFA",
+    "EEM",
+    "EZU",
+    "EWJ",
+    "EWG",
+    "EWU",
+    "EWY",
+    "FXI",
+    "MCHI",
+    "ASHR"
+   ],
+   "n": 12,
+   "moves_together": null
+  },
+  {
+   "id": "IDX_STYLE",
+   "label": "STYLE & FACTOR",
+   "parents": [
+    "INDEX_LAYER"
+   ],
+   "home_sector": null,
+   "members": [
+    "VUG",
+    "VTV",
+    "MGK",
+    "MTUM",
+    "QUAL",
+    "SPLV",
+    "SCHD"
+   ],
+   "n": 7,
+   "moves_together": null
+  },
+  {
+   "id": "IDX_SECTOR_FUNDS",
+   "label": "SECTOR FUNDS",
+   "parents": [
+    "INDEX_LAYER"
+   ],
+   "home_sector": null,
+   "members": [
+    "XLK",
+    "XLF",
+    "XLV",
+    "XLY",
+    "XLP",
+    "XLE",
+    "XLI",
+    "XLB",
+    "XLU",
+    "XLRE",
+    "XLC",
+    "VGT",
+    "VFH",
+    "VHT",
+    "VCR",
+    "VDC",
+    "VDE",
+    "VIS",
+    "VAW",
+    "VPU",
+    "VNQ",
+    "VOX",
+    "IYW",
+    "IYF",
+    "IYH",
+    "IYC",
+    "IYK",
+    "IYE",
+    "IYJ",
+    "IYM",
+    "IDU",
+    "IYR",
+    "IYZ",
+    "RSPT",
+    "RSPF",
+    "RSPH",
+    "RSPD",
+    "RSPS",
+    "RSPG",
+    "RSPN",
+    "RSPM",
+    "RSPU",
+    "RSPR",
+    "RSPC"
+   ],
+   "n": 44,
+   "moves_together": null
+  },
+  {
+   "id": "IDX_MACRO",
+   "label": "MACRO",
+   "parents": [
+    "INDEX_LAYER"
+   ],
+   "home_sector": null,
+   "members": [
+    "TLT",
+    "IEF",
+    "SHY",
+    "AGG",
+    "LQD",
+    "HYG",
+    "UUP",
+    "USO",
+    "DBC",
+    "GLD",
+    "SLV",
+    "VXX"
+   ],
+   "n": 12,
+   "moves_together": null
+  },
+  {
+   "id": "IDX_THEME_FUNDS",
+   "label": "THEME FUNDS (each is its cohort's spine line)",
+   "parents": [
+    "INDEX_LAYER"
+   ],
+   "home_sector": null,
+   "members": [
+    "AGIX",
+    "ARKX",
+    "BOTZ",
+    "CIBR",
+    "COPX",
+    "DRAM",
+    "FDN",
+    "FINX",
+    "GDX",
+    "GDXJ",
+    "IAI",
+    "IAK",
+    "IAT",
+    "IBB",
+    "IEO",
+    "IEZ",
+    "IGM",
+    "IGV",
+    "IHE",
+    "IHF",
+    "IHI",
+    "IPAY",
+    "ITA",
+    "ITB",
+    "IYG",
+    "IYT",
+    "JETS",
+    "KBE",
+    "KIE",
+    "KRE",
+    "LIT",
+    "MAGS",
+    "PAVE",
+    "PEJ",
+    "QTUM",
+    "REMX",
+    "REZ",
+    "SIL",
+    "SILJ",
+    "SKYY",
+    "SMH",
+    "SOXX",
+    "TAN",
+    "URA",
+    "XBI",
+    "XHB",
+    "XOP",
+    "XPH",
+    "XRT",
+    "XSD"
+   ],
+   "n": 50,
+   "moves_together": null
+  }
+ ]
+}

@@ -1,0 +1,248 @@
+{
+ "as_of": {
+  "alloc_read_utc": "2026-10-06T15:46:30.420879Z",
+  "geiger_computed_utc": "2026-10-06T15:29:31.506Z"
+ },
+ "source": "hub branch hub/sg1-sector-gauge-20261006 @9ce8c5e \u00b7 deliverables/20261006/sector-gauge-study/data/results.json",
+ "sectors": {
+  "TECH": {
+   "name": "Technology",
+   "cw": "XLK",
+   "ew": "RSPT",
+   "alloc_blend_today": 0.5376523095238096,
+   "fund_geiger_today": 0.926763,
+   "own_pct_12m": 0.9402390438247012,
+   "median_12m": 0.3803092668053349,
+   "rrg_box": "LEADING",
+   "gauge": {
+    "stretch_pct": 0.9402390438247012,
+    "box": "LEADING",
+    "word": "HOT FOR ITSELF",
+    "case": "leader running hot for itself"
+   }
+  },
+  "HEALTH": {
+   "name": "Health care",
+   "cw": "XLV",
+   "ew": "RSPH",
+   "alloc_blend_today": 0.022104615555555554,
+   "fund_geiger_today": -0.155062,
+   "own_pct_12m": 0.1952191235059761,
+   "median_12m": 0.3002947053018574,
+   "rrg_box": "WEAKENING",
+   "gauge": {
+    "stretch_pct": 0.1952191235059761,
+    "box": "WEAKENING",
+    "word": "COLD FOR ITSELF",
+    "case": "leader on a pullback \u2014 its own low, still leading the market"
+   }
+  },
+  "FINANCIALS": {
+   "name": "Financials",
+   "cw": "XLF",
+   "ew": "RSPF",
+   "alloc_blend_today": -0.2373711747923791,
+   "fund_geiger_today": -0.194684,
+   "own_pct_12m": 0.3107569721115538,
+   "median_12m": 0.1328431700526067,
+   "rrg_box": "LAGGING",
+   "gauge": {
+    "stretch_pct": 0.3107569721115538,
+    "box": "LAGGING",
+    "word": "INSIDE ITS NORMAL",
+    "case": "nothing unusual against its own normal"
+   }
+  },
+  "DISCRET": {
+   "name": "Consumer discretionary",
+   "cw": "XLY",
+   "ew": "RSPD",
+   "alloc_blend_today": -0.2764063599646226,
+   "fund_geiger_today": -0.146757,
+   "own_pct_12m": 0.3784860557768924,
+   "median_12m": 0.012689323217153325,
+   "rrg_box": "LAGGING",
+   "gauge": {
+    "stretch_pct": 0.3784860557768924,
+    "box": "LAGGING",
+    "word": "INSIDE ITS NORMAL",
+    "case": "nothing unusual against its own normal"
+   }
+  },
+  "INDUSTRIAL": {
+   "name": "Industrials",
+   "cw": "XLI",
+   "ew": "RSPN",
+   "alloc_blend_today": -0.0386085081232493,
+   "fund_geiger_today": 0.061575,
+   "own_pct_12m": 0.3346613545816733,
+   "median_12m": 0.3644180660345585,
+   "rrg_box": "LAGGING",
+   "gauge": {
+    "stretch_pct": 0.3346613545816733,
+    "box": "LAGGING",
+    "word": "INSIDE ITS NORMAL",
+    "case": "nothing unusual against its own normal"
+   }
+  },
+  "MATERIALS": {
+   "name": "Materials",
+   "cw": "XLB",
+   "ew": "RSPM",
+   "alloc_blend_today": -0.19650101547619048,
+   "fund_geiger_today": -0.085424,
+   "own_pct_12m": 0.350597609561753,
+   "median_12m": 0.17450185595652784,
+   "rrg_box": "LAGGING",
+   "gauge": {
+    "stretch_pct": 0.350597609561753,
+    "box": "LAGGING",
+    "word": "INSIDE ITS NORMAL",
+    "case": "nothing unusual against its own normal"
+   }
+  },
+  "ENERGY": {
+   "name": "Energy",
+   "cw": "XLE",
+   "ew": "RSPG",
+   "alloc_blend_today": 0.2620183958333333,
+   "fund_geiger_today": 0.452452,
+   "own_pct_12m": 0.5657370517928287,
+   "median_12m": 0.348676235060571,
+   "rrg_box": "WEAKENING",
+   "gauge": {
+    "stretch_pct": 0.5657370517928287,
+    "box": "WEAKENING",
+    "word": "INSIDE ITS NORMAL",
+    "case": "nothing unusual against its own normal"
+   }
+  },
+  "STAPLES": {
+   "name": "Consumer staples",
+   "cw": "XLP",
+   "ew": "RSPS",
+   "alloc_blend_today": -0.3339507818045112,
+   "fund_geiger_today": -0.338448,
+   "own_pct_12m": 0.21115537848605578,
+   "median_12m": 0.04310860132366144,
+   "rrg_box": "LAGGING",
+   "gauge": {
+    "stretch_pct": 0.21115537848605578,
+    "box": "LAGGING",
+    "word": "INSIDE ITS NORMAL",
+    "case": "laggard that is simply low \u2014 low for itself and behind the market"
+   }
+  },
+  "UTILITIES": {
+   "name": "Utilities",
+   "cw": "XLU",
+   "ew": "RSPU",
+   "alloc_blend_today": -0.26061594352941175,
+   "fund_geiger_today": -0.1952,
+   "own_pct_12m": 0.3665338645418327,
+   "median_12m": -0.016439712338064943,
+   "rrg_box": "IMPROVING",
+   "gauge": {
+    "stretch_pct": 0.3665338645418327,
+    "box": "IMPROVING",
+    "word": "INSIDE ITS NORMAL",
+    "case": "nothing unusual against its own normal"
+   }
+  },
+  "REAL_ESTATE": {
+   "name": "Real estate",
+   "cw": "XLRE",
+   "ew": "RSPR",
+   "alloc_blend_today": -0.6333260098790323,
+   "fund_geiger_today": -0.715121,
+   "own_pct_12m": 0.0398406374501992,
+   "median_12m": 0.04832838731482986,
+   "rrg_box": "IMPROVING",
+   "gauge": {
+    "stretch_pct": 0.0398406374501992,
+    "box": "IMPROVING",
+    "word": "COLD FOR ITSELF",
+    "case": "laggard that is simply low \u2014 low for itself and behind the market"
+   }
+  },
+  "COMMS": {
+   "name": "Communications",
+   "cw": "XLC",
+   "ew": "RSPC",
+   "alloc_blend_today": -0.19480920326086956,
+   "fund_geiger_today": -0.119082,
+   "own_pct_12m": 0.3545816733067729,
+   "median_12m": 0.07649540949398533,
+   "rrg_box": "LAGGING",
+   "gauge": {
+    "stretch_pct": 0.3545816733067729,
+    "box": "LAGGING",
+    "word": "INSIDE ITS NORMAL",
+    "case": "nothing unusual against its own normal"
+   }
+  },
+  "CRYPTO": {
+   "name": "Crypto",
+   "cw": "BTCUSD",
+   "ew": null,
+   "alloc_blend_today": 0.6023772727272727,
+   "fund_geiger_today": 0.7098,
+   "own_pct_12m": 0.7261904761904762,
+   "median_12m": 0.39649999999999996,
+   "rrg_box": "WEAKENING",
+   "gauge": {
+    "stretch_pct": 0.7261904761904762,
+    "box": "WEAKENING",
+    "word": "INSIDE ITS NORMAL",
+    "case": "nothing unusual against its own normal"
+   }
+  },
+  "METALS": {
+   "name": "Metals",
+   "cw": "GCUSD",
+   "ew": null,
+   "alloc_blend_today": -0.08134473684210526,
+   "fund_geiger_today": 0.0854,
+   "own_pct_12m": 0.08333333333333333,
+   "median_12m": 0.5116499999999999,
+   "rrg_box": "LAGGING",
+   "gauge": {
+    "stretch_pct": 0.08333333333333333,
+    "box": "LAGGING",
+    "word": "COLD FOR ITSELF",
+    "case": "laggard that is simply low \u2014 low for itself and behind the market"
+   }
+  },
+  "OIL": {
+   "name": "Oil",
+   "cw": "CLUSD",
+   "ew": null,
+   "alloc_blend_today": 0.45985588235294117,
+   "fund_geiger_today": 0.5059,
+   "own_pct_12m": 0.32142857142857145,
+   "median_12m": 0.5706,
+   "rrg_box": "LEADING",
+   "gauge": {
+    "stretch_pct": 0.32142857142857145,
+    "box": "LEADING",
+    "word": "INSIDE ITS NORMAL",
+    "case": "nothing unusual against its own normal"
+   }
+  },
+  "SEMIS": {
+   "name": "Semiconductors",
+   "cw": "SMH",
+   "ew": null,
+   "alloc_blend_today": null,
+   "fund_geiger_today": 0.825404,
+   "own_pct_12m": 0.8127490039840638,
+   "median_12m": 0.48526834112791867,
+   "rrg_box": "LEADING",
+   "gauge": {
+    "stretch_pct": 0.8127490039840638,
+    "box": "LEADING",
+    "word": "HOT FOR ITSELF"
+   }
+  }
+ }
+}
