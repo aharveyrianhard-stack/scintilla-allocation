@@ -103,6 +103,9 @@
   #drawerShade{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:390;display:none} #drawerShade.on{display:block}
   .brief2{display:grid;grid-template-columns:minmax(0,1fr) 680px;gap:18px;align-items:start}
   @media(max-width:1300px){.brief2{grid-template-columns:1fr}}
+  .nvrow{display:grid;grid-template-columns:220px 1fr 260px;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);font-size:11px;line-height:1.5;color:var(--dim)}
+  .nvrow b{color:var(--txt);font-weight:600;letter-spacing:.04em}.nvrow i{font-style:normal;text-align:right}
+  @media(max-width:800px){.nvrow{grid-template-columns:1fr}.nvrow i{text-align:left}}
   .sc-pagespecs{margin:30px 0 0;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:11px;max-width:1500px;line-height:1.7}
   .sc-pagespecs summary{cursor:pointer;letter-spacing:.2em;color:var(--dim);font-size:10px}
   /* PA4 — the approved comps card (the Hub's allocation page, "the swipe", 24 Sep 2026): CSS copied, only the palette names mapped to this tool's */
@@ -1465,7 +1468,8 @@ function voters(){
      put/call ratio is read for, and unlike a contract count it does not lurch on one large hedge.
      SLOW: this is a sentiment/regime reading, not an intraday one. */
   const skew=(VIXDB&&VIXDB.skew!=null)?+VIXDB.skew:null;
-  v.push({key:'SKEW', name:'SKEW (put protection bid)', speed:0.85,
+  v.push({key:'SKEW', name:'SKEW (put protection bid)', speed:0.85, asof:skew!=null?(VIXDB&&VIXDB.date):(SKEWLAST?SKEWLAST.date:null),
+          why:skew!=null?null:('the newest VIX-table row'+(VIXDB&&VIXDB.date?' ('+VIXDB.date+')':'')+' carries no SKEW'+(SKEWLAST?'; the last one written is '+(+SKEWLAST.skew).toFixed(1)+' — the page reads only the newest row':'; none is stored')),
           sub:skew!=null?skew.toFixed(1)+' · above ~135 means people are paying up for downside protection':'— not read',
           val:skew!=null?clamp((135-skew)/25):null});
   /* BREADTH — the real advance/decline line, computed across the whole market, not proxied. */
@@ -1558,26 +1562,44 @@ function voters(){
   };
   const mbSrc=(k)=> (MKTBREADTH && MKTBREADTH[k]!=null && MKTBREADTH[k]!=='') ? 'live'
                   : (BREADTH_SNAPSHOT[k]!=null ? 'TradingView snapshot '+BREADTH_SNAPSHOT.asof : null);
+  const mbLive=(k)=> MKTBREADTH && MKTBREADTH[k]!=null && MKTBREADTH[k]!=='';
+  const mbAsof=(k)=> mbLive(k) ? (MKTBREADTH.asof||null) : (BREADTH_SNAPSHOT[k]!=null?BREADTH_SNAPSHOT.asof:null);
+  const mbWhy=(k)=> mbLive(k) ? null : (BREADTH_SNAPSHOT[k]!=null?'a one-off TradingView snapshot, read by hand and never refreshed — no feed writes this number':'no source');
   const s200=mb('pct_above_200d'), s50=mb('pct_above_50d'), pcc=mb('put_call'), tick=mb('tick'), addv=mb('advance_decline');
-  v.push({key:'M_200D', name:'MARKET % ABOVE 200-DAY', speed:0.85,
+  v.push({key:'M_200D', asof:mbAsof('pct_above_200d'), why:mbWhy('pct_above_200d'), name:'MARKET % ABOVE 200-DAY', speed:0.85,
           sub:s200==null?'— no source':s200.toFixed(1)+'% of the S&P above its 200-day · '+mbSrc('pct_above_200d'),
           val:s200==null?null:clamp((s200/100-0.5)*2)});
-  v.push({key:'M_50D', name:'MARKET % ABOVE 50-DAY', speed:0.6,
+  v.push({key:'M_50D', asof:mbAsof('pct_above_50d'), why:mbWhy('pct_above_50d'), name:'MARKET % ABOVE 50-DAY', speed:0.6,
           sub:s50==null?'— no source':s50.toFixed(1)+'% above its 50-day · '+mbSrc('pct_above_50d'),
           val:s50==null?null:clamp((s50/100-0.5)*2)});
-  v.push({key:'M_PCC', name:'PUT / CALL (CBOE)', speed:0.7,
+  v.push({key:'M_PCC', asof:mbAsof('put_call'), why:mbWhy('put_call'), name:'PUT / CALL (CBOE)', speed:0.7,
           sub:pcc==null?'— no source':pcc.toFixed(3)+' · above 1.00 = puts bid, fear · '+mbSrc('put_call'),
           val:pcc==null?null:clamp((pcc-0.9)*3)});
-  v.push({key:'M_TICK', name:'NYSE TICK', speed:0.05,
+  v.push({key:'M_TICK', asof:null, why:tick==null?'abstaining — the only symbol found (INDEX:TICK) returns a running total, not the ordinary TICK that swings around zero':null, name:'NYSE TICK', speed:0.05,
           sub:tick==null?'— abstaining: INDEX:TICK returns a cumulative series, not ordinary TICK':String(tick),
           val:tick==null?null:clamp(tick/800)});
-  v.push({key:'M_ADD', name:'NYSE ADVANCE / DECLINE', speed:0.3,
+  v.push({key:'M_ADD', asof:mbAsof('advance_decline'), why:mbWhy('advance_decline'), name:'NYSE ADVANCE / DECLINE', speed:0.3,
           sub:addv==null?'— no source':String(addv)+' · '+mbSrc('advance_decline'),
           val:addv==null?null:clamp(addv/1500)});
   const gp2 = gv('XLP'), gu2 = gv('XLU');
   v.push({key:'DEF', speed:0.85, name:'DEFENSIVES (inv)', sub:'XLP+XLU · '+(COMPOSITE['XLP']?'db':'fallback'), val: (gp2!=null && gu2!=null) ? clamp(-(gp2+gu2)/2) : null});
   return v;
 }
+/* R3 (6 Oct 2026) — THE ROWS THAT CANNOT VOTE. A row is folded under "not voting — why" when it has no reading at all, or when its newest
+   reading is 30 or more days old. A row with a fresh reading and weight 0 (VALUE, MEGA-CAPS, the IB put/call) stays with the voters as a
+   reading. Nothing is removed: voters() still returns every row and the weights are kept; only the drawing moves. */
+const NOT_VOTING_DAYS=30;
+function notVoting(v){
+  const d=daysOld(v.asof);
+  if(v.val==null && v.reading==null) return {why:v.why||'no reading', asof:v.asof||null, days:d};
+  if(d!=null && d>=NOT_VOTING_DAYS) return {why:v.why||'its newest reading is too old', asof:v.asof, days:d};
+  return null;
+}
+window.notVoting=notVoting;
+/* one rule for every place the heat is summed (heat, the speed curve, the what-if under each row): a row counts when it has a value and is
+   not folded. With the shipped weights this changes no number — every folded row has weight 0 or no value; it stops a saved weight on a
+   folded row from counting a reading the page now says cannot vote. */
+function canVote(v){ return v.val!=null && !notVoting(v); }
 /* TWO HEATS. Alan, from the Station spec: fast/slow is update cadence, not horizon, and it has to
    run through inputs, toggles and outputs. SLOW answers "what regime is this" and sets the target;
    FAST answers "what is the pressure right now" and sets the approach to it. Blending them into one
@@ -1595,7 +1617,7 @@ const SPEED_BAND = 0.28;                       // kernel width — how far a vot
 function heatAt(pos){
   let num=0, den=0;
   for (const v of voters()){
-    if (v.val==null) continue;
+    if (!canVote(v)) continue;
     const w = S.wts[v.key] ?? 0; if(!w) continue;
     const sp = (typeof v.speed==='number') ? v.speed : 0.5;
     const k = Math.exp(-Math.pow((sp-pos)/SPEED_BAND, 2));   // gaussian, smooth, never zero
@@ -1617,12 +1639,12 @@ function drift(){
 }
 function heat(){
   let num = 0, den = 0;
-  for (const v of voters()) { if (v.val == null) continue; const w = S.wts[v.key] ?? 0; num += v.val * w; den += w; }
+  for (const v of voters()) { if (!canVote(v)) continue; const w = S.wts[v.key] ?? 0; num += v.val * w; den += w; }
   return den ? num / den : 0;
 }
 function heatWith(vlist, key, w){ // counterfactual: heat if this one voter's weight were w
   let num = 0, den = 0;
-  for (const v of vlist) { if (v.val == null) continue; const wt = v.key === key ? w : (S.wts[v.key] ?? 0); num += v.val * wt; den += wt; }
+  for (const v of vlist) { if (!canVote(v)) continue; const wt = v.key === key ? w : (S.wts[v.key] ?? 0); num += v.val * wt; den += wt; }
   return den ? num / den : 0;
 }
 /* THE POLICY (PA3, 5 Oct 2026) — Alan's July model: the condition, read from the heat, picks one of five steps.
@@ -1675,7 +1697,9 @@ function barCSS(el, val, scale=50){
 function render(){
   // gauges
   const gd = document.getElementById('gauges'); gd.innerHTML = '';
+  const nvOpen=!!(document.getElementById('notvoting')&&document.getElementById('notvoting').open), folded=[];
   for (const v of voters()) {
+    const nv=notVoting(v); if(nv){ folded.push([v,nv]); continue; }
     const row = document.createElement('div'); row.className = 'gauge';
     const val = v.val == null ? 0 : v.val;
     row.innerHTML = `<div class="gname">${v.name}<small>${v.sub}</small></div>
@@ -1687,7 +1711,7 @@ function render(){
     gd.appendChild(row);
     if (VOTER_DESC[v.key]) {
       const d = document.createElement('div'); d.className = 'vdesc';
-      const allV = voters(), hNow = (() => { let n=0,dd=0; for (const x of allV){ if(x.val==null) continue; const w=S.wts[x.key]??0; n+=x.val*w; dd+=w; } return dd?n/dd:0; })();
+      const allV = voters(), hNow = (() => { let n=0,dd=0; for (const x of allV){ if(!canVote(x)) continue; const w=S.wts[x.key]??0; n+=x.val*w; dd+=w; } return dd?n/dd:0; })();
       const cur = S.wts[v.key] ?? 0;
       const alt = cur > 0 ? 0 : 1;
       const hAlt = heatWith(allV, v.key, alt);
@@ -1699,6 +1723,12 @@ function render(){
         `<span class="veffect">${cur>0 ? `ON. Mute it and the score goes ${dir} ${strength} (${fmt2(hNow)} → ${fmt2(hAlt)}).` : `OFF. Turn it on and the score goes ${dir} ${strength} (${fmt2(hNow)} → ${fmt2(hAlt)}).`}</span>`);
       gd.appendChild(d);
     }
+  }
+  if(folded.length){
+    const dt=document.createElement('details'); dt.id='notvoting'; dt.open=nvOpen; dt.style.margin='8px 0 2px';
+    dt.innerHTML='<summary>not voting — why ('+folded.length+')</summary>'+folded.map(([v,nv])=>{ const w=S.wts[v.key]??0;
+      return '<div class="nvrow"><b>'+esc2(v.name)+'</b><span>'+esc2(nv.why)+(v.val!=null?' · it read '+f2v(v.val)+' then':'')+'</span><i>'+(nv.asof?'newest reading '+esc2(nv.asof)+' · '+ageWord(nv.days):'no reading on file')+(w?' · its weight '+w+' waits':'')+'</i></div>'; }).join('');
+    gd.appendChild(dt);
   }
   const h = heat(), [lbl, color] = heatLabel(h);
   document.getElementById('heatnum').textContent = (h>=0?'+':'') + h.toFixed(2);
