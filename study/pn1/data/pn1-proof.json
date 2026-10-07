@@ -1,9 +1,9 @@
 {
  "what": "PN1 — the deployment pane's script against the allocation tool's engine",
- "built": "2026-10-07T20:11:40.536Z",
+ "built": "2026-10-07T20:24:09.462Z",
  "script": {
   "file": "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine",
-  "codeHash": "e743fa82c189d54c",
+  "codeHash": "bea617ffc29244c1",
   "typicalDay": 49.075087,
   "held": 70,
   "tactical": 30,
@@ -3755,6 +3755,7 @@
  "observations": {
   "latePayout": {
    "exDates": 25,
+   "meanPayoutPct": 0.48,
    "medianGap": 11.6,
    "worstGap": 16.5,
    "last": [
@@ -3762,28 +3763,35 @@
      "date": "2026-08-03",
      "with": 51.2,
      "without": 39.6,
-     "gap": 11.600000000000001
+     "gap": 11.6
     },
     {
      "date": "2026-09-01",
      "with": 58.7,
      "without": 45.5,
-     "gap": 13.200000000000003
+     "gap": 13.2
     },
     {
      "date": "2026-10-01",
      "with": 33.5,
      "without": 46.6,
-     "gap": 13.100000000000001
+     "gap": 13.1
     }
    ],
    "next": "the first trading day of next month"
   },
   "treasuryPayout": {
-   "payoutDaysLastYear": 12,
-   "meanFallOnThoseDaysPct": -0.47,
-   "putsIntoCreditOwn": 0.235,
-   "note": "the pane copies the tool here; both read the Treasury fund's plain close"
+   "since": "2016-01-04",
+   "payoutDays": 129,
+   "meanFallOnThoseDaysPct": -0.194,
+   "putsIntoCreditOwn": 0.097,
+   "lastYear": {
+    "sessionsWithAPayoutDayInTheirTenSessions": 121,
+    "of": 252,
+    "medianReadingMoved": 1.5,
+    "worstReadingMoved": 4.6
+   },
+   "note": "the pane copies the tool here: both read the Treasury fund's plain close"
   }
  }
 }

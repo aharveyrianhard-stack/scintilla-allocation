@@ -87,7 +87,7 @@ export function labelsOf(r, inputs = {}) { const showReading = inputs.showReadin
   if (na(r.invested)) return [{ y: 50.0, text: "No reading yet · waiting for prices from" + (na(r.spyRsi) ? " SPY" : "") + (na(r.qqqRsi) ? " QQQ" : "") + (na(r.hygMove) ? " HYG" : "") + (na(r.iefMove) ? " IEF" : ""), colour: "teal" }];
   const ys = [], ts = [], cs = [];
   ys.push(r.invested); ts.push("Invested " + whole(r.invested) + "% · market reading " + whole(r.reading)); cs.push(r.colour);
-  if (showReading) { ys.push(r.reading); ts.push("market reading " + whole(r.reading)); cs.push("bright teal"); }
+  if (showReading) { ys.push(r.reading); ts.push("market reading " + whole(r.reading)); cs.push("teal"); }
   if (showParts) { ys.push(r.partA); ts.push("SPY and QQQ " + signed1(r.ptsRsi)); cs.push(r.colA); ys.push(r.partB); ts.push("credit " + signed1(r.ptsCredit)); cs.push(r.colB); }
   const rank = ys.map((_, k) => k).sort((a, b) => ys[b] - ys[a] || a - b), out = []; let above = NA;
   for (let i = 0; i <= rank.length - 1; i++) { const j = rank[i]; let y = ys[j]; if (!na(above)) y = Math.min(y, above - labelGap); above = y; out.push({ y, text: ts[j], colour: cs[j], at: ys[j] }); }

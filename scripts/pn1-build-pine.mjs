@@ -49,7 +49,7 @@ function measuredLines(proof) {
     `//          that matters most is on HYG); across the last year the most a cent moved it was ${s.centWorstYear.toFixed(2)}.`];
 }
 function latePayoutLines(proof) { const o = proof && proof.observations && proof.observations.latePayout;
-  return [`//   3. HYG's payout day. On the first trading day of a month HYG trades without its payout (about 0.4%).`,
+  return [`//   3. HYG's payout day. On the first trading day of a month HYG trades without its payout (about ${o ? one(o.meanPayoutPct) : "0.5"}%).`,
     `//      If TradingView were late adding that payout back, credit's own move would read too low that day`,
     o ? `//      and the reading would be off by about ${Math.round(o.medianGap)} points (${Math.round(o.worstGap)} at worst, in either direction) until it caught` : `//      and the reading would be off by several points until it caught`,
     `//      up. The tool keeps its own payout list and is not affected. Worth a look on the next payout day.`]; }
@@ -126,11 +126,11 @@ ${wrapList("var array<float> CREDIT_PLACES = array.from(", n.creditPlaces)}
 ${wrapList("var array<float> RSI_POINTS = array.from(", n.rsiPoints)}
 ${wrapList("var array<float> CREDIT_POINTS = array.from(", n.creditPoints)}
 
-// colours — the Hub's up and down, tones of one teal family for everything else, greys with no white
+// colours — the Hub's up and down, two tones of one teal family for everything else, greys with no white
+// (green, red and the teal were measured apart from each other, for full colour vision and for red-green colour blindness)
 const color C_BULL   = #00FFA3
 const color C_BEAR   = #FF2D55
 const color C_LINE   = #2FB5A8
-const color C_READ   = #7CE8DC
 const color C_DEEP   = #1C7D75
 const color C_AXIS   = #3A3A52
 const color C_EDGE   = #252538
@@ -145,7 +145,7 @@ float tacticalPct = input.float(${n.tactical}.0, "Tactical at full, % of the acc
 
 const string G_LOOK = "Look"
 bool byDirection = input.bool(true,  "Colour the % invested line by its daily direction", group = G_LOOK,
-     tooltip = "On: green on a day the system has more invested than the day before, red on a day it has less. Off: one teal line.")
+     tooltip = "On: green on a day the system has more invested than the day before, red on a day it has less. Off: one teal line, the same teal as the market reading, which it follows.")
 bool showReading = input.bool(false, "Show the market reading (0–100)", group = G_LOOK)
 bool showParts   = input.bool(false, "Show the reading's two voting parts", group = G_LOOK,
      tooltip = "SPY and QQQ together (a thin line) and credit (dots). Each is drawn as 50 plus the points it adds to the market reading: green above the middle line, where it argues for more invested, red below it, where it argues for less. A typical day (${one(n.typical)}) plus the two parts' points is the market reading, held between 0 and 100.")
@@ -254,7 +254,7 @@ color colB  = ptsCredit >= 0 ? C_BULL : C_BEAR
 pInv   = plot(invested, "% invested", color = lineCol, linewidth = 2, style = plot.style_line)
 pFloor = plot(na(invested) ? na : heldPct, "held through pullbacks", color = color.new(C_DEEP, 35), linewidth = 1)
 fill(pInv, pFloor, color = color.new(C_LINE, 85), title = "tactical money at work")
-plot(showReading ? reading : na, "market reading (line)", color = C_READ, linewidth = 1)
+plot(showReading ? reading : na, "market reading (line)", color = C_LINE, linewidth = 1)
 plot(showParts ? partA : na, "SPY and QQQ together: 50 + its points", color = colA, linewidth = 1)
 plot(showParts ? partB : na, "credit: 50 + its points", color = colB, linewidth = 1, style = plot.style_circles)
 // the reading and the two raw numbers behind it — Data Window only (hover a bar to read them)
@@ -288,7 +288,7 @@ if barstate.islast and showTag
         if showReading
             array.push(ys, reading)
             array.push(ts, "market reading " + whole(reading))
-            array.push(cs, C_READ)
+            array.push(cs, C_LINE)
         if showParts
             array.push(ys, partA)
             array.push(ts, "SPY and QQQ " + signed1(ptsRsi))

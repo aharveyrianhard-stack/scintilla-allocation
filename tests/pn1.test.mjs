@@ -59,7 +59,7 @@ test("5 · the lows and highs the deployment study lists, and 6 Oct: the study's
   /* with the two parts shown their labels carry the tool's own points: 49.1 − 7.7 − 19.5 = 21.9 */
   const tn = D.tonight; assert.equal(tn.base, 49.1); assert.equal(tn.parts.find((p) => p.key === "rsi").points, -7.7); assert.equal(tn.parts.find((p) => p.key === "creditOwn").points, -19.5);
   const all = labelsOf(r, { showReading: true, showParts: true }); assert.deepEqual(all.map((l) => l.text), ["Invested 77% · market reading 22", "SPY and QQQ −7.7", "credit −19.5", "market reading 22"], "from the highest line down");
-  assert.deepEqual(all.map((l) => l.colour), [r.colour, "red", "red", "bright teal"]); for (let i = 1; i < all.length; i++) assert.ok(all[i - 1].y - all[i].y >= 12 - 1e-9, "labels " + i + " and " + (i + 1) + " keep their space"); assert.equal(all[0].y, r.invested);
+  assert.deepEqual(all.map((l) => l.colour), [r.colour, "red", "red", "teal"]); for (let i = 1; i < all.length; i++) assert.ok(all[i - 1].y - all[i].y >= 12 - 1e-9, "labels " + i + " and " + (i + 1) + " keep their space"); assert.equal(all[0].y, r.invested);
   assert.ok(near(all[1].at, 50 - 7.7, 0.06) && near(all[2].at, 50 - 19.5, 0.06), "each part is drawn as 50 plus its points"); assert.deepEqual(labelsOf(r, { showTag: false }), []); });
 
 test("6 · fed HYG's payouts the way TradingView adds them back, the script stays within a point of the engine on all but a handful of early days", () => {
@@ -84,7 +84,7 @@ test("8 · the TradingView protocol: version 6, the plot budget stated in the he
   const count = plots.reduce((n, a) => n + (constCol(a) ? 1 : 2), 0) + fills, stated = SRC.match(/^\/\/ PLOTS (\d+)\/64/m); assert.ok(stated, "the header states PLOTS n/64"); assert.equal(plots.length, 8); assert.equal(fills, 1); assert.equal(count, 12); assert.equal(+stated[1], count); assert.ok(count <= 64);
   const req = (CODE.match(/request\.\w+\(/g) || []).length, statedReq = SRC.match(/^\/\/ REQUESTS (\d+)\/40/m); assert.equal(req, 4); assert.equal(+statedReq[1], req);
   /* no white, ever: no named white, and no colour whose three channels are all bright and near each other */
-  assert.ok(!/color\.white|#fff\b|#ffffff/i.test(SRC)); const hexes = [...CODE.matchAll(/#([0-9A-Fa-f]{6})\b/g)].map((m) => m[1]); assert.ok(hexes.length >= 8);
+  assert.ok(!/color\.white|#fff\b|#ffffff/i.test(SRC)); const hexes = [...CODE.matchAll(/#([0-9A-Fa-f]{6})\b/g)].map((m) => m[1]); assert.ok(hexes.length >= 7);
   for (const h of hexes) { const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); assert.ok(!(Math.min(r, g, b) >= 200 && Math.max(r, g, b) - Math.min(r, g, b) <= 40), "#" + h + " reads as white"); }
   assert.ok(!/color\.(gray|silver|black|red|green|blue|yellow|orange|purple|aqua|lime|teal|navy|olive|maroon|fuchsia)\b/.test(CODE), "only the named palette at the top of the script");
   /* shape: no tabs, wrapped lines indented by five spaces (never a multiple of four), every bracket and quote closed */
@@ -136,3 +136,23 @@ test("13 · the check on what TradingView saved: identical passes, the one allow
   const cut = checkSaved(SRC.replace("65.02809, ", "")); assert.equal(cut.ok, false, "a place table short of a value is caught");
   const header = checkSaved(SRC.replace("// WHAT IT IS.", "// WHAT IT IS:")); assert.equal(header.codeIdentical, true); assert.equal(header.ok, true, "a change in the header comment alone does not un-prove the code");
   assert.deepEqual(lineDiff("a\nb\nc", "a\nx\nc").map((d) => d.side + d.line + d.text), ["proved2b", "saved2x"]); });
+
+test("14 · the page for Alan: built from the proof, plain words only, every drawing has its data and its table, and it opens without a server", async () => {
+  const html = T("study/pn1/PN1.html"), seen = html.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  for (const b of [/\bv\d\b/i, /\bevening/i, /\brung/i, /line vs reading/i, /\bDS1\b/i, /\bPN1\b/i, /\bDM\d\b/i, /\blane\b/i, /\bE\b/, /\bNaN\b/, /undefined/, /\bnull\b/, /\.mjs\b/, /\.json\b/]) assert.ok(!b.test(seen), "the page shows " + b + ": " + (seen.match(new RegExp(".{0,40}" + b.source + ".{0,40}", b.flags)) || [""])[0]);
+  /* its numbers are the proof's */
+  const tn = P.today; assert.ok(seen.includes(tn.script.label), "today's label"); assert.ok(seen.includes("4,894")); assert.ok(seen.includes("17 of 17")); assert.ok(seen.includes("NOT on TradingView yet"));
+  const rowsIn = [...html.matchAll(/<tr><td>([^<]+)<\/td><td class="dim">([^<]*)<\/td><td class="n">([\d.]+)<\/td><td class="n"><b>([\d.]+)<\/b><\/td><td class="n">([\d.]+)<\/td>/g)]; assert.equal(rowsIn.length, P.rows.length + (P.todayEarlier || []).length + 1);
+  for (const [, , , eng, scr, gap] of rowsIn) { assert.ok(Math.abs(+eng - +scr) <= 1, "a row on the page is over one point"); assert.equal((+gap).toFixed(1), Math.abs(+eng - +scr).toFixed(1)); }
+  P.rows.forEach((r, i) => { assert.equal(+rowsIn[i][3], r.engine.reading, r.date); assert.equal(+rowsIn[i][4], r.script.reading, r.date); });
+  for (const want of ["WHAT THE PANE WILL DRAW — A DRAWING MADE ON THIS PAGE, NOT A PICTURE OF TRADINGVIEW", "WHAT COULD BE WRONG", "What was not done", "DECISIONS FOR ALAN", "PAGE SPECS", "It has never been compiled", "Scintilla — Deployment", "Scintilla Deployment Pane"]) assert.ok(seen.includes(want), "the page says: " + want);
+  assert.equal((html.match(/<li><b>[^<]+<\/b>[^<]*(?:<b>Recommended:[^<]+<\/b>)/g) || []).length, 3, "three decisions, each with a recommendation");
+  /* no network: the data and the drawing code are two plain scripts beside the page, and nothing else is asked for */
+  assert.deepEqual([...html.matchAll(/<script src="([^"]+)"/g)].map((m) => m[1]), ["pn1-page-data.js", "pn1-page.js"]); assert.ok(!/https?:\/\//.test(html.replace(/xmlns="[^"]+"/g, "")), "the page asks for nothing outside itself"); assert.ok(!/fetch\(|XMLHttpRequest|localStorage/.test(T("study/pn1/pn1-page.js")));
+  /* the data behind the drawings: one value a bar, the last bar is today's, and every figure the page names exists in it */
+  const data = JSON.parse(T("study/pn1/pn1-page-data.js").replace(/^[\s\S]*?window\.PN1 = /, "").replace(/;\s*$/, "")), n = data.series.dates.length; for (const k of ["spy", "reading", "invested", "ptsRsi", "ptsCredit"]) assert.equal(data.series[k].length, n, k); assert.equal(data.series.colour.length, n); assert.match(data.series.colour, /^[grt]+$/);
+  assert.equal(data.series.dates[n - 1], tn.session); assert.equal(data.series.reading[n - 1], tn.script.reading); assert.equal(data.figures[0].labels[0].text, tn.script.label);
+  const { same } = sides(); for (const k of [0, 1000, 3000, n - 2]) { const r = same.find((x) => x.date === data.series.dates[k]); assert.equal(data.series.reading[k], r.reading); assert.ok(near(data.series.invested[k], r.invested, 0.006)); }
+  for (const f of data.figures) assert.ok(html.includes('id="' + f.id + '"'), f.id); assert.equal((html.match(/class="fig"/g) || []).length, data.figures.length); assert.ok(html.includes("THE SAME AS A TABLE"));
+  /* the drawings wear the script's own colours */
+  for (const [k, name] of [["bull", "C_BULL"], ["bear", "C_BEAR"], ["line", "C_LINE"], ["deep", "C_DEEP"], ["panel", "C_PANEL"]]) assert.ok(CODE.includes("const color " + name.padEnd(8) + " = " + data.colours[k]) || new RegExp("const color " + name + "\\s*= " + data.colours[k]).test(CODE), name); });

@@ -14,7 +14,7 @@
 import fs from "node:fs"; import path from "node:path"; import crypto from "node:crypto"; import { fileURLToPath } from "node:url";
 import * as E from "../study/ds1/engine.mjs";
 import { view, fetchDaily, fetchLive, baseline, alignBars, withLive, sessionRanges, hygWithPayouts, nyParts, phaseOf } from "../study/ds1/live.mjs";
-import { parsePine, replay, adjustLikeTradingView, labelOf } from "../study/pn1/pine-replay.mjs";
+import { parsePine, replay, adjustLikeTradingView, labelOf, pointsAt, round1 } from "../study/pn1/pine-replay.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), J = (f) => JSON.parse(fs.readFileSync(f, "utf8")), iso = (t) => new Date(t).toISOString().slice(0, 10);
 const FIXTURE = path.join(ROOT, "tests/fixtures/pn1-closes-20261006.json"), OUT = path.join(ROOT, "study/pn1/data/pn1-proof.json"), PINE = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine");
 const args = process.argv.slice(2), CACHE = args.find((a) => !a.startsWith("--")), NO_LIVE = args.includes("--no-live"), QUIET = args.includes("--quiet");
@@ -82,14 +82,17 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
 
   /* ---------- two things worth knowing about the payouts ---------- */
   /* (a) if TradingView were late adding HYG's payout back on its ex-date: that day's reading with the payout left out, for the last two years */
-  const late = []; for (const [d] of F.payouts.filter((p) => p[0] >= F.dates[LAST - 504])) { const i = ix[d]; if (i == null) continue; const cut = { dates: F.dates.slice(0, i + 1), SPY: F.SPY.slice(0, i + 1), QQQ: F.QQQ.slice(0, i + 1), IEF: F.IEF.slice(0, i + 1) }, hc = F.HYG.slice(0, i + 1);
-    const without = scriptOn(K, cut, adjustLikeTradingView(cut.dates, hc, F.payouts.filter((p) => p[0] < d))).at(-1).reading; late.push({ date: d, with: tv[i].reading, without, gap: Math.abs(tv[i].reading - without) }); }
-  /* (b) the Treasury fund is read without its payouts (the tool's own choice): how far its plain close falls on its payout days — the same
-     first-of-month days as HYG's — and what that puts into credit's own move */
-  const exSet = new Set(F.payouts.map((p) => p[0])), onEx = [], other = []; for (let i = LAST - 251; i <= LAST; i++) ((exSet.has(F.dates[i]) ? onEx : other).push((F.IEF[i] / F.IEF[i - 1] - 1) * 100));
-  const meanOf = (a) => a.reduce((p, q) => p + q, 0) / (a.length || 1), dropOnEx = meanOf(onEx) - meanOf(other);
-  const observations = { latePayout: { exDates: late.length, medianGap: r1(pctl(late.map((x) => x.gap), 50)), worstGap: r1(Math.max(...late.map((x) => x.gap))), last: late.slice(-3), next: "the first trading day of next month" },
-    treasuryPayout: { payoutDaysLastYear: onEx.length, meanFallOnThoseDaysPct: r3(dropOnEx), putsIntoCreditOwn: r3(-K.RATES_SHARE * dropOnEx), note: "the pane copies the tool here; both read the Treasury fund's plain close" } };
+  const late = []; for (const [d, amt] of F.payouts.filter((p) => p[0] >= F.dates[LAST - 504])) { const i = ix[d]; if (i == null) continue; const cut = { dates: F.dates.slice(0, i + 1), SPY: F.SPY.slice(0, i + 1), QQQ: F.QQQ.slice(0, i + 1), IEF: F.IEF.slice(0, i + 1) }, hc = F.HYG.slice(0, i + 1);
+    const without = scriptOn(K, cut, adjustLikeTradingView(cut.dates, hc, F.payouts.filter((p) => p[0] < d))).at(-1).reading; late.push({ date: d, payoutPct: (100 * amt) / F.HYG[i - 1], with: tv[i].reading, without, gap: Math.abs(tv[i].reading - without) }); }
+  /* (b) the Treasury fund is read without its payouts (the tool's own choice, copied here). Its payout days are the same first-of-month
+     days as HYG's. How far its plain close falls on those days (against every other day, since 2016), what that puts into credit's own
+     move for the ten sessions after, and what taking it out again would do to the reading on those sessions of the last year */
+  const exIx = F.payouts.map((p) => ix[p[0]]).filter((k) => k != null), exSet = new Set(exIx), i2016 = F.dates.findIndex((d) => d >= "2016-01-01"), onEx = [], other = [];
+  for (let i = i2016; i <= LAST; i++) (exSet.has(i) ? onEx : other).push((F.IEF[i] / F.IEF[i - 1] - 1) * 100);
+  const meanOf = (a) => a.reduce((p, q) => p + q, 0) / (a.length || 1), fall = meanOf(onEx) - meanOf(other), lift = -K.RATES_SHARE * fall, moved = [];
+  for (let i = LAST - 251; i <= LAST; i++) { if (!exIx.some((k) => k > i - K.CREDIT_DAYS && k <= i) || same[i].raw == null) continue; const without = round1(Math.max(0, Math.min(100, K.TYPICAL_DAY + same[i].ptsRsi + pointsAt(K.CREDIT_PLACES, K.CREDIT_POINTS, same[i].creditOwn - lift)))); moved.push(Math.abs(without - same[i].reading)); }
+  const observations = { latePayout: { exDates: late.length, meanPayoutPct: r2(late.reduce((p, x) => p + x.payoutPct, 0) / late.length), medianGap: r1(pctl(late.map((x) => x.gap), 50)), worstGap: r1(Math.max(...late.map((x) => x.gap))), last: late.slice(-3).map((x) => ({ date: x.date, with: x.with, without: x.without, gap: r1(x.gap) })), next: "the first trading day of next month" },
+    treasuryPayout: { since: F.dates[i2016], payoutDays: onEx.length, meanFallOnThoseDaysPct: r3(fall), putsIntoCreditOwn: r3(lift), lastYear: { sessionsWithAPayoutDayInTheirTenSessions: moved.length, of: 252, medianReadingMoved: r1(pctl(moved, 50)), worstReadingMoved: r1(Math.max(...moved)) }, note: "the pane copies the tool here: both read the Treasury fund's plain close" } };
 
   /* ---------- today: the tool's own live read, and the script on the very same prices ---------- */
   let today = null;
