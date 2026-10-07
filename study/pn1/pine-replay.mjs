@@ -96,8 +96,11 @@ export function labelsOf(r, inputs = {}) { const showReading = inputs.showReadin
 export const labelOf = (r) => (labelsOf(r)[0] || { text: "" }).text;
 
 /* ---------- HYG with its payouts added back, the two ways it is done ---------- */
-/* TradingView's way (its help page "How does dividend adjustment work"): for each payout, every price BEFORE the ex-date is multiplied
-   by (the close of the day before − the payout) ÷ (that close); the newest price is never changed. payouts = [[exDate, amount], …]. */
+/* The way TradingView describes its adjustment: every price BEFORE an ex-date is scaled down in proportion to the payout, and the newest
+   price is never changed. Its help pages do not print the arithmetic; this is the standard form data vendors publish — each earlier price
+   is multiplied by (the close of the day before − the payout) ÷ (that close). The other usual form, the tool's own day-by-day chain, is
+   study/ds1/live.mjs's hygWithPayouts; scripts/pn1-prove.mjs measures how far apart the two can put the reading, so the pane does not
+   hang on which one TradingView uses. payouts = [[exDate, amount], …]. */
 export function adjustLikeTradingView(dates, close, payouts) {
   const ix = new Map(dates.map((d, i) => [d, i])), factorAt = new Array(dates.length).fill(1);
   for (const [d, amt] of payouts) { let i = ix.get(d); if (i == null) { i = dates.findIndex((x) => x >= d); if (i < 0) continue; } if (i === 0 || close[i - 1] == null) continue; factorAt[i] *= (close[i - 1] - amt) / close[i - 1]; }

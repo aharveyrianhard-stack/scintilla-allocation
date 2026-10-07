@@ -79,6 +79,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
      nothing else, is set against the unrounded series: the days over one point that rounding ALONE makes, and when they fall */
   { const cents = scriptOn(K, F, tvHyg.map((v) => (v == null ? null : Math.round(v * 100) / 100))), over = []; let w = 0; for (let i = 0; i <= LAST; i++) if (tv[i].reading != null && cents[i].reading != null) { const g = Math.abs(tv[i].reading - cents[i].reading); if (g > w) w = g; if (g > 1.0000001) over.push(F.dates[i]); }
     history.roundingToTheCentAlone = { worst: r1(w), over1: over.length, over1First: over[0] || null, over1Last: over.at(-1) || null, tablePrice: { first: F.hygWithPayouts.find((v) => v != null), last: F.hygWithPayouts[LAST] } }; }
+  /* TradingView does not print its arithmetic. The two usual ways of adding a payout back — every earlier price scaled, or the tool's own
+     day-by-day chain — are both run on the same plain closes and the same payout list: how far apart can they put the reading? */
+  { const chained = scriptOn(K, F, hygWithPayouts(F.dates, F.HYG, F.payouts).tr); let w = 0, on = null, wy = 0; for (let i = 0; i <= LAST; i++) if (tv[i].reading != null && chained[i].reading != null) { const g = Math.abs(tv[i].reading - chained[i].reading); if (g > w) { w = g; on = F.dates[i]; } if (i >= LAST - 251 && g > wy) wy = g; }
+    history.betweenTheTwoUsualWays = { worst: r1(w), worstOn: on, lastYearWorst: r1(wy) }; }
   /* how far apart the two ways of adding HYG's payouts back are, as credit's own move sees them */
   { let w = 0, on = null; const v = []; for (let i = 0; i <= LAST; i++) if (same[i].creditOwn != null && tv[i].creditOwn != null) { const g = Math.abs(same[i].creditOwn - tv[i].creditOwn); v.push(g); if (g > w) { w = g; on = F.dates[i]; } } history.creditOwnBetweenTheTwoWays = { worst: r3(w), worstOn: on, median: r4(pctl(v, 50)), p99: r3(pctl(v, 99)) }; }
 

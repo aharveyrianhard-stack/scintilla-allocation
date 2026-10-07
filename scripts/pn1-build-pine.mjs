@@ -35,7 +35,7 @@ const one = (x) => (Math.round(x * 10) / 10).toFixed(1);
 /* the lines of the header that quote what the replay measured (scripts/pn1-prove.mjs) */
 function measuredLines(proof) {
   if (!proof) return ["//      The measured gaps are on the page beside this file (study/pn1/PN1.html)."];
-  const a = proof.history.samePrices, b = proof.history.tradingViewPayouts, s = proof.sensitivity, yr = proof.history.lastYear.tradingViewPayouts, n = (x) => x.toLocaleString("en-US"), rc = proof.history.roundingToTheCentAlone && proof.history.roundingToTheCentAlone.over1 ? proof.history.roundingToTheCentAlone : null;
+  const a = proof.history.samePrices, b = proof.history.tradingViewPayouts, s = proof.sensitivity, yr = proof.history.lastYear.tradingViewPayouts, n = (x) => x.toLocaleString("en-US"), rc = proof.history.roundingToTheCentAlone && proof.history.roundingToTheCentAlone.over1 ? proof.history.roundingToTheCentAlone : null, tw = proof.history.betweenTheTwoUsualWays || null;
   const same = a.worst === 0 ? "the reading is the same on every one of those days" : `the reading never differs by more than ${one(a.worst)} of a point`;
 
   return [
@@ -45,6 +45,7 @@ function measuredLines(proof) {
     `//        · fed HYG's payouts the way TradingView adds them back, it is within one point on ${one(b.shareWithin1)}% of`,
     `//          days (median gap ${b.median.toFixed(1)}; 99 days in 100 within ${one(b.p99)}).`,
     ...(b.over1 === 0 ? [`//          No day is over one point; the worst is ${one(b.worst)} on ${day(b.worstOn)}.`] : [`//          The ${b.over1} days over one point all fall in ${b.over1First.slice(0, 4)}–${b.over1Last.slice(0, 4)}, when HYG's price with payouts was`, `//          lower and a cent of rounding was more of it${rc ? ` (rounding to the cent alone makes ${rc.over1} such days,` : ";"}`, ...(rc ? [`//          all in ${rc.over1First.slice(0, 4)}–${rc.over1Last.slice(0, 4)}).`] : []), `//          The worst is ${one(b.worst)} on ${day(b.worstOn)}. In the last year the worst gap was ${one(yr.worst)}.`]),
+    ...(tw ? [`//        · scaling and chaining, run on the same closes and payouts, never put the reading more than ${one(tw.worst)}`, `//          apart (${day(tw.worstOn)}; ${one(tw.lastYearWorst)} in the last year), so which one TradingView uses matters little;`] : []),
     `//        · one cent on one closing price moves the reading by up to ${s.centWorst.toFixed(2)} of a point on ${day(s.on)} (the cent`,
     `//          that matters most is on HYG); across the last year the most a cent moved it was ${s.centWorstYear.toFixed(2)}.`];
 }
@@ -98,7 +99,7 @@ export function buildPine(n = pineNumbers(), proof = fs.existsSync(PROOF) ? J(PR
 //      cent on HYG or on the Treasury fund can move the reading by a few tenths of a point.
 //   2. HYG's payouts. TradingView adds them back by scaling every earlier price; the tool chains them
 //      day by day, and its long history comes from a table rounded to the cent. The two agree closely,
-//      not exactly.
+//      not exactly. (TradingView does not print its arithmetic; "scaling" below is the standard form.)
 ${measuredLines(proof).join("\n")}
 ${latePayoutLines(proof).join("\n")}
 //   4. After the close. Until the day's close is settled the tool goes on counting prices traded after
