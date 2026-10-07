@@ -54,7 +54,11 @@ export function money(pct) {
   const micron = Math.min(MICRON_SHARE * pct, MICRON_CAP), conviction = CONVICTION_SHARE * pct;
   return { invested: pct, cash: 100 - pct, conviction, micron, core: pct - micron }; }
 
-export function deploy(inputs, model) {
+/* the deployed line is the average of tonight's reading and the two before it (prior = [yesterday, the day before], newest first): the
+   reading can move with one close; the line gets there over three evenings — transitions, not cliffs */
+export const LINE_EVENINGS = 3;
+export function lineOf(pct, prior = []) { const a = [pct, ...prior.filter((v) => v != null).slice(0, LINE_EVENINGS - 1)]; return +(a.reduce((s, v) => s + v, 0) / a.length).toFixed(1); }
+export function deploy(inputs, model, prior = []) {
   const { rsi, vixPct } = inputs; const reasons = [];
   if (!(rsi >= 0 && rsi <= 100) || !(vixPct >= 0 && vixPct <= 100)) throw new Error("deploy: rsi and vixPct must be 0–100");
   let fearPct = vixPct, fearSource = "VIX";
@@ -80,4 +84,5 @@ export function deploy(inputs, model) {
   if (cr) reasons.push(tie(cr, `with credit (HYG, payouts added back) ${inputs.creditAbove ? "above" : "under"} its 200-day`));
   reasons.push(`the edge is ${e >= 0 ? "+" : ""}${e.toFixed(2)}; history put ${LADDER.join(" / ")}% at ${model.rungs.edges.map((v) => (v >= 0 ? "+" : "") + v.toFixed(2)).join(" / ")}, so the line says ${beforeTilt.toFixed(0)}%`);
   if (tenNote) reasons.push(tenNote + (tenTilt ? ` (tilt ${tenTilt > 0 ? "+" : ""}${tenTilt} points)` : " (advisory only — it does not move the number)"));
-  return { pct: +pct.toFixed(1), pctBeforeTilt: +beforeTilt.toFixed(1), edge: +e.toFixed(3), parts, fearPct, fearSource, odds: { med60: main.m, share60: main.p }, tenTilt, money: money(+pct.toFixed(1)), reasons }; }
+  const line = lineOf(+pct.toFixed(1), prior); if (prior.length) reasons.push(`the line is the average of the last ${Math.min(LINE_EVENINGS, prior.length + 1)} evenings' readings: ${line.toFixed(0)}%`);
+  return { pct: +pct.toFixed(1), line, pctBeforeTilt: +beforeTilt.toFixed(1), edge: +e.toFixed(3), parts, fearPct, fearSource, odds: { med60: main.m, share60: main.p }, tenTilt, money: money(line), moneyTonight: money(+pct.toFixed(1)), reasons }; }
