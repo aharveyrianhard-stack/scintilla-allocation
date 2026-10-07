@@ -1,0 +1,221 @@
+{
+ "read_utc": "2026-10-07T04:08:41.550Z",
+ "heat": 0.05744340786223802,
+ "rung": {
+  "cond": "NEUTRAL",
+  "pct": 50
+ },
+ "sentence": "The market's heat is middling (+0.06 on a scale from −1 washed out to +1 stretched), so the plan keeps about half the money in cash: 50% invested, 50% in cash.",
+ "rows": [
+  {
+   "key": "SPY",
+   "name": "SPY GEIGER",
+   "val": 0.8065,
+   "w": 1,
+   "sub": "chart API · fresh"
+  },
+  {
+   "key": "QQQ",
+   "name": "QQQ GEIGER",
+   "val": 0.8501,
+   "w": 1,
+   "sub": "chart API · fresh"
+  },
+  {
+   "key": "IWM",
+   "name": "IWM GEIGER",
+   "val": -0.228,
+   "w": 0.5,
+   "sub": "small caps · chart API · fresh"
+  },
+  {
+   "key": "SMH",
+   "name": "SMH GEIGER",
+   "val": 0.7537,
+   "w": 0.5,
+   "sub": "semis · chart API · fresh"
+  },
+  {
+   "key": "VIX",
+   "name": "VIX (inv)",
+   "val": 0.6656,
+   "w": 0.5,
+   "sub": "15.0 · chart API macro (FMP), live · session 2026-10-06"
+  },
+  {
+   "key": "US10Y",
+   "name": "US 10Y (inv)",
+   "val": -1,
+   "w": 0.5,
+   "sub": "5.27% · treasury_rates (db) 2026-10-06"
+  },
+  {
+   "key": "OIL",
+   "name": "OIL (inv)",
+   "val": -0.519,
+   "w": 0.5,
+   "sub": "CL · composite_staged · just now"
+  },
+  {
+   "key": "CRYPTO",
+   "name": "CRYPTO (BTC)",
+   "val": 0.5112,
+   "w": 0.25,
+   "sub": "risk appetite · composite_staged · just now"
+  },
+  {
+   "key": "BREADTH_EW",
+   "name": "EQUAL-WEIGHT vs INDEX",
+   "val": -0.595,
+   "w": 0.5,
+   "sub": "RSP − SPY = -0.59 · negative means the average stock is colder than the index"
+  },
+  {
+   "key": "BREADTH_SC",
+   "name": "SMALL vs LARGE",
+   "val": -1,
+   "w": 0.25,
+   "sub": "IWM − SPY = -1.03"
+  },
+  {
+   "key": "SECTORS",
+   "name": "SECTOR BOW TIE (blended)",
+   "val": -0.0146,
+   "w": 0.75,
+   "sub": "11 sectors, five readings each, average -0.01 · bow tie -0.15 — the biggest names carry the sectors · 2 leading · 4 lagging"
+  },
+  {
+   "key": "VIX_TERM",
+   "name": "VIX TERM (spot ÷ 3m)",
+   "val": 0.5964,
+   "w": 0.25,
+   "sub": "0.851 · 3-month leg from the VIX table's 2026-10-06 close, spot live · above 1.00 = stress priced now"
+  },
+  {
+   "key": "CURVE",
+   "name": "YIELD CURVE (10y − 2y)",
+   "val": 0.32,
+   "w": 0.5,
+   "sub": "0.48% · negative = inverted"
+  },
+  {
+   "key": "ADLINE",
+   "name": "ADVANCE / DECLINE",
+   "val": -0.037,
+   "w": 0.5,
+   "sub": "served set, 318 names · line -216 over 20 sessions to 2026-10-06 · today 224 up / 90 down · last close 215 up / 99 down"
+  },
+  {
+   "key": "CONC",
+   "name": "CONCENTRATION",
+   "val": -0.7489,
+   "w": 0.5,
+   "sub": "20 sessions: S&P +1.7% vs equal-weight -2.0% = -3.7% · the big names carry it · 73% of the served set's 20-session move came from its ten largest names (NVDA, AAPL, GOOGL, GOOG, MSFT …), which are 47% of its value"
+  },
+  {
+   "key": "TRIN",
+   "name": "TRIN (inv)",
+   "val": -0.0368,
+   "w": 0.25,
+   "sub": "1.018 · below 1.00 = volume confirming the advance"
+  },
+  {
+   "key": "B_VOL",
+   "name": "UP vs DOWN VOLUME",
+   "val": 0.3591,
+   "w": 0.25,
+   "sub": "12.0% net up-volume"
+  },
+  {
+   "key": "CREDIT",
+   "name": "CREDIT (HYG)",
+   "val": -0.4796,
+   "w": 0.5,
+   "sub": "high yield · composite_staged"
+  },
+  {
+   "key": "DURATION",
+   "name": "DURATION (TLT)",
+   "val": -0.852,
+   "w": 0.25,
+   "sub": "long treasuries · composite_staged"
+  },
+  {
+   "key": "HAVEN",
+   "name": "GOLD (inv)",
+   "val": -0.2044,
+   "w": 0.25,
+   "sub": "haven bid · composite_staged"
+  },
+  {
+   "key": "DEF",
+   "name": "DEFENSIVES (inv)",
+   "val": 0.0205,
+   "w": 0.25,
+   "sub": "XLP+XLU · db"
+  }
+ ],
+ "notVoting": [
+  {
+   "key": "VALUE",
+   "name": "VALUE (RSP)",
+   "weight": 0,
+   "why": "weight 0"
+  },
+  {
+   "key": "PCC",
+   "name": "PUT / CALL (breadth)",
+   "weight": 0,
+   "why": "no reading"
+  },
+  {
+   "key": "SKEW",
+   "name": "SKEW (put protection bid)",
+   "weight": 0.25,
+   "why": "no reading"
+  },
+  {
+   "key": "MAGS",
+   "name": "MEGA-CAPS vs INDEX (inv)",
+   "weight": 0,
+   "why": "weight 0"
+  },
+  {
+   "key": "M_200D",
+   "name": "MARKET % ABOVE 200-DAY",
+   "weight": 0,
+   "why": "weight 0"
+  },
+  {
+   "key": "M_50D",
+   "name": "MARKET % ABOVE 50-DAY",
+   "weight": 0,
+   "why": "weight 0"
+  },
+  {
+   "key": "M_PCC",
+   "name": "PUT / CALL (CBOE)",
+   "weight": 0,
+   "why": "weight 0"
+  },
+  {
+   "key": "M_TICK",
+   "name": "NYSE TICK",
+   "weight": 0,
+   "why": "no reading"
+  },
+  {
+   "key": "M_ADD",
+   "name": "NYSE ADVANCE / DECLINE",
+   "weight": 0,
+   "why": "weight 0"
+  }
+ ],
+ "weightsAreDefaults": true,
+ "pageErrors": [],
+ "nonGet": {
+  "blocked": 0,
+  "allowed": 0,
+  "urls": []
+ }
+}
