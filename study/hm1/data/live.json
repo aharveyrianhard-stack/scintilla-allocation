@@ -1,6 +1,6 @@
 {
- "read_utc": "2026-10-07T04:08:41.550Z",
- "heat": 0.05744340786223802,
+ "read_utc": "2026-10-07T04:31:54.173Z",
+ "heat": 0.05751520273403292,
  "rung": {
   "cond": "NEUTRAL",
   "pct": 50
@@ -52,14 +52,14 @@
   {
    "key": "OIL",
    "name": "OIL (inv)",
-   "val": -0.519,
+   "val": -0.5187,
    "w": 0.5,
    "sub": "CL · composite_staged · just now"
   },
   {
    "key": "CRYPTO",
    "name": "CRYPTO (BTC)",
-   "val": 0.5112,
+   "val": 0.511,
    "w": 0.25,
    "sub": "risk appetite · composite_staged · just now"
   },
@@ -82,7 +82,7 @@
    "name": "SECTOR BOW TIE (blended)",
    "val": -0.0146,
    "w": 0.75,
-   "sub": "11 sectors, five readings each, average -0.01 · bow tie -0.15 — the biggest names carry the sectors · 2 leading · 4 lagging"
+   "sub": "11 sectors, five readings each, average -0.01 · bow tie -0.15 — the biggest names carry the sectors · 2 leading · 4 lagging · 4 turning up · 1 pulling back"
   },
   {
    "key": "VIX_TERM",
@@ -143,7 +143,7 @@
   {
    "key": "HAVEN",
    "name": "GOLD (inv)",
-   "val": -0.2044,
+   "val": -0.202,
    "w": 0.25,
    "sub": "haven bid · composite_staged"
   },
@@ -164,7 +164,7 @@
   },
   {
    "key": "PCC",
-   "name": "PUT / CALL (breadth)",
+   "name": "PUT / CALL (IB, market estimate)",
    "weight": 0,
    "why": "no reading"
   },
@@ -217,5 +217,14 @@
   "blocked": 0,
   "allowed": 0,
   "urls": []
+ },
+ "source": "https://allocation.scintillahub.ai/",
+ "deployed": {
+  "url": "https://allocation.scintillahub.ai/",
+  "bytes": 274588,
+  "sha256": "11526d239718c4a1ad7ab699c39b3377f227b64a0c3f7d98644573711b2262e2",
+  "mainCommit": "e8b2862",
+  "mainSha256": "11526d239718c4a1ad7ab699c39b3377f227b64a0c3f7d98644573711b2262e2",
+  "sameAsMain": true
  }
 }
