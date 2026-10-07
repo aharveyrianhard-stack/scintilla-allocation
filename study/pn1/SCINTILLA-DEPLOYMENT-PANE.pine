@@ -47,19 +47,22 @@
 //        · fed HYG's payouts the way TradingView adds them back, it is within one point on 99.8% of
 //          days (median gap 0.1; 99 days in 100 within 0.6).
 //          The 8 days over one point all fall in 2007–2012, when HYG's price with payouts was
-//          lower and a cent was more of it; the worst is 2.2 on 28 Nov 2007. In the last year the worst
-//          gap was 0.6.
+//          lower and a cent of rounding was more of it (rounding to the cent alone makes 6 such days,
+//          all in 2007–2012).
+//          The worst is 2.2 on 28 Nov 2007. In the last year the worst gap was 0.6.
 //        · one cent on one closing price moves the reading by up to 0.45 of a point on 6 Oct 2026 (the cent
 //          that matters most is on HYG); across the last year the most a cent moved it was 0.72.
 //   3. HYG's payout day. On the first trading day of a month HYG trades without its payout (about 0.5%).
 //      If TradingView were late adding that payout back, credit's own move would read too low that day
 //      and the reading would be off by about 12 points (17 at worst, in either direction) until it caught
 //      up. The tool keeps its own payout list and is not affected. Worth a look on the next payout day.
-//   4. The tool lets you average the last few readings, and switch a light on so that it counts. This
+//   4. After the close. Until the day's close is settled the tool goes on counting prices traded after
+//      16:00 New York; this pane reads the regular session only, so for a while the two can differ.
+//   5. The tool lets you average the last few readings, and switch a light on so that it counts. This
 //      pane always shows the bar's own reading with the two voting parts only: the tool's baseline.
-//   5. The account's shape (70 held, 30 tactical) is the tool's baseline on 7 Oct 2026. If you change
+//   6. The account's shape (70 held, 30 tactical) is the tool's baseline on 7 Oct 2026. If you change
 //      it in the tool, change the two inputs here as well.
-//   6. Made for a daily chart. On a weekly chart each bar shows its last day. On an intraday chart a
+//   7. Made for a daily chart. On a weekly chart each bar shows its last day. On an intraday chart a
 //      past day's reading appears on that day's last bar, and the live bar is live.
 //
 // PASTE: Pine Editor → new indicator → select all → paste → Save → Add to chart. It reads the same
@@ -230,12 +233,13 @@ float partB = 50.0 + ptsCredit
 color colA  = ptsRsi >= 0 ? C_BULL : C_BEAR
 color colB  = ptsCredit >= 0 ? C_BULL : C_BEAR
 
+// only the % invested shows its number in the status line; the floor and the optional lines stay out of it
 pInv   = plot(invested, "% invested", color = lineCol, linewidth = 2, style = plot.style_line)
-pFloor = plot(na(invested) ? na : heldPct, "held through pullbacks", color = color.new(C_DEEP, 35), linewidth = 1)
+pFloor = plot(na(invested) ? na : heldPct, "held through pullbacks", color = color.new(C_DEEP, 35), linewidth = 1, display = display.pane)
 fill(pInv, pFloor, color = color.new(C_LINE, 85), title = "tactical money at work")
-plot(showReading ? reading : na, "market reading (line)", color = C_LINE, linewidth = 1)
-plot(showParts ? partA : na, "SPY and QQQ together: 50 + its points", color = colA, linewidth = 1)
-plot(showParts ? partB : na, "credit: 50 + its points", color = colB, linewidth = 1, style = plot.style_circles)
+plot(showReading ? reading : na, "market reading (line)", color = C_LINE, linewidth = 1, display = display.all - display.status_line)
+plot(showParts ? partA : na, "SPY and QQQ together: 50 + its points", color = colA, linewidth = 1, display = display.all - display.status_line)
+plot(showParts ? partB : na, "credit: 50 + its points", color = colB, linewidth = 1, style = plot.style_circles, display = display.all - display.status_line)
 // the reading and the two raw numbers behind it — Data Window only (hover a bar to read them)
 plot(reading,   "market reading",                          color = C_AXIS, display = display.data_window)
 plot(rsiBoth,   "SPY and QQQ's RSI, averaged",             color = C_AXIS, display = display.data_window)

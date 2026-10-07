@@ -69,6 +69,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const first = F.dates[eng.findIndex((e) => e.reading != null)], history = { from: first, to: F.asOf, samePrices: gaps(eng, same), tradingViewPayouts: gaps(eng, tv), lastYear: { samePrices: gaps(eng, same, LAST - 251), tradingViewPayouts: gaps(eng, tv, LAST - 251) },
     firstScriptReading: F.dates[same.findIndex((r) => r.reading != null)], investedWorst: { samePrices: null, tradingViewPayouts: null } };
   for (const [k, s] of [["samePrices", same], ["tradingViewPayouts", tv]]) { let w = 0; for (let i = 0; i <= LAST; i++) if (eng[i].invested != null && s[i].invested != null) w = Math.max(w, Math.abs(eng[i].invested - s[i].invested)); history.investedWorst[k] = r2(w); }
+  /* why the two ways differ: the tool's long table of HYG with payouts is rounded to the cent. Rounding TradingView's way to the cent, and
+     nothing else, is set against the unrounded series: the days over one point that rounding ALONE makes, and when they fall */
+  { const cents = scriptOn(K, F, tvHyg.map((v) => (v == null ? null : Math.round(v * 100) / 100))), over = []; let w = 0; for (let i = 0; i <= LAST; i++) if (tv[i].reading != null && cents[i].reading != null) { const g = Math.abs(tv[i].reading - cents[i].reading); if (g > w) w = g; if (g > 1.0000001) over.push(F.dates[i]); }
+    history.roundingToTheCentAlone = { worst: r1(w), over1: over.length, over1First: over[0] || null, over1Last: over.at(-1) || null, tablePrice: { first: F.hygWithPayouts.find((v) => v != null), last: F.hygWithPayouts[LAST] } }; }
   /* how far apart the two ways of adding HYG's payouts back are, as credit's own move sees them */
   { let w = 0, on = null; const v = []; for (let i = 0; i <= LAST; i++) if (same[i].creditOwn != null && tv[i].creditOwn != null) { const g = Math.abs(same[i].creditOwn - tv[i].creditOwn); v.push(g); if (g > w) { w = g; on = F.dates[i]; } } history.creditOwnBetweenTheTwoWays = { worst: r3(w), worstOn: on, median: r4(pctl(v, 50)), p99: r3(pctl(v, 99)) }; }
 

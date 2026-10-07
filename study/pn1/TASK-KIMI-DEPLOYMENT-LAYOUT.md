@@ -90,18 +90,20 @@ as it is and say so.
 ### 6 · The script, as a NEW saved script
 a. Make the SPY chart (top-left) the active chart.
 b. Open the Pine editor: `window.TradingView.bottomWidgetBar.showWidget('scripteditor')`.
-c. Start a NEW indicator through the editor's own menu (the script-name header → "Create new" → "Indicator"). The editor may
-   open with the last script you worked on: that is why this step comes first. Read the header after it: if it shows the
-   name of ANY saved script in `out/00-saved-before.json`, STOP. Never `setValue` on a script that already has a saved name.
+c. Start a NEW indicator through the editor's own menu (the script-name header → "Create new" → "Indicator", or however
+   this build names a new, empty indicator). The editor may open with the last script you worked on: that is why this step
+   comes first. Read the header after it: it must show the app's name for a script not yet saved. If it shows the name of
+   ANY saved script in `out/00-saved-before.json`, STOP. Never `setValue` on a script that already has a saved name.
 d. Set the text from `SCINTILLA-DEPLOYMENT-PANE.pine` in this folder with the proven path:
    `.monaco-editor.pine-editor-monaco` → the first parent with a `__reactFiber$` key → `.return` until
    `memoizedProps.value.monacoEnv` → `env.editor.getEditors()[0].setValue(text)`, the text passed as one JSON string.
    Confirm `getValue() === the file's text` (same length, same sha256).
 e. Wait 4 s. Read the markers: `env.editor.getModelMarkers({ resource: editor.getModel().uri })`. Expected: none.
    - Warnings: record them and go on.
-   - Errors: you may fix ONLY what a marker names and ONLY in these two ways —
+   - Errors: you may fix ONLY what a marker names and ONLY in these three ways —
      (i) remove the argument `display = display.none` from the `input.…(…)` call the marker points at;
-     (ii) correct the indentation of a wrapped line (wrapped lines start with five spaces).
+     (ii) remove the argument `display = …` from the `plot(…)` call the marker points at;
+     (iii) correct the indentation of a wrapped line (wrapped lines start with five spaces).
      Do NOT change a number, a table, a name, any text inside quotes, or any arithmetic. Anything else: STOP and put the
      marker's line, column and message in the receipt. At most 3 attempts. Never save with an error.
 f. Save through the header menu ROW "Save script", name `Scintilla Deployment Pane`. Confirm on pine-facade that a script of
@@ -116,6 +118,7 @@ h. With the SPY chart active, "Add to chart" (the editor's own button). Confirm 
 - A pane under SPY on a 0–100 scale: one line that lives between 70 and 100, green on days it rose and red on days it fell;
   a thin line at 70 with the band between the two shaded teal; level lines at 0, 50 and 100; and one label on the last bar
   reading `Invested NN% · market reading NN`. No white anywhere.
+- The status line beside the pane's name should read `DEPLOYMENT 70 30` and then one number, the % invested. Record it.
 - Read the label's text and record it with the time. (It moves with prices. For reference only: at 15:56 New York on 7 Oct
   our tool read "Invested 79% · market reading 30".)
 - Read the pane's own numbers on the eight past days below (the script's values on chart 0: "% invested", "market reading",

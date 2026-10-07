@@ -35,7 +35,7 @@ const one = (x) => (Math.round(x * 10) / 10).toFixed(1);
 /* the lines of the header that quote what the replay measured (scripts/pn1-prove.mjs) */
 function measuredLines(proof) {
   if (!proof) return ["//      The measured gaps are on the page beside this file (study/pn1/PN1.html)."];
-  const a = proof.history.samePrices, b = proof.history.tradingViewPayouts, s = proof.sensitivity, yr = proof.history.lastYear.tradingViewPayouts, n = (x) => x.toLocaleString("en-US");
+  const a = proof.history.samePrices, b = proof.history.tradingViewPayouts, s = proof.sensitivity, yr = proof.history.lastYear.tradingViewPayouts, n = (x) => x.toLocaleString("en-US"), rc = proof.history.roundingToTheCentAlone && proof.history.roundingToTheCentAlone.over1 ? proof.history.roundingToTheCentAlone : null;
   const same = a.worst === 0 ? "the reading is the same on every one of those days" : `the reading never differs by more than ${one(a.worst)} of a point`;
 
   return [
@@ -44,7 +44,7 @@ function measuredLines(proof) {
     `//        · fed the engine's own prices, ${same};`,
     `//        · fed HYG's payouts the way TradingView adds them back, it is within one point on ${one(b.shareWithin1)}% of`,
     `//          days (median gap ${b.median.toFixed(1)}; 99 days in 100 within ${one(b.p99)}).`,
-    ...(b.over1 === 0 ? [`//          No day is over one point; the worst is ${one(b.worst)} on ${day(b.worstOn)}.`] : [`//          The ${b.over1} days over one point all fall in ${b.over1First.slice(0, 4)}–${b.over1Last.slice(0, 4)}, when HYG's price with payouts was`, `//          lower and a cent was more of it; the worst is ${one(b.worst)} on ${day(b.worstOn)}. In the last year the worst`, `//          gap was ${one(yr.worst)}.`]),
+    ...(b.over1 === 0 ? [`//          No day is over one point; the worst is ${one(b.worst)} on ${day(b.worstOn)}.`] : [`//          The ${b.over1} days over one point all fall in ${b.over1First.slice(0, 4)}–${b.over1Last.slice(0, 4)}, when HYG's price with payouts was`, `//          lower and a cent of rounding was more of it${rc ? ` (rounding to the cent alone makes ${rc.over1} such days,` : ";"}`, ...(rc ? [`//          all in ${rc.over1First.slice(0, 4)}–${rc.over1Last.slice(0, 4)}).`] : []), `//          The worst is ${one(b.worst)} on ${day(b.worstOn)}. In the last year the worst gap was ${one(yr.worst)}.`]),
     `//        · one cent on one closing price moves the reading by up to ${s.centWorst.toFixed(2)} of a point on ${day(s.on)} (the cent`,
     `//          that matters most is on HYG); across the last year the most a cent moved it was ${s.centWorstYear.toFixed(2)}.`];
 }
@@ -101,11 +101,13 @@ export function buildPine(n = pineNumbers(), proof = fs.existsSync(PROOF) ? J(PR
 //      not exactly.
 ${measuredLines(proof).join("\n")}
 ${latePayoutLines(proof).join("\n")}
-//   4. The tool lets you average the last few readings, and switch a light on so that it counts. This
+//   4. After the close. Until the day's close is settled the tool goes on counting prices traded after
+//      16:00 New York; this pane reads the regular session only, so for a while the two can differ.
+//   5. The tool lets you average the last few readings, and switch a light on so that it counts. This
 //      pane always shows the bar's own reading with the two voting parts only: the tool's baseline.
-//   5. The account's shape (${n.held} held, ${n.tactical} tactical) is the tool's baseline on 7 Oct 2026. If you change
+//   6. The account's shape (${n.held} held, ${n.tactical} tactical) is the tool's baseline on 7 Oct 2026. If you change
 //      it in the tool, change the two inputs here as well.
-//   6. Made for a daily chart. On a weekly chart each bar shows its last day. On an intraday chart a
+//   7. Made for a daily chart. On a weekly chart each bar shows its last day. On an intraday chart a
 //      past day's reading appears on that day's last bar, and the live bar is live.
 //
 // PASTE: Pine Editor → new indicator → select all → paste → Save → Add to chart. It reads the same
@@ -251,12 +253,13 @@ float partB = 50.0 + ptsCredit
 color colA  = ptsRsi >= 0 ? C_BULL : C_BEAR
 color colB  = ptsCredit >= 0 ? C_BULL : C_BEAR
 
+// only the % invested shows its number in the status line; the floor and the optional lines stay out of it
 pInv   = plot(invested, "% invested", color = lineCol, linewidth = 2, style = plot.style_line)
-pFloor = plot(na(invested) ? na : heldPct, "held through pullbacks", color = color.new(C_DEEP, 35), linewidth = 1)
+pFloor = plot(na(invested) ? na : heldPct, "held through pullbacks", color = color.new(C_DEEP, 35), linewidth = 1, display = display.pane)
 fill(pInv, pFloor, color = color.new(C_LINE, 85), title = "tactical money at work")
-plot(showReading ? reading : na, "market reading (line)", color = C_LINE, linewidth = 1)
-plot(showParts ? partA : na, "SPY and QQQ together: 50 + its points", color = colA, linewidth = 1)
-plot(showParts ? partB : na, "credit: 50 + its points", color = colB, linewidth = 1, style = plot.style_circles)
+plot(showReading ? reading : na, "market reading (line)", color = C_LINE, linewidth = 1, display = display.all - display.status_line)
+plot(showParts ? partA : na, "SPY and QQQ together: 50 + its points", color = colA, linewidth = 1, display = display.all - display.status_line)
+plot(showParts ? partB : na, "credit: 50 + its points", color = colB, linewidth = 1, style = plot.style_circles, display = display.all - display.status_line)
 // the reading and the two raw numbers behind it — Data Window only (hover a bar to read them)
 plot(reading,   "market reading",                          color = C_AXIS, display = display.data_window)
 plot(rsiBoth,   "SPY and QQQ's RSI, averaged",             color = C_AXIS, display = display.data_window)
