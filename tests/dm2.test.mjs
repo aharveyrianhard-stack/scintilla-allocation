@@ -134,18 +134,11 @@ test("15 · the live module against the chart API: rebuilt from 420 daily bars, 
   const { quotes, macro } = await fetchQuotes(getApi), R = readLive({ base: LV, candles, quotes, macro }); assert.ok(R.reading.pct >= 15 && R.reading.pct <= 100); assert.ok(near(R.reading.line, (R.reading.pct + R.prior[0].pct + R.prior[1].pct) / 3, 0.06)); assert.ok(near(R.money.micron, Math.min(0.4 * R.reading.line, 30), 1e-9));
   assert.equal(R.lights.length, D.dropped.length); assert.ok(R.session >= LV.check.date); });
 
-test("16 · the tool: the matrix's line sits under the ladder in step 2, live, at 1680 and 390 — no error, no write, no sideways scroll, no text under 11px, the ladder untouched", async () => {
-  for (const [w, h] of [[1680, 1050], [390, 844]]) { const P = await openPage({ width: w, height: h }); try {
-    await P.page.waitForFunction(() => window.DM2_LIVE_READY === true, null, { timeout: 90000 }); await P.page.waitForTimeout(6000);
-    const r = await P.page.evaluate(() => { const root = document.getElementById("dm2l-root"), el = document.getElementById("dm2live"), st = window.DM2_LIVE, pol = document.getElementById("policy");
-      return { has: !!root, line: root && +root.dataset.line, reading: root && +root.dataset.reading, after: pol.nextElementSibling === el, samePanel: pol.closest(".panel") === el.closest(".panel"), reads: st.reads, error: st.error, prior: st.read.prior.map((p) => p.pct), money: st.read.money, ladder: st.ladderPct, ladderPage: policyStep(heat()).pct, votes: st.read.reading.votes.map((v) => v.key),
-        text: el.innerText, scrollW: document.scrollingElement.scrollWidth, minFont: Math.min(...[...el.querySelectorAll("*")].filter((e) => e.children.length === 0 && e.textContent.trim()).map((e) => parseFloat(getComputedStyle(e).fontSize))), policyText: pol.innerText.slice(0, 60) }; });
-    assert.deepEqual(P.errors, []); assert.equal(P.nonGet.blocked + P.nonGet.allowed, 0, "no write of any kind"); assert.ok(r.has && r.after && r.samePanel, "the line is the ladder's next sibling, in step 2"); assert.equal(r.error, null);
-    assert.ok(r.line >= 15 && r.line <= 100 && r.reading >= 15 && r.reading <= 100); assert.ok(near(r.line, (r.reading + r.prior[0] + r.prior[1]) / 3, 0.06)); assert.ok(near(r.money.cash + r.money.core + r.money.micron, 100, 1e-6)); assert.ok(near(r.money.micron, Math.min(0.4 * r.line, 30), 1e-6));
-    assert.equal(r.ladder, r.ladderPage, "the line shows the ladder's own number and does not change it"); assert.match(r.policyText, /THE LADDER/); assert.deepEqual(r.votes, D.kept); assert.equal(r.reads, 1, "one reading on load, no second inside five minutes");
-    for (const s of ["THE MATRIX, LIVE", "the matrix's line", "the ladder says", "WHY — IN POINTS OF % INVESTED", "THE MONEY THAT FOLLOWS", "Micron = 0.4 ×", "the rest of the core", "New York"]) assert.ok(r.text.includes(s), s);
-    assert.ok(r.scrollW <= w, "no sideways scroll"); assert.ok(r.minFont >= 11, "no text under 11px: " + r.minFont);
-  } finally { await P.close(); } } });
+/* DS1 (7 Oct 2026) changed this pin, by its brief ("replace DM2's slot"): the tool no longer mounts the matrix's line — the deployment
+   system took its place under the ladder (tests/ds1.test.mjs, test 21). The line's own module is still measured here (tests 12–15). */
+test("16 · the tool no longer mounts the matrix's line: the deployment system took its slot under the ladder in step 2, and nothing of the line is left half-wired", () => {
+  const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8"); assert.ok(!/id="dm2live"/.test(html) && !/startLiveMatrix/.test(html) && !/dm2Markets/.test(html), "the matrix's slot, its script and its hand-over to the money panel are gone together"); assert.equal((html.match(/id="ds1live"/g) || []).length, 1);
+  assert.ok(html.indexOf('id="policy"') < html.indexOf('id="ds1live"') && html.indexOf('id="ds1live"') - html.indexOf('id="policy"') < 200, "the new block is the ladder's next sibling"); });
 
 test("17 · the study page renders headless at 1680 and 390: ready, no error, no write, no sideways scroll, no text under 11px, its numbers on screen", async () => {
   for (const [w, h] of [[1680, 1050], [390, 844]]) { const P = await openPage({ width: w, height: h, path: "study/dm2/DM2.html" }); try {

@@ -267,6 +267,7 @@ export async function startDeploymentSystem({ el, moneyEl = null, getApi, baseUr
     else return; saveAssumptions(st.A, store); recompute(); draw(); };
   const onClick = (ev) => { const t = ev.target; if (t && t.dataset && t.dataset.reset) { st.A = baseline(st.base); saveAssumptions(st.A, store); recompute(); draw(); } };
   for (const host of [el, moneyEl]) if (host && host.addEventListener) { host.addEventListener("change", onChange); host.addEventListener("click", onClick); }
+  st.readNow = read;   // the tests (and a console) can ask for a read; the page itself never needs to
   await read();
   const tick = () => { const now = nyParts(clock()); st.now = now; const a = typeof document !== "undefined" && document.getElementById("ds1-age"); if (a) a.textContent = ageWords(st, now.ms); if (typeof document !== "undefined" && document.hidden) return; if (readDue(now, st.readAt) && !st.busy) { /* a failed try is retried at the same pace as a read, never faster than every 20 s */ if (st.error && st.lastTry && now.ms - st.lastTry < 20000) return; st.lastTry = now.ms; read(); } };
   const timer = setInterval(tick, tickMs); if (typeof document !== "undefined") document.addEventListener("visibilitychange", () => { if (!document.hidden) tick(); });
