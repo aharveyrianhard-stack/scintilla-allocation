@@ -1,0 +1,45 @@
+{
+ "taken_utc": "2026-10-07T07:08:15.036Z",
+ "widths": {
+  "390": {
+   "scrollW": 390,
+   "clientW": 390,
+   "height": 24796,
+   "small": 0,
+   "panels": [
+    "p-layer",
+    "p-stops",
+    "p-leaders",
+    "p-review",
+    "p-sheet",
+    "p-wrong"
+   ],
+   "tiles": 5,
+   "tables": 20,
+   "emptyCells": 0,
+   "errors": [],
+   "nonGetBlocked": 0,
+   "failedRequests": []
+  },
+  "1680": {
+   "scrollW": 1680,
+   "clientW": 1680,
+   "height": 11818,
+   "small": 0,
+   "panels": [
+    "p-layer",
+    "p-stops",
+    "p-leaders",
+    "p-review",
+    "p-sheet",
+    "p-wrong"
+   ],
+   "tiles": 5,
+   "tables": 20,
+   "emptyCells": 0,
+   "errors": [],
+   "nonGetBlocked": 0,
+   "failedRequests": []
+  }
+ }
+}
