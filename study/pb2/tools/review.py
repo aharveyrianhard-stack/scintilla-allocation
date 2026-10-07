@@ -160,20 +160,20 @@ def micron_range(levels):
     mu = load("MU"); c, l, h, o = mu.c, mu.l, mu.h, mu.o; n = mu.n; W = 2520
     r = 100 * np.diff(np.log(c)); r = r[-W:]; base = n - len(r)                    # r[k] is the move INTO session base+k
     am = arch_model(r, mean="Constant", vol="GARCH", p=1, o=1, q=1, dist="t"); res = am.fit(disp="off")
-    fc = res.forecast(horizon=10, start=0).variance.values                           # row k: forecasts made after session base+k
+    fc = res.forecast(horizon=20, start=0).variance.values                           # row k: forecasts made after session base+k
     sig1 = np.sqrt(fc[:, 0]); cum = np.sqrt(np.cumsum(fc, axis=1))                   # cum[:, m-1] = m-session volatility
     last = len(r) - 1; s1 = float(sig1[last])
     # how lows and ranges related to the forecast, session by session (forecast made the evening before)
-    z1 = []; rng = []; z5 = []; z10 = []
+    z1 = []; rng = []; z5 = []; z10 = []; z20 = []
     for k in range(250, last):
         t = base + k                                                                  # forecast after session t covers t+1...
-        if t + 10 >= n: break
+        if t + 20 >= n: break
         z1.append((l[t + 1] / c[t] - 1) * 100 / sig1[k]); rng.append((h[t + 1] - l[t + 1]) / c[t] * 100 / sig1[k])
-        z5.append((l[t + 1:t + 6].min() / c[t] - 1) * 100 / cum[k, 4]); z10.append((l[t + 1:t + 11].min() / c[t] - 1) * 100 / cum[k, 9])
-    z1, z5, z10, rng = map(np.array, (z1, z5, z10, rng))
+        z5.append((l[t + 1:t + 6].min() / c[t] - 1) * 100 / cum[k, 4]); z10.append((l[t + 1:t + 11].min() / c[t] - 1) * 100 / cum[k, 9]); z20.append((l[t + 1:t + 21].min() / c[t] - 1) * 100 / cum[k, 19])
+    z1, z5, z10, z20, rng = map(np.array, (z1, z5, z10, z20, rng))
     C = float(c[-1]); rk = float(np.median(rng)); exp_range_pct = rk * s1
     out = dict(model="GJR-GARCH(1,1), Student-t, constant mean", fit_from=mu.d[base], fit_to=mu.d[-1], sessions=len(r), params={k: float(v) for k, v in res.params.items()},
-               sigma1_pct=s1, sigma_annual_pct=float(s1 * np.sqrt(252)), sigma5_pct=float(cum[last, 4]), sigma10_pct=float(cum[last, 9]),
+               sigma1_pct=s1, sigma_annual_pct=float(s1 * np.sqrt(252)), sigma5_pct=float(cum[last, 4]), sigma10_pct=float(cum[last, 9]), sigma20_pct=float(cum[last, 19]),
                sigma1_year_median=float(np.median(sig1[-252:])), sigma1_pctile_of_year=float(100 * (sig1[-252:] <= s1).mean()),
                range_ratio_median=rk, expected_range_pct=float(exp_range_pct), expected_range_usd=float(exp_range_pct / 100 * C), expected_abs_move_pct=float(np.median(np.abs(r[-252:]) / sig1[-253:-1]) * s1),
                typical_low_pct=float(np.median(z1) * s1), close=C, n_calibration=int(len(z1)),
@@ -182,7 +182,7 @@ def micron_range(levels):
     for nm, px in levels:
         dist = (px / C - 1) * 100
         out["levels"].append(dict(name=nm, price=float(px), dist_pct=float(dist), in_sigmas=float(dist / s1), in_ranges=float(-dist / exp_range_pct),
-                                  p1=float((z1 <= dist / s1).mean()), p5=float((z5 <= dist / cum[last, 4]).mean()), p10=float((z10 <= dist / cum[last, 9]).mean())))
+                                  p1=float((z1 <= dist / s1).mean()), p5=float((z5 <= dist / cum[last, 4]).mean()), p10=float((z10 <= dist / cum[last, 9]).mean()), p20=float((z20 <= dist / cum[last, 19]).mean())))
     return out
 
 

@@ -302,7 +302,8 @@ def sec_leaders():
            f'<p class="ans"><b>With the 50- and 100-day bunched and rising, as Micron’s are now</b> ({b["n"]} cases): {sh(b["t50_20"])} touched the 50-day inside 20 sessions and {sh(b["t100_20"])} the 100-day; '
            f'{sh(b["s50_20"])} fell all the way to where the 50-day stood on the signal day (it stood {pct(abs(b["to50_med"]), 1, False)} under the close; Micron’s stands {pct(abs(T["ma50"] / T["close"] - 1), 1, False)} under). '
            f'The middle case 60 sessions on was {pct(b["r60_med"])}, higher in {sh(b["r60_pos"])} — worse than the rest, but {b["n"]} cases cannot prove it (difference in the middle case {pp(CE["bunched"]["edge_median"])} points, interval {ci(CE["bunched"], "edge_median_ci")}). '
-           f'<b>Micron’s own {m["n"]} set-ups</b> were kinder: deepest dip {pct(m["dd20_med"])} inside 20 sessions, {pct(m["r60_med"])} sixty sessions on, higher in {sh(m["r60_pos"])}.</p>'
+           f'<b>Micron’s own {m["n"]} set-ups</b> were kinder: deepest dip {pct(m["dd20_med"])} inside 20 sessions, {pct(m["r60_med"])} sixty sessions on, higher in {sh(m["r60_pos"])}; {sh(m["s50_20"])} fell inside 20 sessions to where the 50-day stood and {sh(m["s100_20"])} to where the 100-day stood. '
+           f'<b>For tonight’s levels</b> — the 50- and 100-day at {usd(T["ma50"], 0)} and {usd(T["ma100"], 0)}, {pct(abs(T["ma50"] / T["close"] - 1), 0, False)} under the close: set-ups like this one say about {sh(m["s50_20"])} to {sh(b["s50_20"])} inside 20 sessions; the volatility model, which counts every day and reads Micron as calm, says {sh(LV["50-day"]["p20"])}.</p>'
            f'<p class="ans"><b>The sector.</b> Today the semiconductor fund (SMH) is {pct(abs(T["fund_off_high"]), 1, False)} off its own high and Micron has lagged it by {pct(abs(T["rel20"]), 1, False)} over 20 sessions. '
            f'In the {fo["n_yes"]} past cases like that — fund 3% or more off its high, the stock lagging it — the middle case 60 sessions on was {pct(fo["med_yes"])}, higher in {sh(fo["pos_yes"])}, against {pct(fo["med_no"])} for the rest '
            f'(difference {pp(fo["edge_median"])} points, interval {ci(fo, "edge_median_ci")}). The weak version is the other one: the fund at its high while the stock pulls back ({pct(CE["fund_near_high"]["med_yes"])} in the middle case, {CE["fund_near_high"]["n_yes"]} cases).</p>')
@@ -342,11 +343,11 @@ def edge_rows():
 
 
 def spacing_table():
-    head = [("level", False), ("price", True), ("under the 6 Oct close", True), ("in usual days", True), ("reached next session", False), ("", True), ("inside 5 sessions", False), ("", True), ("inside 10 sessions", False), ("", True)]
+    head = [("level", False), ("price", True), ("under the 6 Oct close", True), ("in usual days", True), ("reached next session", False), ("", True), ("inside 5 sessions", False), ("", True), ("inside 10 sessions", False), ("", True), ("inside 20 sessions", False), ("", True)]
     rows = []
     for l in RG["levels"]:
-        rows.append([l["name"], usd(l["price"]), pct(l["dist_pct"] / 100, 2), f'{l["in_ranges"]:.2f}', f'<div class="pb"><i style="width:{100 * l["p1"]:.0f}%"></i></div>', sh(l["p1"]), f'<div class="pb"><i style="width:{100 * l["p5"]:.0f}%"></i></div>', sh(l["p5"]), f'<div class="pb"><i style="width:{100 * l["p10"]:.0f}%"></i></div>', sh(l["p10"])])
-    return table(head, rows, "wide bars")
+        rows.append([l["name"], usd(l["price"]), pct(l["dist_pct"] / 100, 2), f'{l["in_ranges"]:.2f}', f'<div class="pb"><i style="width:{100 * l["p1"]:.0f}%"></i></div>', sh(l["p1"]), f'<div class="pb"><i style="width:{100 * l["p5"]:.0f}%"></i></div>', sh(l["p5"]), f'<div class="pb"><i style="width:{100 * l["p10"]:.0f}%"></i></div>', sh(l["p10"]), f'<div class="pb"><i style="width:{100 * l["p20"]:.0f}%"></i></div>', sh(l["p20"])])
+    return table(head, rows, "wide bars", "The chance comes from Micron’s own lows since 2016, each scaled by the model’s swing on its day — every day counted, whatever the set-up. The case studies above count only set-ups like tonight’s, and put the same levels closer.")
 
 
 def regime_block():
