@@ -51,16 +51,20 @@ test("4 · with today's session joined on, TODAY is still the matrix's own line 
   assert.equal(SC.fiveMarkets({ base, candles: FX.candles, read: null }), null, "no reading, no rows"); assert.equal(SC.fiveMarkets(null), null);
 });
 
-test("5 · the page: no file feeds the panel, the live line hands its reading over, and the label is the one asked for", () => {
-  const code = PAGE.replace(/\/\*[\s\S]*?\*\//g, "");
+/* DS1 (7 Oct 2026) changed this pin, by its brief ("replace DM2's slot and AL8's money panel"). RL1 wired the matrix's line to the money
+   panel and labelled it "deployment engine v2 — next round in progress". The next round arrived: the deployment system draws the panel
+   itself, so the hand-over and the interim label are gone from what the page runs. Tests 1 to 4 still hold study/dm2/scenarios.mjs to
+   the study's own numbers; the page no longer imports it, and it is listed for removal. */
+test("5 · the page: no file feeds the money panel, and the next round took it over — the deployment system draws it; the matrix's hand-over is gone and nothing says a branch or a placeholder", () => {
+  const code = PAGE.replace(/\/\*[\s\S]*?\*\//g, "").replace(/<!--[\s\S]*?-->/g, "");
   assert.match(code, /const DEPLOY_SOURCES=\[\];/, "no source file"); assert.ok(!/DEPLOY_SOURCES=\[[^\]]*dm1/.test(code) && !/DEPLOY_SOURCES=\[[^\]]*deployment-scenarios/.test(code));
   assert.ok(!/fetch\([^)]*deployment-scenarios\.json/.test(code) && !/fetch\([^)]*study\/dm1\/data\/dm1\.json/.test(code), "neither file is fetched by the page");
-  assert.match(code, /import \{ fiveMarkets \} from "\.\/study\/dm2\/scenarios\.mjs";/); assert.match(code, /onRead: dm2Markets/); assert.match(code, /window\.setDeployLive=function\(v\)\{/); assert.match(code, /status:'engine-v2'/);
-  assert.equal((PAGE.match(/deployment engine v2 — next round in progress/g) || []).length >= 2, true, "on the panel and in PAGE SPECS");
-  assert.match(code, /markets from the deployment engine v2 on live prices — next round in progress/, "and the sources line says the same in its own sentence");
-  assert.match(code, /<u class="a8-v2">deployment engine v2 — next round in progress<\/u>/);
+  assert.ok(!/import \{ fiveMarkets \}/.test(code) && !/onRead: dm2Markets/.test(code) && !/startLiveMatrix/.test(code), "the matrix's line and its hand-over to the panel are gone together");
+  assert.match(code, /import \{ startDeploymentSystem \} from "\.\/study\/ds1\/live\.mjs";/); assert.match(code, /moneyEl: ds1Money/); assert.match(code, /<div id="ds1money-host"><\/div>/); assert.match(code, /onRead: ds1Spine/, "and it tells the sources line what it read");
+  assert.match(code, /window\.setDeployLive=function\(v\)\{/, "the old setter is still in the page, unused — listed for removal, not removed");
   const specs = PAGE.slice(PAGE.indexOf('<details class="sc-pagespecs"'));
-  assert.ok(specs.includes("What changed on 7 Oct, later — one forward P/E") && specs.includes("The matrix, live (7 Oct)") && specs.includes("What changed on 7 Oct — the money at the top"), "both lanes' PAGE SPECS paragraphs are kept");
+  assert.ok(specs.includes("What changed on 7 Oct, later — one forward P/E") && specs.includes("The deployment system, live (7 Oct)") && specs.includes("What changed on 7 Oct — the money at the top"), "every lane's PAGE SPECS paragraph is kept, under its own heading");
+  assert.ok(!specs.includes("The matrix, live (7 Oct)"), "the matrix's paragraph went with its line"); assert.ok(/This is that next round/.test(specs) && /no scenario file is read/.test(specs), "and the money paragraph says what the first panel is now");
   assert.ok(!/on a branch, for review/.test(specs) && !/marked PLACEHOLDER/.test(specs), "and neither says what is no longer true");
   for (const f of ["study/dm2/scenarios.mjs", "tests/fixtures/rl1-daily-closes-20261006.json"]) assert.ok(!/apikey=[A-Za-z0-9]{10,}/.test(read(f)) && !/eyJ[A-Za-z0-9_-]{20,}/.test(read(f)), f + " carries no key");
 });

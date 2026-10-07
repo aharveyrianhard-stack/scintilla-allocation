@@ -33,8 +33,9 @@ async function openWith(routes, { width = 1680, height = 1050 } = {}) {
 test("the page loads with the cards, the zones, the approved names and the scenario rows read; nothing is written", async () => {
   P = await openPage();
   await P.page.waitForFunction(() => window.AL8 && AL8.ready(), null, { timeout: 120000 });
-  /* RL1 (7 Oct): the money panel's rows are the deployment engine v2's live reading — wait for the matrix's own line to have read */
-  await P.page.waitForFunction(() => window.DM2_LIVE_READY && typeof DEPLOY !== "undefined" && DEPLOY && DEPLOY.status === "engine-v2", null, { timeout: 120000 }); await P.page.waitForTimeout(700);
+  /* DS1 (7 Oct), re-pinned on purpose: the money panel is the deployment system's pie now (its brief: "replace DM2's slot and AL8's money
+     panel") — wait for its first read. RL1's wait was for the matrix's line to have fed the five bars; that feed is gone. */
+  await P.page.waitForFunction(() => window.DS1_LIVE_READY === true && window.DS1_LIVE && window.DS1_LIVE.view, null, { timeout: 120000 }); await P.page.waitForTimeout(700);
   s = await P.page.evaluate(() => {
     const R = AL8.readout(), A = allocation();
     return { R, audit: AL8.audit(), spine: Object.fromEntries(Object.entries(SPINE).map(([k, v]) => [k, v.mode])), spineNote: Object.fromEntries(["decision_cards", "confluence_zones", "deployment_scenarios", "sleeve_growth", "comps-feed"].map((k) => [k, SPINE[k] && SPINE[k].note])),
@@ -44,7 +45,7 @@ test("the page loads with the cards, the zones, the approved names and the scena
   });
   assert.deepEqual(P.errors, []); assert.equal(P.nonGet.blocked, 0, "nothing is written"); assert.equal(P.nonGet.allowed, 0);
   assert.equal(s.R.cards.n, Object.keys(CARDS.cards).length); assert.equal(s.R.cards.as_of, CARDS.as_of.card_date); assert.equal(s.R.zones.n, Object.keys(ZONES.names).length); assert.deepEqual(s.R.approved, Object.keys(APPROVED.names));
-  assert.equal(s.R.deploy.n, 5, "five markets from the live engine"); assert.equal(s.R.deploy.status, "engine-v2"); assert.equal(s.R.deploy.src, "study/dm2/live.mjs"); assert.equal(s.R.growthRead, true, "every sleeve's companies' expected growth was read");
+  assert.equal(s.R.deploy, null, "no scenario rows: no file is read and the matrix no longer feeds the panel — the deployment system draws it (tests/ds1.test.mjs, test 21)"); assert.deepEqual(s.R.scen, []); assert.equal(s.R.growthRead, true, "every sleeve's companies' expected growth was read");
   for (const k of ["decision_cards", "confluence_zones", "sleeve_growth"]) assert.equal(s.spine[k], "LIVE", k);
   assert.equal(s.sections[0], "p-scen", "the money picture is the first section"); assert.ok(/^THE MONEY/.test(s.bar.trim()));
 });
@@ -169,65 +170,46 @@ test("1 · step 9 prints the table: one row per input with the one thing it move
 });
 
 /* ------------------------------------------------------------------ 2 · THE MONEY PICTURE */
-test("2 · the money picture: one bar per market — today, the S&P down 1.5%, VIX 20, VIX 23.5, a panic — each the whole account as cash · core · conviction", async () => {
-  const r = await P.page.evaluate(() => { const el = document.getElementById("scenbars");
-    return { rows: [...el.querySelectorAll(".a8-scen")].map((d) => ({ key: d.getAttribute("data-key"), title: d.querySelector(".who b").innerText, sub: d.querySelector(".who small").innerText, inv: d.querySelector(".inv b").innerText, segs: [...d.querySelectorAll(".a7-mix > div")].map((x) => [x.className, parseFloat(x.style.flex), x.title]), ref: parseFloat(d.querySelector(".ref").style.left), facts: d.querySelector(".facts").innerText, aria: d.querySelector(".a7-mix").getAttribute("aria-label") })),
-      ph: el.querySelectorAll(".a8-ph").length, cap: el.querySelector(".a7-cap").innerText.replace(/\s+/g, " "), leg: el.querySelector(".a7-leg").innerText.replace(/\s+/g, " "), phClass: el.querySelector(".a8-scens").classList.contains("ph"),
-      live: (window.DM2_MARKETS || {}).rows || [], line: +document.getElementById("dm2l-root").getAttribute("data-line"), reading: +document.getElementById("dm2l-root").getAttribute("data-reading"),
-      table: (() => { const d = el.querySelector("details.a8-num"); d.open = true; const t = [...d.querySelectorAll("tr")].map((tr) => [...tr.children].map((td) => td.innerText.replace(/\s+/g, " "))); d.open = false; return t; })(),
-      folded: document.getElementById("p-scen").classList.contains("folded"), top: document.getElementById("p-scen").getBoundingClientRect().top, briefTop: document.getElementById("p-brief").getBoundingClientRect().top, h: document.getElementById("p-scen").getBoundingClientRect().height }; });
-  assert.deepEqual(r.rows.map((x) => x.key), ["today", "a", "b", "c", "d"]); assert.deepEqual(r.rows.map((x) => x.title), ["TODAY", "S&P DIPS 1.5%", "VIX 20", "VIX 23.5", "PANIC"]);
-  const ap = APPROVED.names.MU, pc = (x) => (x * 100).toFixed(x * 100 < 9.95 ? 1 : 0) + "%";
-  /* RL1 (7 Oct): the rows are the deployment engine v2's own, live (study/dm2/scenarios.mjs) — never the placeholder file's 33 / 22 / 44 / 88 / 84 */
-  assert.equal(r.live.length, 5); assert.ok(r.live.every((f) => !f.error), "the engine read every market");
-  assert.ok(near(r.live[0].pct, r.line, 1e-9) && near(r.live[0].now, r.reading, 1e-9), "TODAY is the matrix's line, the number step 2 shows, with this minute's reading beside it");
-  assert.ok(new RegExp("this minute's reading " + pc(r.reading / 100).replace(".", "\\.")).test(r.rows[0].facts), r.rows[0].facts); assert.equal(r.rows[0].sub, "the matrix's line · three evenings");
-  assert.notDeepEqual(r.rows.map((x) => x.inv), DEPLOY.scenarios.map((f) => pc(f.pct / 100)), "not version 1's five numbers");
-  r.rows.forEach((x, i) => { const f = { ...r.live[i], money: { micron: r.live[i].micron } }, inv = f.pct / 100, mu = Math.min(ap.of_invested * inv, ap.ceiling_pct / 100);
-    assert.equal(x.inv, pc(inv), x.title + " invested is the live engine's number");
-    /* RL1 (7 Oct): the live engine reads 100% invested in the deeper markets, and a part of nothing is not drawn — so a bar may have no cash */
-    const part = (k) => x.segs.find((q) => q[0] === k) || [k, 0, ""], cash = part("cash"), core = part("core"), conv = x.segs.filter((q) => q[0] === "conv");
-    assert.ok(near(cash[1], 1 - inv, 1e-4) && near(core[1], inv - mu, 1e-4) && conv.length === 1 && near(conv[0][1], mu, 1e-4), x.title + ": cash " + cash[1] + " core " + core[1] + " Micron " + conv[0][1]);
-    assert.ok(near(x.segs.reduce((t, q) => t + q[1], 0), 1, 1e-3), x.title + " is the whole account"); assert.deepEqual(x.segs.map((q) => q[0]), ["cash", "core", "conv"].filter((k) => k === "conv" || (k === "cash" ? 1 - inv : inv - mu) > 0.0005), "cash, then core, then conviction — each part that is there");
-    assert.ok(/^Micron/.test(conv[0][2]), "the conviction segment names Micron: " + conv[0][2]);
-    assert.ok(near(mu * 100, f.money.micron, 0.051), x.title + ": the page's Micron (" + (mu * 100).toFixed(2) + ") is the study's own (" + f.money.micron + ") — one rule"); assert.ok(!/the study's own Micron figure/.test(x.facts));
-    assert.ok(near(x.ref, (1 - s.ladder) * 100, 0.02), "the dashed line stands where the ladder's cash ends: " + x.ref);
-    assert.ok(new RegExp("RSI " + (+f.rsi).toFixed(0)).test(x.facts) && new RegExp("VIX " + f.vix.toFixed(1)).test(x.facts), x.facts);
-    assert.ok(mu >= ap.ceiling_pct / 100 - 1e-9 ? /at its 30% ceiling/.test(x.facts) : mu >= ap.full_build_pct / 100 - 1e-9 ? /room for Micron's full 20% build/.test(x.facts) : /short of its 20% full build/.test(x.facts), x.facts); });
-  assert.equal(r.table.length, 6); assert.deepEqual(r.table[0], ["MARKET", "INVESTED", "CASH", "CORE", "CONVICTION", "THE READING"]); r.rows.forEach((x, i) => { assert.equal(r.table[i + 1][1], x.inv); assert.ok(r.table[i + 1][4].startsWith("Micron ")); });
-  assert.ok(new RegExp("the ladder: " + Math.round(s.ladder * 100) + "% invested").test(r.leg) && /cash/.test(r.leg) && /core/.test(r.leg) && /conviction — Micron/.test(r.leg), r.leg);
+/* DS1 (7 Oct 2026) — the three tests below are re-pinned on purpose. AL8 drew one bar per market in this panel (first from a placeholder
+   file, then, since RL1, from the second version of the deployment matrix under the words "next round in progress"). DS1 is that next
+   round, and its brief says "replace DM2's slot and AL8's money panel": the panel is now the deployment system's pie. What these tests
+   held about the bars cannot be held any more; what they held about the page around the panel still is, and is kept here. The pie's own
+   arithmetic and behaviour are tested in tests/ds1.test.mjs (tests 10, 20, 21). */
+test("2 · the money picture is the deployment system's pie: the first panel, open on the first screen, above THE BRIEF — and the five-market bars are no longer drawn", async () => {
+  const r = await P.page.evaluate(() => { const host = document.getElementById("ds1money-host"), p = document.getElementById("p-scen");
+    return { scenbars: !!document.getElementById("scenbars"), bars: document.querySelectorAll(".a8-scen").length, inPanel: !!host && host.closest(".panel") === p, pie: host ? host.querySelectorAll("svg.pie").length : 0, slices: host ? [...host.querySelectorAll("tr[data-slice]")].map((t) => t.getAttribute("data-slice")) : [], dips: host ? host.querySelectorAll(".dipr").length : 0, h2: p.querySelector("h2").innerText,
+      folded: p.classList.contains("folded"), top: p.getBoundingClientRect().top, briefTop: document.getElementById("p-brief").getBoundingClientRect().top, h: p.getBoundingClientRect().height, scen: scenRows(), drew: (() => { try { renderScen(); } catch (e) { return String(e); } return document.querySelectorAll(".a8-scen").length; })() }; });
+  assert.equal(r.scenbars, false, "the bars' host is gone"); assert.equal(r.bars, 0); assert.deepEqual(r.scen, [], "and they have no rows"); assert.equal(r.drew, 0, "the old renderer, asked to draw, draws nothing");
+  assert.ok(r.inPanel && r.pie === 1, "the pie stands in the money panel"); assert.deepEqual(r.slices, ["MU:conviction", "NBIS:conviction", "NVDA:core", "AVGO:core", "TSM:core", "ORCL:core", "AMZN:core", "GOOGL:core", "MU:core", "tactical", "cash"], "Micron's slot and Nebius's, the core sleeves in comps order with Micron's core share, the tactical part, cash");
+  assert.equal(r.dips, 4, "now, and the three dips"); assert.match(r.h2, /^THE MONEY — the pie today and on a dip/);
   assert.equal(r.folded, false, "open on the first screen"); assert.ok(r.top < r.briefTop && r.top + r.h < 1050, "above THE BRIEF, inside the first screen: " + r.top + " + " + r.h);
 });
 
-/* RL1 (7 Oct) — re-pinned on purpose. The panel read the placeholder file (version 1's 33 / 22 / 44 / 88 / 84) and said PLACEHOLDER;
-   it now reads the deployment engine v2 live and says so. */
-test("2 · the numbers are labelled 'deployment engine v2 — next round in progress' — on the panel, in the sources line — and nothing below the panel uses them", async () => {
-  const r = await P.page.evaluate(() => ({ ph: document.querySelectorAll("#scenbars .a8-ph").length, v2: document.querySelectorAll("#scenbars .a8-v2").length, v2Text: (document.querySelector("#scenbars .a8-v2") || {}).innerText, cap: document.querySelector("#scenbars .a7-cap").innerText.replace(/\s+/g, " "),
-    A: allocation().inv, brief: document.querySelector("#brief .a7-lead").innerText, src: DEPLOY.src, status: DEPLOY.status, note: SPINE.deployment_scenarios.note, mode: SPINE.deployment_scenarios.mode, sources: typeof DEPLOY_SOURCES === "undefined" ? null : DEPLOY_SOURCES.slice() }));
-  assert.equal(DEPLOY.status, "placeholder", "the old file still says what it is — and nothing reads it"); assert.equal(r.status, "engine-v2"); assert.equal(r.src, "study/dm2/live.mjs"); assert.deepEqual(r.sources, [], "no file feeds the panel");
-  assert.equal(r.ph, 0, "no PLACEHOLDER tag"); assert.equal(r.v2, 1); assert.equal(r.v2Text.toLowerCase(), "deployment engine v2 — next round in progress"); assert.ok(/deployment engine v2 — next round in progress/i.test(r.cap) && /live prices/i.test(r.cap), r.cap);
-  assert.equal(r.mode, "LIVE"); assert.ok(/deployment engine v2/.test(r.note) && /next round in progress/.test(r.note), r.note);
-  assert.equal(r.A, s.ladder, "step 3b is still sized on the ladder's number, not on the engine's"); assert.ok(r.brief.includes(Math.round(s.ladder * 100) + "% invested"), r.brief);
+test("2 · the next round is here: the panel no longer says 'next round in progress', the sources line names the deployment system — and nothing below the panel uses its reading", async () => {
+  const r = await P.page.evaluate(() => ({ ph: document.querySelectorAll(".a8-ph").length, v2: document.querySelectorAll(".a8-v2").length, text: document.getElementById("ds1money-host").innerText.replace(/\s+/g, " "),
+    A: allocation().inv, brief: document.querySelector("#brief .a7-lead").innerText, deploy: DEPLOY, note: SPINE.deployment_scenarios.note, mode: SPINE.deployment_scenarios.mode, sources: typeof DEPLOY_SOURCES === "undefined" ? null : DEPLOY_SOURCES.slice() }));
+  assert.equal(DEPLOY.status, "placeholder", "the old file still says what it is — and nothing reads it"); assert.equal(r.deploy, null, "the page holds no scenario rows"); assert.deepEqual(r.sources, [], "no file feeds the panel");
+  assert.equal(r.ph, 0, "no PLACEHOLDER tag"); assert.equal(r.v2, 0, "no 'next round in progress' tag"); assert.ok(!/next round in progress/i.test(r.text) && !/PLACEHOLDER/.test(r.text), r.text.slice(0, 200));
+  assert.equal(r.mode, "LIVE"); assert.ok(/the deployment system on live prices/.test(r.note) && /study\/ds1\/live\.mjs/.test(r.note), r.note);
+  assert.equal(r.A, s.ladder, "step 3b is still sized on the ladder's number, not on the deployment system's"); assert.ok(r.brief.includes(Math.round(s.ladder * 100) + "% invested"), r.brief);
 });
 
-test("2 · the seam, turned: version 1's file and the placeholder file are never read even when they are served; with no live reading the panel shows the ladder alone", async () => {
+test("2 · the seam, turned again: version 1's file and the placeholder file are never read even when they are served; with no daily bars the panel says so and blanks nothing else", async () => {
   /* version 1's engine file in its own shape, with numbers no live reading could give */
   const engine = { built_utc: "2026-10-08T21:30:00.000Z", scenarios: [{ key: "today", name: "x", spy: 770, rsi: 55, vix: 17.2, vixPct: 48, pct: 3.3, line: 2.2, money: { micron: 1.3 } }, { key: "a", name: "(a)", rsi: 47, vix: 17.2, pct: 4.4, money: { micron: 1.7 } }] };
-  const asked = [], Q = await openWith([[/\/study\/dm1\/data\/dm1\.json/, engine], [/\/data\/deployment-scenarios\.json/, { status: "placeholder", scenarios: engine.scenarios }]]);
-  try { Q.page.on("request", (q) => asked.push(q.url()));
-    await Q.page.waitForFunction(() => window.DM2_LIVE_READY && DEPLOY && DEPLOY.status === "engine-v2", null, { timeout: 120000 });
-    const r = await Q.page.evaluate(() => ({ status: DEPLOY.status, src: DEPLOY.src, inv: [...document.querySelectorAll("#scenbars .a8-scen .inv b")].map((b) => b.innerText), ph: document.querySelectorAll("#scenbars .a8-ph").length, ladder: investedNow(), A: allocation().inv, fetched: performance.getEntriesByType("resource").map((e) => e.name) }));
-    assert.deepEqual(Q.errors, []); assert.equal(Q.nonGet.blocked, 0); assert.equal(r.status, "engine-v2"); assert.equal(r.src, "study/dm2/live.mjs"); assert.equal(r.ph, 0); assert.equal(r.inv.length, 5);
-    assert.ok(!r.inv.includes("3.3%") && !r.inv.includes("4.4%"), "the served files' numbers are not on the panel: " + r.inv.join(" "));
+  const Q = await openWith([[/\/study\/dm1\/data\/dm1\.json/, engine], [/\/data\/deployment-scenarios\.json/, { status: "placeholder", scenarios: engine.scenarios }]]);
+  try { await Q.page.waitForFunction(() => window.DS1_LIVE_READY === true && window.DS1_LIVE && window.DS1_LIVE.view, null, { timeout: 120000 });
+    const r = await Q.page.evaluate(() => ({ deploy: DEPLOY, text: document.getElementById("ds1money-host").innerText, pie: document.querySelectorAll("#ds1money-host svg.pie").length, bars: document.querySelectorAll(".a8-scen").length, ladder: investedNow(), A: allocation().inv, fetched: performance.getEntriesByType("resource").map((e) => e.name) }));
+    assert.deepEqual(Q.errors, []); assert.equal(Q.nonGet.blocked, 0); assert.equal(r.deploy, null); assert.equal(r.pie, 1); assert.equal(r.bars, 0);
     assert.ok(!r.fetched.some((u) => /study\/dm1\/data\/dm1\.json|data\/deployment-scenarios\.json/.test(u)), "neither file was even asked for");
     assert.equal(r.A, r.ladder, "and step 3b still reads the one seat that says how much — today the ladder");
   } finally { await Q.close(); }
-  /* no daily bars → the matrix's line has no reading → no rows: the ladder alone, said in plain words */
+  /* no daily bars → the deployment system has no reading: it says so in both of its places, the sources line says it is waiting, and the page's own ladder is untouched */
   const N = await openWith([[/\/candles-multi/, 404]]);
-  try { await N.page.waitForFunction(() => window.DM2_LIVE_READY === true, null, { timeout: 120000 }); await N.page.waitForTimeout(400);
-    const r = await N.page.evaluate(() => ({ deploy: DEPLOY, spine: SPINE.deployment_scenarios.mode, note: SPINE.deployment_scenarios.note, rows: document.querySelectorAll("#scenbars .a8-scen").length, text: document.getElementById("scenbars").innerText.replace(/\s+/g, " "), bar: document.querySelectorAll("#scenbars .a7-mix").length, ladder: investedNow() }));
-    assert.equal(r.deploy, null); assert.equal(r.spine, "FALLBACK"); assert.ok(/waiting for the deployment engine v2/.test(r.note), r.note); assert.equal(r.rows, 0);
-    assert.ok(r.text.includes("the ladder: " + Math.round(r.ladder * 100) + "% invested") && r.bar === 1, r.text.slice(0, 200));
+  try { await N.page.waitForFunction(() => window.DS1_LIVE_READY === true, null, { timeout: 120000 }); await N.page.waitForTimeout(400);
+    const r = await N.page.evaluate(() => ({ deploy: DEPLOY, view: !!window.DS1_LIVE.view, error: window.DS1_LIVE.error, spine: SPINE.deployment_scenarios.mode, note: SPINE.deployment_scenarios.note, bars: document.querySelectorAll(".a8-scen").length, money: document.getElementById("ds1money-host").innerText.replace(/\s+/g, " "), slot: document.getElementById("ds1live").innerText.replace(/\s+/g, " "), ladder: investedNow(), policy: document.getElementById("policy").innerText.slice(0, 40) }));
+    assert.equal(r.deploy, null); assert.equal(r.view, false); assert.ok(r.error, "the cause is kept"); assert.equal(r.spine, "FALLBACK"); assert.ok(/the deployment system/.test(r.note) && /waiting for its first read/.test(r.note), r.note); assert.equal(r.bars, 0);
+    assert.ok(/no reading yet/.test(r.money) && /no reading yet/.test(r.slot), "both places say there is no reading yet, with the cause: " + r.money.slice(0, 160)); assert.match(r.policy, /THE LADDER/); assert.ok(r.ladder > 0 && r.ladder <= 1, "the ladder still stands");
   } finally { await N.close(); }
 });
 
@@ -449,13 +431,14 @@ test("7 · on a phone: the money picture, the ranking, the picks and INPUTS — 
     const r = await Q.page.evaluate(() => { for (const id of ["p-scen", "p-money", "p-mix", "p-map"]) setFold(id, false); openDrawer(true); document.getElementById("in-remove").open = true;
       const small = (sel) => [...document.querySelectorAll(sel + " *")].filter((e) => e.children.length === 0 && e.innerText && e.innerText.trim() && getComputedStyle(e).display !== "none" && parseFloat(getComputedStyle(e).fontSize) < 11).map((e) => e.className + ":" + e.innerText.slice(0, 20)).slice(0, 5);
       const w = (sel) => { const e = document.querySelector(sel); return e ? [e.scrollWidth, e.clientWidth] : null; };
-      return { page: document.documentElement.scrollWidth, vw: innerWidth, small: { scen: small("#scenbars"), money: small("#moneysplit"), picks: small("#picks"), inputs: small("#p-inputs"), audit: small("#auditmap") }, rank: w("#moneysplit .scrollx"), scen: w("#scenbars .a8-scens"), drawer: w("#p-inputs"), pick: w("#picks .a8-pick"),
-        bars: [...document.querySelectorAll("#scenbars .a8-scen .a7-mix")].map((b) => b.getBoundingClientRect().width), rows: document.querySelectorAll("#scenbars .a8-scen").length, rankRow: getComputedStyle(document.querySelector("#moneysplit table.a8-rk3 tr.in")).display, q: getComputedStyle(document.querySelector("#moneysplit table.a8-rk3 tr.in td.q"), "::before").content }; });
+      /* DS1 (7 Oct), re-pinned: the money picture is the deployment system's pie — its text, its width and its dip bars are held to the same rule the five bars were */
+      return { page: document.documentElement.scrollWidth, vw: innerWidth, small: { scen: small("#ds1money-host"), money: small("#moneysplit"), picks: small("#picks"), inputs: small("#p-inputs"), audit: small("#auditmap") }, rank: w("#moneysplit .scrollx"), scen: w("#ds1money-host"), drawer: w("#p-inputs"), pick: w("#picks .a8-pick"),
+        bars: [...document.querySelectorAll("#ds1money-host .dipr .stk")].map((b) => b.getBoundingClientRect().width), rows: document.querySelectorAll("#ds1money-host .dipr").length, rankRow: getComputedStyle(document.querySelector("#moneysplit table.a8-rk3 tr.in")).display, q: getComputedStyle(document.querySelector("#moneysplit table.a8-rk3 tr.in td.q"), "::before").content }; });
     assert.deepEqual(Q.errors, []); assert.ok(r.page <= r.vw, "no sideways scroll: " + r.page + " in " + r.vw);
     for (const [k, v] of Object.entries(r.small)) assert.deepEqual(v, [], "no text under 11px in " + k);
-    assert.equal(r.rows, 5); for (const b of r.bars) assert.ok(b >= 240, "each bar has room: " + b);
+    assert.equal(r.rows, 4, "now and the three dips"); for (const b of r.bars) assert.ok(b >= 240, "each bar has room: " + b);
     assert.ok(r.rank[0] <= r.rank[1] + 1, "the ranking fits the phone without a swipe: " + r.rank); assert.equal(r.rankRow, "grid"); assert.equal(r.q, '"growth"', "each of a sleeve's three answers is named on the phone");
-    assert.ok(r.drawer[0] <= r.drawer[1] + 1 && r.pick[0] <= r.pick[1] + 1 && r.scen[0] <= r.scen[1] + 1, "INPUTS, a pick and the bars fit their width");
+    assert.ok(r.drawer[0] <= r.drawer[1] + 1 && r.pick[0] <= r.pick[1] + 1 && r.scen[0] <= r.scen[1] + 1, "INPUTS, a pick and the money picture fit their width");
   } finally { await Q.close(); }
 });
 
