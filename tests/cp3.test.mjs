@@ -35,9 +35,11 @@ const closeOf = (s) => (CARDS.cards[s] ? +CARDS.cards[s].price : 0);
 const read = () => ({ cards: { n: Object.keys(CARDS.cards).length, src: CARDS.src, repriced: CARDS.repriced, as_of: CARDS.as_of }, sections: [...document.querySelectorAll(".grid > .panel")].map((p) => p.id), bar: document.getElementById("secbar").innerText,
   prints: Object.fromEntries(Object.values(CARDS.cards).map((c) => { const u = priceUnder(c.ticker); return [c.ticker, { text: cardForward(c, u.price).text, pe: cardForward(c, u.price).pe, price: u.price, live: u.live, word: u.word }]; })),
   knock: Object.fromEntries(Object.entries(COMPS).filter(([, r]) => r && r.card && r.card.fields.includes("fwd_pe")).map(([t, r]) => [t, r.fwd_pe])),
-  quotes: Object.keys(QUOTES).length, spine: SPINE.quotes, core: coreNames(), coreRows: [...document.querySelectorAll("#coretab tbody tr[data-sym]")].map((tr) => ({ sym: tr.dataset.sym, text: tr.innerText, peers: tr.nextElementSibling.querySelectorAll(".c3-peers tbody tr").length, chips: [...tr.querySelectorAll("td:nth-child(8) .c3-chip")].map((x) => x.innerText) })),
+  quotes: Object.keys(QUOTES).length, spine: SPINE.quotes, core: coreNames(), coreRows: [...document.querySelectorAll("#coretab tbody tr[data-sym]")].map((tr) => ({ sym: tr.dataset.sym, text: tr.innerText, peers: tr.nextElementSibling.querySelectorAll(".c3-peertab tbody tr").length, yard: tr.nextElementSibling.querySelectorAll(".c3-yard tbody tr").length, cells: [...tr.children].map((td) => td.dataset.l), chips: [...tr.querySelectorAll("td:nth-child(5) .c3-chip")].map((x) => x.innerText) })),
   coreCap: document.querySelector("#core .a7-cap").innerText, coreLine: (document.querySelector(".c3-core") || {}).innerText || "", picks: document.getElementById("picks").innerText,
-  muPeers: [...document.querySelectorAll('#picks .a8-pick[data-sym="MU"] .c3-peers tbody tr')].map((tr) => tr.innerText.replace(/\s+/g, " ").trim()),
+  muPeers: [...document.querySelectorAll('#picks .a8-pick[data-sym="MU"] .c3-peertab tbody tr')].map((tr) => tr.innerText.replace(/\s+/g, " ").trim()),
+  muYard: [...document.querySelectorAll('#picks .a8-pick[data-sym="MU"] .c3-yard tbody tr')].map((tr) => tr.innerText.replace(/\s+/g, " ").trim()), muPick: (document.querySelector('#picks .a8-pick[data-sym="MU"]') || {}).innerText || "",
+  chan: { at1200: channelRead(cardOf("MU"), 1200).words, below: channelRead(cardOf("MU"), 800).words, none: channelRead(cardOf("NVDA"), 240) },
   codes: (document.getElementById("p-core").innerText + document.getElementById("picks").innerText).match(/\b(CP[123]|KO1|FD1|ER1|AL[78]|DM[12]|C5b?|C6b?)\b/g) || [],
   small: [...document.querySelectorAll("#core *, .c3-peers *, .c3-core *")].filter((e) => [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) && parseFloat(getComputedStyle(e).fontSize) < 11).length,
   width: [document.documentElement.scrollWidth, innerWidth] });
@@ -82,7 +84,22 @@ test("3 · the workflow shows the core candidates with their comps: one line und
 test("4 · seventeen sections with 5b CORE between the knockout and the picks; no internal code; text at 11px or more; nothing sideways on a phone", async () => {
   assert.equal(a.sections.length, 17); assert.deepEqual(a.sections.slice(8, 11), ["p-knockout", "p-core", "p-mix"]); assert.ok(a.bar.includes("5b CORE"));
   assert.deepEqual(a.codes, []); assert.equal(a.small, 0); assert.ok(a.width[0] <= a.width[1] + 1);
-  await A.close();
+  await A.close();   /* test 5 reads `a`, which was taken before this */
   const M = await openWith({ quotes: closeOf, width: 390, height: 844 }); await M.page.evaluate(() => setFold("p-core", false)); await M.page.waitForTimeout(400); const m = await M.page.evaluate(read); await M.close();
   assert.ok(m.width[0] <= m.width[1] + 1, "the phone does not scroll sideways: " + m.width.join(" / ")); assert.equal(m.small, 0); assert.equal(m.coreRows.length, 10);
+});
+
+test("5 · the steering of 11:20: the blend leads, growth is shown two ways, the growth credit is said, the set check is on the card, Micron is read three ways, the channel is named", async () => {
+  /* step 5b leads with the range from every yardstick together; forward P/E comes after it */
+  for (const row of a.coreRows) { assert.deepEqual(row.cells.slice(0, 6), ["", "PRICE", "COMPS RANGE", "TO THE CENTRE", "PRICED ON", "FORWARD P/E"], row.sym); assert.ok(row.cells.includes("EARNINGS GROWTH")); assert.ok(row.yard >= 6, row.sym + " opens to its yardsticks: " + row.yard); }
+  assert.ok(a.muYard.length >= 6 && a.muYard.some((r) => /^P\/E · next four quarters 6\.0× 5\.8×/.test(r)) && a.muYard.some((r) => /^EV \/ EBITDA/.test(r)) && a.muYard.some((r) => /^P\/E ÷ growth 0\.27 0\.31 .*growth credit ×1\.\d+/.test(r)), a.muYard.join(" | "));
+  const weights = a.muYard.map((r) => +(/(\d+)%( · growth credit.*)?$/.exec(r) || [0, 0])[1]); assert.ok(Math.abs(weights.reduce((x, y) => x + y, 0) - 100) <= 3, "the yardsticks' weights add up: " + weights.join("+"));
+  assert.match(a.muPick, /earnings, last twelve months as reported → next four quarters \+13[45]%/); assert.match(a.muPick, /next four → the four after \+22%/); assert.match(a.muPick, /growth credit ×1\.\d+: it grows 22% into the following year against its peers' 19%/);
+  assert.match(a.muPick, /set check: only 2 of the 12 peers the sources kept share its business — it is priced on the 6 that do/);
+  assert.match(a.muPick, /THREE WAYS\s*US-listed peers only \+(89|90)%/); assert.match(a.muPick, /\+ SK hynix \+5[01]%/); assert.match(a.muPick, /\+ SK hynix, Samsung, Kioxia \+1[23]%/);
+  assert.match(a.muPick, /long-term channel: 31% of the way up its long-term channel \(3D B6 880\.30 → 3D B2 1,410\.79\)/, "on the card's close: (1,045.56 − 880.30) ÷ (1,410.79 − 880.30)");
+  assert.match(a.chan.at1200, /^60% of the way up/, "on a live price the place moves with it: " + a.chan.at1200); assert.match(a.chan.below, /^below its long-term channel: 15% of the channel's height under the lower rail/); assert.equal(a.chan.none, null, "no complete channel on file for Nvidia: none shown");
+  /* Amazon is priced with the three Chinese retailers in, converted */
+  const amzn = a.coreRows.find((r) => r.sym === "AMZN"); for (const t of ["BABA", "JD", "PDD"]) assert.ok(amzn.chips.includes(t), t + " prices Amazon"); assert.match(a.coreLine, /AMZN 25\.7× · \+25%/);
+  assert.match(CARDS.cards.VST.comps.growth_credit_words, /^growth credit: none/);
 });
