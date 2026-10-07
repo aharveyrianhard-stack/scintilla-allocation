@@ -336,7 +336,7 @@
   /* AL8 (7 Oct 2026) — the money in five markets, the two input sections, the ranking as bars, a pick as its card. Nothing here adds a
      colour: cash / core / conviction are the money bar's own three, a place is the grey the fundamentals bars use, the "placeholder" tag
      and the conviction flag are the page's gold. Every label is 11px or more. */
-  .a8-v2{text-decoration:none;font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--txt);border:1px solid var(--line);border-radius:3px;padding:1px 7px;margin:0 6px 0 4px;white-space:nowrap}
+  .a8-v2{text-decoration:none;font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--txt);border:1px solid var(--line);border-radius:3px;padding:1px 7px;margin:0 6px 0 4px;display:inline-block;max-width:calc(100% - 12px);white-space:normal;line-height:1.5;vertical-align:baseline}   /* RL1: on a phone the label wraps inside its own box — it was cut at the edge when held on one line */
   .a8-ph{text-decoration:none;font-size:11px;letter-spacing:.14em;font-weight:700;color:#0a0a0f;background:var(--gold);border-radius:3px;padding:1px 7px;margin:0 6px 0 4px}
   .a8-scens{margin:2px 0 0}
   .a8-scen{display:grid;grid-template-columns:150px minmax(0,1fr) 92px;gap:2px 14px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
@@ -3177,7 +3177,7 @@ function renderScen(){
   const table='<details class="a8-num"><summary>THE SAME IN NUMBERS</summary><div class="scrollx"><table class="a8-rank a8-nums"><tr><th>MARKET</th><th class="sc">INVESTED</th><th class="sc">CASH</th><th class="sc">CORE</th><th class="sc">CONVICTION</th><th>THE READING</th></tr>'+
     R.map(r=>'<tr><td class="nm">'+esc2(r.title)+'<small>'+esc2(r.sub)+'</small></td><td class="sc">'+pc(r.inv)+'</td><td class="sc">'+pc(r.cash)+'</td><td class="sc">'+pc(r.core)+'</td><td class="sc">'+(r.names.length?r.names.map(n=>esc2(convWord(n.sym))+' '+pc(n.size)).join(' · '):'—')+'</td><td class="why">'+[r.spy!=null?'S&P '+(+r.spy).toFixed(2):'',r.rsi!=null?'RSI '+(+r.rsi).toFixed(1):'',r.vix!=null?'VIX '+(+r.vix).toFixed(2):''].filter(Boolean).join(' · ')+'</td></tr>').join('')+'</table></div></details>';
   el.innerHTML='<div class="a7-cap" style="margin-top:6px"><b>FIVE MARKETS</b>'+(ph?' <u class="a8-ph">PLACEHOLDER</u> the % invested in each row is the deployment study\'s number'+(when?' ('+when+')':'')+' — not reviewed, not wired'
-      :v2?' <u class="a8-v2">deployment engine v2 — next round in progress</u> the % invested in each row is the engine\'s reading on live prices'+(when?' ('+when+' New York)':'')
+      :v2?' <u class="a8-v2">deployment engine v2 — next round in progress</u> the % invested in each row is the engine\'s reading on live prices'+(when?' ('+when+')':'')
       :' — the % invested in each row is the deployment engine\'s'+(when?', built '+when:''))+'</div>'+
     '<div class="a8-scens'+(ph?' ph':'')+'">'+rows+'</div>'+
     '<div class="a7-leg" style="margin-top:8px"><span><i style="background:var(--cashc)"></i>cash</span><span><i style="background:var(--core)"></i>core — the sleeves of step 3b</span><span><i style="background:var(--conv)"></i>conviction — '+(ap?esc2(ap.name)+', two fifths of what is invested, at most '+ap.ceiling_pct+'%':'the approved names')+'</span><span><i class="a8-dash"></i>this page\'s own number today, the ladder: <b>'+pc(ladder)+'</b> invested</span></div>'+table;
