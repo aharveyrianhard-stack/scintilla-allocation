@@ -15,12 +15,15 @@ test("the page loads; the sources are one line with the counts, and the list ope
     const before = { open: d.open, summary: d.querySelector("summary").innerText.replace(/\s+/g, " ").trim(), badges: ds.querySelectorAll(":scope > span").length, height: ds.getBoundingClientRect().height };
     d.open = true; const rows = [...d.querySelectorAll("table tr")].map((tr) => [...tr.children].map((td) => td.innerText)); d.open = false;
     const bow = document.getElementById("bowtie"), money = document.getElementById("moneysplit");
+    money.querySelectorAll("details").forEach((d) => d.open = true);   /* AL7: the full ranking is folded under the bar — opened so its cells can be read */
     const table = blendTable();
     const rows3a = [...bow.querySelectorAll("table.sectab tr")].slice(1).map((tr) => ({ name: tr.querySelector("td.nm").childNodes[0].textContent, chips: tr.querySelectorAll(".sc-gmini").length, word: tr.querySelector("td.word").innerText, blend: tr.querySelectorAll("td.v")[0].innerText }));
     const chipFills = [...bow.querySelectorAll("td[data-side=blend] .sc-gmini i")].map((i) => ({ left: i.style.left, right: i.style.right, width: i.style.width, bg: i.style.background }));
     const M = moneyRows(); const inv = investedAt(heat()), SH = sleeveShares();
-    const rows3b = [...money.querySelectorAll("table.sectab tr")].slice(1).map((tr) => [...tr.children].map((td) => td.innerText));
-    return { counts, nSpine: spine.length, before, rows, bowText: bow.innerText, moneyText: money.innerText, table: table.map((r) => ({ key: r.key, score: r.score, cap: r.cap, eq: r.eq })), rows3a, chipFills, M, inv, SH,
+    const rows3b = [...money.querySelectorAll("table.a8-rk3 tr")].slice(1).map((tr) => [...tr.children].map((td) => td.innerText));   /* AL8: the ranking's own table */
+    const A = allocation();
+    return { counts, nSpine: spine.length, before, rows, bowText: bow.innerText, moneyText: money.innerText, table: table.map((r) => ({ key: r.key, score: r.score, cap: r.cap, eq: r.eq, method: r.method, metals: r.metals && r.metals.filter((l) => l.f || l.u).length })), rows3a, chipFills, M, inv, SH,
+      A: { inv: A.inv, convEq: A.convEq, coreEq: A.coreEq, indexEq: A.indexEq, sleeveEq: A.sleeveEq, maxN: A.maxN, minEq: A.minEq, conv: A.conv, idx: A.idx, sleeves: A.sleeves.map((x) => [x.key, x.equity, x.share, x.raw]), cands: A.cands.map((x) => [x.key, x.raw]) }, dials: { maxSleeves: S.maxSleeves, minSleeve: S.minSleeve, convShare: S.convShare, coreIndexShare: S.coreIndexShare },
       rows3b, secIds: [...document.querySelectorAll(".grid > .panel")].map((p) => p.id), css: getComputedStyle(bow.querySelector("td[data-side=blend] .sc-gmini")).height, folded3a: document.getElementById("p-bowtie").classList.contains("folded"), folded3b: document.getElementById("p-money").classList.contains("folded"),
       h3a: document.querySelector("#p-bowtie .pbody").getBoundingClientRect().height, h3b: document.querySelector("#p-money .pbody").getBoundingClientRect().height };
   });
@@ -34,23 +37,38 @@ test("the page loads; the sources are one line with the counts, and the list ope
 });
 test("3a SECTORS: one row per sector in the Hub's chip (cap · blend · equal), the ladder's words, most overbought first, and nothing about money", () => {
   assert.equal(s.rows3a.length, s.table.length);
-  s.table.forEach((r, i) => { const row = s.rows3a[i]; const want = 1 + (r.cap != null ? 1 : 0) + (r.eq != null ? 1 : 0); assert.equal(row.chips, want, r.key + " chips"); assert.equal(row.word, sectorWordJS(r.score), r.key + " word"); });
+  /* AL7: the metals row is read from the metal — its two side chips are gold and silver themselves, not a cap-weighted and an equal-weighted half */
+  s.table.forEach((r, i) => { const row = s.rows3a[i]; const want = r.method === "COMMODITY" ? 1 + 2 : 1 + (r.cap != null ? 1 : 0) + (r.eq != null ? 1 : 0); assert.equal(row.chips, want, r.key + " chips"); assert.equal(row.word, sectorWordJS(r.score), r.key + " word"); });
   for (let i = 1; i < s.table.length; i++) assert.ok(s.table[i].score <= s.table[i - 1].score, "most overbought first");
   s.table.forEach((r, i) => { const f = s.chipFills[i]; const bull = r.score >= 0; assert.equal(bull ? f.left : f.right, "50%", r.key + " fills from the centre " + (bull ? "rightwards" : "leftwards")); assert.ok(f.bg.includes(bull ? "--bull" : "--bear"), r.key + " colour " + f.bg); assert.ok(Math.abs(parseFloat(f.width) - Math.min(Math.abs(r.score), 1) * 50) < 0.01, r.key + " width " + f.width); });
   assert.equal(s.css, "16px", "the Hub's blend chip height (the board's mean line)");
   assert.ok(!/equity|money|%\s*of|invested|cash/i.test(s.bowText), "3a says nothing about money: " + (s.bowText.match(/.{0,40}(equity|money|% of|invested|cash).{0,40}/i) || [""])[0]);
   assert.ok(/OVERSOLD/.test(s.bowText) && /OVERBOUGHT/.test(s.bowText), "the ends are named");
   assert.ok(s.folded3a && s.folded3b && s.h3a <= 900 && s.h3b <= 900, "one screen each: " + s.h3a + " / " + s.h3b);
-  assert.deepEqual(s.secIds.slice(3, 7), ["p-howmuch", "p-bowtie", "p-money", "p-cohorts"], "3a then 3b, between HOW MUCH and the cohorts");
+  assert.deepEqual(s.secIds.slice(4, 8), ["p-howmuch", "p-bowtie", "p-money", "p-cohorts"], "3a then 3b, between HOW MUCH and the cohorts (AL8: one place later — THE MONEY is the first section)");
 });
-test("3b HOW THE MONEY SPLITS: every number follows from the 3a reading by the stated rule, and the sectors add up to the rung", async () => {
-  const M = s.M; assert.ok(M.rows.length >= 11);
-  let rawTot = 0; for (const r of M.rows) { const cold = Math.max(0.05, (1 - r.score) / 2); const turn = r.kind === "improve" ? 1.35 : r.kind === "avoid" ? 0.6 : r.kind === "buy" ? 0.85 : 1; assert.ok(Math.abs(r.cold - cold) < 1e-9 && Math.abs(r.raw - cold * turn) < 1e-9, r.key); rawTot += r.raw; }
-  for (const r of M.rows) { assert.ok(Math.abs(r.rawShare - r.raw / rawTot) < 1e-9); assert.ok(r.share >= 0.02 - 1e-9 && r.share <= 0.35 + 1e-9, r.key + " within the rails " + r.share); assert.ok(Math.abs(r.share - (s.SH[r.key] || 0)) < 1e-12, "the same share the pie uses"); assert.ok(Math.abs(r.equity - r.share * s.inv) < 1e-12); }
-  const tot = M.rows.reduce((t, r) => t + r.equity, 0); assert.ok(Math.abs(tot - s.inv) < 1e-6, "the sectors add up to the rung: " + tot + " vs " + s.inv);
-  assert.equal(s.rows3b.length, M.rows.length + 1, "one row per sector and the total"); const last = s.rows3b[s.rows3b.length - 1]; assert.ok(last[last.length - 2] === (s.inv * 100).toFixed(1) + "%", "the total is the rung's % invested: " + JSON.stringify(last));
-  for (let i = 0; i < M.rows.length; i++) { const r = s.rows3b[i]; assert.equal(r[7], (M.rows[i].equity * 100).toFixed(1) + "%", M.rows[i].key + " % of equity"); assert.equal(r[6], (M.rows[i].share * 100).toFixed(1) + "%"); }
-  assert.ok(/THE RULE/.test(s.moneyText) && /2% and 35%/.test(s.moneyText) && /coldness/.test(s.moneyText));
+/* AL7 (6 Oct, evening) — 3b stopped being every sector between 2% and 35%. AL8 (7 Oct) — and it stopped being a fixed shape: Alan turned
+   down "conviction a fifth, the index half the core, six sleeves at most" that night. What this test pinned (the ranking by coldness × the
+   turn, only the first few funded, a fifth to conviction, half the core to the index) is replaced; the 6 Oct rule's two numbers per sleeve
+   (coldness, the turn) are still computed and are still checked here, because they are now two of the ranking's three questions. The new
+   rule itself — the three places, no cap, parking, conviction by name — is pinned in al8.test.mjs. */
+test("3b HOW THE MONEY SPLITS: the 6 Oct rule's coldness and turn are still each sleeve's opportunity and regime answers; sleeves are funded in rank order, none under the smallest allowed; the equal-weight fund + sleeves + conviction add up to the rung", async () => {
+  const M = s.M, A = s.A; assert.ok(M.rows.length >= 11, "the eleven sectors and more are candidates");
+  for (const r of M.rows) { const cold = Math.max(0.05, (1 - r.score) / 2); const turn = r.kind === "improve" ? 1.35 : r.kind === "avoid" ? 0.6 : r.kind === "buy" ? 0.85 : 1; assert.ok(Math.abs(r.cold - cold) < 1e-9 && Math.abs(r.raw - cold * turn) < 1e-9, r.key); }
+  for (let i = 0; i < M.rows.length; i++) { const r = M.rows[i]; assert.equal(r.rank, i + 1); if (i) assert.ok(r.rankScore <= M.rows[i - 1].rankScore + 1e-12, "ranked by score, best first"); }
+  const funded = M.rows.filter((r) => r.funded), out = M.rows.filter((r) => !r.funded);
+  assert.deepEqual(s.dials, { maxSleeves: 6, minSleeve: 4, convShare: 20, coreIndexShare: 50 }, "the four numbers are still stored; only the smallest sleeve is read");
+  assert.deepEqual(funded.map((r) => r.key), M.rows.slice(0, funded.length).map((r) => r.key), "the funded sleeves are the first of the ranking");
+  for (const r of funded) { assert.ok(r.equity >= A.minEq - 1e-9, r.key + " is at least the smallest sleeve: " + r.equity); assert.ok(Math.abs(r.equity - r.share * A.sleeveEq) < 1e-12); assert.ok(Math.abs(r.equity - (s.SH[r.key] || 0) * s.inv) < 1e-12, "the same share every other step uses"); }
+  const fr = funded.reduce((t, r) => t + r.rankScore, 0); for (const r of funded) assert.ok(Math.abs(r.share - r.rankScore / fr) < 1e-9, r.key + " takes its score's share of the sleeves");
+  for (const r of out) { assert.equal(r.equity, 0); assert.ok(r.why && r.why.length > 3, r.key + " says why: " + r.why); assert.equal(s.SH[r.key], undefined, r.key + " gets no share anywhere"); }
+  assert.ok(funded.length === 0 ? Math.abs(A.indexEq - A.coreEq) < 1e-12 : A.indexEq === 0, "the equal-weight fund holds the core only when no sleeve is funded");
+  const tot = funded.reduce((t, r) => t + r.equity, 0); assert.ok(Math.abs(tot + A.indexEq + A.convEq - s.inv) < 1e-9, "the equal-weight fund + sleeves + conviction = the rung: " + (tot + A.indexEq + A.convEq) + " vs " + s.inv);
+  assert.equal(s.rows3b.length, M.rows.length + (M.stop ? 1 : 0), "the ranking: one row per candidate, and one line where the core stops");
+  const cells = s.rows3b.filter((r) => r.length === 8); assert.equal(cells.length, M.rows.length);
+  for (let i = 0; i < M.rows.length; i++) { const r = cells[i]; assert.equal(r[6].trim().split(/\s/)[0], M.rows[i].funded ? (M.rows[i].equity * 100).toFixed(1) + "%" : "—", M.rows[i].key + " % of the account"); assert.ok(M.rows[i].funded ? /parked in|no fund tracks it/.test(r[7]) : r[7].trim() === M.rows[i].why, M.rows[i].key + " parked, or why it is out: " + r[7]); }
+  assert.ok(/THE MONEY/.test(s.moneyText) && /conviction/i.test(s.moneyText) && /THE RANKING/.test(s.moneyText) && /GROWTH/.test(s.moneyText) && /REGIME FIT/.test(s.moneyText) && /OPPORTUNITY/.test(s.moneyText) && !/2% and 35%/.test(s.moneyText), "the three questions are named; the old rails are gone");
+  assert.ok(!/none picked/i.test(s.moneyText + s.bowText), "nothing says none picked");
 });
 function sectorWordJS(v) { if (v == null) return "NO READ"; return v <= -0.5 ? "DEEP OVERSOLD" : v <= -0.2 ? "OVERSOLD" : v < 0.2 ? "NEUTRAL" : v < 0.5 ? "OVERBOUGHT" : "DEEP OVERBOUGHT"; }
 /* the browser always closes, even after a failed assertion — otherwise the test process never exits */

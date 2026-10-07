@@ -1,0 +1,1402 @@
+{
+ "390": {
+  "heat": 0.07330946008444073,
+  "rung": {
+   "cond": "NEUTRAL",
+   "pct": 50
+  },
+  "brief": "The market's heat is middling (+0.07), so the plan keeps about half the money in cash: 50% invested, 50% in cash.\n+0.07 today\n−1\n−0.5\n−0.2\n+0.2\n+0.5\n+1\n100%\n80%\n50%\n30%\n15%\n% = invested on that rung · next rung: under −0.20 (0.27 away) → 80% · over +0.20 (0.13 away) → 30% invested\nTWO CAMPS — what is left between them is the heat\nHOT\n+0.59\n48% of the vote\nNasdaq · S&P · semis · VIX · +7 more\nCOLD\n−0.40\n52% of the vote\n10-year yield · concentration · oil · small vs large · +9 more\nHOW MUCH\nyou hold 0% invested, the rung says 50% · 50% of equity to put to work\nBREADTH\n10 of 13 equal-weight funds trail their index · 51% of our companies above their 200-day, 37% above their 50-day · today 224 up / 90 down\nSECTORS\n2 of 11 sectors lead (Technology, Energy), 4 lag, 4 turning up from below, 1 pulling back · inside them the bow tie reads −0.15: the big names carry each · not counted in: Oil +0.55, Crypto +0.50, Metals −0.36\nWHERE\nthe equal-weight index 20% · Consumer discretionary, Materials, Datacenter property, Neoclouds & AI miners 20% · conviction 10%\nNAMES\nfirst on fundamentals there: BKNG, MCD, LOW, IREN, CORZ\nRATES · FEAR\n10-year 5.27% — a headwind · VIX 15.0 — calm · put/call 0.72",
+  "voters": [
+   [
+    "SPY",
+    0.807,
+    1
+   ],
+   [
+    "QQQ",
+    0.85,
+    1
+   ],
+   [
+    "IWM",
+    -0.228,
+    0.5
+   ],
+   [
+    "SMH",
+    0.754,
+    0.5
+   ],
+   [
+    "VIX",
+    0.666,
+    0.5
+   ],
+   [
+    "US10Y",
+    -1,
+    0.5
+   ],
+   [
+    "OIL",
+    -0.519,
+    0.5
+   ],
+   [
+    "VALUE",
+    0.212,
+    0
+   ],
+   [
+    "CRYPTO",
+    0.511,
+    0.25
+   ],
+   [
+    "BREADTH_X",
+    -0.157,
+    0.5
+   ],
+   [
+    "BREADTH_EW",
+    -0.595,
+    0
+   ],
+   [
+    "BREADTH_SC",
+    -1,
+    0.25
+   ],
+   [
+    "SECTORS",
+    -0.015,
+    0.75
+   ],
+   [
+    "VIX_TERM",
+    0.596,
+    0.25
+   ],
+   [
+    "CURVE",
+    0.32,
+    0.5
+   ],
+   [
+    "PCC",
+    0.2,
+    0.25
+   ],
+   [
+    "ADLINE",
+    -0.037,
+    0.5
+   ],
+   [
+    "CONC",
+    -0.749,
+    0.5
+   ],
+   [
+    "B_200D",
+    0.016,
+    0.25
+   ],
+   [
+    "B_50D",
+    -0.257,
+    0.25
+   ],
+   [
+    "TRIN",
+    -0.037,
+    0.25
+   ],
+   [
+    "B_VOL",
+    0.359,
+    0.25
+   ],
+   [
+    "MAGS",
+    -0.055,
+    0
+   ],
+   [
+    "CREDIT",
+    -0.48,
+    0.5
+   ],
+   [
+    "DURATION",
+    -0.852,
+    0.25
+   ],
+   [
+    "HAVEN",
+    -0.201,
+    0.25
+   ],
+   [
+    "DEF",
+    0.021,
+    0.25
+   ]
+  ],
+  "sleeves": [
+   [
+    "INDEX",
+    20
+   ],
+   [
+    "DISCRET",
+    5.2
+   ],
+   [
+    "MATERIALS",
+    5.2
+   ],
+   [
+    "DC_PROPERTY",
+    4.9
+   ],
+   [
+    "NEOCLOUDS_MINERS",
+    4.7
+   ]
+  ],
+  "pageWidth": 390,
+  "viewport": 390,
+  "al7": {
+   "heat": 0.07330946008444073,
+   "rung": {
+    "cond": "NEUTRAL",
+    "pct": 50
+   },
+   "heatBefore": 0.05752545914428932,
+   "weightBefore": 9.75,
+   "rungBefore": {
+    "cond": "NEUTRAL",
+    "pct": 50
+   },
+   "oneRuler": {
+    "heat": 0.113163674370155,
+    "rung": {
+     "cond": "NEUTRAL",
+     "pct": 50
+    },
+    "oil": {
+     "future": 0.5188,
+     "fund": -0.013873
+    },
+    "gold": {
+     "future": 0.2014,
+     "trust": -0.407131
+    }
+   },
+   "camps": {
+    "hot": 0.5903788696899503,
+    "hotShare": 0.47619047619047616,
+    "cold": -0.39675363955693166,
+    "coldShare": 0.5238095238095238
+   },
+   "weight": 10.5,
+   "voting": 24,
+   "readOnly": 3,
+   "cannot": 6,
+   "families": [
+    {
+     "id": "index",
+     "share": 0.3571,
+     "avg": 0.509,
+     "rows": [
+      [
+       "SPY",
+       0.807,
+       0.0952
+      ],
+      [
+       "QQQ",
+       0.85,
+       0.0952
+      ],
+      [
+       "IWM",
+       -0.228,
+       0.0476
+      ],
+      [
+       "SMH",
+       0.754,
+       0.0476
+      ],
+      [
+       "SECTORS",
+       -0.015,
+       0.0714
+      ]
+     ]
+    },
+    {
+     "id": "breadth",
+     "share": 0.2619,
+     "avg": -0.255,
+     "rows": [
+      [
+       "BREADTH_X",
+       -0.157,
+       0.0476
+      ],
+      [
+       "BREADTH_SC",
+       -1,
+       0.0238
+      ],
+      [
+       "ADLINE",
+       -0.037,
+       0.0476
+      ],
+      [
+       "CONC",
+       -0.749,
+       0.0476
+      ],
+      [
+       "B_200D",
+       0.016,
+       0.0238
+      ],
+      [
+       "B_50D",
+       -0.257,
+       0.0238
+      ],
+      [
+       "TRIN",
+       -0.037,
+       0.0238
+      ],
+      [
+       "B_VOL",
+       0.359,
+       0.0238
+      ]
+     ]
+    },
+    {
+     "id": "rates",
+     "share": 0.2143,
+     "avg": -0.468,
+     "rows": [
+      [
+       "US10Y",
+       -1,
+       0.0476
+      ],
+      [
+       "OIL",
+       -0.519,
+       0.0476
+      ],
+      [
+       "CURVE",
+       0.32,
+       0.0476
+      ],
+      [
+       "CREDIT",
+       -0.48,
+       0.0476
+      ],
+      [
+       "DURATION",
+       -0.852,
+       0.0238
+      ]
+     ]
+    },
+    {
+     "id": "sentiment",
+     "share": 0.119,
+     "avg": 0.528,
+     "rows": [
+      [
+       "VIX",
+       0.666,
+       0.0476
+      ],
+      [
+       "CRYPTO",
+       0.511,
+       0.0238
+      ],
+      [
+       "VIX_TERM",
+       0.596,
+       0.0238
+      ],
+      [
+       "PCC",
+       0.2,
+       0.0238
+      ]
+     ]
+    },
+    {
+     "id": "defensives",
+     "share": 0.0476,
+     "avg": -0.09,
+     "rows": [
+      [
+       "HAVEN",
+       -0.201,
+       0.0238
+      ],
+      [
+       "DEF",
+       0.021,
+       0.0238
+      ]
+     ]
+    }
+   ],
+   "pairs": {
+    "n": 13,
+    "avg": -0.1566753076923077,
+    "below": 10,
+    "above": 1,
+    "level": 2,
+    "rows": [
+     [
+      "Health care",
+      0.435
+     ],
+     [
+      "Financials",
+      0.037
+     ],
+     [
+      "Technology",
+      0.022
+     ],
+     [
+      "Nasdaq-100",
+      -0.127
+     ],
+     [
+      "Materials",
+      -0.141
+     ],
+     [
+      "Energy",
+      -0.152
+     ],
+     [
+      "Utilities",
+      -0.158
+     ],
+     [
+      "Consumer discretionary",
+      -0.178
+     ],
+     [
+      "Consumer staples",
+      -0.195
+     ],
+     [
+      "Real estate",
+      -0.229
+     ],
+     [
+      "Industrials",
+      -0.265
+     ],
+     [
+      "Communications",
+      -0.49
+     ],
+     [
+      "S&P 500",
+      -0.595
+     ]
+    ]
+   },
+   "longBars": {
+    "asof": "2026-10-06",
+    "n": 452,
+    "pct200": 50.779510022271715,
+    "pct50": 37.16814159292036,
+    "idx": {
+     "SPY": {
+      "close": 779.09,
+      "bars": 225,
+      "fromHigh": 0,
+      "highDate": "2026-10-06",
+      "vs50": 0.018125240290311595,
+      "vs200": 0.07983590885103276,
+      "rising200": true,
+      "rsi": 62.00054053341626
+     },
+     "RSP": {
+      "close": 212.33,
+      "bars": 225,
+      "fromHigh": -0.04686447905911928,
+      "highDate": "2026-08-14",
+      "vs50": -0.01953993690478839,
+      "vs200": 0.031031959417168187,
+      "rising200": true,
+      "rsi": 47.54529070669652
+     },
+     "IWM": {
+      "close": 281.34,
+      "bars": 225,
+      "fromHigh": -0.0778458815431512,
+      "highDate": "2026-08-14",
+      "vs50": -0.03713139491028783,
+      "vs200": 0.01692378927187721,
+      "rising200": true,
+      "rsi": 40.49720409114076
+     }
+    }
+   },
+   "putcall": {
+    "reading": 0.718020142475241,
+    "val": 0.19999999999999998,
+    "place": {
+     "n": 6,
+     "below": 1,
+     "pct": 16.666666666666668,
+     "min": 0.704326833547966,
+     "max": 0.81020198255317
+    },
+    "strength": 0.3,
+    "asof": "2026-10-06"
+   },
+   "money": {
+    "invested": 0.5,
+    "cash": 0.5,
+    "core": 0.4,
+    "index": 0.2,
+    "conviction": 0.1,
+    "sleeves": [
+     [
+      "DISCRET",
+      0.0524,
+      -0.12,
+      "improve"
+     ],
+     [
+      "MATERIALS",
+      0.0515,
+      -0.101,
+      "improve"
+     ],
+     [
+      "DC_PROPERTY",
+      0.0491,
+      -0.048,
+      "improve"
+     ],
+     [
+      "NEOCLOUDS_MINERS",
+      0.047,
+      -0.005,
+      "improve"
+     ]
+    ],
+    "ranking": [
+     [
+      "DISCRET",
+      0.756
+     ],
+     [
+      "MATERIALS",
+      0.743
+     ],
+     [
+      "DC_PROPERTY",
+      0.708
+     ],
+     [
+      "NEOCLOUDS_MINERS",
+      0.678
+     ],
+     [
+      "UTILITIES",
+      0.657
+     ],
+     [
+      "INDUSTRIAL",
+      0.631
+     ],
+     [
+      "AI_POWERTRAIN",
+      0.557
+     ],
+     [
+      "HEALTH",
+      0.441
+     ],
+     [
+      "REAL_ESTATE",
+      0.422
+     ],
+     [
+      "METALS",
+      0.408
+     ],
+     [
+      "MEMORY_STORAGE",
+      0.396
+     ],
+     [
+      "FINANCIALS",
+      0.355
+     ],
+     [
+      "STAPLES",
+      0.351
+     ],
+     [
+      "ROBOTICS_AUTOMATION",
+      0.342
+     ],
+     [
+      "COMMS",
+      0.342
+     ],
+     [
+      "ENERGY",
+      0.316
+     ],
+     [
+      "CRYPTO",
+      0.249
+     ],
+     [
+      "TECH",
+      0.231
+     ],
+     [
+      "OIL",
+      0.226
+     ],
+     [
+      "AI_SOFTWARE_DATA",
+      0.214
+     ],
+     [
+      "AI_SERVERS_DC_KIT",
+      0.211
+     ],
+     [
+      "AI_NETWORKING_OPTICAL",
+      0.191
+     ],
+     [
+      "AI_ACCELERATORS",
+      0.183
+     ]
+    ],
+    "maxN": 4,
+    "minEq": 0.04
+   },
+   "metals": {
+    "score": -0.3597155,
+    "parts": {
+     "TRUST": -0.36,
+     "FUTURE": 0.184
+    },
+    "lines": [
+     [
+      "GOLD",
+      -0.407,
+      0.201
+     ],
+     [
+      "SILVER",
+      -0.312,
+      0.167
+     ],
+     [
+      "COPPER",
+      null,
+      null
+     ]
+    ],
+    "miners": 22,
+    "minersScore": -0.05842477272727271
+   },
+   "tree": {
+    "rows": 91,
+    "links": 771,
+    "companies": 453,
+    "sleeves": [
+     [
+      "AI_ACCELERATORS",
+      0.634,
+      13,
+      "SMH"
+     ],
+     [
+      "AI_NETWORKING_OPTICAL",
+      0.617,
+      14,
+      "IYZ"
+     ],
+     [
+      "AI_SERVERS_DC_KIT",
+      0.578,
+      4,
+      "AGIX"
+     ],
+     [
+      "AI_SOFTWARE_DATA",
+      0.572,
+      16,
+      "IGV"
+     ],
+     [
+      "ROBOTICS_AUTOMATION",
+      0.316,
+      5,
+      "BOTZ"
+     ],
+     [
+      "AI_POWERTRAIN",
+      0.175,
+      12,
+      "URA"
+     ],
+     [
+      "MEMORY_STORAGE",
+      0.069,
+      6,
+      "DRAM"
+     ],
+     [
+      "NEOCLOUDS_MINERS",
+      -0.005,
+      12,
+      null
+     ],
+     [
+      "DC_PROPERTY",
+      -0.048,
+      4,
+      "XLRE"
+     ]
+    ]
+   },
+   "lines": 19,
+   "cp1": null
+  },
+  "errors": [],
+  "nonGet": {
+   "blocked": 0,
+   "allowed": 0,
+   "urls": []
+  }
+ },
+ "1680": {
+  "heat": 0.07330946008444073,
+  "rung": {
+   "cond": "NEUTRAL",
+   "pct": 50
+  },
+  "brief": "The market's heat is middling (+0.07), so the plan keeps about half the money in cash: 50% invested, 50% in cash.\n+0.07 today\n−1\n−0.5\n−0.2\n+0.2\n+0.5\n+1\n100%\ndeeply washed out\n80%\nwashed out\n50%\nmiddling\n30%\nstretched\n15%\ndeeply stretched\n% = invested on that rung · next rung: under −0.20 (0.27 away) → 80% · over +0.20 (0.13 away) → 30% invested\nTWO CAMPS — what is left between them is the heat\nHOT\n+0.59\n48% of the vote\nNasdaq · S&P · semis · VIX · +7 more\nCOLD\n−0.40\n52% of the vote\n10-year yield · concentration · oil · small vs large · +9 more\nHOW MUCH\nyou hold 0% invested, the rung says 50% · 50% of equity to put to work\nBREADTH\n10 of 13 equal-weight funds trail their index · 51% of our companies above their 200-day, 37% above their 50-day · today 224 up / 90 down\nSECTORS\n2 of 11 sectors lead (Technology, Energy), 4 lag, 4 turning up from below, 1 pulling back · inside them the bow tie reads −0.15: the big names carry each · not counted in: Oil +0.55, Crypto +0.50, Metals −0.36\nWHERE\nthe equal-weight index 20% · Consumer discretionary, Materials, Datacenter property, Neoclouds & AI miners 20% · conviction 10%\nNAMES\nfirst on fundamentals there: BKNG, MCD, LOW, IREN, CORZ\nRATES · FEAR\n10-year 5.27% — a headwind · VIX 15.0 — calm · put/call 0.72",
+  "voters": [
+   [
+    "SPY",
+    0.807,
+    1
+   ],
+   [
+    "QQQ",
+    0.85,
+    1
+   ],
+   [
+    "IWM",
+    -0.228,
+    0.5
+   ],
+   [
+    "SMH",
+    0.754,
+    0.5
+   ],
+   [
+    "VIX",
+    0.666,
+    0.5
+   ],
+   [
+    "US10Y",
+    -1,
+    0.5
+   ],
+   [
+    "OIL",
+    -0.519,
+    0.5
+   ],
+   [
+    "VALUE",
+    0.212,
+    0
+   ],
+   [
+    "CRYPTO",
+    0.511,
+    0.25
+   ],
+   [
+    "BREADTH_X",
+    -0.157,
+    0.5
+   ],
+   [
+    "BREADTH_EW",
+    -0.595,
+    0
+   ],
+   [
+    "BREADTH_SC",
+    -1,
+    0.25
+   ],
+   [
+    "SECTORS",
+    -0.015,
+    0.75
+   ],
+   [
+    "VIX_TERM",
+    0.596,
+    0.25
+   ],
+   [
+    "CURVE",
+    0.32,
+    0.5
+   ],
+   [
+    "PCC",
+    0.2,
+    0.25
+   ],
+   [
+    "ADLINE",
+    -0.037,
+    0.5
+   ],
+   [
+    "CONC",
+    -0.749,
+    0.5
+   ],
+   [
+    "B_200D",
+    0.016,
+    0.25
+   ],
+   [
+    "B_50D",
+    -0.257,
+    0.25
+   ],
+   [
+    "TRIN",
+    -0.037,
+    0.25
+   ],
+   [
+    "B_VOL",
+    0.359,
+    0.25
+   ],
+   [
+    "MAGS",
+    -0.055,
+    0
+   ],
+   [
+    "CREDIT",
+    -0.48,
+    0.5
+   ],
+   [
+    "DURATION",
+    -0.852,
+    0.25
+   ],
+   [
+    "HAVEN",
+    -0.201,
+    0.25
+   ],
+   [
+    "DEF",
+    0.021,
+    0.25
+   ]
+  ],
+  "sleeves": [
+   [
+    "INDEX",
+    20
+   ],
+   [
+    "DISCRET",
+    5.2
+   ],
+   [
+    "MATERIALS",
+    5.2
+   ],
+   [
+    "DC_PROPERTY",
+    4.9
+   ],
+   [
+    "NEOCLOUDS_MINERS",
+    4.7
+   ]
+  ],
+  "pageWidth": 1680,
+  "viewport": 1680,
+  "al7": {
+   "heat": 0.07330946008444073,
+   "rung": {
+    "cond": "NEUTRAL",
+    "pct": 50
+   },
+   "heatBefore": 0.05752545914428932,
+   "weightBefore": 9.75,
+   "rungBefore": {
+    "cond": "NEUTRAL",
+    "pct": 50
+   },
+   "oneRuler": {
+    "heat": 0.113163674370155,
+    "rung": {
+     "cond": "NEUTRAL",
+     "pct": 50
+    },
+    "oil": {
+     "future": 0.5188,
+     "fund": -0.013873
+    },
+    "gold": {
+     "future": 0.2014,
+     "trust": -0.407131
+    }
+   },
+   "camps": {
+    "hot": 0.5903788696899503,
+    "hotShare": 0.47619047619047616,
+    "cold": -0.39675363955693166,
+    "coldShare": 0.5238095238095238
+   },
+   "weight": 10.5,
+   "voting": 24,
+   "readOnly": 3,
+   "cannot": 6,
+   "families": [
+    {
+     "id": "index",
+     "share": 0.3571,
+     "avg": 0.509,
+     "rows": [
+      [
+       "SPY",
+       0.807,
+       0.0952
+      ],
+      [
+       "QQQ",
+       0.85,
+       0.0952
+      ],
+      [
+       "IWM",
+       -0.228,
+       0.0476
+      ],
+      [
+       "SMH",
+       0.754,
+       0.0476
+      ],
+      [
+       "SECTORS",
+       -0.015,
+       0.0714
+      ]
+     ]
+    },
+    {
+     "id": "breadth",
+     "share": 0.2619,
+     "avg": -0.255,
+     "rows": [
+      [
+       "BREADTH_X",
+       -0.157,
+       0.0476
+      ],
+      [
+       "BREADTH_SC",
+       -1,
+       0.0238
+      ],
+      [
+       "ADLINE",
+       -0.037,
+       0.0476
+      ],
+      [
+       "CONC",
+       -0.749,
+       0.0476
+      ],
+      [
+       "B_200D",
+       0.016,
+       0.0238
+      ],
+      [
+       "B_50D",
+       -0.257,
+       0.0238
+      ],
+      [
+       "TRIN",
+       -0.037,
+       0.0238
+      ],
+      [
+       "B_VOL",
+       0.359,
+       0.0238
+      ]
+     ]
+    },
+    {
+     "id": "rates",
+     "share": 0.2143,
+     "avg": -0.468,
+     "rows": [
+      [
+       "US10Y",
+       -1,
+       0.0476
+      ],
+      [
+       "OIL",
+       -0.519,
+       0.0476
+      ],
+      [
+       "CURVE",
+       0.32,
+       0.0476
+      ],
+      [
+       "CREDIT",
+       -0.48,
+       0.0476
+      ],
+      [
+       "DURATION",
+       -0.852,
+       0.0238
+      ]
+     ]
+    },
+    {
+     "id": "sentiment",
+     "share": 0.119,
+     "avg": 0.528,
+     "rows": [
+      [
+       "VIX",
+       0.666,
+       0.0476
+      ],
+      [
+       "CRYPTO",
+       0.511,
+       0.0238
+      ],
+      [
+       "VIX_TERM",
+       0.596,
+       0.0238
+      ],
+      [
+       "PCC",
+       0.2,
+       0.0238
+      ]
+     ]
+    },
+    {
+     "id": "defensives",
+     "share": 0.0476,
+     "avg": -0.09,
+     "rows": [
+      [
+       "HAVEN",
+       -0.201,
+       0.0238
+      ],
+      [
+       "DEF",
+       0.021,
+       0.0238
+      ]
+     ]
+    }
+   ],
+   "pairs": {
+    "n": 13,
+    "avg": -0.1566753076923077,
+    "below": 10,
+    "above": 1,
+    "level": 2,
+    "rows": [
+     [
+      "Health care",
+      0.435
+     ],
+     [
+      "Financials",
+      0.037
+     ],
+     [
+      "Technology",
+      0.022
+     ],
+     [
+      "Nasdaq-100",
+      -0.127
+     ],
+     [
+      "Materials",
+      -0.141
+     ],
+     [
+      "Energy",
+      -0.152
+     ],
+     [
+      "Utilities",
+      -0.158
+     ],
+     [
+      "Consumer discretionary",
+      -0.178
+     ],
+     [
+      "Consumer staples",
+      -0.195
+     ],
+     [
+      "Real estate",
+      -0.229
+     ],
+     [
+      "Industrials",
+      -0.265
+     ],
+     [
+      "Communications",
+      -0.49
+     ],
+     [
+      "S&P 500",
+      -0.595
+     ]
+    ]
+   },
+   "longBars": {
+    "asof": "2026-10-06",
+    "n": 452,
+    "pct200": 50.779510022271715,
+    "pct50": 37.16814159292036,
+    "idx": {
+     "SPY": {
+      "close": 779.09,
+      "bars": 225,
+      "fromHigh": 0,
+      "highDate": "2026-10-06",
+      "vs50": 0.018125240290311595,
+      "vs200": 0.07983590885103276,
+      "rising200": true,
+      "rsi": 62.00054053341626
+     },
+     "RSP": {
+      "close": 212.33,
+      "bars": 225,
+      "fromHigh": -0.04686447905911928,
+      "highDate": "2026-08-14",
+      "vs50": -0.01953993690478839,
+      "vs200": 0.031031959417168187,
+      "rising200": true,
+      "rsi": 47.54529070669652
+     },
+     "IWM": {
+      "close": 281.34,
+      "bars": 225,
+      "fromHigh": -0.0778458815431512,
+      "highDate": "2026-08-14",
+      "vs50": -0.03713139491028783,
+      "vs200": 0.01692378927187721,
+      "rising200": true,
+      "rsi": 40.49720409114076
+     }
+    }
+   },
+   "putcall": {
+    "reading": 0.718020142475241,
+    "val": 0.19999999999999998,
+    "place": {
+     "n": 6,
+     "below": 1,
+     "pct": 16.666666666666668,
+     "min": 0.704326833547966,
+     "max": 0.81020198255317
+    },
+    "strength": 0.3,
+    "asof": "2026-10-06"
+   },
+   "money": {
+    "invested": 0.5,
+    "cash": 0.5,
+    "core": 0.4,
+    "index": 0.2,
+    "conviction": 0.1,
+    "sleeves": [
+     [
+      "DISCRET",
+      0.0524,
+      -0.12,
+      "improve"
+     ],
+     [
+      "MATERIALS",
+      0.0515,
+      -0.101,
+      "improve"
+     ],
+     [
+      "DC_PROPERTY",
+      0.0491,
+      -0.048,
+      "improve"
+     ],
+     [
+      "NEOCLOUDS_MINERS",
+      0.047,
+      -0.005,
+      "improve"
+     ]
+    ],
+    "ranking": [
+     [
+      "DISCRET",
+      0.756
+     ],
+     [
+      "MATERIALS",
+      0.743
+     ],
+     [
+      "DC_PROPERTY",
+      0.708
+     ],
+     [
+      "NEOCLOUDS_MINERS",
+      0.678
+     ],
+     [
+      "UTILITIES",
+      0.657
+     ],
+     [
+      "INDUSTRIAL",
+      0.631
+     ],
+     [
+      "AI_POWERTRAIN",
+      0.557
+     ],
+     [
+      "HEALTH",
+      0.441
+     ],
+     [
+      "REAL_ESTATE",
+      0.422
+     ],
+     [
+      "METALS",
+      0.408
+     ],
+     [
+      "MEMORY_STORAGE",
+      0.396
+     ],
+     [
+      "FINANCIALS",
+      0.355
+     ],
+     [
+      "STAPLES",
+      0.351
+     ],
+     [
+      "ROBOTICS_AUTOMATION",
+      0.342
+     ],
+     [
+      "COMMS",
+      0.342
+     ],
+     [
+      "ENERGY",
+      0.316
+     ],
+     [
+      "CRYPTO",
+      0.249
+     ],
+     [
+      "TECH",
+      0.231
+     ],
+     [
+      "OIL",
+      0.226
+     ],
+     [
+      "AI_SOFTWARE_DATA",
+      0.214
+     ],
+     [
+      "AI_SERVERS_DC_KIT",
+      0.211
+     ],
+     [
+      "AI_NETWORKING_OPTICAL",
+      0.191
+     ],
+     [
+      "AI_ACCELERATORS",
+      0.183
+     ]
+    ],
+    "maxN": 4,
+    "minEq": 0.04
+   },
+   "metals": {
+    "score": -0.3597155,
+    "parts": {
+     "TRUST": -0.36,
+     "FUTURE": 0.184
+    },
+    "lines": [
+     [
+      "GOLD",
+      -0.407,
+      0.201
+     ],
+     [
+      "SILVER",
+      -0.312,
+      0.167
+     ],
+     [
+      "COPPER",
+      null,
+      null
+     ]
+    ],
+    "miners": 22,
+    "minersScore": -0.05842477272727271
+   },
+   "tree": {
+    "rows": 91,
+    "links": 771,
+    "companies": 453,
+    "sleeves": [
+     [
+      "AI_ACCELERATORS",
+      0.634,
+      13,
+      "SMH"
+     ],
+     [
+      "AI_NETWORKING_OPTICAL",
+      0.617,
+      14,
+      "IYZ"
+     ],
+     [
+      "AI_SERVERS_DC_KIT",
+      0.578,
+      4,
+      "AGIX"
+     ],
+     [
+      "AI_SOFTWARE_DATA",
+      0.572,
+      16,
+      "IGV"
+     ],
+     [
+      "ROBOTICS_AUTOMATION",
+      0.316,
+      5,
+      "BOTZ"
+     ],
+     [
+      "AI_POWERTRAIN",
+      0.175,
+      12,
+      "URA"
+     ],
+     [
+      "MEMORY_STORAGE",
+      0.069,
+      6,
+      "DRAM"
+     ],
+     [
+      "NEOCLOUDS_MINERS",
+      -0.005,
+      12,
+      null
+     ],
+     [
+      "DC_PROPERTY",
+      -0.048,
+      4,
+      "XLRE"
+     ]
+    ]
+   },
+   "lines": 19,
+   "cp1": null
+  },
+  "errors": [],
+  "nonGet": {
+   "blocked": 0,
+   "allowed": 0,
+   "urls": []
+  }
+ }
+}
