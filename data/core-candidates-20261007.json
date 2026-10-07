@@ -1,0 +1,17 @@
+{
+ "what": "the core candidates whose comps the workflow shows in full: the names Alan asked to see on 7 Oct (Google, Amazon, Broadcom, TSMC) and the other leaders they are measured against. A list, not a rule: change it here.",
+ "as_of": "2026-10-07",
+ "from": "Alan, 7 Oct 2026 ~10:05 ET, and the coordinator's brief of the same hour",
+ "names": [
+  "GOOGL",
+  "AMZN",
+  "AVGO",
+  "NVDA",
+  "TSM",
+  "VST",
+  "MU",
+  "ORCL",
+  "DLR",
+  "EQIX"
+ ]
+}

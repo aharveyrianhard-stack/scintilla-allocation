@@ -438,6 +438,20 @@
   .a8-pick .cells{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.1fr);gap:8px;margin:10px 0 2px}
   .a8-pick .cell{border:1px solid var(--line);background:#0d0d15;padding:8px 10px;min-width:0}
   .a8-pick .cell.wide{grid-column:1 / -1}
+  /* CP3 (7 Oct) · the core candidates, and the peers that price a name */
+  .c3-tab{width:100%;border-collapse:collapse;font-size:11.5px}
+  .c3-tab th{font-size:11px;font-weight:400;letter-spacing:.08em;color:var(--dim);text-align:right;padding:4px 8px 6px 0;border-bottom:1px solid var(--line);vertical-align:bottom}
+  .c3-tab th:first-child,.c3-tab td:first-child{text-align:left}
+  .c3-tab td{padding:6px 8px 6px 0;border-bottom:1px solid #1a1a25;text-align:right;font-variant-numeric:tabular-nums;vertical-align:top;color:var(--txt)}
+  .c3-tab td b{color:var(--txt)} .c3-tab td.w{min-width:170px;text-align:left} .c3-tab td small{display:block;font-size:11px;color:var(--dim)}
+  .c3-tab tr.own td{background:#14141f} .c3-tab tr.own td:first-child{padding-left:6px}
+  .c3-tab td .a8-ff{margin:2px 0}
+  .c3-peers{margin:8px 0 2px}.c3-peers>summary{cursor:pointer;font-size:11px;letter-spacing:.1em;color:var(--dim);padding:4px 0}
+  .c3-chip{display:inline-block;border:1px solid #2a2a3a;padding:0 5px;margin:0 4px 3px 0;font-size:11px;color:var(--txt);white-space:nowrap}
+  .c3-chip.np{color:var(--dim);border-color:#1a1a25}
+  .c3-core{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:11px;color:var(--dim);line-height:1.7;margin-top:10px}.c3-core b{color:var(--txt)}.c3-core>b:first-child{letter-spacing:.1em;white-space:nowrap}
+  .c3-core span{white-space:nowrap}
+  @media (max-width:760px){ .c3-tab,.c3-tab tbody,.c3-tab tr,.c3-tab td{display:block;width:100%} .c3-tab thead{display:none} .c3-tab tr{border-bottom:1px solid var(--line);padding:8px 0} .c3-tab td{border:0;padding:2px 0;display:grid;grid-template-columns:118px minmax(0,1fr);gap:8px;text-align:left} .c3-tab td::before{content:attr(data-l);color:var(--dim);font-size:11px} .c3-tab td.w{min-width:0} .c3-tab td[data-l=""]{display:block} .c3-tab td[data-l=""]::before{content:none} }
   .a8-pick .cell>span{display:block;font-size:11px;letter-spacing:.1em;color:var(--dim);margin-bottom:5px}
   .a8-pick .cell b.big{display:block;font-size:20px;color:var(--txt);font-variant-numeric:tabular-nums}
   .a8-pick .cell small{display:block;font-size:11px;color:var(--dim);line-height:1.5;margin-top:4px}.a8-pick .cell small b{color:var(--txt);font-weight:600}
@@ -623,6 +637,12 @@
     <div id="knockout"></div>
   </div>
 
+  <!-- 5b THE CORE CANDIDATES (CP3, 7 Oct) -->
+  <div class="panel full">
+    <h2>5b · THE CORE CANDIDATES — their comps on one forward P/E, against the peers that do the same business</h2>
+    <div id="core"></div>
+  </div>
+
   <!-- 2 TARGET MIX -->
   <div class="panel">
     <h2>6 · THE PICKS — each approved name, its card and its own size</h2>
@@ -732,7 +752,10 @@ let PUTCALL=null, SKEWLAST=null;   // R3: the IB collector's market put/call (ne
    DEPLOY    the five scenario rows of the deployment study: the engine's own file when it sits beside the page (study/dm1/data/dm1.json),
              else data/deployment-scenarios.json, whose numbers are placeholders and are labelled so wherever they are drawn. */
 let TREE=null, RLINES=null, CARDS=null, ZONES=null, APPROVED=null, DEPLOY=null, LONGB=null, DATAV=0;
-const CARD_SOURCES=['https://scintillahub.ai/deliverables/20261006/decision-cards/data/cards.json','data/decision-cards-20261006.json'];   // the Hub's copy first; the newer card date wins
+/* CP3 (7 Oct): the cards RE-PRICED ON THE ONE FORWARD BASIS come first — the Hub's copy when it serves one, else the dated copy kept
+   with this page. The newer card date wins; between two of the same date, the one re-priced later; then this order. */
+const CARD_SOURCES=['https://scintillahub.ai/deliverables/20261007/one-basis/data/cards.json','data/decision-cards-20261007.json','https://scintillahub.ai/deliverables/20261006/decision-cards/data/cards.json','data/decision-cards-20261006.json'];
+const CORE_SOURCE='data/core-candidates-20261007.json';   // the core candidates whose comps the workflow shows in full (a list kept with the page)
 const ZONE_SOURCES=['data/confluence-zones-20261006.json'];
 const APPROVED_SOURCE='data/approved-names-20261007.json';
 const DEPLOY_SOURCES=['study/dm1/data/dm1.json','data/deployment-scenarios.json'];   // the engine's own output first; the placeholder file only while that one is absent
@@ -747,7 +770,7 @@ function buildTree(t,m){
   return {by, of, kids, twins, rows:t.length, links:m.length, companies:Object.keys(of).length, cohorts:t.filter(r=>r.kind==='cohort').length};
 }
 function cardIndex(j){ if(!j||!j.cards) return null; const cards={}; for(const c of (Array.isArray(j.cards)?j.cards:Object.values(j.cards))) if(c&&c.ticker) cards[c.ticker]=c;
-  return Object.keys(cards).length?{cards, as_of:(j.as_of&&j.as_of.card_date)||null, built:(j.as_of&&j.as_of.built_utc)||null}:null; }
+  return Object.keys(cards).length?{cards, as_of:(j.as_of&&j.as_of.card_date)||null, built:(j.as_of&&j.as_of.built_utc)||null, repriced:(j.as_of&&j.as_of.repriced)||null, basis:(j.as_of&&j.as_of.basis)||null}:null; }
 /* THE CARD'S FIGURES — one accessor each. This is the seam for a re-priced card and for the feed fix: if a field is renamed or a cleaner
    one arrives (a growth figure on an earnings base with the one-offs taken out, the foreign memory peers' multiples), it changes here
    and nowhere else. Every accessor returns null when the card does not carry the figure; nothing is guessed. */
@@ -759,6 +782,26 @@ function cardGrowth(c){ const f=c&&c.fundamentals; if(!f) return null; const v=f
 function cardComps(c){ const k=c&&c.comps; if(!k) return null; const flags=(k.flags||[]).slice();
   if(k.low==null||k.centre==null||k.high==null) return {none:true, flags, peers:k.peers_priced||[], says:'no peer set — valued on growth and estimates'};
   const px=+c.price; return {low:+k.low, centre:+k.centre, high:+k.high, upside:k.upside_pct!=null?+k.upside_pct/100:(px>0?k.centre/px-1:null), peers:k.peers_priced||[], n:k.n_priced??(k.peers_priced||[]).length, flags, at:px}; }
+/* CP3 — THE ONE FORWARD BASIS on the card: price ÷ the next four quarters of consensus EPS, the Hub dashboard's own forward P/E.
+   The card carries that EPS in dollars, so with a live price the multiple here is the dashboard's to the tick; with none it is the
+   card's own, on its close. Growth is into the following year (the four quarters after those four), and P/E ÷ growth uses both. */
+function cardForward(c, price){ const f=c&&c.fundamentals; if(!f||!('fwd_pe_text' in f)) return null;
+  const eps=f.fwd_eps!=null?+f.fwd_eps:null, conv=!!f.forward_rate, live=(price>0&&eps>0)?price/eps:null, pe=(live!=null&&live>=2.5)?live:(live!=null?null:(f.fwd_pe!=null?+f.fwd_pe:null));
+  const g=f.eps_g_following_year!=null?+f.eps_g_following_year:null;
+  return {pe, text:pe==null?(f.fwd_pe_text&&!/×$/.test(f.fwd_pe_text)?f.fwd_pe_text:'—'):(conv?'≈':'')+pe.toFixed(1)+'×', eps, basis:f.fwd_pe_basis||'', growth:g!=null?g/100:null, growthBasis:f.eps_g_following_year_basis||'', peg:(pe!=null&&g>0)?pe/g:null,
+    was:f.fwd_pe_was||null, flags:(f.forward_flags||[]).map(x=>x.words), why:f.forward_why||null, onClose:live==null}; }
+/* the debt reading: net debt ÷ EBITDA with its word, the years of free cash flow to repay all debt, and what it costs in a debate */
+/* A PRICE FIT TO PUT UNDER A MULTIPLE. When the chart API's quotes cannot be reached this page falls back on the stored quotes table,
+   and that table can be weeks old (measured 7 Oct 2026, 11:08 ET: the live service timed out and every row answered was dated 18 Aug —
+   Micron 931 against a 6 Oct close of 1,046). A stored row older than four days is not a price (the Hub's own rule for a stored quote):
+   it is refused here, and the multiple is then read on the card's own close and says so. */
+const PRICE_MAX_AGE_DAYS=4;
+function livePrice(sym){ const q=QUOTES[sym]; if(!q||q.price==null||!(+q.price>0)) return null; const t=q.updated_ts?Date.parse(q.updated_ts):NaN; if(isFinite(t)&&Date.now()-t>PRICE_MAX_AGE_DAYS*864e5) return null; return +q.price; }
+function priceUnder(sym){ const c=cardOf(sym), lp=livePrice(sym); return lp!=null?{price:lp,live:true,word:'live'}:(c&&+c.price>0?{price:+c.price,live:false,word:'the '+dayW(c.card_date).replace(/ \d{4}$/,'')+' close'}:{price:null,live:false,word:''}); }
+window.livePrice=livePrice; window.priceUnder=priceUnder;
+function cardDebt(c){ const d=c&&c.debt; if(!d) return null; return {x:d.net_debt_ebitda!=null?+d.net_debt_ebitda:null, word:d.word||'', years:d.debt_fcf_years!=null?+d.debt_fcf_years:null, points:+d.points||0, cover:d.interest_cover!=null?+d.interest_cover:null, coverWhy:d.interest_cover_why||'', warn:d.warn||null}; }
+function cardPeers(c){ return (c&&Array.isArray(c.peers))?c.peers:[]; }
+function coreNames(){ return ((CORE&&CORE.names)||[]).filter(s=>cardOf(s)); }
 function cardGeiger(c){ const t=c&&c.technicals; if(!t||t.geiger==null) return null; return {g:+t.geiger, pctl:t.geiger_pctl_own_year!=null?+t.geiger_pctl_own_year:null, usual:t.geiger_own_median!=null?+t.geiger_own_median:null}; }
 function cardLevels(c){ const t=c&&c.technicals; if(!t) return []; return [...(t.lines_below||[]),...(t.lines_above||[])].filter(x=>x&&x.level!=null).map(x=>({id:x.label,tf:x.tf||'',level:+x.level})); }
 /* a name's confluence zones under and over a price, nearest first — the ladder of a name is its zones BELOW the price */
@@ -786,7 +829,7 @@ function nearestLines(sym, price){
 async function readJson(u){ try{ const r=await fetch(u,{cache:'no-store'}); if(!r.ok) return null; return await r.json(); }catch(e){ return null; } }
 async function loadCards(){
   const got=(await Promise.all(CARD_SOURCES.map(async(u,i)=>{ const x=cardIndex(await readJson(u)); return x&&{...x,src:u,served:/^https?:/.test(u),order:i}; }))).filter(Boolean);
-  got.sort((a,b)=>String(b.as_of||'').localeCompare(String(a.as_of||''))||a.order-b.order);
+  got.sort((a,b)=>String(b.as_of||'').localeCompare(String(a.as_of||''))||String(b.repriced||'').localeCompare(String(a.repriced||''))||a.order-b.order);
   CARDS=got[0]||null;
   if(CARDS) spineSet('decision_cards',CARDS.built,'LIVE',Object.keys(CARDS.cards).length+' decision cards dated '+CARDS.as_of+' ('+(CARDS.served?'the Hub\'s copy':'the dated copy kept with this page — the Hub does not serve them yet')+') — the picks and the knockout read comps, growth, the Geiger\'s place in its year and the nearest lines from them');
   else spineSet('decision_cards',null,'FALLBACK','no decision card could be read — the picks and the knockout fall back on the fundamentals feed');
@@ -796,6 +839,8 @@ async function loadZones(){
   ZONES=null; spineSet('confluence_zones',null,'FALLBACK','the zones file could not be read — a name\'s ladder is not drawn');
 }
 async function loadApproved(){ const j=await readJson(APPROVED_SOURCE); APPROVED=(j&&j.names)?j:null; }
+let CORE=null;
+async function loadCore(){ const j=await readJson(CORE_SOURCE); CORE=(j&&Array.isArray(j.names))?j:null; }
 function deployIndex(j, src){
   if(!j||!Array.isArray(j.scenarios)) return null;
   const rows=j.scenarios.map(x=>({key:String(x.key), name:String(x.name||''), note:String(x.note||''), pct:+x.pct, line:x.line!=null?+x.line:null, rsi:x.rsi??null, vix:x.vix??null, vixPct:x.vixPct??null, spy:x.spy??null,
@@ -808,7 +853,7 @@ async function loadDeployment(){
   else spineSet('deployment_scenarios',null,'FALLBACK','no scenario file could be read — the money picture shows the ladder\'s number alone');
 }
 window.buildTree=buildTree; window.cardIndex=cardIndex; window.nearestLines=nearestLines; window.deployIndex=deployIndex; window.zonesOf=zonesOf;
-window.cardOf=cardOf; window.cardGrowth=cardGrowth; window.cardComps=cardComps; window.cardGeiger=cardGeiger;
+window.cardOf=cardOf; window.cardGrowth=cardGrowth; window.cardComps=cardComps; window.cardGeiger=cardGeiger; window.cardForward=cardForward; window.cardDebt=cardDebt; window.cardPeers=cardPeers; window.coreNames=coreNames;
 let MKTINT=null, MKTBREADTH={}, PEERS={}, QUOTES_DB={};   // FMP algorithmic peers, per fundamentals-spec   // broad-market series — sourced OUTSIDE the hub universe   // market_internals — the real advance/decline line
 let SECTOR_OF={}, SECTOR_READ={}, INDUSTRY_OF={}, SR_FALLBACK={d:null,byEtf:{}};   // industry = the sub-sector axis (93 groups, 317 names)   // ticker -> our sector key ; sector key -> the rotation read
 /* SECTOR ROTATION, ACTUALLY WIRED IN (2026-08-11).
@@ -1864,7 +1909,7 @@ async function refreshSSOT(){
     TREE=buildTree(t,m); spineSet('cohort_tree',null,'LIVE',t.length+' tree rows · '+m.length+' links · '+TREE.companies+' companies in '+TREE.cohorts+' cohorts — the branches under the sectors');
   })().catch(e=>{ TREE=null; spineSet('cohort_tree',null,'FALLBACK','the tree could not be read ('+e.message+') — the sectors stand without their branches'); }));
   J.push(fetch('data/reviewed-lines-20261006.json',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(new Error('lines '+r.status))).then(j=>{ RLINES=j; }).catch(()=>{ RLINES=null; }));
-  J.push(loadCards()); J.push(loadZones()); J.push(loadApproved()); J.push(loadDeployment());
+  J.push(loadCards()); J.push(loadZones()); J.push(loadApproved()); J.push(loadDeployment()); J.push(loadCore());
   // SECTOR ROTATION — membership + the rotation tool's own published read
   J.push((async()=>{
     const mem=await sbGetPaged('ticker_membership?select=ticker,group_key&kind=eq.sector&order=ticker.asc');
@@ -1958,13 +2003,26 @@ async function refreshSSOT(){
   const K2=[];
   K2.push((async()=>{
     const m={}; let n=0, fresh=0, ts=null;
-    for(const b of batches(syms.slice().sort(),120)){
+    /* CP3: every name with a decision card is priced too (a card name need not be a candidate today — Iron Mountain, TSMC), so the
+       forward P/E on its card moves with the live price exactly as the Hub dashboard's does */
+    const quoteSyms=[...new Set([...syms, ...Object.keys((CARDS&&CARDS.cards)||{})])];
+    for(const b of batches(quoteSyms.sort(),120)){
       const j=await apiGet('/quotes?symbols='+encodeURIComponent(b.join(',')));
       const rows=j.quotes&&!Array.isArray(j.quotes)?Object.values(j.quotes):(j.quotes||[]);
       for(const q of rows){ if(q.price==null) continue; m[q.symbol]={price:q.price,chg_pct:q.change_pct,prev_close:q.previous_close,fresh:q.price_freshness,updated_ts:q.price_observation_utc}; n++; if(q.price_freshness==='FRESH') fresh++; ts=j.generated_utc||ts; }
     }
     QUOTES=m; spineSet('quotes',ts,ageMode(ts,15*60),n+' prices from the chart API · '+fresh+' fresh');
-  })().catch(e=>{ QUOTES=QUOTES_DB; spineSet('quotes',null,'FALLBACK','chart API quotes unreachable ('+e.message+') — live_quotes prices in use'); }));
+  })().catch(e=>{
+    /* CP3 (7 Oct) — A STORED QUOTE HAS AN AGE. The fallback table is written by a retained job and can be weeks old: at 11:08 ET on 7 Oct the
+       live service timed out and every stored row was dated 18 Aug, so the page priced Micron at 931 against a 6 Oct close of 1,046 and
+       measured every level and every comps range from there, without a word. The Hub's own rule for a stored quote (23 Sep) is applied
+       here too: a row older than PRICE_MAX_AGE_DAYS is not a price and is not used. A name then has no live price: where it has a decision
+       card its figures are read on the card's close, and say so; where it has none the price reads as not held. */
+    const all=Object.entries(QUOTES_DB), keep=all.filter(([,q])=>{ const t=q&&q.updated_ts?Date.parse(q.updated_ts):NaN; return isFinite(t)&&Date.now()-t<=PRICE_MAX_AGE_DAYS*864e5; });
+    const newest=all.reduce((m,[,q])=>{ const t=q&&q.updated_ts?Date.parse(q.updated_ts):NaN; return isFinite(t)&&t>m?t:m; },0);
+    QUOTES=Object.fromEntries(keep);
+    spineSet('quotes',null,'FALLBACK','chart API quotes unreachable ('+e.message+') — '+(keep.length?keep.length+' stored quotes under '+PRICE_MAX_AGE_DAYS+' days old in use':'no live price: the stored quotes are '+(newest?Math.round((Date.now()-newest)/864e5)+' days old':'not readable')+' and are not used — a name with a decision card is read on its card\'s close'));
+  }));
   K2.push((async()=>{
     const m={};
     for(const b of batches(syms.slice().sort(),150)){
@@ -2825,6 +2883,7 @@ function render(){
   renderMoney();
   renderCohortBoard();
   renderKnockout();
+  renderCore();
   renderPicks();
   { const w=mixWeights(), t=BLEND_SRC.reduce((a,[k])=>a+(+w[k]||0),0); for(const [o] of BLEND_SRC){ const e=document.getElementById('mix'+o); if(e){ e.value=w[o]; document.getElementById('mix'+o+'V').textContent=w[o]+' / '+t; } } }   // AL8: all five, the fifth included
   renderMixDial();
@@ -3045,7 +3104,7 @@ function renderBrief(h, inv, lc, dTot, dLC, dSC){
   if(ranked.length) B.push(['NAMES','first on fundamentals there: '+ranked.map(r=>'<b>'+r.sym+'</b>').join(', ')]);
   const rf=[]; if(ten!=null) rf.push('10-year '+ten.toFixed(2)+'% — '+(ten>4.15?'a headwind':'supportive')); if(vix!=null) rf.push('VIX '+vix.toFixed(1)+' — '+(vix<21?'calm':'fear on the tape')); if(PUTCALL&&PUTCALL.row) rf.push('put/call '+(+PUTCALL.row.put_call).toFixed(2));
   if(rf.length) B.push(['RATES · FEAR',rf.join(' · ')]);   // six at most
-  el.innerHTML='<div class="a7-lead">'+esc2(pc.sentence)+'</div>'+gaugeHTML(h)+campsHTML(campSplit())+'<ul class="a7-bul">'+B.slice(0,6).map(([k,t])=>'<li><b>'+k+'</b>'+t+'</li>').join('')+'</ul>';
+  el.innerHTML='<div class="a7-lead">'+esc2(pc.sentence)+'</div>'+gaugeHTML(h)+campsHTML(campSplit())+'<ul class="a7-bul">'+B.slice(0,6).map(([k,t])=>'<li><b>'+k+'</b>'+t+'</li>').join('')+'</ul>'+coreLineHTML();
   const mt=document.getElementById('mixtop'); if(mt) mt.innerHTML='<div class="a7-cap" style="margin-top:0"><b>WHERE THE MONEY GOES</b> — cash · '+A.sleeves.length+' sleeve'+(A.sleeves.length===1?'':'s')+' in rank order · '+A.conviction.sized.length+' conviction name'+(A.conviction.sized.length===1?'':'s')+'</div>'+mixBar(A,mt.clientWidth)+mixRows(A);
 }
 /* ===================== AL8 (7 Oct 2026) · THE MONEY PICTURE — one bar per market =====================
@@ -3214,7 +3273,8 @@ function applyCards(){
     const put=(k,v)=>{ if(v==null||!isFinite(v)) return; feed[k]=row[k]??null; row[k]=+v; took.push(k); };
     const g=cardGrowth(c); if(g) put('rev_growth',g.v);
     const f=c.fundamentals||{}, R=(c.comps&&c.comps.rows)||{};
-    put('fwd_pe',f.fwd_pe); put('pe',R.pe_ttm&&R.pe_ttm.own); put('ps',R.ps&&R.ps.own);
+    { const cf=cardForward(c, livePrice(sym)); put('fwd_pe', cf?cf.pe:f.fwd_pe); }   /* CP3: the one forward basis, on the live price when there is a fresh one, else on the card's close */
+    put('pe',R.pe_ttm&&R.pe_ttm.own); put('ps',R.ps&&R.ps.own);
     if(took.length){ row.card={date:c.card_date,fields:took}; row.feed=feed; n++; } }
   for(const k of Object.keys(PV_CACHE)) delete PV_CACHE[k];   // the peers' medians are read again on the card's figures
   return n;
@@ -3240,6 +3300,7 @@ function cardStripHTML(sym, price, compact){
   if(compact) return '<div class="a8-mini4" title="'+esc2(k&&!k.none?'comps range '+pxW(k.low)+' – '+pxW(k.centre)+' – '+pxW(k.high)+(k.flags.length?' · '+k.flags.join(' · '):''):(k?k.says:'')).replace(/"/g,'')+'"><span>COMPS <b>'+(k&&!k.none?upW(up):'none')+'</b></span><span>GROWTH <b>'+(g?upW(g.v):'—')+'</b></span><span>GEIGER <b>'+(ge&&ge.pctl!=null?ord(ge.pctl):'—')+'</b> pct</span><span>'+line+'</span></div>';
   return '<div class="a8-strip"><span>COMPS</span><div>'+footballHTML(k,px)+(k&&!k.none?'<small><b>'+upW(up)+'</b> to the centre'+(k.flags.length?' · '+esc2(k.flags.join(' · ')):'')+'</small>':'')+'</div>'+
     '<span>GROWTH</span><div><b>'+(g?upW(g.v):'—')+'</b> <small>'+(g?esc2(g.what):'not on the card')+'</small></div>'+
+    valueRowHTML(c,priceUnder(sym).price)+
     '<span>GEIGER</span><div><small>'+(ge&&ge.pctl!=null?'the <b>'+ord(ge.pctl)+'</b> percentile of its own year':'no place in its year yet')+'</small></div>'+
     '<span>LINE</span><div><small>'+line+(L&&L.below?' at '+lvW(L.below.level):'')+(z?' · zone <b>'+zoneW(z.low,z.high)+'</b> ('+esc2(z.members.map(m=>m.label).join(' + '))+')':'')+'</small></div></div>';
 }
@@ -3255,6 +3316,48 @@ function ladderHTML(sym, price){
   return '<div class="a8-cap2"><b>THE LADDER</b> — '+zs.length+' confluence zone'+(zs.length===1?'':'s')+' under the price · levels as of the '+esc2(dayW(Z.as_of).replace(/ \d{4}$/,''))+' close · distance from '+lvW(Z.price)+'</div>'+strip+'<div class="a8-zr">'+items.map(x=>x.html).join('')+'</div>';
 }
 window.ladderHTML=ladderHTML; window.cardStripHTML=cardStripHTML;
+/* ===================== CP3 (7 Oct 2026) · ONE FORWARD P/E, THE PEERS THAT PRICE A NAME, DEBT =====================
+   Alan, 7 Oct: "Why is there inconsistencies everywhere on the forward P/E … if that's the right one, it should be everywhere"; "I need
+   to see Google, Amazon and Broadcom — what the comps would look like … I need it reflected in portfolio allocation … I need to go
+   through the workflow"; "debt should matter." The re-priced cards carry the dashboard's forward P/E (price ÷ the next four quarters),
+   growth into the following year, the same-business peers that set the price, and the debt reading. These builders draw them where
+   the workflow already stands: one line under the brief, a line on the knockout's pick card, a table of the core candidates (5b), and
+   two cells and the peer table on each pick. Nothing here computes a comps number: every figure is the card's. */
+const TKW={'000660.KS':'SK HYNIX','005930.KS':'SAMSUNG','285A.T':'KIOXIA'}, tkW=t=>TKW[t]||t;
+const pegW=x=>x==null||!isFinite(x)?'—':(+x).toFixed(2);
+function debtW(d){ if(!d) return '—'; if(d.word==='net cash') return 'net cash'; if(d.x==null) return esc2(d.word||'—'); return '<b>'+d.x.toFixed(1)+'×</b> '+esc2(d.word); }
+function valueRowHTML(c, price){ const f=cardForward(c,price), d=cardDebt(c); if(!f&&!d) return '';
+  return '<span>VALUE</span><div><small>forward P/E <b>'+esc2(f?f.text:'—')+'</b>'+(f&&f.growth!=null?' · growth into the following year <b>'+upW(f.growth)+'</b>':'')+(f&&f.peg!=null?' · P/E ÷ growth <b>'+pegW(f.peg)+'</b>':'')+(d?' · net debt ÷ EBITDA '+debtW(d):'')+'</small></div>'; }
+function valueCellsHTML(c, price){ const f=cardForward(c,price), d=cardDebt(c); if(!f&&!d) return '';
+  const was=f&&f.was&&f.was.on_the_fiscal_year!=null?'it read '+(+f.was.on_the_fiscal_year).toFixed(1)+'× on the fiscal year':'';
+  return '<div class="cell"><span>FORWARD P/E · the next four quarters</span><b class="big">'+esc2(f?f.text:'—')+'</b><small>'+(f&&f.growth!=null?'growth into the following year '+upW(f.growth):'')+(f&&f.peg!=null?' · P/E ÷ growth <b>'+pegW(f.peg)+'</b>':'')+(was?' · '+was:'')+'</small></div>'+
+    '<div class="cell"><span>NET DEBT ÷ EBITDA</span><b class="big">'+(d?(d.word==='net cash'?'net cash':d.x!=null?d.x.toFixed(1)+'×':esc2(d.word)):'—')+'</b><small>'+(d?(d.word!=='net cash'&&d.x!=null?esc2(d.word):'')+(d.years!=null?(d.word!=='net cash'&&d.x!=null?' · ':'')+'all debt = '+d.years+' years of free cash flow':'')+(d.cover==null?' · interest cover not on file':' · interest cover '+d.cover.toFixed(1)+'×'):'')+'</small></div>'; }
+function peerRowsHTML(c, price){ const P=cardPeers(c), pr=P.filter(p=>p.priced).sort((a,b)=>(a.pe_fwd??1e9)-(b.pe_fwd??1e9)), f=cardForward(c,price), d=cardDebt(c), R=(c.comps&&c.comps.rows)||{};
+  const td=(l,h,w)=>'<td data-l="'+l+'"'+(w?' class="w"':'')+'>'+h+'</td>';
+  const own='<tr class="own">'+td('','<b>'+esc2(c.ticker)+'</b>')+td('FORWARD P/E','<b>'+esc2(f?f.text:'—')+'</b>')+td('GROWTH',f&&f.growth!=null?upW(f.growth):'—')+td('P/E ÷ GROWTH','<b>'+pegW(f?f.peg:null)+'</b>')+td('EV / EBITDA',R.ev_ebitda&&R.ev_ebitda.own!=null?(+R.ev_ebitda.own).toFixed(1)+'×':'—')+td('NET DEBT ÷ EBITDA',debtW(d))+td('SOURCES','')+'</tr>';
+  return own+pr.map(p=>'<tr>'+td('','<b>'+esc2(tkW(p.ticker))+'</b> <small style="display:inline">'+esc2(String(p.name||'').replace(/,? (Inc\.?|Corporation|Corp\.?|Company|Co\.|plc|Limited|Ltd\.?|Holdings?|Technologies|Technology|Platforms|\.com)\b.*$/i,''))+(p.reference?' · comps only':'')+'</small>')+td('FORWARD P/E','<b>'+esc2(p.pe_fwd_text||'—')+'</b>')+td('GROWTH',p.growth_eps!=null?upW(p.growth_eps/100):'—')+td('P/E ÷ GROWTH',pegW(p.peg))+td('EV / EBITDA',p.ev_ebitda!=null?(+p.ev_ebitda).toFixed(1)+'×':'—')+td('NET DEBT ÷ EBITDA',p.debt_word==='net cash'?'net cash':p.net_debt_ebitda!=null?'<b>'+(+p.net_debt_ebitda).toFixed(1)+'×</b> '+esc2(p.debt_word||''):esc2(p.debt_word||'—'))+td('SOURCES',(p.votes!=null?p.votes:'—')+' of 4')+'</tr>').join(''); }
+function peersHTML(c, price, open){ const P=cardPeers(c); if(!P.length) return ''; const pr=P.filter(p=>p.priced), np=P.filter(p=>!p.priced), k=c.comps||{};
+  return '<details class="c3-peers"'+(open?' open':'')+'><summary>THE '+pr.length+' PEER'+(pr.length===1?'':'S')+' THAT PRICE'+(pr.length===1?'S':'')+' IT'+(k.stated&&k.stated.line?' — '+esc2(k.stated.line.toUpperCase()):'')+(np.length?' · '+np.length+' MORE SHOWN, NOT PRICED':'')+'</summary>'+
+    '<table class="c3-tab"><thead><tr><th>PEER</th><th>FORWARD P/E</th><th>GROWTH</th><th>P/E ÷ GROWTH</th><th>EV / EBITDA</th><th>NET DEBT ÷ EBITDA</th><th>SOURCES</th></tr></thead><tbody>'+peerRowsHTML(c,price)+'</tbody></table>'+
+    (np.length?'<div style="margin-top:6px">'+np.map(p=>'<span class="c3-chip np" title="'+esc2(p.pe_fwd_text||'')+'">'+esc2(tkW(p.ticker))+'</span>').join('')+'</div>':'')+'</details>'; }
+function coreLineHTML(){ const N=coreNames(); if(!N.length) return '';
+  return '<div class="c3-core"><b>CORE CANDIDATES</b>'+N.map(sym=>{ const c=cardOf(sym), price=priceUnder(sym).price, f=cardForward(c,price), k=cardComps(c), up=(k&&!k.none&&price>0)?k.centre/price-1:null; return '<span><b>'+esc2(sym)+'</b> '+esc2(f?f.text:'—')+' · '+(up==null?'no set':upW(up))+'</span>'; }).join('')+'<span>forward P/E · comps to the centre — step 5b</span></div>'; }
+function renderCore(){
+  const el=document.getElementById('core'); if(!el) return; const N=coreNames(), ord=n=>{ const v=Math.round(n), s=['th','st','nd','rd'], m=v%100; return v+(s[(m-20)%10]||s[m]||s[0]); };
+  if(!N.length){ el.innerHTML='<div class="a7-cap"><b>THE CORE CANDIDATES</b> — no card on the one forward basis could be read</div>'; return; }
+  const td=(l,h,w)=>'<td data-l="'+l+'"'+(w?' class="w"':'')+'>'+h+'</td>';
+  const anyLive=N.some(s=>livePrice(s)!=null);
+  const rows=N.map(sym=>{ const c=cardOf(sym), PU=priceUnder(sym), price=PU.price, k=cardComps(c), f=cardForward(c,price), d=cardDebt(c), ge=cardGeiger(c), live=gv(sym), up=(k&&!k.none&&price>0)?k.centre/price-1:null, fl=(k&&k.flags)||[];
+    const tags=(fl.some(x=>/^thin/.test(x))?' <span class="c3-chip np">THIN</span>':'')+(fl.some(x=>/^fragile/.test(x))?' <span class="c3-chip np">FRAGILE</span>':'');
+    return '<tr data-sym="'+sym+'">'+td('','<b>'+esc2(sym)+'</b> <small style="display:inline">'+esc2(sym==='TSM'?'TSMC':String(c.name||'').replace(/,? (Inc\.?|Corporation|Corp\.?|Company|Limited|Trust.*)\b.*$/i,''))+'</small>'+tags)+td('PRICE',lvW(price)+(PU.live?'':'<small>'+esc2(PU.word)+'</small>'))+
+      td('FORWARD P/E','<b>'+esc2(f?f.text:'—')+'</b>'+(f&&f.was&&f.was.on_the_fiscal_year!=null?'<small>was '+(+f.was.on_the_fiscal_year).toFixed(1)+'×</small>':''))+td('GROWTH',f&&f.growth!=null?upW(f.growth):'—')+td('P/E ÷ GROWTH','<b>'+pegW(f?f.peg:null)+'</b>')+
+      td('COMPS RANGE',footballHTML(k,price),true)+td('TO THE CENTRE','<b>'+(up==null?'—':upW(up))+'</b>')+td('PRICED ON',((c.comps&&c.comps.peers_priced)||[]).map(t=>'<span class="c3-chip">'+esc2(tkW(t))+'</span>').join(''),true)+
+      td('NET DEBT ÷ EBITDA',debtW(d))+td('GEIGER',(live!=null?f2v(live):ge?f2v(ge.g):'—')+(ge&&ge.pctl!=null?'<small>'+ord(ge.pctl)+' pct of its year</small>':''))+'</tr>'+
+      '<tr class="pr"><td data-l="" colspan="10" style="text-align:left;padding-top:0">'+peersHTML(c,price,false)+'</td></tr>'; }).join('');
+  el.innerHTML='<div class="a7-cap"><b>THE CORE CANDIDATES</b> — '+N.length+' names · forward P/E = price ÷ the next four quarters of expected earnings, the Hub dashboard\'s own · cards re-priced '+esc2(dayW((CARDS&&CARDS.repriced)||(CARDS&&CARDS.as_of)||''))+(anyLive?'':' · <b>no fresh live price just now: every figure is on the card\'s close</b>')+'</div>'+
+    '<div class="scrollx"><table class="c3-tab" id="coretab"><thead><tr><th>NAME</th><th>PRICE</th><th>FORWARD P/E</th><th>GROWTH · FOLLOWING YEAR</th><th>P/E ÷ GROWTH</th><th style="text-align:left">COMPS RANGE · per share</th><th>TO THE CENTRE</th><th style="text-align:left">PRICED ON</th><th>NET DEBT ÷ EBITDA</th><th>GEIGER</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+window.renderCore=renderCore; window.peersHTML=peersHTML; window.coreLineHTML=coreLineHTML; window.valueRowHTML=valueRowHTML;
 let CATFILTER='ALL';
 function setCat(c){ CATFILTER=c; render(); }
 function renderCohort(dLC, dSC){
@@ -3515,14 +3618,14 @@ function renderPicks(){
     const own=S.sizes&&S.sizes[sym]!=null, ap=r.ap, secs=tickerSleeves(sym).map(groupWord).join(' · ');
     const size='<label class="sz">SIZE <input class="a8-size" type="number" inputmode="decimal" min="0" max="100" step="0.5" data-sym="'+sym+'" value="'+(own?S.sizes[sym]:'')+'" placeholder="'+(r.how==='rule'?(r.want*100).toFixed(1):'—')+'" aria-label="'+sym+' size, % of the account">% of the account</label>'+
       '<small>'+(r.how==='own'?'your own figure'+(ap?' <button class="a8-rule" data-sym="'+sym+'">back to the rule</button>':' <button class="a8-rule" data-sym="'+sym+'">clear</button>'):r.how==='rule'?'the rule: '+esc2(ap.rule):r.how==='dropped'?'dropped in the knockout':'no size yet — it takes no money until you give it one')+(r.cut?' · cut to '+pcE(r.size)+': the names together cannot take more than is invested':'')+'</small>';
-    const cells=c?('<div class="cell"><span>COMPS RANGE · per share</span>'+footballHTML(k,price)+(k&&!k.none?'<small><b>'+upW(up)+'</b> to the centre · priced on '+esc2((k.peers||[]).join(', '))+(k.flags.length?' · '+esc2(k.flags.join(' · ')):'')+'</small>':'')+'</div>'+
+    const cells=c?('<div class="cell"><span>COMPS RANGE · per share</span>'+footballHTML(k,price)+(k&&!k.none?'<small><b>'+upW(up)+'</b> to the centre · priced on '+esc2((k.peers||[]).map(t=>({'000660.KS':'SK hynix','005930.KS':'Samsung','285A.T':'Kioxia'})[t]||t).join(', '))+(k.flags.length?' · '+esc2(k.flags.join(' · ')):'')+'</small>':'')+'</div>'+
         '<div class="cell"><span>GROWTH · '+(g?esc2(g.what):'sales')+'</span><b class="big">'+(g?upW(g.v):'—')+'</b><small>'+(g&&g.twoYear!=null?'two years: '+upW(g.twoYear)+' a year':'')+(g&&g.eps!=null?' · earnings '+upW(g.eps):'')+'</small></div>'+
         '<div class="cell"><span>GEIGER · its place in its own year</span><div class="a7-mini">'+hubChip(live!=null?live:(ge?ge.g:null),1,false,true)+'<b class="gn">'+f2v(live!=null?live:(ge?ge.g:null))+'</b></div><small>'+(ge&&ge.pctl!=null?'the <b>'+ord(ge.pctl)+'</b> percentile'+(ge.usual!=null?' · its usual '+f2v(ge.usual):''):'no place in its year yet')+'</small></div>'+
-        '<div class="cell"><span>NEAREST NAMED LINE</span><small class="ln">'+(L&&(L.above||L.below)?[L.above?'▲ <b>'+esc2(L.above.id)+'</b> '+lvW(L.above.level)+' +'+L.above.pct.toFixed(1)+'%':'',L.below?'▼ <b>'+esc2(L.below.id)+'</b> '+lvW(L.below.level)+' '+L.below.pct.toFixed(1).replace('-','−')+'%':''].filter(Boolean).join('<br>'):'no reviewed line on this name')+'</small></div>')
+        '<div class="cell"><span>NEAREST NAMED LINE</span><small class="ln">'+(L&&(L.above||L.below)?[L.above?'▲ <b>'+esc2(L.above.id)+'</b> '+lvW(L.above.level)+' +'+L.above.pct.toFixed(1)+'%':'',L.below?'▼ <b>'+esc2(L.below.id)+'</b> '+lvW(L.below.level)+' '+L.below.pct.toFixed(1).replace('-','−')+'%':''].filter(Boolean).join('<br>'):'no reviewed line on this name')+'</small></div>'+valueCellsHTML(c,priceUnder(sym).price))
       :'<div class="cell wide"><span>NO DECISION CARD</span><small>its readings come from the fundamentals feed'+(FH.thin?', which is being repaired (a forward P/E for only '+FH.fwd+' of '+FH.earn+' names tonight)':'')+' · fundamentals '+(fundScore(sym).score==null?'—':fundScore(sym).score.toFixed(2))+' · Geiger '+f2v(live)+'</small></div>';
     const park=ap&&ap.parent_fund?'parent fund <b>'+esc2(ap.parent_fund)+'</b> — '+esc2(ap.parent_fund_is||''):(c&&c.parents&&c.parents.length?'parent fund'+(c.parents.length>1?'s':'')+' <b>'+esc2(c.parents.join(' · '))+'</b>':'');
     return '<div class="a8-pick" data-sym="'+sym+'"><div class="hd"><b>'+esc2(sym)+'</b><span>'+esc2((ap&&ap.name)||(c&&c.name)||'')+(secs?' · '+esc2(secs):'')+(price?' · '+lvW(price):'')+'</span><span class="tags">'+(ap?'<u class="ap">APPROVED · '+esc2(ap.said)+'</u>':'')+(r.kept?'<u>KEPT IN THE KNOCKOUT</u>':'')+(c?'<u>CARD · '+esc2(dayW(c.card_date))+'</u>':'<u class="no">NO CARD</u>')+'</span><span class="amt">'+(r.size>0?pcE(r.size):'—')+'</span></div>'+
-      '<div class="szrow">'+size+'</div><div class="cells">'+cells+'</div>'+ladderHTML(sym,price)+
+      '<div class="szrow">'+size+'</div><div class="cells">'+cells+'</div>'+peersHTML(c,priceUnder(sym).price,true)+ladderHTML(sym,price)+
       '<div class="ft">'+[park,d?('decision '+(d.saved?'saved':'on this device only')):''].filter(Boolean).join(' · ')+'</div></div>'; }).join('');
   el.innerHTML='<div class="a7-cap"><b>THE PICKS</b> — '+CV.rows.length+' conviction name'+(CV.rows.length===1?'':'s')+' · '+CV.sized.length+' sized, '+pcE(CV.total)+' of the account'+(CV.unsized.length?' · '+CV.unsized.length+' kept without a size':'')+(CV.scale<1?' · cut to fit what is invested':'')+'</div>'+blocks;
 }
@@ -3741,7 +3844,7 @@ if(localStorage.getItem('alloc-hidedesc')!=='0') document.body.classList.add('hi
 (function(){ const b=document.getElementById('descToggle'); const upd=()=>{ const hid=document.body.classList.contains('hidedesc'); b.textContent=(hid?'▸ ':'▾ ')+'what each voter is (proxy detail)'; }; upd(); b.onclick=()=>{ document.body.classList.toggle('hidedesc'); localStorage.setItem('alloc-hidedesc', document.body.classList.contains('hidedesc')?'1':'0'); upd(); }; })();
 /* ===== PA4 · THE FOLD ===== every section folds to one screen with a sticky bar at the top; INPUTS is a drawer over the page;
    THE MONEY (AL8) and THE BRIEF are open on the first screen. Nothing is removed. Fold state is remembered on this device. */
-const SECTIONS=[['p-scen','THE MONEY'],['p-brief','THE BRIEF'],['p-heat','1 HEAT'],['p-inputs','INPUTS'],['p-howmuch','2 HOW MUCH'],['p-bowtie','3a SECTORS'],['p-money','3b MONEY'],['p-cohorts','4 COHORTS'],['p-knockout','5 KNOCKOUT'],['p-mix','6 PICKS & %'],['p-moves','7 MOVES'],['p-options','8 OPTIONS'],['p-comps','8b COMPS'],['p-map','9 MAP'],['p-state','10 STATE'],['p-trace','11 TRACE']];
+const SECTIONS=[['p-scen','THE MONEY'],['p-brief','THE BRIEF'],['p-heat','1 HEAT'],['p-inputs','INPUTS'],['p-howmuch','2 HOW MUCH'],['p-bowtie','3a SECTORS'],['p-money','3b MONEY'],['p-cohorts','4 COHORTS'],['p-knockout','5 KNOCKOUT'],['p-core','5b CORE'],['p-mix','6 PICKS & %'],['p-moves','7 MOVES'],['p-options','8 OPTIONS'],['p-comps','8b COMPS'],['p-map','9 MAP'],['p-state','10 STATE'],['p-trace','11 TRACE']];
 let FOLDS={}; try{ FOLDS=JSON.parse(localStorage.getItem('alloc-folds')||'{}'); }catch(e){}
 function setFold(id, folded){ FOLDS[id]=folded?1:0; localStorage.setItem('alloc-folds',JSON.stringify(FOLDS)); applyFold(id); }
 function applyFold(id){ const p=document.getElementById(id); if(!p) return; const folded=(FOLDS[id]==null)?(id!=='p-brief'&&id!=='p-scen'):!!FOLDS[id]; p.classList.toggle('folded',folded); const b=p.querySelector('.pfold'); if(b) b.textContent=folded?'ONE SCREEN · OPEN ▾':'OPEN · FOLD ▴'; }
@@ -3767,6 +3870,10 @@ window.openDrawer=openDrawer;
 loadFeeds();
 </script>
 <details class="sc-pagespecs"><summary>PAGE SPECS</summary>
+<p><b>What changed on 7 Oct, later — one forward P/E, and the core candidates' comps.</b> Alan: "Why is there inconsistencies everywhere on the forward P/E … if that's the right one, it should be everywhere", "I need to see Google, Amazon and Broadcom — what the comps would look like … I need it reflected in portfolio allocation … I need to go through the workflow", "debt should matter." The decision cards this page reads were re-priced on the Hub dashboard's own forward P/E: the price over the next four quarters of expected earnings. The cards had used a blend of two fiscal years (21.2 times for Alphabet) and the comps the fiscal year in progress (16.9); the dashboard said 24. With a fresh live price the page divides that price by the card's earnings, so the number here moves with the dashboard's; without one it stands on the card's close and says so. Growth beside it is the four quarters after those, over those four, and P/E ÷ growth uses both.</p>
+<p><b>Where it shows.</b> One line under the brief names the ten core candidates with their forward P/E and how far the price is from the centre of their comps range. Step 5b lists them: price, forward P/E, growth, P/E ÷ growth, the comps range, the peers that set the price, net debt over EBITDA and the Geiger's place in its own year; each opens to its peers' own rows. The knockout's pick cards carry a VALUE line. Each pick in step 6 has two more readings, the forward P/E and the debt, and the peers that price it. The core candidates are a list kept with the page, not a rule. The peers that set a price are the ones that do the same business: for Alphabet, Amazon, Broadcom, Nvidia, TSMC, Vistra and Micron they are named from the 7 October brief; Micron's now include SK hynix, Samsung and Kioxia, whose figures come from a dated file and who are on no other screen.</p>
+<p><b>Debt.</b> Net debt over the last twelve months' EBITDA, with a word for it, and the years of free cash flow it would take to repay all the debt. Interest cover reads "not on file": the statements the Hub stores carry no interest line. In the Hub's knockout study debt takes points off a name only among those that already passed on fundamentals; this page's own knockout does not use it yet.</p>
+<p><b>A stored price has an age.</b> When the live price service cannot be reached this page used to fall back, without saying so, on a stored price table. On 7 October at 11:08 ET that table was last written on 18 August: Micron was priced at 931 against a 6 October close of 1,046, and every level and comps range was measured from there. A stored price older than four days is no longer used (the Hub's own rule). A name with a decision card is then read on its card's close and says so; a name without one shows no price.</p>
 <p><b>What changed on 7 Oct — the money at the top.</b> The first panel draws one bar for each of five markets: today, the S&amp;P down 1.5% in a session, the VIX at 20 with the S&amp;P down 3%, the VIX at 23.5 with the S&amp;P down 5%, and a panic (RSI under 35, the VIX in the top twentieth of its year). Each bar is the whole account: cash, then the core, then conviction. How much is invested in a row is the deployment study's reading for that market; how the invested part splits is this page's own rule, the same one step 3b uses, so the two can never disagree about Micron. While the rows come from the study's file kept with this page they are marked PLACEHOLDER: the study sits on a branch and is neither reviewed nor wired, and nothing under that panel uses its numbers — steps 2 to 7 still run on the ladder. When the engine's own file is beside the page the same rows read it and the word goes. The dashed line through the bars is the ladder's number today, so the two answers are seen against each other.</p>
 <p><b>The two input sections.</b> Every dial, toggle, button and stored setting was moved, one at a time, to see what it changes: the % invested, the mix, the names, or nothing. INPUTS is laid out from the answer. HOW MUCH TO INVEST holds only what moves the %: the ladder's five rungs, the two ends of the VIX and 10-year voters, and (on each voter's own row in step 1) the voters' weights. WHERE IT GOES — SECTOR COMPARE holds what moves the mix and the names and never the ladder: the five weights of the blended sector reading, the ranking's three weights, the smallest sleeve, a conviction name's own size, and the dials for how many names. One honest exception is said beside it: the blended sector reading is also one voter in the heat, so its five weights reach the % through that row — the panel prints how far, measured as it stands. WHERE YOU ARE holds the one dial that only sets the gap in step 7. LISTED FOR REMOVAL holds what changes nothing: nothing was removed, each is still stored, and step 9 prints the whole table.</p>
 <p><b>Conviction by name.</b> There is no conviction share. The conviction names are the approved list (kept with this page, in Alan's words and dated) and any name kept in the knockout. Each has its own size: the figure typed on its row in step 6 when there is one; else the rule written beside it in the approved list — for Micron, two fifths of what is invested and never more than 30% of the account, with 20% the full build; else nothing, so a kept name takes no money until it is given a size. If the names together would take more than is invested, each is cut in the same proportion and says so.</p>
