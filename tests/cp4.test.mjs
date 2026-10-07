@@ -21,7 +21,7 @@ test("clicking a ticker opens its peers, yardsticks, the football field, growth 
     assert.ok(await page.evaluate(() => !!document.querySelector("#c4body svg[aria-label='football field']")), "the football field is drawn");
     const dots = await page.evaluate(() => [...document.querySelectorAll("#c4body .dots")].map((d) => d.textContent)); assert.ok(dots.length >= 4 && dots.every((d) => /^[●○]{4}$/.test(d)), "four dots per peer: " + dots.slice(0, 3));
     /* the Geiger: today's value against today's percentile — the drawer never prints the close's percentile beside a live value */
-    const geiger = await page.evaluate(() => { const m = /Geiger\s+([+\-−]?[0-9.]+)\s+(now|at the close)\s+·\s+the\s+(\d+)th percentile/.exec(document.getElementById("c4body").innerText); return m ? { v: m[1], when: m[2], pctl: +m[3] } : null; });
+    const geiger = await page.evaluate(() => { const m = /Geiger\s+([+\-−]?[0-9.]+)\s+(now|at the close)\s+·\s+the\s+(\d+)(?:st|nd|rd|th) percentile/.exec(document.getElementById("c4body").innerText); return m ? { v: m[1], when: m[2], pctl: +m[3] } : null; });
     assert.ok(geiger, "a Geiger line with a percentile"); if (geiger.when === "now") { const r = JSON.parse(readFileSync(ROOT + "/data/comps-engine/names/MU.json", "utf8")); assert.notEqual(geiger.pctl, null); assert.ok(Math.abs(geiger.pctl - r.geiger.pctl_close) <= 100); }
     /* a name beyond the ten still opens (any ticker) */
     await page.evaluate(() => C4.open("LRCX")); await page.waitForFunction(() => /LRCX · COMPS/.test(document.getElementById("c4title").textContent) && document.querySelector("#c4body .sec"), null, { timeout: 30000 });
