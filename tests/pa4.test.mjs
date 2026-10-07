@@ -54,13 +54,15 @@ test("VIX: votes live from the chart API's macro board; VIX TERM votes on the ta
   if (age <= 4) { assert.ok(t.val != null, "votes when the close is within four days"); assert.ok(Math.abs((px / row.vix3m) - +t.sub.split(" ")[0]) < 0.02); }
   else assert.equal(t.val, null, "says it is not voting");
 });
-test("the blend (PA5, in place of the dial): stated default weights, and moving a weight changes the pie", async () => {
+test("the blend (PA5, in place of the dial): stated default weights, and moving a weight changes the money bar (AL7: the bar took the pie's place)", async () => {
   assert.deepEqual(state.mixW, { SPDR: 20, HUBCMP: 20, MKTBOW: 20, TREE: 20, RANK: 20 }); assert.ok(/^THE BLENDED SECTOR BOW TIE · five readings, weights State Street fund 20/.test(state.method), state.method);
-  const before = await P.page.evaluate(() => { const cv = document.getElementById("donut"); return [cv.toDataURL().length, cv.toDataURL().slice(-200), Object.entries(sleeveShares()).sort((a, b) => b[1] - a[1])[0], blendTable()[0].key]; });
+  const pic = () => { const el = document.getElementById("mix6"); return [el.innerHTML.length, [...el.querySelectorAll(".a7-mix > div")].map((d) => d.className + " " + d.style.flex + " " + d.title).join("|")]; };
+  const before = await P.page.evaluate("(" + pic + ")()").then((x) => [...x]);
   await P.page.evaluate(() => { S.mixW = { SPDR: 0, HUBCMP: 0, MKTBOW: 0, TREE: 100, RANK: 0 }; save(); render(); }); await P.page.waitForTimeout(300);
-  const after = await P.page.evaluate(() => { const cv = document.getElementById("donut"); return [cv.toDataURL().length, cv.toDataURL().slice(-200), Object.entries(sleeveShares()).sort((a, b) => b[1] - a[1])[0], methodWord(), document.getElementById("mixdial").innerText, blendTable().map((r) => [r.key, r.used])]; });
-  assert.ok(before[0] !== after[0] || before[1] !== after[1], "the pie redrew"); assert.ok(/tree close tier 100/.test(after[3]), after[3]); assert.ok(/weights/.test(after[4]));
-  for (const [k, used] of after[5]) assert.ok(used.length <= 1 && (used.length === 0 || used[0] === "TREE"), k + " reads the tree only: " + used);
+  const after = await P.page.evaluate("(" + pic + ")()").then((x) => [...x]);
+  const rest = await P.page.evaluate(() => [methodWord(), document.getElementById("mixdial").innerText, blendTable().filter((r) => r.method === "BLEND").map((r) => [r.key, r.used])]);
+  assert.ok(before[1].length > 20 && (before[0] !== after[0] || before[1] !== after[1]), "the money bar redrew: " + before[1].slice(0, 160) + " → " + after[1].slice(0, 160)); assert.ok(/tree close tier 100/.test(rest[0]), rest[0]); assert.ok(/weights/.test(rest[1]));
+  for (const [k, used] of rest[2]) assert.ok(used.length <= 1 && (used.length === 0 || used[0] === "TREE"), k + " reads the tree only: " + used);   /* the five-method sectors; metals are read from the metal (AL7) */
   await P.page.evaluate(() => { S.mixW = { SPDR: 20, HUBCMP: 20, MKTBOW: 20, TREE: 20, RANK: 20 }; save(); render(); });
   assert.ok(state.tree && state.tree.names > 5000 && state.tree.sectors === 11 && state.tree.cohorts >= 10, JSON.stringify(state.tree));
   assert.ok(state.mb && state.mb.n > 300 && state.mb.tech && state.mb.tech.bowtie != null);
