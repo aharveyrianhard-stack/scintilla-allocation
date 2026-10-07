@@ -66,7 +66,7 @@ test("one sector voter in place of three, and the four-way dial is gone", () => 
   assert.equal(state.mixdialButtons, 0, "no method buttons"); assert.ok(state.rankDial, "the fifth weight dial exists in INPUTS");
 });
 test("the chain on one page, in order: heat → how much → the bow tie → cohorts → the knockout → the picks and their % → moves …", () => {
-  const want = ["THE BRIEF", "1 HEAT", "INPUTS", "2 HOW MUCH", "3a SECTORS", "3b MONEY", "4 COHORTS", "5 KNOCKOUT", "6 PICKS & %", "7 MOVES", "8 OPTIONS", "8b COMPS", "9 MAP", "10 STATE", "11 TRACE"];
+  const want = ["THE MONEY", "THE BRIEF", "1 HEAT", "INPUTS", "2 HOW MUCH",   /* AL8: THE MONEY, the bar per market, comes first */ "3a SECTORS", "3b MONEY", "4 COHORTS", "5 KNOCKOUT", "6 PICKS & %", "7 MOVES", "8 OPTIONS", "8b COMPS", "9 MAP", "10 STATE", "11 TRACE"];
   let at = -1; for (const w of want) { const i = state.bar.indexOf(w); assert.ok(i > at, w + " in order: " + state.bar); at = i; }
   assert.ok(/MIDDLING|WASHED OUT|STRETCHED/.test(state.heatLabelTxt) && !/^NEUTRAL/.test(state.heatLabelTxt), "plain words on the heat readout: " + state.heatLabelTxt);
   assert.ok(/^The market's heat is .*, so the plan .*: \d+% invested, \d+% in cash\.$/.test(state.plain.sentence), state.plain.sentence);
@@ -82,7 +82,9 @@ test("the knockout (PA6: by business line — see pa6-knockout.test.mjs): inside
   assert.equal(K.champion, K.picks[0], "the champion is the podium's first"); assert.ok(state.dom.matches >= 3 && state.dom.pickCards >= 1);
   assert.ok(state.dom.won.every((w) => w.length <= 1), "at most one winner card per final");
 });
-test("KEEP in the knockout: the page's own write path (test row) lands in comps_decisions, and a kept name takes its % of its sector", async () => {
+/* AL8 (7 Oct): a kept name no longer takes a part of a conviction share — there is none. KEEP puts it on the conviction list in step 6,
+   where it has no money until it is given a size; with a size it takes that % of the account. */
+test("KEEP in the knockout: the page's own write path (test row) lands in comps_decisions, and a kept name joins the conviction list — its own size, once given", async () => {
   const reason = "PA5 test row " + new Date().toISOString();
   await P.page.evaluate((r) => writeDecision({ company: "PA5_TEST", peer: "PA5_TEST", off: false, reason: r, source: "allocation-pa5-test" }), reason);
   assert.equal(P.nonGet.allowed, 1, "one insert, to comps_decisions");
@@ -93,9 +95,12 @@ test("KEEP in the knockout: the page's own write path (test row) lands in comps_
   await P.page.evaluate(() => { window.writeDecision = async () => { throw new Error("test: write intercepted"); }; });
   const champ = state.K.champion;
   await P.page.click("#knockout .kopick .swcard:first-child .swbtns button:last-child"); await P.page.waitForTimeout(400);
-  const st = await P.page.evaluate((c) => { const d = decisionOf(c, c); const PM = pickMix(sleeveShares(), investedAt(heat())); return { d, inPicks: PICKS.has(c), eq: PM.perName[c], picksTxt: document.getElementById("picks").innerText, card: document.querySelector("#knockout .kopick .swcard:first-child").innerText }; }, champ);
+  const st = await P.page.evaluate((c) => { const d = decisionOf(c, c); const PM = pickMix(sleeveShares(), investedAt(heat())); const out = { d, inPicks: PICKS.has(c), eq: PM.perName[c], picksTxt: document.getElementById("picks").innerText, card: document.querySelector("#knockout .kopick .swcard:first-child").innerText, row: !!document.querySelector('#picks .a8-pick[data-sym="' + c + '"]') };
+    const had = S.sizes[c]; setSize(c, 7); out.sized = pickMix(sleeveShares(), investedAt(heat())).perName[c]; out.sizedTxt = document.getElementById("picks").innerText; setSize(c, had == null ? null : had); return out; }, champ);
   assert.ok(st.d && st.d.off === false && st.d.saved === false, "kept on the device when the write fails"); assert.ok(/KEPT/.test(st.card));
-  assert.ok(st.inPicks && st.eq > 0, champ + " takes " + st.eq + " of equity"); assert.ok(st.picksTxt.includes(champ) && /% OF EQUITY/.test(st.picksTxt), st.picksTxt.slice(0, 200));
+  assert.ok(st.inPicks && st.row, champ + " is on the conviction list in step 6");
+  if (st.eq === 0) assert.ok(/no size yet/.test(st.picksTxt), "kept without a size: no money until one is given");   /* a name the approved list already sizes (Micron) keeps its rule */
+  assert.ok(Math.abs(st.sized - 0.07) < 1e-9 && st.sizedTxt.includes(champ) && /% of the account/.test(st.sizedTxt), champ + " at 7% once given a size: " + st.sized);
   await P.page.click("#knockout .kopick .swcard:first-child .swbtns button:first-child"); await P.page.waitForTimeout(300);
   const after = await P.page.evaluate((c) => ({ inPicks: PICKS.has(c), d: decisionOf(c, c) }), champ); assert.equal(after.inPicks, false); assert.equal(after.d.off, true);
   assert.equal(P.nonGet.urls.length, before, "nothing else was sent");

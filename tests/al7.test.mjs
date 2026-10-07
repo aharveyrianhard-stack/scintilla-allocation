@@ -21,6 +21,7 @@ test("the page loads with the tree, the reviewed lines and the long daily bars r
   await P.page.waitForFunction(() => window.AL7 && AL7.ready(), null, { timeout: 120000 });
   await P.page.waitForTimeout(700);
   s = await P.page.evaluate(() => {
+    { const d = document.querySelector("#moneysplit details.two"); if (d) d.open = true; }   /* AL8: the two reads sit folded under the ranking — opened so their words can be read */
     const txt = (id) => document.getElementById(id).innerText, B = voteBook(), X = breadthPairs(), A = allocation(), brief = document.getElementById("brief");
     document.querySelectorAll("#gauges details.fam").forEach((d) => d.open = true);
     const fams = [...document.querySelectorAll("#gauges details.fam")].map((d) => ({ id: d.getAttribute("data-fam"), summary: d.querySelector("summary").innerText.replace(/\s+/g, " "), rows: [...d.querySelectorAll(":scope > .gauge")].map((g) => ({ key: g.getAttribute("data-key"), share: g.querySelector(".gshare").innerText.trim(), silent: g.classList.contains("silent") })) }));
@@ -48,13 +49,13 @@ test("the page loads with the tree, the reviewed lines and the long daily bars r
       spread: { made: methodSpread({ score: 0.5, parts: { A: { score: 0.9 }, B: { score: 0.3 }, C: null, D: { score: 0.55 } } }), one: methodSpread({ score: 0.2, parts: { A: { score: 0.2 }, B: null } }), close: methodSpread({ score: 0.1, parts: { A: { score: 0.15 }, B: { score: 0.05 } } }), far: METHOD_FAR, wide: METHOD_SPREAD },
       mx: { rows: document.querySelectorAll("#treeroll table.a7-mx")[0].querySelectorAll("tr").length - 1, ringed: document.querySelectorAll("#treeroll table.a7-mx")[0].querySelectorAll("td.c.far").length, want: table.filter((r) => r.method === "BLEND").reduce((t, r) => t + methodSpread(r).far.length, 0), sectors: table.filter((r) => r.method === "BLEND").length, text: document.getElementById("treeroll").innerText, caption: document.getElementById("mixdial").innerText },
       sets: (() => { const M = methodSets("TECH"); const served = new Set(MKTBOW.sectors.TECH.syms), fund = new Set(SPDR_MEMBERS.XLK || []); return M && { fund: M.fund, served: M.served, tier: M.tier, ranking: M.ranking, shared: M.shared.length, allServed: M.shared.every((x) => served.has(x)), allFund: fund.size ? M.shared.every((x) => fund.has(x)) : null, first: M.shared.slice(0, 5), fundServed: M.fundServed }; })(),
-      A: { inv: A.inv, convEq: A.convEq, coreEq: A.coreEq, indexEq: A.indexEq, sleeveEq: A.sleeveEq, sleeves: A.sleeves.map((x) => [x.key, x.equity]), cands: A.cands.length },
+      A: { inv: A.inv, convEq: A.convEq, coreEq: A.coreEq, indexEq: A.indexEq, sleeveEq: A.sleeveEq, sleeves: A.sleeves.map((x) => [x.key, x.equity]), cands: A.cands.length, conv: A.conviction.rows.map((r) => [r.sym, r.size, r.how]) },
       mixtop: { segs: [...document.querySelectorAll("#mixtop .a7-mix > div")].map((d) => [d.className, parseFloat(d.style.flex), d.title]), text: txt("mixtop"), rows: document.querySelectorAll("#mixtop .a7-rows .pc").length },
       two: [...document.querySelectorAll("#moneysplit .a7-two .a7-card")].map((c) => ({ on: c.classList.contains("on"), text: c.innerText })),
       pure: {
         lines: nearestLines("MU", 1045), none: nearestLines("NOT_A_NAME", 10), mu: RLINES && RLINES.names.MU.levels.map((x) => x.level), asof: RLINES && RLINES.as_of, names: RLINES && Object.keys(RLINES.names).length,
-        card: (() => { const keep = CP1; CP1 = cp1Index({ as_of: { card_date: "2026-10-06" }, cards: { ZZZ: { ticker: "ZZZ", when: { lines: { n: 3, below: { label: "3D P1", tf: "3D", level: 90 }, above: { label: "2W D3", tf: "2W", level: 110 } } } } } }); const r = nearestLines("ZZZ", 100); CP1 = keep; return r; })(),
-        cardList: !!cp1Index({ cards: [{ ticker: "AAA" }] }), cardNone: cp1Index(null),
+        card: (() => { const keep = CARDS; CARDS = cardIndex({ as_of: { card_date: "2026-10-06" }, cards: { ZZZ: { ticker: "ZZZ", technicals: { lines_n: 3, lines_below: [{ label: "3D P1", tf: "3D", level: 90 }, { label: "1W C3", tf: "1W", level: 80 }], lines_above: [{ label: "2W D3", tf: "2W", level: 110 }] } } } }); const r = nearestLines("ZZZ", 100); CARDS = keep; return r; })(),
+        cardList: !!cardIndex({ cards: [{ ticker: "AAA" }] }), cardNone: cardIndex(null),
         growth: fwdGrowth([{ fiscal_date: "2025-08-28", est_revenue_avg: 37.19e9 }, { fiscal_date: "2026-09-03", est_revenue_avg: 130.2e9 }, { fiscal_date: "2027-09-03", est_revenue_avg: 271.26e9 }], [{ fiscal_date: "2026-09-03", revenue: 133.188e9 }], "2026-10-07"),
         growthSoon: fwdGrowth([{ fiscal_date: "2025-12-31", est_revenue_avg: 100 * 1e9 }, { fiscal_date: "2026-12-31", est_revenue_avg: 110 * 1e9 }, { fiscal_date: "2027-12-31", est_revenue_avg: 132 * 1e9 }], [{ fiscal_date: "2025-12-31", revenue: 100e9 }], "2026-11-15"),
         growthTiny: fwdGrowth([{ fiscal_date: "2025-12-31", est_revenue_avg: 1e6 }, { fiscal_date: "2027-01-31", est_revenue_avg: 9e6 }], [], "2026-01-10"), growthNone: fwdGrowth([], [], "2026-10-07"),
@@ -92,8 +93,10 @@ test("1 · THE BRIEF is a walkthrough: one sentence, the heat as one gauge with 
 test("1 · the repeated explanations are gone: no legend of the scale, no 'none picked' on any row, no pie", () => {
   const all = Object.values(s.panels).join("\n");
   assert.ok(!/none picked/i.test(all), "'none picked' is said nowhere");
-  for (const k of ["brief", "money", "picks"]) assert.equal((s.panels[k].match(/no name kept yet/g) || []).length, 1, k + ": that no name is kept yet is said once where the money is drawn, not on every row");
-  for (const k of ["heat", "sectors", "howmuch"]) assert.equal((s.panels[k].match(/no name kept yet/g) || []).length, 0, k);
+  /* AL8 (7 Oct): the conviction list starts with the name Alan approved (Micron), so on a fresh device there is nothing to say; with an empty
+     list the sentence ("no name approved or kept yet") is still said once where the money is drawn, never on every row. */
+  for (const k of ["brief", "money", "picks"]) assert.ok((s.panels[k].match(/no name (approved or )?kept yet/g) || []).length <= (s.A.conv.length ? 0 : 1), k + ": that no name is kept yet is said at most once where the money is drawn, and not at all while a name is approved");
+  for (const k of ["heat", "sectors", "howmuch"]) assert.equal((s.panels[k].match(/no name (approved or )?kept yet/g) || []).length, 0, k);
   assert.ok(!/on a scale from/.test(all) && !/washed-out \(cold\)/.test(all) && !/WASHED OUT — everything sold down/.test(all), "the −1…+1 scale is not explained again");
   assert.ok(!/outer ring|inner ring|OUTER RING/.test(all), "the two-ring pie and its legend are gone");
   assert.ok(!/Every voter on one scale/.test(s.panels.heat) && !/MACRO HEAT = the weighted average/.test(s.panels.heat), "step 1 carries no explaining paragraph");
@@ -223,40 +226,38 @@ test("4 · the nearest reviewed line: the Lab's own label, the closest level und
   assert.equal(L.below.level, below); assert.equal(L.above.level, above); assert.ok(near(L.below.pct, (below / 1045 - 1) * 100, 1e-9) && L.below.pct <= 0 && L.above.pct > 0);
   assert.ok(/^(\d+[DWM]|\d+[hm]) /.test(L.below.id) && /^(\d+[DWM]|\d+[hm]) /.test(L.above.id), "the Lab's label carries its timeframe: " + L.below.id + " / " + L.above.id); assert.equal(L.asof, file.as_of); assert.equal(L.n, lv.length);
   assert.equal(s.pure.none, null, "a name with no reviewed line says nothing");
-  const C = s.pure.card; assert.equal(C.src, "CP1 card"); assert.equal(C.below.id, "3D P1"); assert.equal(C.above.id, "2W D3"); assert.ok(near(C.below.pct, -10, 1e-9) && near(C.above.pct, 10, 1e-9)); assert.equal(C.asof, "2026-10-06");
+  /* AL8: the card's levels in the real cards' own field names; the source is said in plain words (no internal code on the page) */
+  const C = s.pure.card; assert.equal(C.src, "its decision card"); assert.equal(C.below.id, "3D P1"); assert.equal(C.above.id, "2W D3"); assert.ok(near(C.below.pct, -10, 1e-9) && near(C.above.pct, 10, 1e-9)); assert.equal(C.asof, "2026-10-06");
   assert.equal(s.pure.cardList, true, "cards may come as a list or keyed by ticker"); assert.equal(s.pure.cardNone, null);
   const g = s.pure.growth; assert.ok(near(g.v, 271.26e9 / 133.188e9 - 1, 1e-12), "next fiscal year's expected revenue ÷ the reported year before: " + g.v); assert.equal(g.fyEnd, "2027-09-03"); assert.equal(g.basis, "reported"); assert.equal(g.says, true);
   assert.equal(s.pure.growthSoon.fyEnd, "2027-12-31", "a year that ends inside three months is nearly known: the one after is read"); assert.ok(near(s.pure.growthSoon.v, 132 / 110 - 1, 1e-12)); assert.equal(s.pure.growthSoon.basis, "estimate");
   assert.equal(s.pure.growthTiny.says, false, "growth from a near-zero base says nothing"); assert.equal(s.pure.growthNone, null);
 });
 
-test("5 · concentration, not spread: at most six sleeves in all and none under the smallest allowed; the dials move it; the names you keep hold the conviction part", async () => {
-  const A = s.A; assert.ok(A.sleeves.length + 2 <= 6, "the index sleeve, the conviction sleeve and " + A.sleeves.length + " more"); assert.ok(A.cands >= 14, "from " + A.cands + " candidates");
-  assert.ok(near(1 - A.inv + A.indexEq + A.sleeves.reduce((t, x) => t + x[1], 0) + A.convEq, 1, 1e-9), "cash + index + sleeves + conviction = everything");
-  const segs = s.mixtop.segs; assert.equal(segs[0][0], "cash"); assert.equal(segs[segs.length - 1][0], "conv"); assert.equal(segs.filter((x) => x[0] === "core").length, 1 + A.sleeves.length, "core = the index sleeve and the sleeves");
-  assert.ok(near(segs.reduce((t, x) => t + x[1], 0), 1, 1e-3), "the bar is the whole of the money"); assert.ok(near(segs[0][1], 1 - A.inv, 1e-4)); assert.ok(near(segs[segs.length - 1][1], A.convEq, 1e-4));
-  assert.ok(/CORE/.test(s.mixtop.text) && /CONVICTION/.test(s.mixtop.text) && /cash/i.test(s.mixtop.text), "core and conviction are visible"); assert.equal(s.mixtop.rows, 1 + A.sleeves.length, "one line per sleeve under the bar");
-  const d = await P.page.evaluate(() => { const keep = { maxSleeves: S.maxSleeves, minSleeve: S.minSleeve, convShare: S.convShare, coreIndexShare: S.coreIndexShare }, picks = new Set(PICKS), out = {};
-    const shot = () => { const A = allocation(); return { n: A.sleeves.length, min: A.sleeves.length ? Math.min(...A.sleeves.map((x) => x.equity)) : null, conv: A.convEq, index: A.indexEq, core: A.coreEq, inv: A.inv, tot: A.indexEq + A.convEq + A.sleeves.reduce((t, x) => t + x.equity, 0), keys: A.sleeves.map((x) => x.key), top: A.cands.slice(0, A.sleeves.length).map((x) => x.key) }; };
-    S.maxSleeves = 7; render(); out.seven = shot(); S.maxSleeves = 5; render(); out.five = shot(); S.maxSleeves = 6; S.minSleeve = 10; render(); out.big = shot();
-    S.minSleeve = 4; S.convShare = 0; render(); out.noConv = shot(); out.noConvSeg = document.querySelectorAll("#mixtop .a7-mix .conv").length; S.convShare = 20; S.coreIndexShare = 100; render(); out.allIndex = shot(); S.coreIndexShare = 50;
-    PICKS.clear(); PICKS.add("NVDA"); PICKS.add("MU"); render(); const PM = pickMix(sleeveShares(), investedAt(heat())); out.kept = { per: PM.perName, conv: allocation().convEq, text: document.getElementById("mixtop").innerText, picks: document.getElementById("picks").innerText };
-    PICKS.clear(); for (const x of picks) PICKS.add(x); Object.assign(S, keep); save(); render(); out.back = shot(); return out; });
-  assert.ok(d.seven.n <= 5 && d.five.n <= 3 && d.seven.n >= d.back.n && d.five.n <= d.back.n, "most sleeves 7 → at most five beside the index and conviction sleeves; 5 → at most three: " + d.seven.n + " / " + d.back.n + " / " + d.five.n);
-  for (const k of ["seven", "five", "big", "noConv", "back"]) { const x = d[k]; assert.deepEqual(x.keys, x.top, k + ": the funded sleeves are the first of the ranking"); assert.ok(near(x.tot, x.inv, 1e-9), k + ": the parts add up to the rung"); }
-  assert.ok(d.big.n === 0 || d.big.min >= 0.10 - 1e-9, "smallest sleeve 10% of equity → none under it: " + d.big.min); assert.ok(d.big.n <= d.back.n);
-  assert.equal(d.noConv.conv, 0); assert.equal(d.noConvSeg, 0, "no conviction, no conviction segment"); assert.equal(d.allIndex.n, 0); assert.ok(near(d.allIndex.index, d.allIndex.core, 1e-12), "index sleeve 100% of the core → the whole core is the index");
-  assert.ok(d.kept.per.NVDA > 0 && d.kept.per.MU > 0 && near(d.kept.per.NVDA + d.kept.per.MU, d.kept.conv, 1e-12), "the kept names hold the conviction part between them, whatever their sector"); assert.ok(/NVDA/.test(d.kept.text) && /MU/.test(d.kept.text) && !/no name kept yet/.test(d.kept.text));
-  assert.deepEqual([d.back.n, d.back.keys], [A.sleeves.length, A.sleeves.map((x) => x[0])], "the dials are put back");
+/* AL8 (7 Oct 2026): the pin this test held — at most six sleeves, conviction a fifth of what is invested, the index sleeve half the core,
+   the four dials moving it, the kept names sharing the conviction part — is the fixed shape Alan turned down that night ("the conviction
+   doesn't always have to be a fifth"; "the index sleeve, half of the core — I don't think I'm understanding"; "at most six sleeves — I
+   don't think it makes sense to limit it"). The rule that replaced it is pinned in al8.test.mjs. What stays here is what did not change:
+   the bar is the whole of the money, in the same three roles. */
+test("5 · the money bar is the whole of the money: cash, the core's sleeves, conviction by name (AL8: the fixed shape of 6 Oct was replaced — see al8.test.mjs)", () => {
+  const A = s.A; assert.ok(A.cands >= 14, "from " + A.cands + " candidates");
+  assert.ok(near(1 - A.inv + A.indexEq + A.sleeves.reduce((t, x) => t + x[1], 0) + A.convEq, 1, 1e-9), "cash + the equal-weight fund + sleeves + conviction = everything");
+  const segs = s.mixtop.segs, sized = A.conv.filter((r) => r[1] > 0).length, cores = A.sleeves.length + (A.indexEq > 0 ? 1 : 0);
+  assert.equal(segs[0][0], "cash"); assert.equal(segs.filter((x) => x[0] === "core").length, cores, "core = the funded sleeves (the equal-weight fund only when none is funded)");
+  assert.equal(segs.filter((x) => x[0] === "conv").length, sized, "one conviction segment per sized name"); if (sized) assert.equal(segs[segs.length - 1][0], "conv");
+  assert.ok(near(segs.reduce((t, x) => t + x[1], 0), 1, 1e-3), "the bar is the whole of the money"); assert.ok(near(segs[0][1], 1 - A.inv, 1e-4));
+  assert.ok(/CORE/.test(s.mixtop.text) && /CONVICTION/.test(s.mixtop.text) && /cash/i.test(s.mixtop.text), "core and conviction are visible"); assert.equal(s.mixtop.rows, cores + sized, "one line per sleeve and per sized name under the bar");
+  assert.ok(!/none picked|no name kept yet — it waits in the index sleeve/i.test(s.mixtop.text + s.panels.money), "nothing says none picked");
 });
 
 test("5 · small caps or breadth: the two reads side by side, and the index sleeve says which one it bets on", () => {
   assert.equal(s.two.length, 2); const [a, b] = s.two;
-  assert.ok(a.on && !b.on, "one of the two is the bet"); assert.ok(/BREADTH RETURNING/.test(a.text) && /RSP/.test(a.text) && /THE INDEX SLEEVE'S BET/.test(a.text), a.text.slice(0, 120));
+  /* AL8: the equal-weight fund holds the core only when no branch is funded, so the card names it the fall-back fund's bet */
+  assert.ok(a.on && !b.on, "one of the two is the bet"); assert.ok(/BREADTH RETURNING/.test(a.text) && /RSP/.test(a.text) && /THE FALL-BACK FUND'S BET/.test(a.text), a.text.slice(0, 120));
   assert.ok(/SMALL CAPS RETURNING/.test(b.text) && /IWM/.test(b.text) && !/BET/.test(b.text));
   for (const c of s.two) for (const k of ["Geiger gap to the S&P", "off its high", "against its 50-day", "against its 200-day", "RSI (14)"]) assert.ok(c.text.includes(k), k);
   assert.ok(/SMALL CAPS OR BREADTH/.test(s.panels.money) && new RegExp(s.pairs.below + " of " + s.pairs.n + " equal-weight pairs trail").test(s.panels.money), "the breadth count is beside it");
-  assert.ok(/R4, 5 Oct 2026/.test(a.text) && /0 of 21/.test(a.text), "the count behind the bet is R4's, dated");
+  assert.ok(/the regime study, 5 Oct 2026/.test(a.text) && /0 of 21/.test(a.text), "the count behind the bet is the regime study's, dated (AL8: named by what it is, not by its code)");
   assert.ok(s.wts.BREADTH_SC === 0.25 && s.A.sleeves.every((x) => x[0] !== "SMALL"), "small caps still vote in the heat; they hold no sleeve");
 });
 
@@ -282,7 +283,7 @@ test("a device that already holds saved dials keeps them: only the breadth weigh
     _v4: 1, _v5: 1, _v6: 1, mixMethod: "BLEND", mixW: { SPDR: 40, HUBCMP: 20, MKTBOW: 20, TREE: 10, RANK: 10 } };
   const run = async (state) => { const Q = await openPage({ storage: { "alloc-module-v1": JSON.stringify(state), "alloc-picks": JSON.stringify(["NVDA"]) } });
     try { await Q.page.waitForFunction(() => window.AL7 && AL7.ready(), null, { timeout: 120000 }); await Q.page.waitForTimeout(400);
-      const r = await Q.page.evaluate(() => ({ S: JSON.parse(JSON.stringify(S)), stored: JSON.parse(localStorage.getItem("alloc-module-v1")), picks: [...PICKS], per: pickMix(sleeveShares(), investedAt(heat())).perName, conv: allocation().convEq, mixtop: document.getElementById("mixtop").innerText, hand: (() => { let n = 0, d = 0; for (const v of voters()) { if (!canVote(v)) continue; const w = S.wts[v.key] ?? 0; n += v.val * w; d += w; } return d ? n / d : 0; })(), heat: heat() }));
+      const r = await Q.page.evaluate(() => ({ S: JSON.parse(JSON.stringify(S)), stored: JSON.parse(localStorage.getItem("alloc-module-v1")), picks: [...PICKS], per: pickMix(sleeveShares(), investedAt(heat())).perName, conv: allocation().convEq, mixtop: document.getElementById("mixtop").innerText, book: allocation().conviction.rows.map((r) => [r.sym, r.size, r.how]), hand: (() => { let n = 0, d = 0; for (const v of voters()) { if (!canVote(v)) continue; const w = S.wts[v.key] ?? 0; n += v.val * w; d += w; } return d ? n / d : 0; })(), heat: heat() }));
       assert.deepEqual(Q.errors, []); assert.equal(Q.nonGet.blocked, 0); return r; } finally { await Q.close(); } };
   const a = await run(saved);
   assert.equal(a.S.wts.BREADTH_X, 0.75, "the weight he gave the S&P pair moves to the row that reads every pair"); assert.equal(a.S.wts.BREADTH_EW, 0); assert.equal(a.S.wts.PCC, 0.25, "the put/call takes a weight");
@@ -291,7 +292,11 @@ test("a device that already holds saved dials keeps them: only the breadth weigh
   for (const k of ["vixCold", "tenCold", "maxInv", "minInv", "invCold", "invMid", "invHot", "maxTotal", "maxNames", "concLean", "divAuto", "nPer", "lcTilt"]) assert.equal(a.S[k], saved[k], k + " is as he left it");
   assert.deepEqual(a.S.mixW, saved.mixW, "his blend weights are untouched"); assert.equal(a.S._v7, 1); assert.equal(a.stored._v7, 1, "and it is saved, so it happens once");
   assert.deepEqual([a.S.maxSleeves, a.S.minSleeve, a.S.convShare, a.S.coreIndexShare], [6, 4, 20, 50], "the four new dials start at their proposals");
-  assert.deepEqual(a.picks, ["NVDA"], "his picked name is kept"); assert.ok(Math.abs(a.per.NVDA - a.conv) < 1e-12 && /NVDA/.test(a.mixtop), "and it holds the conviction part");
+  /* AL8 (7 Oct): there is no conviction part to hold any more. His picked name is still kept and is on the conviction list; it takes no
+     money until he gives it a size, and the page says so. The two settings this brief adds start empty / at their proposals. */
+  assert.deepEqual(a.picks, ["NVDA"], "his picked name is kept"); const nv = a.book.find((r) => r[0] === "NVDA");
+  assert.ok(nv && nv[1] === 0 && nv[2] === "none" && a.per.NVDA === 0, "it is on the conviction list, with no size yet"); assert.ok(/kept without a size: NVDA/.test(a.mixtop), a.mixtop.slice(-200));
+  assert.deepEqual(a.S.sizes, {}, "no size is invented for him"); assert.deepEqual(a.S.rankW, { growth: 50, regime: 25, opportunity: 25 }, "the ranking's weights start at their proposals");
   assert.ok(Math.abs(a.heat - a.hand) < 1e-12, "the heat is the weighted average of his weights");
   /* a second visit: he has since muted the put/call and the every-pair row — nothing puts them back */
   const b = await run({ ...a.stored, wts: { ...a.stored.wts, PCC: 0, BREADTH_X: 0 } });

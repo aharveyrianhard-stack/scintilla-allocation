@@ -100,7 +100,10 @@ test("names: sound sectors come first in the tabs, the first row is tagged ADD, 
 });
 test("what still says STALE or FALLBACK is only what has no live source", () => {
   const notLive = Object.entries(state.spine).filter(([, m]) => m !== "LIVE").map(([k]) => k).sort();
-  for (const k of notLive) assert.ok(["vix_term", "market_breadth", "live_quotes", "sector_rankings"].includes(k), k + " should be live");
+  /* AL8 (7 Oct): two more may read "old", each for a stated reason — the scenario rows are placeholders until the deployment engine's own
+     file sits beside the page; the fundamentals feed is marked while it gives a forward P/E to under half the names with earnings (measured
+     at load; it clears by itself when the repaired feed is deployed). */
+  for (const k of notLive) assert.ok(["vix_term", "market_breadth", "live_quotes", "sector_rankings", "deployment_scenarios", "comps-feed"].includes(k), k + " should be live");
   assert.ok(state.spine.live_quotes === "FALLBACK", "live_quotes is only the fallback now");
 });
 test("teardown", async () => { await browser.close(); server.close(); });

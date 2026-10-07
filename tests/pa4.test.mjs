@@ -95,8 +95,10 @@ test("the guidance file validates and matches the page's list", () => {
   const live = state.guidance; assert.ok(live.names.length >= 6);
   for (const n of live.names) assert.ok(n.tag === (n.of && !/favourites|KEEP/.test(n.reason) ? "FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH" : "NEEDS THE LIVE HUB"), n.ticker + " " + n.tag + " " + n.reason);
 });
-test("the fold: a sticky section bar with the fifteen sections (PA6: 3a and 3b), every section but THE BRIEF folded to one screen", () => {
-  for (const t of ["THE BRIEF", "1 HEAT", "INPUTS", "2 HOW MUCH", "3a SECTORS", "3b MONEY", "4 COHORTS", "5 KNOCKOUT", "6 PICKS & %", "7 MOVES", "8 OPTIONS", "8b COMPS", "9 MAP", "10 STATE", "11 TRACE"]) assert.ok(state.bar.includes(t), t);
-  for (const [id, folded, h] of state.folded) { if (id === "p-brief" || id === "p-inputs") { assert.equal(folded, false); continue; } assert.equal(folded, true, id); assert.ok(h <= 1050 - 200, id + " body " + h + "px"); }
+/* AL8 (7 Oct): sixteen sections — THE MONEY (one bar per market) is the first, and it is open with THE BRIEF on the first screen. */
+test("the fold: a sticky section bar with the sixteen sections (PA6: 3a and 3b · AL8: THE MONEY first), every section but THE MONEY and THE BRIEF folded to one screen", () => {
+  for (const t of ["THE MONEY", "THE BRIEF", "1 HEAT", "INPUTS", "2 HOW MUCH", "3a SECTORS", "3b MONEY", "4 COHORTS", "5 KNOCKOUT", "6 PICKS & %", "7 MOVES", "8 OPTIONS", "8b COMPS", "9 MAP", "10 STATE", "11 TRACE"]) assert.ok(state.bar.includes(t), t);
+  assert.equal(state.folded.length, 16); assert.equal(state.folded[0][0], "p-scen");
+  for (const [id, folded, h] of state.folded) { if (id === "p-scen" || id === "p-brief" || id === "p-inputs") { assert.equal(folded, false); continue; } assert.equal(folded, true, id); assert.ok(h <= 1050 - 200, id + " body " + h + "px"); }
 });
 test("teardown", async () => { await P.close(); });

@@ -419,6 +419,8 @@
     .a8-rk3 tr.stop{display:block;border-top:1px solid var(--core);border-bottom:1px solid var(--core)}.a8-rk3 tr.stop td:first-child{display:none}.a8-rk3 tr.stop td{padding:6px 0 !important}
     .a8-nums th:last-child,.a8-nums td:last-child{display:none}.a8-nums td.nm{white-space:normal}.a8-nums td.nm small{display:none}
   }
+  #p-inputs .pfold{font-size:11px}details.a8-num>summary,#moneysplit details.two>summary{font-size:11px}
+  .a8-pick .cell .a7-mini b.gn{color:var(--txt);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
   /* a pick, as its card */
   .a8-pick{border:1px solid #2a2a3a;border-left:3px solid var(--conv);border-radius:0 8px 8px 0;background:#0c0c13;padding:12px 14px;margin:10px 0 4px}
   .a8-pick .hd{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
@@ -431,6 +433,7 @@
   .a8-pick .szrow{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:8px 0 2px;font-size:11px;color:var(--dim);line-height:1.5}
   .a8-pick .sz{letter-spacing:.1em;color:var(--txt);white-space:nowrap}
   .a8-pick .sz input{width:74px;margin:0 6px;background:#14141f;color:var(--txt);border:1px solid #2a2a3a;border-radius:5px;padding:4px 6px;font-family:inherit;font-size:13px;text-align:right}
+  .a8-pick .szrow small{font-size:11px}
   .a8-pick .szrow button{background:none;border:1px solid var(--line);color:var(--cyan);border-radius:5px;font-family:inherit;font-size:11px;padding:1px 8px;cursor:pointer;margin-left:6px}
   .a8-pick .cells{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.1fr);gap:8px;margin:10px 0 2px}
   .a8-pick .cell{border:1px solid var(--line);background:#0d0d15;padding:8px 10px;min-width:0}
@@ -1471,6 +1474,7 @@ function moneyRows(){
   const A=allocation(), funded=new Map(A.sleeves.map(x=>[x.key,x])), n=A.sleeves.length, pcw=x=>(x*100).toFixed(x*100<9.95?1:0)+'%';
   /* what stops the core, once: it is the same for every sleeve left out */
   const stop=!(A.coreEq>0)?'nothing is left for the core: the conviction names take all that is invested'
+    :n===0?'the core, '+pcw(A.coreEq)+' of the account, is smaller than the smallest sleeve allowed ('+pcw(A.minEq)+'): it waits in the equal-weight S&P'
     :n<A.cands.length?'the core, '+pcw(A.coreEq)+' of the account, stretches to '+n+' sleeve'+(n===1?'':'s')+': one more would leave a sleeve under '+pcw(A.minEq):null;
   const rows=A.cands.map((o,i)=>{ const x=funded.get(o.key), wk=x?null:weakestOf(o);
     return {key:o.key,score:o.score,q:o.q,kind:o.kind,tree:o.tree,cold:o.cold,turn:o.turn,raw:o.raw,rawShare:o.rawShare,growth:o.growth,growthN:o.growthN,growthOf:o.growthOf,growthWhy:o.growthWhy,pGrowth:o.pGrowth,pRegime:o.pRegime,pOpp:o.pOpp,rankScore:o.rankScore,
@@ -1547,7 +1551,7 @@ function renderMoney(){
   el.innerHTML='<div class="a7-cap"><b>THE MONEY</b> — '+st.pct+'% invested · conviction '+pc(A.convEq)+' of the account, by name · the core '+pc(A.coreEq)+' in '+A.sleeves.length+' of '+M.rows.length+' candidate sleeves, funded in rank order, none under '+pc(A.minEq,0)+'</div>'+
     mixBar(A,el.clientWidth)+mixRows(A)+
     '<div class="a7-cap"><b>THE RANKING</b> — every candidate sleeve on three questions · the bar is its place among the '+M.rows.length+' (first on the right) · weights: growth '+W.growth+' · regime fit '+W.regime+' · opportunity '+W.opportunity+(GROWTH_READ?'':' · growth is still being read: every sleeve counts as the middle until it arrives')+'</div>'+
-    '<div class="scrollx"><table class="a8-rank a8-rk3"><tr><th></th><th>SLEEVE</th><th>GROWTH<small>expected sales, the middle company</small></th><th>REGIME FIT<small>what it is doing</small></th><th>OPPORTUNITY<small>how washed out</small></th><th class="sc">SCORE</th><th class="eq">% OF THE ACCOUNT</th><th>PARKED IN · OR WHY IT IS OUT</th></tr>'+trs+'</table></div>'+
+    '<div class="scrollx"><table class="a8-rank a8-rk3"><tr><th></th><th>SLEEVE</th><th>GROWTH<small>expected sales, the middle company</small></th><th>REGIME FIT<small>what it is doing</small></th><th>OPPORTUNITY<small>how washed out</small></th><th class="sc">SCORE</th><th class="eq">% OF THE ACCOUNT</th><th>PARKED IN · OR WHY IT IS OUT</th></tr>'+((M.funded===0&&M.stop)?'<tr class="stop"><td></td><td colspan="7"><b>NO SLEEVE IS FUNDED</b> — '+esc2(M.stop)+'</td></tr>':'')+trs+'</table></div>'+
     '<details class="two"'+(wasOpen?' open':'')+'><summary>IF NO BRANCH IS FUNDED — the core waits in the equal-weight S&amp;P, not small caps</summary>'+twoReadsHTML()+'</details>';
 }
 /* HOW THE BLEND IS MADE — the five methods side by side per sector (Alan: "how are you blending between the methods? Are there mismatches?
@@ -3131,7 +3135,7 @@ window.INPUT_AUDIT=INPUT_AUDIT;
 /* how far the five sector-compare weights reach into the % today: each pushed to 0 and to 100 in turn, everything else as it is */
 function mixLeak(){
   const keep=S.mixW?structuredClone(S.mixW):null, h0=heat(), st0=policyStep(h0).pct; let lo=h0, hi=h0, rung=false;
-  for(const [k] of BLEND_SRC) for(const v of [0,100]){ S.mixW=Object.assign(mixWeights(),{[k]:v}); const h=heat(); lo=Math.min(lo,h); hi=Math.max(hi,h); if(policyStep(h).pct!==st0) rung=true; }
+  for(const [k] of BLEND_SRC) for(const v of [0,100]){ S.mixW=Object.assign({},MIX_DEFAULT,keep||{},{[k]:v}); const h=heat(); lo=Math.min(lo,h); hi=Math.max(hi,h); if(policyStep(h).pct!==st0) rung=true; }   // one weight at a time, from the weights as they stand
   S.mixW=keep; const B=voteBook(), sec=B.rows.find(r=>r.key==='SECTORS');
   return {heat:h0, lo, hi, reach:Math.max(h0-lo,hi-h0), rung, share:sec?sec.share:0, pct:st0};
 }
@@ -3512,7 +3516,7 @@ function renderPicks(){
       '<small>'+(r.how==='own'?'your own figure'+(ap?' <button class="a8-rule" data-sym="'+sym+'">back to the rule</button>':' <button class="a8-rule" data-sym="'+sym+'">clear</button>'):r.how==='rule'?'the rule: '+esc2(ap.rule):r.how==='dropped'?'dropped in the knockout':'no size yet — it takes no money until you give it one')+(r.cut?' · cut to '+pcE(r.size)+': the names together cannot take more than is invested':'')+'</small>';
     const cells=c?('<div class="cell"><span>COMPS RANGE · per share</span>'+footballHTML(k,price)+(k&&!k.none?'<small><b>'+upW(up)+'</b> to the centre · priced on '+esc2((k.peers||[]).join(', '))+(k.flags.length?' · '+esc2(k.flags.join(' · ')):'')+'</small>':'')+'</div>'+
         '<div class="cell"><span>GROWTH · '+(g?esc2(g.what):'sales')+'</span><b class="big">'+(g?upW(g.v):'—')+'</b><small>'+(g&&g.twoYear!=null?'two years: '+upW(g.twoYear)+' a year':'')+(g&&g.eps!=null?' · earnings '+upW(g.eps):'')+'</small></div>'+
-        '<div class="cell"><span>GEIGER · its place in its own year</span><div class="a7-mini">'+hubChip(live!=null?live:(ge?ge.g:null),1,true,true)+'</div><small>'+(ge&&ge.pctl!=null?'the <b>'+ord(ge.pctl)+'</b> percentile'+(ge.usual!=null?' · its usual '+f2v(ge.usual):''):'no place in its year yet')+'</small></div>'+
+        '<div class="cell"><span>GEIGER · its place in its own year</span><div class="a7-mini">'+hubChip(live!=null?live:(ge?ge.g:null),1,false,true)+'<b class="gn">'+f2v(live!=null?live:(ge?ge.g:null))+'</b></div><small>'+(ge&&ge.pctl!=null?'the <b>'+ord(ge.pctl)+'</b> percentile'+(ge.usual!=null?' · its usual '+f2v(ge.usual):''):'no place in its year yet')+'</small></div>'+
         '<div class="cell"><span>NEAREST NAMED LINE</span><small class="ln">'+(L&&(L.above||L.below)?[L.above?'▲ <b>'+esc2(L.above.id)+'</b> '+lvW(L.above.level)+' +'+L.above.pct.toFixed(1)+'%':'',L.below?'▼ <b>'+esc2(L.below.id)+'</b> '+lvW(L.below.level)+' '+L.below.pct.toFixed(1).replace('-','−')+'%':''].filter(Boolean).join('<br>'):'no reviewed line on this name')+'</small></div>')
       :'<div class="cell wide"><span>NO DECISION CARD</span><small>its readings come from the fundamentals feed'+(FH.thin?', which is being repaired (a forward P/E for only '+FH.fwd+' of '+FH.earn+' names tonight)':'')+' · fundamentals '+(fundScore(sym).score==null?'—':fundScore(sym).score.toFixed(2))+' · Geiger '+f2v(live)+'</small></div>';
     const park=ap&&ap.parent_fund?'parent fund <b>'+esc2(ap.parent_fund)+'</b> — '+esc2(ap.parent_fund_is||''):(c&&c.parents&&c.parents.length?'parent fund'+(c.parents.length>1?'s':'')+' <b>'+esc2(c.parents.join(' · '))+'</b>':'');
