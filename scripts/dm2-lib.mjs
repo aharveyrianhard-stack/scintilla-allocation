@@ -76,9 +76,12 @@ function fitLine(xs, grid, bw, resM, resP) { const n = xs.length, ordr = [...Arr
   /* flat beyond the last well-measured band: a grid point with fewer than THIN evenings near it reads as the nearest one that has them */
   const okIdx = near.map((v, k) => (v >= THIN ? k : -1)).filter((k) => k >= 0); const fix = (a) => a.map((v, k) => (near[k] >= THIN || !okIdx.length ? v : a[okIdx.reduce((b, c) => (Math.abs(c - k) < Math.abs(b - k) ? c : b))]));
   return { m: fix(m), p: fix(p), near }; }
-/* the VIX's own line is smoothed twice as wide as the table (16 percentile points): at 8 it wiggled by a few points of share between
-   neighbouring percentiles for no reason a trader could name. Settable for the comparison run. */
-export let LINE_BW_PCT = 16; export const setLineBwPct = (v) => { LINE_BW_PCT = v; };
+/* THE VIX'S OWN LINE IS SMOOTHED THREE TIMES AS WIDE AS THE TABLE (24 percentile points). At the table's 8 it wiggled by a few points of
+   share between neighbouring percentiles; at 16 it still showed a hump near the 25th percentile, a dip near the 50th and a hump near
+   the 80th — nothing a trader could name. At 24 it is one gentle slope, and out of sample it ranked evenings as well or better at all
+   three split years (fit to 2015 / 2017 / 2019: 0.150 / 0.164 / 0.172 at 8, 0.152 / 0.168 / 0.177 at 16, 0.153 / 0.173 / 0.177 at 24).
+   The RSI's own line keeps the table's width (4 points): it is smooth as it is. Settable for the comparison run. */
+export let LINE_BW_PCT = 24; export const setLineBwPct = (v) => { LINE_BW_PCT = v; };
 export function fitMarginals(rows, X, B) {
   const xr = rows.map((i) => X.rsi[i]), xp = rows.map((i) => X.fear[i]), ym = rows.map((i) => X.r60[i] - B.med60), yp = rows.map((i) => (X.r60[i] > 0 ? 1 : 0) - B.share60);
   let R = { m: GRID.rsi.map(() => 0), p: GRID.rsi.map(() => 0) }, V = { m: GRID.pct.map(() => 0), p: GRID.pct.map(() => 0) };

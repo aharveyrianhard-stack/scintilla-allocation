@@ -238,13 +238,10 @@ if (WITH2008) { fs.writeFileSync(path.join(OUT, "dm2-with2008.json"), JSON.strin
   console.log(JSON.stringify({ ok: true, alt: "with 2008 in the fit", kept: KEPT, today: today.v2.pct, rankCorr: rankings["2018 → 2026, fitted to 2017"]["version 2"].rankCorr })); process.exit(0); }
 fs.writeFileSync(path.join(OUT, "dm2.json"), JSON.stringify(out));
 /* the compact copy the live line reads: the model, and what a browser cannot rebuild from live prices alone */
-const T = 300; const tail = (a) => a.slice(LAST - T + 1, LAST + 1);
 const live = { built_utc: out.built_utc, asOf: dates[LAST], model: { grid: model.grid, thinMatrix: model.thinMatrix, marg: model.marg, sheets: { all: { med60: model.sheets.all.med60, share60: model.sheets.all.share60, near: model.sheets.all.near } }, baseline: model.baseline, factors: model.factors, rungs: model.rungs, advisory: model.advisory },
   kept: KEPT, dropped: DROPPED, names: NAME,
   /* HYG's payouts (ex-date, amount) so the browser can add them back to the price-only closes the chart API serves; after the last one known, a payout the size of the last is assumed on each month's first session and the line says so */
   hygPayouts: S.hygDividends.filter((d) => d[0] >= dates[LAST - 520]).map((d) => [d[0], d[1]]),
-  /* the index Geigers, one reading per session for the last 300 sessions — the Hub publishes today's, not the year behind it */
-  geiger: { asOf: S.geigerAsOf, dates: tail(dates), spy: tail(S.gSpy).map(r3), qqq: tail(S.gQqq).map(r3) },
   /* the check a browser runs on itself: rebuilt from the chart API's closes for the same session, the inputs must come out as these */
   check: { date: dates[LAST], inputs: Object.fromEntries(Object.entries(todayIn).map(([k, v]) => [k, r3(v)])), pct: dToday.pct, prior: priorV2, line: dToday.line, spy: close[LAST], vix: S.vix[LAST], hygAdj: S.hygA[LAST], hygPrice: S.hygP[LAST] } };
 fs.writeFileSync(path.join(OUT, "dm2-live.json"), JSON.stringify(live));

@@ -98,43 +98,47 @@ const CSS = `.dm2l{margin:16px 0 0;border-top:1px solid var(--line,#1c1c28);padd
 .dm2l .track .bar{position:absolute;left:0;right:0;top:20px;height:6px;border-radius:3px;background:#22222e}
 .dm2l .track .fill{position:absolute;left:0;top:20px;height:6px;border-radius:3px;background:#8a8aa0}
 .dm2l .track .rung{position:absolute;top:14px;width:1px;height:18px;background:#3a3a4a}
-.dm2l .track .rl{position:absolute;top:34px;transform:translateX(-50%);font-size:11px;color:var(--dim,#8a8aa0)}
+.dm2l .track .rl{position:absolute;top:34px;transform:translateX(-50%);font-size:11px;color:var(--dim,#8a8aa0)}.dm2l .track .rl.end{transform:translateX(-100%)}
 .dm2l .track .mk{position:absolute;top:0;transform:translateX(-50%);font-size:11px;white-space:nowrap;color:var(--txt,#c8c8d2)}
 .dm2l .track .mk i{display:block;width:2px;height:22px;margin:1px auto 0;background:#c8c8d2}
-.dm2l .track .mk.lad{top:14px;color:var(--dim,#8a8aa0)}.dm2l .track .mk.lad i{background:#5a5a6c;width:1px;height:34px;margin:0 auto 1px}
+.dm2l .track .mk.r{transform:translateX(-100%)}.dm2l .track .mk.r i{margin-right:0}.dm2l .track .mk.l{transform:none}.dm2l .track .mk.l i{margin-left:0}
+.dm2l .track .mk.lad{top:14px;color:var(--dim,#8a8aa0)}.dm2l .track .mk.lad i{background:#5a5a6c;width:1px;height:34px;margin-top:0;margin-bottom:1px}
 .dm2l .track .mk.now i{background:#8a8aa0;width:1px}
 .dm2l .cols{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:8px 30px;margin-top:8px}
 .dm2l h4{margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--dim,#8a8aa0)}
 .dm2l ul{margin:0;padding:0;list-style:none}.dm2l li{padding:3px 0;border-bottom:1px solid #14141e}.dm2l li:last-child{border-bottom:0}
 .dm2l li .pt{float:right;margin-left:10px;font-weight:600}
-.dm2l .money{display:flex;height:22px;border-radius:4px;overflow:hidden;margin:4px 0 6px;font-size:11px}
-.dm2l .money span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;color:#101018}
-.dm2l .money .cash{background:#3a3a4a;color:#c8c8d2}.dm2l .money .core{background:#8a8aa0}.dm2l .money .mu{background:#c8c8d2}
+.dm2l .money{display:flex;height:16px;border-radius:4px;overflow:hidden;margin:6px 0 6px}
+.dm2l .money span{display:block;height:100%}
+.dm2l .cash{background:#3a3a4a}.dm2l .core{background:#8a8aa0}.dm2l .mu{background:#c8c8d2}
+.dm2l .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px;vertical-align:-1px}
 .dm2l .lights li{color:var(--dim,#8a8aa0)}.dm2l .lights li b{color:var(--txt,#c8c8d2);font-weight:500}
 .dm2l .warn{color:var(--dim,#8a8aa0);font-size:11px}
 @media (max-width:760px){.dm2l .cols{grid-template-columns:minmax(0,1fr)}.dm2l .big .n{font-size:28px}.dm2l .track .mk{font-size:11px}}`;
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; export const day = (d) => +d.slice(8, 10) + " " + MON[+d.slice(5, 7) - 1], dayY = (d) => day(d) + " " + d.slice(0, 4);
+const side = (p) => (p > 78 ? " r" : p < 22 ? " l" : "");   // a mark near either end keeps its label inside the track
 const sign = (x) => (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(x).toFixed(0);
 export function renderLiveLine(el, st) {
   if (!document.getElementById("dm2l-css")) { const s = document.createElement("style"); s.id = "dm2l-css"; s.textContent = CSS; document.head.appendChild(s); }
   if (st.error && !st.read) { el.innerHTML = `<div class="dm2l"><div class="hd"><b>THE MATRIX, LIVE</b><span>no reading: ${esc(st.error)}</span></div></div>`; return; }
   const R = st.read, d = R.reading, M = R.money, now = st.now, lad = st.ladderPct, x = (p) => Math.max(0, Math.min(100, p));
-  const when = R.live ? `live at ${esc(st.readAt.hhmm)} New York · session ${esc(R.session)}` : `at the ${esc(R.session)} close (the market is not open)`;
-  const delta = lad == null ? "" : d.line > lad + 0.5 ? `<span class="up">${sign(d.line - lad)} points above the ladder</span>` : d.line < lad - 0.5 ? `<span class="dn">${sign(d.line - lad)} points under the ladder</span>` : `<span>on the ladder's rung</span>`;
+  const when = R.live ? `live at ${esc(st.readAt.hhmm)} New York, ${esc(dayY(R.session))}` : `at the close of ${esc(dayY(R.session))} (the market is not open)`;
+  const delta = lad == null ? "" : d.line > lad + 0.5 ? `<span class="up">${Math.abs(d.line - lad).toFixed(0)} points above the ladder</span>` : d.line < lad - 0.5 ? `<span class="dn">${Math.abs(d.line - lad).toFixed(0)} points under the ladder</span>` : `<span>on the ladder's rung</span>`;
   const rows = [`<li>the matrix on its own — SPY's daily RSI ${R.inputs.rsi.toFixed(0)}, the VIX ${R.inputs.vixLevel.toFixed(1)} (the ${ord(R.inputs.vixPct)} percentile of its year)<span class="pt">${d.matrixPct.toFixed(0)}%</span></li>`]
     .concat(d.votes.map((v) => (v.missing ? `<li>${esc(NAME[v.key] || v.key)}: no reading<span class="pt">—</span></li>` : `<li>${esc((SAY[v.key] || (() => v.key))(v.z))}<span class="pt ${v.points > 0.5 ? "up" : v.points < -0.5 ? "dn" : ""}">${sign(v.points)}</span></li>`)))
-    .concat([`<li>this minute's reading<span class="pt">${d.pct.toFixed(0)}%</span></li>`, `<li>the two closes before it — ${esc(R.prior[0].date)} ${R.prior[0].pct.toFixed(0)}%, ${esc(R.prior[1].date)} ${R.prior[1].pct.toFixed(0)}% — averaged in: the line<span class="pt">${d.line.toFixed(0)}%</span></li>`]);
+    .concat([`<li>this minute's reading<span class="pt">${d.pct.toFixed(0)}%</span></li>`, `<li>the two closes before it — ${esc(day(R.prior[0].date))} ${R.prior[0].pct.toFixed(0)}%, ${esc(day(R.prior[1].date))} ${R.prior[1].pct.toFixed(0)}% — averaged in: the line<span class="pt">${d.line.toFixed(0)}%</span></li>`]);
   const lights = (R.lights || []).filter((l) => !l.missing && Math.abs(l.points) >= 3).sort((a, b) => a.points - b.points).map((l) => `<li><b>${esc(l.words)}</b> — counted, it would ${l.points < 0 ? "take " + Math.abs(l.points).toFixed(0) + " points off" : "add " + l.points.toFixed(0) + " points"}</li>`);
   const w = (v) => Math.max(0, v).toFixed(1) + "%";
   el.innerHTML = `<div class="dm2l" id="dm2l-root" data-line="${d.line}" data-reading="${d.pct}" data-session="${esc(R.session)}" data-live="${R.live ? 1 : 0}">
   <div class="hd"><b>THE MATRIX, LIVE</b><span>${when}</span><span>${esc(nextRead(now))}</span>${st.error ? `<span>last try failed (${esc(st.error)}) — showing the reading before it</span>` : ""}</div>
   <div class="big"><div class="n">${d.line.toFixed(0)}%<small> invested — the matrix's line</small></div><div class="s">this minute <b>${d.pct.toFixed(0)}%</b> · the ladder says <b>${lad == null ? "—" : lad.toFixed(0) + "%"}</b> · ${delta}</div></div>
-  <div class="track"><div class="bar"></div><div class="fill" style="width:${x(d.line)}%"></div>${LADDER.map((r) => `<div class="rung" style="left:${r}%"></div><div class="rl" style="left:${r}%">${r}</div>`).join("")}
-    ${lad == null ? "" : `<div class="mk lad" style="left:${x(lad)}%"><i></i>the ladder ${lad.toFixed(0)}%</div>`}<div class="mk" style="left:${x(d.line)}%">the matrix ${d.line.toFixed(0)}%<i></i></div></div>
+  <div class="track"><div class="bar"></div><div class="fill" style="width:${x(d.line)}%"></div>${LADDER.map((r) => `<div class="rung" style="left:${r}%"></div><div class="rl${r >= 100 ? " end" : ""}" style="left:${r}%">${r}</div>`).join("")}
+    ${lad == null ? "" : `<div class="mk lad${side(lad)}" style="left:${x(lad)}%"><i></i>the ladder ${lad.toFixed(0)}%</div>`}<div class="mk${side(d.line)}" style="left:${x(d.line)}%">the matrix ${d.line.toFixed(0)}%<i></i></div></div>
   <div class="cols"><div><h4>WHY — IN POINTS OF % INVESTED</h4><ul>${rows.join("")}</ul></div>
-  <div><h4>THE MONEY THAT FOLLOWS — OF EVERY 100</h4><div class="money"><span class="cash" style="width:${w(M.cash)}">cash ${M.cash.toFixed(0)}</span><span class="core" style="width:${w(M.core)}">core ${M.core.toFixed(0)}</span><span class="mu" style="width:${w(M.micron)}">Micron ${M.micron.toFixed(0)}</span></div>
-    <ul><li>Micron = ${MICRON_SHARE} × ${d.line.toFixed(0)}%${M.micron >= MICRON_CAP - 1e-9 ? ", held at the " + MICRON_CAP + "% cap" : ""}<span class="pt">${M.micron.toFixed(1)}%</span></li><li>the rest of the core<span class="pt">${M.core.toFixed(1)}%</span></li><li>cash<span class="pt">${M.cash.toFixed(1)}%</span></li></ul>
+  <div><h4>THE MONEY THAT FOLLOWS — OF EVERY 100</h4><div class="money"><span class="mu" style="width:${w(M.micron)}"></span><span class="core" style="width:${w(M.core)}"></span><span class="cash" style="width:${w(M.cash)}"></span></div>
+    <ul><li><i class="sw mu"></i>Micron = ${MICRON_SHARE} × ${d.line.toFixed(0)}%${M.micron >= MICRON_CAP - 1e-9 ? ", held at the " + MICRON_CAP + "% cap" : ""}<span class="pt">${M.micron.toFixed(1)}%</span></li><li><i class="sw core"></i>the rest of the core<span class="pt">${M.core.toFixed(1)}%</span></li><li><i class="sw cash"></i>cash<span class="pt">${M.cash.toFixed(1)}%</span></li></ul>
     ${lights.length ? `<h4 style="margin-top:10px">LIGHTS — SHOWN, NOT COUNTED</h4><ul class="lights">${lights.join("")}</ul>` : ""}</div></div>
-  ${R.missing.length || R.payoutsEstimated ? `<div class="warn">${R.missing.length ? "no live price for " + esc(R.missing.join(", ")) + " — its last close is used. " : ""}${R.payoutsEstimated ? R.payoutsEstimated + " HYG payout" + (R.payoutsEstimated > 1 ? "s" : "") + " after " + esc(st.base.hygPayouts[st.base.hygPayouts.length - 1][0]) + " assumed at the last known size." : ""}</div>` : ""}</div>`; }
+  ${R.missing.length || R.payoutsEstimated ? `<div class="warn">${R.missing.length ? "no live price for " + esc(R.missing.join(", ")) + " — its last close is used. " : ""}${R.payoutsEstimated ? R.payoutsEstimated + " HYG payout" + (R.payoutsEstimated > 1 ? "s" : "") + " after " + esc(dayY(st.base.hygPayouts[st.base.hygPayouts.length - 1][0])) + " assumed at the last known size." : ""}</div>` : ""}</div>`; }
 
 /* ---------- the loop ---------- */
 export async function startLiveMatrix({ el, getApi, baseUrl = "study/dm2/data/dm2-live.json", ladderPct = () => null, clock = () => new Date(), tickMs = 30000, onRead = null }) {
