@@ -32,7 +32,9 @@ async function openWith(routes, { width = 1680, height = 1050 } = {}) {
 
 test("the page loads with the cards, the zones, the approved names and the scenario rows read; nothing is written", async () => {
   P = await openPage();
-  await P.page.waitForFunction(() => window.AL8 && AL8.ready(), null, { timeout: 120000 }); await P.page.waitForTimeout(700);
+  await P.page.waitForFunction(() => window.AL8 && AL8.ready(), null, { timeout: 120000 });
+  /* RL1 (7 Oct): the money panel's rows are the deployment engine v2's live reading — wait for the matrix's own line to have read */
+  await P.page.waitForFunction(() => window.DM2_LIVE_READY && typeof DEPLOY !== "undefined" && DEPLOY && DEPLOY.status === "engine-v2", null, { timeout: 120000 }); await P.page.waitForTimeout(700);
   s = await P.page.evaluate(() => {
     const R = AL8.readout(), A = allocation();
     return { R, audit: AL8.audit(), spine: Object.fromEntries(Object.entries(SPINE).map(([k, v]) => [k, v.mode])), spineNote: Object.fromEntries(["decision_cards", "confluence_zones", "deployment_scenarios", "sleeve_growth", "comps-feed"].map((k) => [k, SPINE[k] && SPINE[k].note])),
@@ -42,7 +44,7 @@ test("the page loads with the cards, the zones, the approved names and the scena
   });
   assert.deepEqual(P.errors, []); assert.equal(P.nonGet.blocked, 0, "nothing is written"); assert.equal(P.nonGet.allowed, 0);
   assert.equal(s.R.cards.n, Object.keys(CARDS.cards).length); assert.equal(s.R.cards.as_of, CARDS.as_of.card_date); assert.equal(s.R.zones.n, Object.keys(ZONES.names).length); assert.deepEqual(s.R.approved, Object.keys(APPROVED.names));
-  assert.equal(s.R.deploy.n, DEPLOY.scenarios.length); assert.equal(s.R.growthRead, true, "every sleeve's companies' expected growth was read");
+  assert.equal(s.R.deploy.n, 5, "five markets from the live engine"); assert.equal(s.R.deploy.status, "engine-v2"); assert.equal(s.R.deploy.src, "study/dm2/live.mjs"); assert.equal(s.R.growthRead, true, "every sleeve's companies' expected growth was read");
   for (const k of ["decision_cards", "confluence_zones", "sleeve_growth"]) assert.equal(s.spine[k], "LIVE", k);
   assert.equal(s.sections[0], "p-scen", "the money picture is the first section"); assert.ok(/^THE MONEY/.test(s.bar.trim()));
 });
@@ -171,56 +173,61 @@ test("2 · the money picture: one bar per market — today, the S&P down 1.5%, V
   const r = await P.page.evaluate(() => { const el = document.getElementById("scenbars");
     return { rows: [...el.querySelectorAll(".a8-scen")].map((d) => ({ key: d.getAttribute("data-key"), title: d.querySelector(".who b").innerText, sub: d.querySelector(".who small").innerText, inv: d.querySelector(".inv b").innerText, segs: [...d.querySelectorAll(".a7-mix > div")].map((x) => [x.className, parseFloat(x.style.flex), x.title]), ref: parseFloat(d.querySelector(".ref").style.left), facts: d.querySelector(".facts").innerText, aria: d.querySelector(".a7-mix").getAttribute("aria-label") })),
       ph: el.querySelectorAll(".a8-ph").length, cap: el.querySelector(".a7-cap").innerText.replace(/\s+/g, " "), leg: el.querySelector(".a7-leg").innerText.replace(/\s+/g, " "), phClass: el.querySelector(".a8-scens").classList.contains("ph"),
+      live: (window.DM2_MARKETS || {}).rows || [], line: +document.getElementById("dm2l-root").getAttribute("data-line"), reading: +document.getElementById("dm2l-root").getAttribute("data-reading"),
       table: (() => { const d = el.querySelector("details.a8-num"); d.open = true; const t = [...d.querySelectorAll("tr")].map((tr) => [...tr.children].map((td) => td.innerText.replace(/\s+/g, " "))); d.open = false; return t; })(),
       folded: document.getElementById("p-scen").classList.contains("folded"), top: document.getElementById("p-scen").getBoundingClientRect().top, briefTop: document.getElementById("p-brief").getBoundingClientRect().top, h: document.getElementById("p-scen").getBoundingClientRect().height }; });
   assert.deepEqual(r.rows.map((x) => x.key), ["today", "a", "b", "c", "d"]); assert.deepEqual(r.rows.map((x) => x.title), ["TODAY", "S&P DIPS 1.5%", "VIX 20", "VIX 23.5", "PANIC"]);
   const ap = APPROVED.names.MU, pc = (x) => (x * 100).toFixed(x * 100 < 9.95 ? 1 : 0) + "%";
-  r.rows.forEach((x, i) => { const f = DEPLOY.scenarios[i], inv = f.pct / 100, mu = Math.min(ap.of_invested * inv, ap.ceiling_pct / 100);
-    assert.equal(x.inv, pc(inv), x.title + " invested is the file's number");
-    const cash = x.segs.find((q) => q[0] === "cash"), core = x.segs.find((q) => q[0] === "core"), conv = x.segs.filter((q) => q[0] === "conv");
+  /* RL1 (7 Oct): the rows are the deployment engine v2's own, live (study/dm2/scenarios.mjs) — never the placeholder file's 33 / 22 / 44 / 88 / 84 */
+  assert.equal(r.live.length, 5); assert.ok(r.live.every((f) => !f.error), "the engine read every market");
+  assert.ok(near(r.live[0].pct, r.line, 1e-9) && near(r.live[0].now, r.reading, 1e-9), "TODAY is the matrix's line, the number step 2 shows, with this minute's reading beside it");
+  assert.ok(new RegExp("this minute's reading " + pc(r.reading / 100).replace(".", "\\.")).test(r.rows[0].facts), r.rows[0].facts); assert.equal(r.rows[0].sub, "the matrix's line · three evenings");
+  assert.notDeepEqual(r.rows.map((x) => x.inv), DEPLOY.scenarios.map((f) => pc(f.pct / 100)), "not version 1's five numbers");
+  r.rows.forEach((x, i) => { const f = { ...r.live[i], money: { micron: r.live[i].micron } }, inv = f.pct / 100, mu = Math.min(ap.of_invested * inv, ap.ceiling_pct / 100);
+    assert.equal(x.inv, pc(inv), x.title + " invested is the live engine's number");
+    /* RL1 (7 Oct): the live engine reads 100% invested in the deeper markets, and a part of nothing is not drawn — so a bar may have no cash */
+    const part = (k) => x.segs.find((q) => q[0] === k) || [k, 0, ""], cash = part("cash"), core = part("core"), conv = x.segs.filter((q) => q[0] === "conv");
     assert.ok(near(cash[1], 1 - inv, 1e-4) && near(core[1], inv - mu, 1e-4) && conv.length === 1 && near(conv[0][1], mu, 1e-4), x.title + ": cash " + cash[1] + " core " + core[1] + " Micron " + conv[0][1]);
-    assert.ok(near(x.segs.reduce((t, q) => t + q[1], 0), 1, 1e-3), x.title + " is the whole account"); assert.deepEqual(x.segs.map((q) => q[0]), ["cash", "core", "conv"], "cash, then core, then conviction");
+    assert.ok(near(x.segs.reduce((t, q) => t + q[1], 0), 1, 1e-3), x.title + " is the whole account"); assert.deepEqual(x.segs.map((q) => q[0]), ["cash", "core", "conv"].filter((k) => k === "conv" || (k === "cash" ? 1 - inv : inv - mu) > 0.0005), "cash, then core, then conviction — each part that is there");
     assert.ok(/^Micron/.test(conv[0][2]), "the conviction segment names Micron: " + conv[0][2]);
     assert.ok(near(mu * 100, f.money.micron, 0.051), x.title + ": the page's Micron (" + (mu * 100).toFixed(2) + ") is the study's own (" + f.money.micron + ") — one rule"); assert.ok(!/the study's own Micron figure/.test(x.facts));
     assert.ok(near(x.ref, (1 - s.ladder) * 100, 0.02), "the dashed line stands where the ladder's cash ends: " + x.ref);
-    assert.ok(new RegExp("RSI " + Math.round(f.rsi)).test(x.facts) && new RegExp("VIX " + f.vix.toFixed(1)).test(x.facts), x.facts);
+    assert.ok(new RegExp("RSI " + (+f.rsi).toFixed(0)).test(x.facts) && new RegExp("VIX " + f.vix.toFixed(1)).test(x.facts), x.facts);
     assert.ok(mu >= ap.ceiling_pct / 100 - 1e-9 ? /at its 30% ceiling/.test(x.facts) : mu >= ap.full_build_pct / 100 - 1e-9 ? /room for Micron's full 20% build/.test(x.facts) : /short of its 20% full build/.test(x.facts), x.facts); });
   assert.equal(r.table.length, 6); assert.deepEqual(r.table[0], ["MARKET", "INVESTED", "CASH", "CORE", "CONVICTION", "THE READING"]); r.rows.forEach((x, i) => { assert.equal(r.table[i + 1][1], x.inv); assert.ok(r.table[i + 1][4].startsWith("Micron ")); });
   assert.ok(new RegExp("the ladder: " + Math.round(s.ladder * 100) + "% invested").test(r.leg) && /cash/.test(r.leg) && /core/.test(r.leg) && /conviction — Micron/.test(r.leg), r.leg);
   assert.equal(r.folded, false, "open on the first screen"); assert.ok(r.top < r.briefTop && r.top + r.h < 1050, "above THE BRIEF, inside the first screen: " + r.top + " + " + r.h);
 });
 
-test("2 · the numbers are labelled PLACEHOLDER while they come from the placeholder file — on the panel, in the sources line, and nothing below the panel uses them", async () => {
-  const r = await P.page.evaluate(() => ({ ph: document.querySelectorAll("#scenbars .a8-ph").length, phText: (document.querySelector("#scenbars .a8-ph") || {}).innerText, cap: document.querySelector("#scenbars .a7-cap").innerText.replace(/\s+/g, " "),
-    A: allocation().inv, brief: document.querySelector("#brief .a7-lead").innerText, src: DEPLOY.src, status: DEPLOY.status }));
-  assert.equal(DEPLOY.status, "placeholder", "the file kept with the page says what it is"); assert.equal(r.status, "placeholder"); assert.equal(r.src, "data/deployment-scenarios.json");
-  assert.equal(r.ph, 1); assert.equal(r.phText, "PLACEHOLDER"); assert.ok(/PLACEHOLDER/.test(r.cap) && /not reviewed, not wired/.test(r.cap), r.cap);
-  assert.equal(s.spine.deployment_scenarios, "STALE"); assert.ok(/PLACEHOLDERS/.test(s.spineNote.deployment_scenarios), s.spineNote.deployment_scenarios);
-  assert.equal(r.A, s.ladder, "step 3b is still sized on the ladder's number, not on a placeholder"); assert.ok(r.brief.includes(Math.round(s.ladder * 100) + "% invested"), r.brief);
+/* RL1 (7 Oct) — re-pinned on purpose. The panel read the placeholder file (version 1's 33 / 22 / 44 / 88 / 84) and said PLACEHOLDER;
+   it now reads the deployment engine v2 live and says so. */
+test("2 · the numbers are labelled 'deployment engine v2 — next round in progress' — on the panel, in the sources line — and nothing below the panel uses them", async () => {
+  const r = await P.page.evaluate(() => ({ ph: document.querySelectorAll("#scenbars .a8-ph").length, v2: document.querySelectorAll("#scenbars .a8-v2").length, v2Text: (document.querySelector("#scenbars .a8-v2") || {}).innerText, cap: document.querySelector("#scenbars .a7-cap").innerText.replace(/\s+/g, " "),
+    A: allocation().inv, brief: document.querySelector("#brief .a7-lead").innerText, src: DEPLOY.src, status: DEPLOY.status, note: SPINE.deployment_scenarios.note, mode: SPINE.deployment_scenarios.mode, sources: typeof DEPLOY_SOURCES === "undefined" ? null : DEPLOY_SOURCES.slice() }));
+  assert.equal(DEPLOY.status, "placeholder", "the old file still says what it is — and nothing reads it"); assert.equal(r.status, "engine-v2"); assert.equal(r.src, "study/dm2/live.mjs"); assert.deepEqual(r.sources, [], "no file feeds the panel");
+  assert.equal(r.ph, 0, "no PLACEHOLDER tag"); assert.equal(r.v2, 1); assert.equal(r.v2Text.toLowerCase(), "deployment engine v2 — next round in progress"); assert.ok(/deployment engine v2 — next round in progress/i.test(r.cap) && /live prices/i.test(r.cap), r.cap);
+  assert.equal(r.mode, "LIVE"); assert.ok(/deployment engine v2/.test(r.note) && /next round in progress/.test(r.note), r.note);
+  assert.equal(r.A, s.ladder, "step 3b is still sized on the ladder's number, not on the engine's"); assert.ok(r.brief.includes(Math.round(s.ladder * 100) + "% invested"), r.brief);
 });
 
-test("2 · the seam: when the deployment engine's own file sits beside the page the same bars read it and the word PLACEHOLDER goes; with no file at all the panel shows the ladder alone", async () => {
-  /* the engine's file in its own shape (study/dm1/data/dm1.json): scenarios with key, name, rsi, vix, vixPct, pct, line, money — and no status */
-  const engine = { built_utc: "2026-10-08T21:30:00.000Z", today: { date: "2026-10-08" }, model: { ignored: true }, scenarios: [
-    { key: "today", name: "8 Oct close, as it stands", spy: 770, rsi: 55, vix: 17.2, vixPct: 48, pct: 41, line: 39.5, money: { invested: 41, cash: 59, conviction: 8.2, micron: 16.4, core: 24.6 }, reasons: ["…"] },
-    { key: "a", name: "(a) SPY −1.5%", spy: 758.4, rsi: 47, vix: 17.2, vixPct: 48, pct: 36, line: null, money: { micron: 14.4 } },
-    { key: "b", name: "(b) SPY −3% with VIX 20", spy: 746.9, rsi: 40, vix: 20, vixPct: 80.9, pct: 52.5, line: null, money: { micron: 21 } },
-    { key: "c", name: "(c) SPY −5% with VIX 23.5", spy: 731.5, rsi: 32, vix: 23.5, vixPct: 89.6, pct: 90, line: null, money: { micron: 30 } },
-    { key: "d", name: "(d) panic: RSI under 35, VIX in its top 5%", spy: null, rsi: 31, vix: 27, vixPct: 97, pct: 80, line: null, money: { micron: 25 } }] };   /* the last row's own Micron figure disagrees with the page's rule on purpose */
-  const Q = await openWith([[/\/study\/dm1\/data\/dm1\.json/, engine]]);
-  try { const r = await Q.page.evaluate(() => ({ status: DEPLOY.status, src: DEPLOY.src, built: DEPLOY.built, spine: SPINE.deployment_scenarios.mode, ph: document.querySelectorAll("#scenbars .a8-ph").length, cap: document.querySelector("#scenbars .a7-cap").innerText.replace(/\s+/g, " "), inv: [...document.querySelectorAll("#scenbars .a8-scen .inv b")].map((b) => b.innerText), conv: [...document.querySelectorAll("#scenbars .a8-scen .conv")].map((d) => parseFloat(d.style.flex)), facts: [...document.querySelectorAll("#scenbars .a8-scen .facts")].map((d) => d.innerText), ladder: investedNow(), A: allocation().inv }));
-    assert.deepEqual(Q.errors, []); assert.equal(Q.nonGet.blocked, 0);
-    assert.equal(r.status, "engine"); assert.equal(r.src, "study/dm1/data/dm1.json", "the engine's own file wins over the placeholder file"); assert.equal(r.spine, "LIVE");
-    assert.equal(r.ph, 0, "no PLACEHOLDER tag"); assert.ok(/deployment engine's/.test(r.cap) && !/PLACEHOLDER/.test(r.cap) && /8 Oct/.test(r.cap), r.cap);
-    assert.deepEqual(r.inv, ["41%", "36%", "53%", "90%", "80%"], "the bars are the engine's numbers");
-    for (const [i, pct] of [41, 36, 52.5, 90, 80].entries()) assert.ok(near(r.conv[i], Math.min(0.4 * pct / 100, 0.30), 1e-4), "Micron is still the page's one rule in row " + i);
-    assert.ok(/the study's own Micron figure for this row is 25%/.test(r.facts[4]) && !/own Micron figure/.test(r.facts[0]), "a row whose own Micron figure differs from the page's rule says so: " + r.facts[4]);
+test("2 · the seam, turned: version 1's file and the placeholder file are never read even when they are served; with no live reading the panel shows the ladder alone", async () => {
+  /* version 1's engine file in its own shape, with numbers no live reading could give */
+  const engine = { built_utc: "2026-10-08T21:30:00.000Z", scenarios: [{ key: "today", name: "x", spy: 770, rsi: 55, vix: 17.2, vixPct: 48, pct: 3.3, line: 2.2, money: { micron: 1.3 } }, { key: "a", name: "(a)", rsi: 47, vix: 17.2, pct: 4.4, money: { micron: 1.7 } }] };
+  const asked = [], Q = await openWith([[/\/study\/dm1\/data\/dm1\.json/, engine], [/\/data\/deployment-scenarios\.json/, { status: "placeholder", scenarios: engine.scenarios }]]);
+  try { Q.page.on("request", (q) => asked.push(q.url()));
+    await Q.page.waitForFunction(() => window.DM2_LIVE_READY && DEPLOY && DEPLOY.status === "engine-v2", null, { timeout: 120000 });
+    const r = await Q.page.evaluate(() => ({ status: DEPLOY.status, src: DEPLOY.src, inv: [...document.querySelectorAll("#scenbars .a8-scen .inv b")].map((b) => b.innerText), ph: document.querySelectorAll("#scenbars .a8-ph").length, ladder: investedNow(), A: allocation().inv, fetched: performance.getEntriesByType("resource").map((e) => e.name) }));
+    assert.deepEqual(Q.errors, []); assert.equal(Q.nonGet.blocked, 0); assert.equal(r.status, "engine-v2"); assert.equal(r.src, "study/dm2/live.mjs"); assert.equal(r.ph, 0); assert.equal(r.inv.length, 5);
+    assert.ok(!r.inv.includes("3.3%") && !r.inv.includes("4.4%"), "the served files' numbers are not on the panel: " + r.inv.join(" "));
+    assert.ok(!r.fetched.some((u) => /study\/dm1\/data\/dm1\.json|data\/deployment-scenarios\.json/.test(u)), "neither file was even asked for");
     assert.equal(r.A, r.ladder, "and step 3b still reads the one seat that says how much — today the ladder");
   } finally { await Q.close(); }
-  const N = await openWith([[/\/study\/dm1\/data\/dm1\.json/, 404], [/\/data\/deployment-scenarios\.json/, 404]]);
-  try { const r = await N.page.evaluate(() => ({ deploy: DEPLOY, spine: SPINE.deployment_scenarios.mode, rows: document.querySelectorAll("#scenbars .a8-scen").length, text: document.getElementById("scenbars").innerText.replace(/\s+/g, " "), bar: document.querySelectorAll("#scenbars .a7-mix").length, ladder: investedNow() }));
-    assert.deepEqual(N.errors, [], "a missing file is not an error"); assert.equal(r.deploy, null); assert.equal(r.spine, "FALLBACK"); assert.equal(r.rows, 0);
-    assert.ok(/no scenario file could be read/.test(r.text) && r.text.includes("the ladder: " + Math.round(r.ladder * 100) + "% invested") && r.bar === 1, r.text.slice(0, 200));
+  /* no daily bars → the matrix's line has no reading → no rows: the ladder alone, said in plain words */
+  const N = await openWith([[/\/candles-multi/, 404]]);
+  try { await N.page.waitForFunction(() => window.DM2_LIVE_READY === true, null, { timeout: 120000 }); await N.page.waitForTimeout(400);
+    const r = await N.page.evaluate(() => ({ deploy: DEPLOY, spine: SPINE.deployment_scenarios.mode, note: SPINE.deployment_scenarios.note, rows: document.querySelectorAll("#scenbars .a8-scen").length, text: document.getElementById("scenbars").innerText.replace(/\s+/g, " "), bar: document.querySelectorAll("#scenbars .a7-mix").length, ladder: investedNow() }));
+    assert.equal(r.deploy, null); assert.equal(r.spine, "FALLBACK"); assert.ok(/waiting for the deployment engine v2/.test(r.note), r.note); assert.equal(r.rows, 0);
+    assert.ok(r.text.includes("the ladder: " + Math.round(r.ladder * 100) + "% invested") && r.bar === 1, r.text.slice(0, 200));
   } finally { await N.close(); }
 });
 

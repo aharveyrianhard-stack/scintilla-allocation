@@ -65,7 +65,11 @@ test("9 · Alan's rule: every spike is a first close above the line after a clos
 
 test("10 · index.html: nothing of the tool removed or rewritten since the 6 Oct evening (DM2, 7 Oct, adds the matrix's live line as its own block — tests/dm2.test.mjs, test 18), and no key is in any committed study file", () => {
   /* DM1 pinned the page as untouched because its engine was study-only. On the DM2 branch the brief wires version 2 beside the ladder, so the pin is now: additions only. */
-  const stat = execFileSync("git", ["-C", ROOT, "diff", "--numstat", "39e3667", "--", "index.html"], { encoding: "utf8" }).trim().split(/\s+/); assert.ok(stat[0] === "" || stat[1] === "0", "no line of the tool removed: " + stat.join(" "));
+  /* RL1 (7 Oct), re-pinned for the release: the page of the 6 Oct evening (39e3667) has since been rebuilt by the tool split and the
+     one-basis work, so the pin is the release's own merge of the matrix — the tree before it (ed06fe2) against the merge (e5f4c6e):
+     that merge removed no line of the tool. What the release then changed on purpose (the money panel reads the live engine) is
+     pinned in tests/rl1.test.mjs. */
+  const stat = execFileSync("git", ["-C", ROOT, "diff", "--numstat", "ed06fe2", "e5f4c6e", "--", "index.html"], { encoding: "utf8" }).trim().split(/\s+/); assert.ok(stat[0] === "" || stat[1] === "0", "no line of the tool removed: " + stat.join(" "));
   for (const f of ["study/dm1/engine.mjs", "study/dm1/DM1.html", "scripts/dm1-build.mjs", "scripts/dm1-fmp-hyg.mjs"]) { const t = fs.readFileSync(path.join(ROOT, f), "utf8"); assert.ok(!/apikey=[A-Za-z0-9]{10,}/.test(t) && !/eyJ[A-Za-z0-9_-]{20,}/.test(t), f); }
   assert.ok(!/eyJ[A-Za-z0-9_-]{20,}/.test(JSON.stringify(J))); });
 
