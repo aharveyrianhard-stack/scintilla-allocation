@@ -64,6 +64,11 @@ function fitCurve(us, resM, resP) {
     let acc = 0, val = 0; for (const q of ordr) { acc += w[q]; if (acc >= sw / 2) { val = resM[q]; break; } } gm.push(val); gp.push(sw > 0 ? sp / sw : 0); near.push(nr); }
   return { gm, gp, near }; }
 
+/* HOW MANY EVENINGS NEAR A SPOT MAKE THE MATRIX COUNT ITS TABLE HALF (the rest comes from the two lines): 250.
+   An evening's 60-session outcome overlaps its neighbours' — about 60 consecutive evenings are one observation — so 250 evenings is about
+   four independent ones. Version 1's THIN (30, half an observation) was set for a tie-breaker. Checked out of sample at three split
+   years (study/dm2/data/dm2.json → tableWeight): the less the table counts, the better the engine ranked the evenings it had not seen. */
+export let MATRIX_THIN = 250; export const setMatrixThin = (v) => { MATRIX_THIN = v; };
 /* ---------- the two lines the matrix leans on where its table is thin: what the RSI alone and the VIX's place alone each added ---------- */
 function fitLine(xs, grid, bw, resM, resP) { const n = xs.length, ordr = [...Array(n).keys()].sort((a, b) => resM[a] - resM[b]), w = new Float64Array(n), m = [], p = [], near = [];
   for (const g of grid) { let sw = 0, sp = 0, nr = 0; for (let q = 0; q < n; q++) { const d = (xs[q] - g) / bw; const v = Math.exp(-0.5 * d * d); w[q] = v; sw += v; sp += v * resP[q]; if (Math.abs(xs[q] - g) <= bw) nr++; }
@@ -71,13 +76,16 @@ function fitLine(xs, grid, bw, resM, resP) { const n = xs.length, ordr = [...Arr
   /* flat beyond the last well-measured band: a grid point with fewer than THIN evenings near it reads as the nearest one that has them */
   const okIdx = near.map((v, k) => (v >= THIN ? k : -1)).filter((k) => k >= 0); const fix = (a) => a.map((v, k) => (near[k] >= THIN || !okIdx.length ? v : a[okIdx.reduce((b, c) => (Math.abs(c - k) < Math.abs(b - k) ? c : b))]));
   return { m: fix(m), p: fix(p), near }; }
+/* the VIX's own line is smoothed twice as wide as the table (16 percentile points): at 8 it wiggled by a few points of share between
+   neighbouring percentiles for no reason a trader could name. Settable for the comparison run. */
+export let LINE_BW_PCT = 16; export const setLineBwPct = (v) => { LINE_BW_PCT = v; };
 export function fitMarginals(rows, X, B) {
   const xr = rows.map((i) => X.rsi[i]), xp = rows.map((i) => X.fear[i]), ym = rows.map((i) => X.r60[i] - B.med60), yp = rows.map((i) => (X.r60[i] > 0 ? 1 : 0) - B.share60);
   let R = { m: GRID.rsi.map(() => 0), p: GRID.rsi.map(() => 0) }, V = { m: GRID.pct.map(() => 0), p: GRID.pct.map(() => 0) };
   const centre = (C, grid, xs) => { const cm = mean(xs.map((x) => interp(grid, C.m, x))), cp = mean(xs.map((x) => interp(grid, C.p, x))); return { m: C.m.map((v) => +(v - cm).toFixed(5)), p: C.p.map((v) => +(v - cp).toFixed(5)), near: C.near }; };
   for (let round = 0; round < 3; round++) {
     R = centre(fitLine(xr, GRID.rsi, BW.rsi, ym.map((y, k) => y - interp(GRID.pct, V.m, xp[k])), yp.map((y, k) => y - interp(GRID.pct, V.p, xp[k]))), GRID.rsi, xr);
-    V = centre(fitLine(xp, GRID.pct, BW.pct, ym.map((y, k) => y - interp(GRID.rsi, R.m, xr[k])), yp.map((y, k) => y - interp(GRID.rsi, R.p, xr[k]))), GRID.pct, xp); }
+    V = centre(fitLine(xp, GRID.pct, LINE_BW_PCT, ym.map((y, k) => y - interp(GRID.rsi, R.m, xr[k])), yp.map((y, k) => y - interp(GRID.rsi, R.p, xr[k]))), GRID.pct, xp); }
   return { rsi: R, pct: V }; }
 
 /* ---------- the model: the matrix (table + lines), the baseline, the factors fitted together (three rounds, each on what the others left), the rungs ---------- */
@@ -85,9 +93,10 @@ export function fitModel(idx, keys, X, opt = {}) {   // X: { rsi, fear, r60, dip
   const sheets = { all: opt.sheet || buildSheet(idx, { rsi: X.rsi, fear: X.fear, fields: { med60: X.r60, dip60: X.dip60 }, shares: { share60: X.r60 } }, "every evening") };
   const B = { med60: med(idx.map((i) => X.r60[i])), share60: share(idx.map((i) => X.r60[i])), dip60: med(idx.map((i) => X.dip60[i])), n: idx.length, sdMed60: 1, sdShare60: 1 };
   const marg = opt.plainTable ? null : fitMarginals(idx.filter((i) => X.rsi[i] != null && X.fear[i] != null), X, B);
-  const use = [], m0 = [], p0 = []; for (const i of idx) { const r = matrixRead({ grid: GRID, sheets, baseline: B, marg }, X.rsi[i], X.fear[i]); if (r) { use.push(i); m0.push(r.m); p0.push(r.p); } }
+  const thinMatrix = opt.thinMatrix ?? MATRIX_THIN;
+  const use = [], m0 = [], p0 = []; for (const i of idx) { const r = matrixRead({ grid: GRID, sheets, baseline: B, marg, thinMatrix }, X.rsi[i], X.fear[i]); if (r) { use.push(i); m0.push(r.m); p0.push(r.p); } }
   B.sdMed60 = sd(m0); B.sdShare60 = sd(p0);
-  const model = { grid: GRID, bandwidth: BW, factorBandwidth: FBW, sheets, baseline: B, marg, factors: [], rungs: { edges: [0, 0, 0, 0, 0] } };
+  const model = { grid: GRID, bandwidth: BW, factorBandwidth: FBW, thinMatrix, sheets, baseline: B, marg, factors: [], rungs: { edges: [0, 0, 0, 0, 0] } };
   const F = keys.map((key) => { const vals = use.map((i) => X.vals[key][i]); const present = vals.filter((v) => v != null && isFinite(v)).sort((a, b) => a - b); const q = []; for (let k = 0; k <= 100; k++) q.push(+pctl(present, k).toFixed(6));
     return { key, q, grid: FGRID, gm: FGRID.map(() => 0), gp: FGRID.map(() => 0), near: FGRID.map(() => present.length), evenings: present.length, us: vals.map((v) => (v == null || !isFinite(v) ? null : placeOf(q, v))), cm: new Float64Array(use.length), cp: new Float64Array(use.length) }; });
   const up = use.map((i) => (X.r60[i] > 0 ? 1 : 0)), ret = use.map((i) => X.r60[i]);

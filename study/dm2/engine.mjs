@@ -63,7 +63,7 @@ export function matrixRead(model, rsi, pct) {
   const B = model.baseline, S = model.sheets.all, G = model.grid; const sm = readSheet(S, G, "med60", rsi, pct), sp = readSheet(S, G, "share60", rsi, pct), near = readSheet(S, G, "near", rsi, pct) ?? 0;
   if (!model.marg) { if (sm == null || sp == null) return null; return { m: sm, p: sp, near, lambda: 1, table: { m: sm, p: sp }, lines: null, e: (sm - B.med60) / B.sdMed60 + (sp - B.share60) / B.sdShare60 }; }
   const M = model.marg, am = B.med60 + interp(G.rsi, M.rsi.m, rsi) + interp(G.pct, M.pct.m, pct), ap = B.share60 + interp(G.rsi, M.rsi.p, rsi) + interp(G.pct, M.pct.p, pct);
-  const lambda = sm == null || sp == null ? 0 : near / (near + THIN), m = lambda ? lambda * sm + (1 - lambda) * am : am, p = lambda ? lambda * sp + (1 - lambda) * ap : ap;
+  const lambda = sm == null || sp == null ? 0 : near / (near + (model.thinMatrix ?? THIN)), m = lambda ? lambda * sm + (1 - lambda) * am : am, p = lambda ? lambda * sp + (1 - lambda) * ap : ap;
   return { m, p, near, lambda, table: sm == null || sp == null ? null : { m: sm, p: sp }, lines: { m: am, p: ap, rsi: { m: interp(G.rsi, M.rsi.m, rsi), p: interp(G.rsi, M.rsi.p, rsi) }, vix: { m: interp(G.pct, M.pct.m, pct), p: interp(G.pct, M.pct.p, pct) } }, e: (m - B.med60) / B.sdMed60 + (p - B.share60) / B.sdShare60 }; }
 
 /* the plain words for each factor's reading */
@@ -87,7 +87,7 @@ export function deploy2(inputs, model, prior = []) {
   const B = model.baseline, main = matrixRead(model, rsi, vixPct); if (!main) throw new Error("deploy2: no measured neighbours");
   let e = main.e; const matrixPct = pctFromEdge(e, model.rungs), votes = [], reasons = [];
   reasons.push(`SPY's daily RSI is ${rsi.toFixed(0)} and the VIX sits at the ${ord(vixPct)} percentile of its own past year: evenings like this were followed by a median ${(main.m * 100).toFixed(1)}% over 60 sessions, higher ${(main.p * 100).toFixed(0)}% of the time (every evening: ${(B.med60 * 100).toFixed(1)}%, ${(B.share60 * 100).toFixed(0)}%) — on its own the matrix says ${matrixPct.toFixed(0)}%`);
-  if (main.lambda < 0.5) reasons.push(`history rarely sat at this spot (${Math.round(main.near)} evenings near it), so ${Math.round((1 - main.lambda) * 100)}% of that reading comes from the RSI on its own and the VIX on its own rather than from the two together`);
+  if (main.near < THIN) reasons.push(`history hardly ever sat at this spot (${Math.round(main.near)} evenings near it): ${Math.round((1 - main.lambda) * 100)}% of that reading is what the RSI on its own and the VIX on its own each added, not the two together`);
   for (const f of model.factors) { const v = voteOf(f, inputs[f.key], B);
     if (!v) { votes.push({ key: f.key, missing: true, add: 0, points: 0 }); reasons.push(`${NAME[f.key] || f.key}: no reading — it does not vote`); continue; }
     const before = pctFromEdge(e, model.rungs); e += v.add; const after = pctFromEdge(e, model.rungs); votes.push({ key: f.key, ...v, points: after - before });
@@ -95,4 +95,4 @@ export function deploy2(inputs, model, prior = []) {
   const pct = +pctFromEdge(e, model.rungs).toFixed(1), line = lineOf(pct, prior);
   reasons.push(`together: ${pct.toFixed(0)}% invested`);
   if (prior.filter((v) => v != null).length) reasons.push(`the line is the average of the last ${Math.min(LINE_EVENINGS, prior.filter((v) => v != null).length + 1)} evenings' readings: ${line.toFixed(0)}%`);
-  return { pct, line, edge: +e.toFixed(3), matrixPct: +matrixPct.toFixed(1), matrixEdge: +main.e.toFixed(3), thinSpot: main.lambda < 0.5, matrix: { near: Math.round(main.near), lambda: +main.lambda.toFixed(3) }, votes, odds: { med60: main.m, share60: main.p }, money: money(line), moneyTonight: money(pct), reasons }; }
+  return { pct, line, edge: +e.toFixed(3), matrixPct: +matrixPct.toFixed(1), matrixEdge: +main.e.toFixed(3), thinSpot: main.near < THIN, matrix: { near: Math.round(main.near), lambda: +main.lambda.toFixed(3) }, votes, odds: { med60: main.m, share60: main.p }, money: money(line), moneyTonight: money(pct), reasons }; }
