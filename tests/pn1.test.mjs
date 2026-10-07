@@ -157,3 +157,22 @@ test("14 · the page for Alan: built from the proof, plain words only, every dra
   for (const f of data.figures) assert.ok(html.includes('id="' + f.id + '"'), f.id); assert.equal((html.match(/class="fig"/g) || []).length, data.figures.length); assert.ok(html.includes("THE SAME AS A TABLE"));
   /* the drawings wear the script's own colours */
   for (const [k, name] of [["bull", "C_BULL"], ["bear", "C_BEAR"], ["line", "C_LINE"], ["deep", "C_DEEP"], ["panel", "C_PANEL"]]) assert.ok(CODE.includes("const color " + name.padEnd(8) + " = " + data.colours[k]) || new RegExp("const color " + name + "\\s*= " + data.colours[k]).test(CODE), name); });
+
+test("15 · a second witness, made by machine: the script's own text, translated rule by rule and run, gives the hand-written replay's reading and the engine's on every day", async () => {
+  const { runFromText, functionJs, functionText, expr, scope } = await import("../study/pn1/pine-transliterate.mjs");
+  const ser = (dates, c) => dates.map((d, i) => ({ date: d, close: c[i] })).filter((b) => b.close != null), inputs = { heldPct: K.heldPct, tacticalPct: K.tacticalPct }, { eng, same, tv } = sides();
+  for (const [what, hyg, hand] of [["the engine's own prices", F.hygWithPayouts, same], ["HYG's payouts TradingView's way", adjustLikeTradingView(F.dates, F.HYG, F.payouts), tv]]) {
+    const mech = runFromText(SRC, { spy: ser(F.dates, F.SPY), qqq: ser(F.dates, F.QQQ), ief: ser(F.dates, F.IEF), hyg: ser(F.dates, hyg) }, F.dates, inputs); let n = 0;
+    for (let i = 0; i <= LAST; i++) { const a = mech[i], b = hand[i]; assert.equal(Number.isNaN(a.reading), b.reading == null, what + " " + F.dates[i] + ": one witness has a reading and the other has not"); if (b.reading == null) continue; n++;
+      assert.ok(near(a.reading, b.reading, 1e-9) && near(a.invested, b.invested, 1e-9) && near(a.rsiBoth, b.rsiBoth, 1e-9) && near(a.creditOwn, b.creditOwn, 1e-9) && near(a.ptsRsi, b.ptsRsi, 1e-9) && near(a.ptsCredit, b.ptsCredit, 1e-9), what + " " + F.dates[i]);
+      if (hand === same) assert.ok(Math.abs(a.reading - eng[i].reading) <= 0.1000001, F.dates[i] + ": the script's text against the engine"); }
+    assert.equal(n, 4894); }
+  /* today's settled row, from the closes the proof kept */
+  const G = P.today.closes, chain = hygWithPayouts(G.dates, G.HYG, LV.hygPayouts).tr, mechToday = runFromText(SRC, { spy: ser(G.dates, G.SPY), qqq: ser(G.dates, G.QQQ), ief: ser(G.dates, G.IEF), hyg: ser(G.dates, chain) }, G.dates, inputs).at(-1); assert.equal(mechToday.reading, P.today.engine.reading); assert.ok(near(mechToday.invested, P.today.engine.invested, 0.0051));
+  /* the translation is rules, not judgement: it reads the two functions whole, and refuses a line it has no rule for */
+  assert.deepEqual(functionText(SRC, "wilderRsi").params, ["src"]); assert.deepEqual(functionText(SRC, "pointsAt").params, ["placeTab", "curve", "z"]); assert.equal(functionText(SRC, "wilderRsi").body.length, 23); assert.equal(functionText(SRC, "pointsAt").body.length, 25);
+  assert.equal(expr("array.get(curve, i + 1) - array.get(curve, i)"), "curve[i + 1] - curve[i]"); assert.equal(expr("not na(z) and array.size(q) > int(math.floor(u / 5.0))"), "!isNa(z) && q.length > Math.trunc(Math.floor(u / 5.0))"); assert.equal(expr("close / close[CREDIT_DAYS] - 1.0"), "close / ago(CREDIT_DAYS) - 1.0");
+  assert.throws(() => functionJs(SRC.replace("            k    += 1", "            k    += 1\n            label.new(bar_index, 0, \"x\")"), "wilderRsi"), /no rule for the line/);
+  const S = scope(SRC); assert.equal(S.RSI_DAYS, 14); assert.equal(S.TYPICAL_DAY, K.TYPICAL_DAY); assert.equal(S.CREDIT_PLACES.length, 101);
+  /* and a change to the script's arithmetic is seen by this witness: one sign flipped in the sum moves the reading */
+  const bent = runFromText(SRC.replace("float creditOwn = (hygMove - RATES_SHARE * iefMove) * 100.0", "float creditOwn = (hygMove + RATES_SHARE * iefMove) * 100.0"), { spy: ser(F.dates, F.SPY), qqq: ser(F.dates, F.QQQ), ief: ser(F.dates, F.IEF), hyg: ser(F.dates, F.hygWithPayouts) }, F.dates, inputs); let differ = 0; for (let i = LAST - 251; i <= LAST; i++) if (Math.abs(bent[i].reading - same[i].reading) > 1) differ++; assert.ok(differ > 100, "a flipped sign shows on " + differ + " days of the last year"); });

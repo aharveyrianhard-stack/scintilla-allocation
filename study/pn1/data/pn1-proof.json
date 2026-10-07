@@ -1,6 +1,6 @@
 {
  "what": "PN1 — the deployment pane's script against the allocation tool's engine",
- "built": "2026-10-07T20:33:36.522Z",
+ "built": "2026-10-07T20:36:44.399Z",
  "script": {
   "file": "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine",
   "codeHash": "26f02d1b4027c365",
@@ -3768,6 +3768,12 @@
   "investedWorst": {
    "samePrices": 0,
    "tradingViewPayouts": 0.66
+  },
+  "fromTheScriptsOwnText": {
+   "days": 4894,
+   "oneSided": 0,
+   "worstAgainstTheHandWrittenReplay": 0,
+   "worstAgainstTheEngine": 0
   },
   "roundingToTheCentAlone": {
    "worst": 1.3,

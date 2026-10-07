@@ -15,6 +15,7 @@ import fs from "node:fs"; import path from "node:path"; import crypto from "node
 import * as E from "../study/ds1/engine.mjs";
 import { view, fetchDaily, fetchLive, baseline, alignBars, withLive, sessionRanges, hygWithPayouts, nyParts, phaseOf } from "../study/ds1/live.mjs";
 import { parsePine, replay, adjustLikeTradingView, labelOf, pointsAt, round1 } from "../study/pn1/pine-replay.mjs";
+import { runFromText } from "../study/pn1/pine-transliterate.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), J = (f) => JSON.parse(fs.readFileSync(f, "utf8")), iso = (t) => new Date(t).toISOString().slice(0, 10);
 const FIXTURE = path.join(ROOT, "tests/fixtures/pn1-closes-20261006.json"), OUT = path.join(ROOT, "study/pn1/data/pn1-proof.json"), PINE = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine");
 const args = process.argv.slice(2), CACHE = args.find((a) => !a.startsWith("--")), NO_LIVE = args.includes("--no-live"), QUIET = args.includes("--quiet");
@@ -69,6 +70,11 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const first = F.dates[eng.findIndex((e) => e.reading != null)], history = { from: first, to: F.asOf, samePrices: gaps(eng, same), tradingViewPayouts: gaps(eng, tv), lastYear: { samePrices: gaps(eng, same, LAST - 251), tradingViewPayouts: gaps(eng, tv, LAST - 251) },
     firstScriptReading: F.dates[same.findIndex((r) => r.reading != null)], investedWorst: { samePrices: null, tradingViewPayouts: null } };
   for (const [k, s] of [["samePrices", same], ["tradingViewPayouts", tv]]) { let w = 0; for (let i = 0; i <= LAST; i++) if (eng[i].invested != null && s[i].invested != null) w = Math.max(w, Math.abs(eng[i].invested - s[i].invested)); history.investedWorst[k] = r2(w); }
+  /* the second witness: the script's own text, translated by rule and run (study/pn1/pine-transliterate.mjs), against the hand-written
+     replay and against the engine, on the engine's own prices */
+  { const ser = (c) => F.dates.map((d, i) => ({ date: d, close: c[i] })).filter((b) => b.close != null), mech = runFromText(fs.readFileSync(PINE, "utf8"), { spy: ser(F.SPY), qqq: ser(F.QQQ), ief: ser(F.IEF), hyg: ser(F.hygWithPayouts) }, F.dates, { heldPct: K.heldPct, tacticalPct: K.tacticalPct }); let n = 0, wHand = 0, wEng = 0, oneSided = 0;
+    for (let i = 0; i <= LAST; i++) { const has = !Number.isNaN(mech[i].reading); if (has !== (same[i].reading != null)) { oneSided++; continue; } if (!has) continue; n++; wHand = Math.max(wHand, Math.abs(mech[i].reading - same[i].reading)); wEng = Math.max(wEng, Math.abs(mech[i].reading - eng[i].reading)); }
+    history.fromTheScriptsOwnText = { days: n, oneSided, worstAgainstTheHandWrittenReplay: r2(wHand), worstAgainstTheEngine: r2(wEng) }; if (oneSided || wHand > 1e-9) throw new Error("the script's own text and its hand-written replay disagree: " + JSON.stringify(history.fromTheScriptsOwnText)); }
   /* why the two ways differ: the tool's long table of HYG with payouts is rounded to the cent. Rounding TradingView's way to the cent, and
      nothing else, is set against the unrounded series: the days over one point that rounding ALONE makes, and when they fall */
   { const cents = scriptOn(K, F, tvHyg.map((v) => (v == null ? null : Math.round(v * 100) / 100))), over = []; let w = 0; for (let i = 0; i <= LAST; i++) if (tv[i].reading != null && cents[i].reading != null) { const g = Math.abs(tv[i].reading - cents[i].reading); if (g > w) w = g; if (g > 1.0000001) over.push(F.dates[i]); }
