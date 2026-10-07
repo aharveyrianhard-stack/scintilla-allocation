@@ -150,6 +150,8 @@ def build_layer():
         A["_draft_same"] = dict(n=len(fd), first_two_same_session=share([x[0] is not None and x[0] == x[1] for x in fd]), first_three_same_session=share([x[0] is not None and x[0] == x[1] == x[2] for x in fd]),
                                 first_next_session=share([x[0] == 1 for x in fd]), three_next_session=share([x[0] == 1 and x[1] == 1 and x[2] == 1 for x in fd]), any_within20=share([any(v is not None and v <= 20 for v in x) for x in fd]),
                                 all_four_within20=share([all(v is not None and v <= 20 for v in x) for x in fd]), all_four_within60=share([all(v is not None and v <= 60 for v in x) for x in fd]), none_within60=share([not any(v is not None and v <= 60 for v in x) for x in fd]))
+        fm = [[x["day"] if x["filled"] else None for x in r["rungs"]] for r in res["draft_merged"]]
+        A["_draft_merged_same"] = dict(n=len(fm), all_three_same_session=share([x[0] is not None and x[0] == x[1] == x[2] for x in fm]), first_two_same_session=share([x[0] is not None and x[0] == x[1] for x in fm]))
         fp = [[x["day"] if x["filled"] else None for x in r["rungs"]] for r in res["pyramid"]]
         A["_pyramid_same"] = dict(lower_two_same_session=share([x[1] is not None and x[1] == x[2] for x in fp]), all_three_within20=share([all(v is not None and v <= 20 for v in x) for x in fp]), all_three_within60=share([all(v is not None and v <= 60 for v in x) for x in fp]), only_first_within60=share([x[0] is not None and x[0] <= 60 and not any(v is not None and v <= 60 for v in x[1:]) for x in fp]))
         out["sets"][nm] = A
@@ -228,11 +230,11 @@ def build_review():
             pairs = [("pyramid_vs_allin21", "pyramid", "allin21"), ("pyramid_vs_close", "pyramid", "close"), ("allin21_vs_close", "allin21", "close"), ("stop_vs_pyramid", "pyr_stop", "pyramid"), ("deep_vs_stop", "pyr_stop_deep", "pyr_stop"),
                      ("deep_vs_pyramid", "pyr_stop_deep", "pyramid"), ("fixed13_vs_pyramid", "pyr_fixed13", "pyramid"), ("grow_vs_equal", "pyramid", "pyr_equal"), ("addons_vs_all", "pyr_stop_addons", "pyr_stop"),
                      ("atclose_vs_nextopen", "pyr_stop_atclose", "pyr_stop"), ("deep_anyvix_vs_deep", "pyr_deep_anyvix", "pyr_stop_deep"), ("draft_vs_pyramid", "draft", "pyramid"), ("draft_vs_allin21", "draft", "allin21"),
-                     ("draft_grow_vs_equal", "draft", "draft_equal"), ("band3_vs_stop", "pyr_stop_band3", "pyr_stop"), ("twocloses_vs_stop", "pyr_stop_2closes", "pyr_stop"), ("band3_vs_pyramid", "pyr_stop_band3", "pyramid")]
+                     ("draft_grow_vs_equal", "draft", "draft_equal"), ("merged_vs_draft", "draft_merged", "draft"), ("band3_vs_stop", "pyr_stop_band3", "pyr_stop"), ("twocloses_vs_stop", "pyr_stop_2closes", "pyr_stop"), ("band3_vs_pyramid", "pyr_stop_band3", "pyramid")]
             for key, a, b in pairs:
                 E_[key] = dict(p60=R.case_edge(diff(a, b, "p60"), months, f"{a} − {b}, result at 60"), p120=R.case_edge(diff(a, b, "p120"), months, f"{a} − {b}, result at 120"),
                                dd60=R.case_edge(diff(a, b, "dd60"), months, f"{a} − {b}, worst drawdown inside 60"), dd120=R.case_edge(diff(a, b, "dd120"), months, f"{a} − {b}, worst drawdown inside 120"))
-                if a in ("pyramid", "allin21", "draft") and b in ("allin21", "close", "pyr_equal", "pyramid", "draft_equal"):
+                if a in ("pyramid", "allin21", "draft", "draft_merged") and b in ("allin21", "close", "pyr_equal", "pyramid", "draft_equal", "draft"):
                     E_[key]["cost"] = R.case_edge(diff(a, b, "cost"), months, f"{a} − {b}, average cost")
             ed[nm] = E_
         out["layer_edges"] = ed

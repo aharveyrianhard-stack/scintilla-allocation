@@ -32,7 +32,7 @@ Intervals are 95% intervals. “Points” are points of return. “Planned money
 
 - **What to do with it (7 Oct 2026):** **KEEP** — keep the cap · change the spacing
 - **Whose rule, and when:** Alan, 7 Oct 2026 ~01:45 ET: “I would keep a few at a time … a massive falling knife would execute all of it … making things a little bit more mechanical will be good”
-- **The evidence:** 1,036.13 and 1,030.40 are 0.55% apart; Micron’s usual day is 3.3% ($34). In its 48 set-ups the first two drafts filled in the same session 65% of the time and all three working drafts 23%. The cap only stops a falling knife when the orders are about a usual day apart.
+- **The evidence:** 1,036.13 and 1,030.40 are 0.55% apart; Micron’s usual day is 3.3% ($34). In its 48 set-ups the first two drafts filled in the same session 65% of the time and all three working drafts 23%. The cap only stops a falling knife when the orders are about a usual day apart. With the first two as one order at 1,036.13 and then 1,011.77 and 989.17 (gaps of 0.71 and 0.66 of a usual day), all three working orders filled in one session in 8% of the set-ups, and the chance that the very next session reaches the third falls from 23% to 7%; the 60-session result changed by +0.1 points (−0.1 to +0.5).
 - **Measured with:** replay · arch
 - **Last measured:** 7 Oct 2026, bars through 6 Oct 2026
 - **Check a new decision against it:** Are the working orders at least one usual day apart? Two that are closer are one order — size them as one.
@@ -59,7 +59,7 @@ Intervals are 95% intervals. “Points” are points of return. “Planned money
 
 - **What to do with it (7 Oct 2026):** **CHANGE** — keep it on the close · keep it off the buy line · candidate: a 3% band under the line
 - **Whose rule, and when:** Alan, 7 Oct 2026 ~01:45 ET: “when the 100-day breaks, the thesis has to go away … we have to determine a process that works”
-- **The evidence:** As it stands it changed the 60-session result by −2.5 points (−3.5 to −1.5) and the 120-session result by −6.4 (−8.4 to −4.5), for 5.2 points less drawdown inside 120 sessions, with 287 stops and 219 whipsaws per 100 cases. The 100-day buy was sold again inside five sessions in 86% of the cases where it filled. Requiring a close 3% or more under the line cut the whipsaws to 120 per 100 and changed the 120-session result by +0.7 points (+0.1 to +1.3); on Micron’s own set-ups +1.9 (+0.3 to +3.8). On Micron’s own 48 set-ups the stop as it stands changed the 60-session result by −1.6 (−3.8 to +0.6) for 5.3 points less drawdown. Tonight the stop line is 3.0% under the fourth draft; with Micron flat it is within 1% of it by 15 Oct 2026.
+- **The evidence:** As it stands it changed the 60-session result by −2.5 points (−3.5 to −1.5) and the 120-session result by −6.4 (−8.4 to −4.5), for 5.2 points less drawdown inside 120 sessions, with 287 stops and 219 whipsaws per 100 cases. The 100-day buy was sold again inside five sessions in 86% of the cases where it filled. Requiring a close 3% or more under the line cut the whipsaws to 120 per 100 and changed the 120-session result by +0.7 points (+0.1 to +1.3); on Micron’s own set-ups +1.9 (+0.3 to +3.8). On Micron’s own 48 set-ups the stop as it stands changed the 60-session result by −1.6 (−3.8 to +0.6) for 5.3 points less drawdown. Tonight the stop line is 3.0% under the fourth draft; with Micron flat it is within 1% of it by 15 Oct 2026. Expect it to be used: in Micron’s 48 set-ups the close went under the 100-day inside 20 sessions in 40% and inside 60 in 54%.
 - **Measured with:** replay · bootstrap
 - **Last measured:** 7 Oct 2026, bars through 6 Oct 2026
 - **Check a new decision against it:** Does the stop sit on a line where a buy order also sits? Is it judged on the close, with a band under the line?
@@ -76,7 +76,7 @@ Intervals are 95% intervals. “Points” are points of return. “Planned money
 ### 6. Buy back on a daily close above the 100-day
 
 - **What to do with it (7 Oct 2026):** **KEEP** — keep — it is what makes a stop affordable
-- **Whose rule, and when:** The coordinator’s measurement, 7 Oct 2026: “a first close under a rising 100-day → buy back on a close above”
+- **Whose rule, and when:** Measured with Alan, 7 Oct 2026: “a first close under a rising 100-day → buy back on a close above”
 - **The evidence:** Micron: 31 first closes under a rising 100-day; 26 closed back over it inside 60 sessions (middle case: 1 session) and all 26 were bought back dearer than sold (+3.7% in the middle case). A stop with no way back did worse: the fixed stop changed the 120-session result by −12.0 points.
 - **Measured with:** replay
 - **Last measured:** 7 Oct 2026, bars through 6 Oct 2026
@@ -113,7 +113,7 @@ Intervals are 95% intervals. “Points” are points of return. “Planned money
 
 - **What to do with it (7 Oct 2026):** **KEEP** — keep as the trigger for buying leaders — not as a market call
 - **Whose rule, and when:** Alan, 7 Oct 2026 ~00:50 ET, corrected ~01:45 ET: “I’ll buy with both hands on a VIX spike above 23, and I would buy on a VIX spike above 20 … not meant to supersede anything the regime says”
-- **The evidence:** For SPY the spike itself shows no edge: after 93 spikes above 20, −0.2 points at 60 sessions (−1.8 to +1.2); above 23 (71 spikes) −0.7 (−3.0 to +1.5). For leader pullbacks it does: the 213 that began with the VIX at 20 or more made +7.5 points more over 60 sessions than the 349 that did not (+0.7 to +15.0). The 20 and 23 lines still sit on the VIX’s 80th and 90th percentiles of the past year (19.9 and 23.6).
+- **The evidence:** For SPY the spike itself shows no edge: after 93 spikes above 20, −0.2 points at 60 sessions (−1.8 to +1.2); above 23 (71 spikes) −0.7 (−3.0 to +1.5). For leader pullbacks it does: the 213 that began with the VIX at 20 or more made 7.5 points more over 60 sessions than the 349 that did not (+0.7 to +15.0). The 20 and 23 lines still sit on the VIX’s 80th and 90th percentiles of the past year (19.9 and 23.6).
 - **Measured with:** arch bootstrap · statsmodels
 - **Last measured:** 7 Oct 2026, bars through 6 Oct 2026
 - **Check a new decision against it:** Is this a leader pulling back with the VIX at 20 or more (the measured edge) — or a market call on the VIX alone (no measured edge)?
@@ -121,7 +121,7 @@ Intervals are 95% intervals. “Points” are points of return. “Planned money
 ### 11. Credit under its 200-day is a caution
 
 - **What to do with it (7 Oct 2026):** **KEEP** — keep — and it is on now
-- **Whose rule, and when:** The coordinator’s reading, 7 Oct 2026: “credit with payouts added back closed about 0.8% under its own 200-day”
+- **Whose rule, and when:** Read on 7 Oct 2026: “credit with payouts added back closed about 0.8% under its own 200-day”
 - **The evidence:** With payouts added back, credit has been under its 200-day since 23 Sep 2026. SPY 60 sessions on: +0.9% against +3.1%, edge −2.2 points (−6.4 to +2.4), share higher 62% against 77%. Micron: +2.2% against +12.6%, edge −10.4 points (−20.3 to +0.3) — the nearest thing here to a proven rule, and it leans against Micron today.
 - **Measured with:** arch bootstrap · statsmodels
 - **Last measured:** 7 Oct 2026, bars through 6 Oct 2026
@@ -165,8 +165,8 @@ Intervals are 95% intervals. “Points” are points of return. “Planned money
 
 ## Standing rules this study did not measure
 
-- **Micron’s size:** 20% of the account at full build; up to 30% only when market fear lifts the % invested; Micron = 0.4 × % invested, capped at 30% (Alan, 6–7 Oct 2026: “leave that as the for-now rule and we monitor”). Measured by the deployment study, not here.
-- **The order drafts:** the drafts are prepared; Alan submits. Never a live order from the coordinator or a helper.
+- **Micron’s size:** 20% of the account at full build; up to 30% only when market fear lifts the % invested; Micron = 0.4 × % invested, capped at 30% (Alan, 6–7 Oct 2026: “leave that as the for-now rule and we monitor”). Measured by the study of how much to have invested, not here.
+- **The order drafts:** the drafts are prepared; Alan submits. Never a live order from Claude.
 - **The comps flag:** Micron trades near 6.0 times next year’s earnings against SK hynix 3.6, Samsung 3.9 and Kioxia 3.7 — the upside holds only against US peers (from the comps work, 7 Oct 2026).
 - **Line names:** every line is named as the Lab’s chart labels it — source timeframe plus id (3D P1, 2W D3, 3D P3, 1D D3, 3D C3) — never a bare “P1”.
 

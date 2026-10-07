@@ -54,6 +54,7 @@ STRATEGIES = {
     "pyr_stop_band3": dict(label="Pyramid + the 100-day stop only on a close 3% or more under it (candidate)", kind="ladder", rungs="ma", w=GROW, stop="close100", stop_scope="all", band=0.03),
     "draft":      dict(label="The four drafts as placed (fixed prices, 18 / 22 / 27 / 37 shares)", kind="ladder", rungs="draft"),
     "draft_equal": dict(label="The four drafts at the same prices, a quarter of the money each", kind="ladder", rungs="draft", equal=True),
+    "draft_merged": dict(label="The drafts with the first two as ONE order at 1,036.13 (40 shares), then 1,011.77 and 989.17 — three orders, all working", kind="ladder", rungs="draft", merged=True),
 }
 MAIN = ["allin21", "pyramid", "pyr_stop", "pyr_stop_deep", "pyr_fixed13"]
 
@@ -94,6 +95,9 @@ def replay(o, h, l, c, ma21, ma50, ma100, i0, strat, H=120, vix=None, extra=None
     elif S["rungs"] == "draft":
         usd = [DRAFT_SHARES[k] * DRAFT_PRICES[k] for k in range(4)]; tot = float(sum(usd))      # 18 / 22 / 27 / 37 shares at their prices = 17.7 / 21.5 / 26.0 / 34.8% of the money
         rungs = [dict(name=DRAFT_NAMES[k], w=(0.25 if S.get("equal") else usd[k] / tot), f=(lambda t, p=DRAFT_PRICES[k] / DRAFT_CLOSE * C0: p)) for k in range(4)]
+        if S.get("merged"):                                               # 18 + 22 shares both at the first draft's price; the other two unchanged
+            m = (DRAFT_SHARES[0] + DRAFT_SHARES[1]) * DRAFT_PRICES[0]; tot2 = m + usd[2] + usd[3]
+            rungs = [dict(name=DRAFT_NAMES[0], w=m / tot2, f=rungs[0]["f"]), dict(name=DRAFT_NAMES[2], w=usd[2] / tot2, f=rungs[2]["f"]), dict(name=DRAFT_NAMES[3], w=usd[3] / tot2, f=rungs[3]["f"])]
     else: raise ValueError(S["rungs"])
     for r in rungs: r.update(filled=False, day=None, px=None)
 
