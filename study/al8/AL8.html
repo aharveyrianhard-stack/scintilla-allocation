@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Allocation · how much, and where it goes</title>
+<style>
+:root{--bg:#0a0a0f;--panel:#101018;--line:#1c1c28;--txt:#e8e8f0;--dim:#8a8aa0;--cyan:#00d4ff;--gold:#ffd166}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:13px;line-height:1.6;padding:22px 16px 60px;overflow-x:hidden}
+@media(min-width:900px){body{padding:26px 30px 60px}}
+h1{font-size:19px;letter-spacing:.28em;font-weight:600;margin:0}h1 span{color:var(--cyan)}.sub{color:var(--dim);margin-top:4px;font-size:11px;letter-spacing:.06em;max-width:1200px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-top:16px;min-width:0;max-width:1700px}
+.panel h2{font-size:12px;letter-spacing:.2em;color:var(--cyan);margin:0 0 8px;font-weight:600}
+.said{color:var(--gold);font-size:12px;margin:0 0 8px;max-width:1100px}.what{margin:0 0 10px;max-width:1000px}
+ul{margin:6px 0 10px;padding-left:18px;max-width:1000px}li{margin:3px 0}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:12px;align-items:start;margin:10px 0}
+figure{margin:0;min-width:0}figcaption{font-size:11px;letter-spacing:.14em;color:var(--dim);margin-bottom:4px}
+img{display:block;max-width:100%;height:auto;border:1px solid var(--line);border-radius:6px}.one{margin:12px 0}.phone img{max-height:900px;width:auto}
+.phones{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}.phones figure{flex:0 1 300px}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:10px 0 2px}.kpi div{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#0c0c13}
+.kpi b{display:block;font-size:20px;font-weight:700}.kpi span{font-size:11px;color:var(--dim);display:block;line-height:1.45}
+table{border-collapse:collapse;width:100%;font-size:12px;max-width:1500px}th{color:var(--dim);text-align:left;font-weight:400;font-size:11px;letter-spacing:.12em;padding:5px 8px;border-bottom:1px solid var(--line)}
+td{padding:6px 8px;border-bottom:1px solid #14141e;vertical-align:top;color:#c8c8d8}td:first-child{color:var(--txt)}td small{display:block;color:var(--dim);font-size:11px}.wrap{overflow-x:auto}
+tr.out td{color:var(--dim)}tr.out td:first-child{color:#a8a8ba}
+.mv{text-decoration:none;display:inline-block;font-size:11px;letter-spacing:.08em;font-weight:700;border:1px solid var(--line);border-radius:3px;padding:1px 7px;color:var(--txt)}.mv.pct{border-color:var(--cyan);color:var(--cyan)}.mv.mix{border-color:var(--gold);color:var(--gold)}.mv.none{color:var(--dim)}
+.miss{color:var(--dim);font-size:11px;border:1px dashed var(--line);padding:10px;border-radius:6px}.dim{color:var(--dim)}b{font-weight:600}
+.ph{font-size:11px;letter-spacing:.14em;font-weight:700;color:#0a0a0f;background:var(--gold);border-radius:3px;padding:1px 7px}
+</style></head><body>
+<h1>ALLOCATION <span>·</span> HOW MUCH, AND WHERE IT GOES</h1>
+<div class="sub">branch al8-split-and-cards-20261007 of the allocation tool, on top of the evening of 6 Oct's branch · pictures taken headless at 7 Oct, 03:32 ET, before and after back to back · nothing on this page is live — the tool at allocation.scintillahub.ai is unchanged until you say so</div>
+
+<div class="panel"><h2>0 · THE SAME MOMENT, BEFORE AND AFTER</h2>
+<div class="kpi">
+<div><b>1 list → 2 sections</b><span>INPUTS: what moves the % invested, and what only moves where it goes · 24 inputs audited, one by one</span></div>
+<div><b>8 change nothing</b><span>five dials and six stored settings — listed for removal, not removed</span></div>
+<div><b>6 → 6 + 1</b><span>places the invested money goes: before, the index, four sleeves and a conviction pot · now 6 ranked sleeves and Micron at its own size</span></div>
+<div><b>10% → 20%</b><span>conviction, of the account: a fifth of what is invested, unnamed → Micron by your rule</span></div>
+<div><b>+0.07 → +0.07</b><span>the heat · 50% invested before, 50% after — how much is invested did not move</span></div>
+<div><b>390 → 390 px</b><span>page width on a 390 px phone — still no sideways scroll</span></div>
+</div></div>
+
+<div class="panel"><h2>1 · THE MONEY AT THE TOP — one bar per market</h2>
+<p class="said">"How do we visualize this on the tool, in some kind of concise and visual way, very important, visual, visual, visual."</p>
+<ul><li><b>Five rows, each the whole account:</b> cash, then the core, then conviction (Micron). Today, the S&amp;P down 1.5%, the VIX at 20, the VIX at 23.5, a panic.</li>
+<li><b>How much is invested in each row</b> is the deployment study's number. It is marked <span class="ph">PLACEHOLDER</span> on the panel: that study sits on its own branch, not reviewed and not wired. Nothing under the panel uses it — every step below still runs on the ladder, which says <b>50%</b> today. The dashed line through the bars is that ladder number, so the two answers are seen against each other.</li>
+<li><b>How the invested part splits</b> is the page's own rule and no other: Micron takes two fifths of what is invested and never more than 30% of the account, the core is the rest. The study's own Micron figure agrees with it in all five rows.</li>
+<li><b>When the engine's own file is put beside the page</b> the same bars read it and the word PLACEHOLDER goes. No code changes for that.</li></ul>
+<div class="pair"><figure><figcaption>BEFORE — the evening of 6 Oct</figcaption><a href="pictures/before-00-first-screen-1680.png"><img loading="lazy" src="pictures/before-00-first-screen-1680.png" alt="before: the first screen"></a></figure><figure><figcaption>AFTER — this branch</figcaption><a href="pictures/after-00-first-screen-1680.png"><img loading="lazy" src="pictures/after-00-first-screen-1680.png" alt="after: the first screen"></a></figure></div>
+<div class="wrap"><table><tr><th>MARKET</th><th>INVESTED</th><th>CASH</th><th>CORE</th><th>MICRON</th><th>THE READING</th></tr>
+<tr><td>TODAY<small>as it stands</small></td><td>33%</td><td>67%</td><td>20%</td><td>13%</td><td>S&amp;P 779 · RSI 62 · VIX 15.0</td></tr>
+<tr><td>S&amp;P DIPS 1.5%<small>one session</small></td><td>22%</td><td>78%</td><td>13%</td><td>9.0%</td><td>S&amp;P 767 · RSI 51 · VIX 15.0</td></tr>
+<tr><td>VIX 20<small>the S&amp;P down 3%</small></td><td>44%</td><td>56%</td><td>27%</td><td>18%</td><td>S&amp;P 756 · RSI 42 · VIX 20.0</td></tr>
+<tr><td>VIX 23.5<small>the S&amp;P down 5%</small></td><td>88%</td><td>12%</td><td>58%</td><td>30%</td><td>S&amp;P 740 · RSI 33 · VIX 23.5</td></tr>
+<tr><td>PANIC<small>RSI under 35 · VIX in its top 5%</small></td><td>84%</td><td>17%</td><td>53%</td><td>30%</td><td>RSI 33 · VIX 26.0</td></tr></table></div>
+<div class="phones"><figure class="one phone"><figcaption>ON A PHONE — the first screen</figcaption><a href="pictures/after-00-first-screen-390.png"><img loading="lazy" src="pictures/after-00-first-screen-390.png" alt="ON A PHONE — the first screen"></a></figure><figure class="one phone"><figcaption>ON A PHONE — the five bars</figcaption><a href="pictures/after-01-the-money-in-five-markets-390.png"><img loading="lazy" src="pictures/after-01-the-money-in-five-markets-390.png" alt="ON A PHONE — the five bars"></a></figure></div></div>
+
+<div class="panel"><h2>2 · EVERY INPUT, AND THE ONE THING IT MOVES</h2>
+<p class="said">"I don't know if all of those toggles are going to even be used anymore … at least in the equity deployment recommendation. And if they're not, they need to be separated into a separate toggle section if they only really cover sector compare … that's important to know and to do."</p>
+<p class="what">Each dial, toggle, button and stored setting was moved in a hidden browser, one at a time, and the page was read before and after: did the % invested change, the mix, the names, or nothing. The table is the answer, with the line of the page's code that proves each. The tests repeat it every time they run.</p>
+<div class="wrap"><table><tr><th>INPUT</th><th>WHERE IT IS NOW</th><th>IT MOVES</th><th>THE LINE OF index.html THAT PROVES IT</th></tr>
+<tr><td>The ladder — five rungs (5 sliders)</td><td>INPUTS · how much</td><td><u class="mv pct">the % invested</u></td><td><b>line 2695</b> — the heat's condition picks one of the five numbers<br><b>line 1396</b> — and that number is how much is invested, everywhere</td></tr>
+<tr><td>The voters' weights (a slider on each of the 33 voters)</td><td>step 1, on each voter's row</td><td><u class="mv pct">the % invested</u><small>and the names</small></td><td><b>line 2664</b> — the heat is the weighted average of the voting rows<br><b>line 2275</b> — the heat also sets how many names AUTO offers</td></tr>
+<tr><td>VIX — where it reads fully cold</td><td>INPUTS · how much (moved from step 1)</td><td><u class="mv pct">the % invested</u></td><td><b>line 2405</b> — sets the VIX voter's reading</td></tr>
+<tr><td>10-year yield — where it reads fully cold</td><td>INPUTS · how much (moved from step 1)</td><td><u class="mv pct">the % invested</u></td><td><b>line 2409</b> — sets the 10-year voter's reading</td></tr>
+<tr><td>The blended sector reading — five weights (5 sliders)</td><td>INPUTS · where it goes</td><td><u class="mv mix">the mix</u><small>and the % invested, slightly</small></td><td><b>line 1207</b> — each sector's reading is the weighted average of five methods<br><b>line 1419</b> — the reading is two of a sleeve's three ranking answers<br><b>line 2442</b> — the same blend is one voter in the heat — the one way these reach the %</td></tr>
+<tr><td>The ranking — growth, regime fit, opportunity (3 sliders, new)</td><td>INPUTS · where it goes</td><td><u class="mv mix">the mix</u></td><td><b>line 1423</b> — a sleeve's score is its three places, weighed</td></tr>
+<tr><td>Smallest sleeve</td><td>INPUTS · where it goes</td><td><u class="mv mix">the mix</u></td><td><b>line 1458</b> — the last of the ranking is left out while any sleeve would be smaller</td></tr>
+<tr><td>A conviction name's own size (a figure on each name, new)</td><td>step 6, on the name's row</td><td><u class="mv mix">the mix</u></td><td><b>line 1441</b> — his figure is the name's size; the core is what is left</td></tr>
+<tr><td>KEEP and DROP</td><td>steps 5, 8 and 8b</td><td><u class="mv mix">the names</u><small>and the mix</small></td><td><b>line 3498</b> — a kept name joins the picks<br><b>line 1436</b> — the conviction list is the approved names and the picks</td></tr>
+<tr><td>The cohort in the knockout</td><td>step 4</td><td><u class="mv mix">the names</u></td><td><b>line 3375</b> — which companies face off</td></tr>
+<tr><td>Names — AUTO or MANUAL · most per sleeve · concentration lean · names per sleeve (a toggle and 3 sliders)</td><td>INPUTS · where it goes</td><td><u class="mv mix">the names</u></td><td><b>line 2275</b> — the count of pick cards<br><b>line 3483</b> — the knockout offers that many</td></tr>
+<tr><td>Most names in all</td><td>INPUTS · where it goes</td><td><u class="mv mix">the names</u></td><td><b>line 3676</b> — the comps sheet refuses a pick past it</td></tr>
+<tr><td>★ on a name</td><td>step 8</td><td><u class="mv mix">the names</u></td><td><b>line 3305</b> — adds the name to the comps sheet</td></tr>
+<tr><td>Invested now</td><td>INPUTS · where you are</td><td><u class="mv ">the gap only</u></td><td><b>line 2778</b> — the move is the target minus this; the target is not touched</td></tr>
+<tr><td>Conviction, as one share</td><td>INPUTS · listed for removal</td><td><u class="mv none">nothing</u></td><td><b>line 2758</b> — nothing computes with it: its only mentions are its own read-out and its row in this audit (lines 2758, 3122)</td></tr>
+<tr><td>Index sleeve</td><td>INPUTS · listed for removal</td><td><u class="mv none">nothing</u></td><td><b>line 1459</b> — the equal-weight fund is all or nothing now — the split does not read the dial; its only mentions are its read-out and its audit row (lines 2758, 3123)</td></tr>
+<tr><td>Most sleeves</td><td>INPUTS · listed for removal</td><td><u class="mv none">nothing</u></td><td><b>line 1456</b> — every candidate starts in — no cap is read; its only mentions are its read-out and its audit row (lines 2758, 3124)</td></tr>
+<tr><td>…of which large caps</td><td>INPUTS · listed for removal</td><td><u class="mv none">nothing</u></td><td><b>line 2777</b> — it only feeds two numbers that are handed to three functions and read by none of them (every line that names them: 2778, 2833, 2835, 2839, 3029, 3260, 3678)</td></tr>
+<tr><td>Heat tilt toward large caps</td><td>INPUTS · listed for removal</td><td><u class="mv none">nothing</u></td><td><b>line 2705</b> — it tilts a large / small split<br><b>line 3708</b> — that is printed in one line of the audit trace and used nowhere else</td></tr>
+<tr><td>Positions, large and small (stored, no control)</td><td>the saved settings</td><td><u class="mv none">nothing</u></td><td><b>line 2775</b> — they divide a split that is handed on and read by nothing (every line that names the result: 2775, 2839, 3678)</td></tr>
+<tr><td>Three Geiger dials from July (stored, no control)</td><td>the saved settings</td><td><u class="mv none">nothing</u></td><td><b>line 2136</b> — their default is the only line that names them</td></tr>
+<tr><td>The sector method (stored, no control)</td><td>the saved settings</td><td><u class="mv none">nothing</u></td><td><b>line 1305</b> — it is only ever set to one word; nothing computes with it (every mention: 1305, 2173, 2174, 3129 — set here, two old migrations, its audit row)</td></tr>
+<tr><td>Sectors or cohorts (stored, no control)</td><td>the saved settings</td><td><u class="mv mix">the mix — and nothing on the page can set it</u></td><td><b>line 2086</b> — read at load from the device<br><b>line 2087</b> — the only line that could change it — nothing calls it (every mention of setAxis: 2087)</td></tr>
+<tr><td>A section open or folded · what each voter is · refresh feeds</td><td>every section · step 1 · step 8</td><td><u class="mv ">what is drawn — no number</u></td><td><b>line 3746</b> — the fold<br><b>line 3739</b> — reads every source again</td></tr></table></div>
+<p class="what dim">One honest exception, measured as it stands: the five sector-compare weights also reach the % through a single voter, the sectors row, which holds 7% of the vote. Pushing any one of the five end to end moves the heat by at most 0.003 today (+0.06 to +0.07 — it rounds to the same number); the rung stays at 50%. The page prints this sentence live, beside those dials.</p></div>
+
+<div class="panel"><h2>3 · WHAT MOVED WHERE — INPUTS in two sections</h2>
+<ul><li><b>HOW MUCH TO INVEST</b> — only what moves the %: the ladder's five rungs (now in order, washed out to stretched), and the two dials for where the VIX and the 10-year read fully cold, which came over from step 1. The voters' own weights stay on their rows in step 1; the section says how many vote.</li>
+<li><b>WHERE IT GOES — SECTOR COMPARE</b> — what moves the mix and the names and never the ladder: the five weights of the blended sector reading, the three weights of the ranking (new), the smallest sleeve, a pointer to each conviction name's own size (set in step 6), and the dials for how many names.</li>
+<li><b>WHERE YOU ARE</b> — the one dial that only sets the gap in step 7.</li>
+<li><b>LISTED FOR REMOVAL</b> — folded at the foot, still working, still stored: conviction as one share, the index sleeve, most sleeves (the three you turned down on 7 Oct), and the two large-cap dials nothing has read since 6 Oct. Under them, six stored settings that have no control at all.</li>
+<li><b>One stored setting is not nothing:</b> the sector / cohort switch. No control sets it, but a device that stored "cohort" in August would rank cohorts instead of sectors. It is listed so it can be fixed.</li></ul>
+<div class="pair"><figure><figcaption>BEFORE — the evening of 6 Oct</figcaption><a href="pictures/before-03-inputs-1680.png"><img loading="lazy" src="pictures/before-03-inputs-1680.png" alt="before: INPUTS, the whole drawer"></a></figure><figure><figcaption>AFTER — this branch</figcaption><a href="pictures/after-03-inputs-1680.png"><img loading="lazy" src="pictures/after-03-inputs-1680.png" alt="after: INPUTS, the whole drawer"></a></figure></div>
+<figure class="one "><figcaption>LISTED FOR REMOVAL, opened</figcaption><a href="pictures/after-04-inputs-listed-for-removal-1680.png"><img loading="lazy" src="pictures/after-04-inputs-listed-for-removal-1680.png" alt="LISTED FOR REMOVAL, opened"></a></figure>
+<figure class="one "><figcaption>STEP 9 ON THE PAGE — the same table, live</figcaption><a href="pictures/after-09-what-each-input-moves-1680.png"><img loading="lazy" src="pictures/after-09-what-each-input-moves-1680.png" alt="STEP 9 ON THE PAGE — the same table, live"></a></figure></div>
+
+<div class="panel"><h2>4 · HOW THE MONEY SPLITS — conviction by name, sleeves in rank order</h2>
+<p class="said">"the conviction doesn't always have to be a fifth of what's invested" · "the index sleeve, half of the core — I don't think I'm understanding … Micron can take a parent sleeve" · "at most six sleeves — I don't think it makes sense to limit it. It makes more sense to force ourselves through the process of picking which sleeves we prefer in the regime, which have better growth, which present better opportunities."</p>
+<ul><li><b>Conviction is each approved name at its own size.</b> Micron: two fifths of what is invested, at most 30% of the account — 20% today. A name you KEEP in the knockout joins the list and takes no money until you type its size in step 6.</li>
+<li><b>The core is what is left</b> (30% today). Every candidate sleeve — 23 of them: the eleven sectors, crypto, metals, oil and the tree's AI cohorts — answers three questions: <b>growth</b> (the expected sales growth of its companies, the middle one), <b>regime fit</b> (improving, leading, pulling back, breaking down) and <b>opportunity</b> (how washed out its reading is). Each answer is the sleeve's place among the 23; the score weighs them 50 / 25 / 25 — growth the most, and all three are dials.</li>
+<li><b>Funded in rank order, no cap.</b> The last of the ranking is left out while any funded sleeve would be under 4% of the account. Today that funds 6; with everything invested it would be about twice that. The table says once where the core stops, and each sleeve under the line says what holds it back.</li>
+<li><b>Each funded sleeve parks in its branch's parent fund</b> until the knockout places it in names — the memory fund for memory and storage, the sector's own fund for a sector. The broad equal-weight fund holds the core only when no branch is funded.</li></ul>
+<div class="pair"><figure><figcaption>BEFORE — the evening of 6 Oct</figcaption><a href="pictures/before-05-how-the-money-splits-1680.png"><img loading="lazy" src="pictures/before-05-how-the-money-splits-1680.png" alt="before: 3b · how the money splits"></a></figure><figure><figcaption>AFTER — this branch</figcaption><a href="pictures/after-05-how-the-money-splits-1680.png"><img loading="lazy" src="pictures/after-05-how-the-money-splits-1680.png" alt="after: 3b · how the money splits"></a></figure></div>
+<div class="wrap"><table><tr><th>SLEEVE</th><th>GROWTH</th><th>REGIME</th><th>READING</th><th>SCORE</th><th>% OF THE ACCOUNT · OR WHAT HOLDS IT BACK</th></tr>
+<tr class="in"><td>1 · Neoclouds &amp; AI miners</td><td>+84%</td><td>improving</td><td>+0.00</td><td>0.86</td><td><b>6.5%</b> · no fund tracks it</td></tr>
+<tr class="in"><td>2 · Datacenter property</td><td>+10%</td><td>improving</td><td>−0.05</td><td>0.66</td><td><b>5.0%</b> · parked in XLRE</td></tr>
+<tr class="in"><td>3 · Memory &amp; storage</td><td>+51%</td><td>pulling back</td><td>+0.07</td><td>0.63</td><td><b>4.7%</b> · parked in DRAM</td></tr>
+<tr class="in"><td>4 · AI servers &amp; datacenter kit</td><td>+71%</td><td>leading</td><td>+0.58</td><td>0.62</td><td><b>4.7%</b> · parked in AGIX</td></tr>
+<tr class="in"><td>5 · AI powertrain</td><td>+13%</td><td>improving</td><td>+0.17</td><td>0.62</td><td><b>4.6%</b> · parked in URA</td></tr>
+<tr class="in"><td>6 · Consumer discretionary</td><td>+9%</td><td>improving</td><td>−0.12</td><td>0.61</td><td><b>4.6%</b> · parked in XLY</td></tr>
+<tr class="out"><td>7 · Industrials</td><td>+10%</td><td>improving</td><td>+0.06</td><td>0.59</td><td>growth +10% — low among the candidates</td></tr>
+<tr class="out"><td>8 · Robotics &amp; automation</td><td>+29%</td><td>leading</td><td>+0.32</td><td>0.59</td><td>not washed out: +0.32</td></tr>
+<tr class="out"><td>9 · AI accelerators &amp; logic</td><td>+35%</td><td>leading</td><td>+0.63</td><td>0.55</td><td>not washed out: +0.63</td></tr>
+<tr class="out"><td>10 · AI networking &amp; optical</td><td>+31%</td><td>leading</td><td>+0.62</td><td>0.54</td><td>not washed out: +0.62</td></tr>
+<tr class="out"><td>11 · Technology</td><td>+22%</td><td>leading</td><td>+0.54</td><td>0.53</td><td>not washed out: +0.54</td></tr>
+<tr class="out"><td>12 · Metals</td><td>not read</td><td>breaking down</td><td>−0.36</td><td>0.51</td><td>breaking down</td></tr>
+<tr class="out"><td>13 · Real estate</td><td>+9%</td><td>breaking down</td><td>−0.41</td><td>0.50</td><td>breaking down</td></tr>
+<tr class="out"><td>14 · AI software &amp; data platforms</td><td>+18%</td><td>leading</td><td>+0.57</td><td>0.48</td><td>not washed out: +0.57</td></tr>
+<tr class="out"><td>15 · Materials</td><td>+5%</td><td>improving</td><td>−0.10</td><td>0.47</td><td>growth +5% — low among the candidates</td></tr>
+<tr class="out"><td>16 · Utilities</td><td>+5%</td><td>improving</td><td>+0.03</td><td>0.45</td><td>growth +5% — low among the candidates</td></tr>
+<tr class="out"><td>17 · Crypto</td><td>not read</td><td>leading</td><td>+0.50</td><td>0.44</td><td>not washed out: +0.50</td></tr>
+<tr class="out"><td>18 · Health care</td><td>+8%</td><td>pulling back</td><td>−0.04</td><td>0.40</td><td>pulling back</td></tr>
+<tr class="out"><td>19 · Communications</td><td>+8%</td><td>breaking down</td><td>−0.14</td><td>0.38</td><td>breaking down</td></tr>
+<tr class="out"><td>20 · Financials</td><td>+6%</td><td>breaking down</td><td>−0.18</td><td>0.38</td><td>breaking down</td></tr>
+<tr class="out"><td>21 · Consumer staples</td><td>+3%</td><td>breaking down</td><td>−0.17</td><td>0.29</td><td>breaking down</td></tr>
+<tr class="out"><td>22 · Energy</td><td>+1%</td><td>leading</td><td>+0.37</td><td>0.23</td><td>growth +1% — low among the candidates</td></tr>
+<tr class="out"><td>23 · Oil</td><td>−4%</td><td>leading</td><td>+0.55</td><td>0.17</td><td>growth −4% — low among the candidates</td></tr></table></div>
+<div class="phones"><figure class="one phone"><figcaption>ON A PHONE — one block per sleeve, no sideways swipe</figcaption><a href="pictures/after-05-how-the-money-splits-390.png"><img loading="lazy" src="pictures/after-05-how-the-money-splits-390.png" alt="ON A PHONE — one block per sleeve, no sideways swipe"></a></figure></div></div>
+
+<div class="panel"><h2>5 · THE PICKS READ THE DECISION CARDS — and Micron's ladder is its three zones</h2>
+<ul><li><b>Step 6 is each conviction name as its card:</b> the comps range per share drawn low to high with the centre marked and the price as a needle; growth as sales over the next twelve months; where its Geiger sits in its own year; the nearest named line under and over the price; its own size; its parent fund.</li>
+<li><b>Micron's ladder</b> is the three confluence zones under the price, each with its named members to the cent: 1,028–1,036 (21-day + 2W D3 + 3D P1), 980–989 (1D D3 + 3D C3), 960–962 (100-day + 50-day). The 3D P3 at 1,011.77 stands alone between the first two and is listed as that, not as a zone.</li>
+<li><b>In the knockout</b> a name with a card reads its growth and its price multiples from the card; a name without one reads the feed and its card says NO CARD · FEED.</li>
+<li><b>Why it matters tonight:</b> for Micron the feed said sales growth of <b>-59%</b> and a forward P/E of <b>0</b>; the card says <b>+92%</b> and <b>5.9</b>. 26 names read from their card. For the rest the feed gave a forward P/E to only 61 of the 342 names with earnings, so the sources line marks it; that mark clears by itself when the repaired feed is deployed.</li></ul>
+<div class="pair"><figure><figcaption>BEFORE — the evening of 6 Oct</figcaption><a href="pictures/before-06-the-picks-1680.png"><img loading="lazy" src="pictures/before-06-the-picks-1680.png" alt="before: 6 · the picks"></a></figure><figure><figcaption>AFTER — this branch</figcaption><a href="pictures/after-06-the-picks-1680.png"><img loading="lazy" src="pictures/after-06-the-picks-1680.png" alt="after: 6 · the picks"></a></figure></div>
+<figure class="one "><figcaption>THE KNOCKOUT — Micron's own business line, both names read from their cards</figcaption><a href="pictures/after-13-knockout-microns-line-1680.png"><img loading="lazy" src="pictures/after-13-knockout-microns-line-1680.png" alt="THE KNOCKOUT — Micron's own business line, both names read from their cards"></a></figure>
+<div class="pair"><figure><figcaption>BEFORE — the evening of 6 Oct</figcaption><a href="pictures/before-07-knockout-the-pick-cards-1680.png"><img loading="lazy" src="pictures/before-07-knockout-the-pick-cards-1680.png" alt="before: the knockout's pick cards"></a></figure><figure><figcaption>AFTER — this branch</figcaption><a href="pictures/after-07-knockout-the-pick-cards-1680.png"><img loading="lazy" src="pictures/after-07-knockout-the-pick-cards-1680.png" alt="after: the knockout's pick cards"></a></figure></div>
+<figure class="one "><figcaption>A NAME KEPT IN THE KNOCKOUT — on the list, no money until it has a size</figcaption><a href="pictures/after-12-a-kept-name-waits-for-a-size-1680.png"><img loading="lazy" src="pictures/after-12-a-kept-name-waits-for-a-size-1680.png" alt="A NAME KEPT IN THE KNOCKOUT — on the list, no money until it has a size"></a></figure>
+<div class="phones"><figure class="one phone"><figcaption>ON A PHONE — Micron's card and ladder</figcaption><a href="pictures/after-06-the-picks-390.png"><img loading="lazy" src="pictures/after-06-the-picks-390.png" alt="ON A PHONE — Micron's card and ladder"></a></figure><figure class="one phone"><figcaption>ON A PHONE — INPUTS</figcaption><a href="pictures/after-03-inputs-390.png"><img loading="lazy" src="pictures/after-03-inputs-390.png" alt="ON A PHONE — INPUTS"></a></figure></div></div>
+
+<div class="panel"><h2>6 · WHERE EACH NUMBER COMES FROM</h2>
+<div class="wrap"><table><tr><th>WHAT</th><th>FROM</th><th>NOTE</th></tr>
+<tr><td>% invested, in the five bars</td><td>the deployment study's five scenario rows, from the 6 Oct close</td><td>a dated copy kept with the page, marked placeholder; the engine's own file wins the moment it is beside the page</td></tr>
+<tr><td>% invested, everywhere else</td><td>the ladder, read from the heat — as before</td><td>one function says how much; it is the engine's seat when you approve it</td></tr>
+<tr><td>Micron's size</td><td>your rule of 6–7 Oct, kept with the page in your words</td><td>two fifths of what is invested, at most 30%; your own figure in step 6 overrides it</td></tr>
+<tr><td>A sleeve's growth</td><td>stored analyst estimates: next fiscal year's sales against the year before, per company; the middle company</td><td>three companies with an estimate are needed; a metal has no sales and counts as the middle</td></tr>
+<tr><td>Regime fit, opportunity</td><td>the sleeve's own blended reading — trend, momentum, level</td><td>the two numbers of the 6 Oct ranking rule, kept as they were</td></tr>
+<tr><td>Comps range, growth, Geiger's place in its year</td><td>the 26 decision cards dated 6 Oct</td><td>a dated copy kept with the page: the Hub does not serve them yet</td></tr>
+<tr><td>Nearest named line</td><td>the Lab's reviewed lines, the dated extract of 6 Oct; the card's levels, then the zones file's, when a name is not in it</td><td>measured from the live price</td></tr>
+<tr><td>The ladder's zones</td><td>the confluence-zones study, levels as of the 6 Oct close</td><td>two or more named levels within 1% of each other</td></tr>
+</table></div></div>
+
+<div class="panel"><h2>7 · WHAT COULD BE WRONG, AND WHAT WAS NOT DONE</h2>
+<ul><li><b>Two answers for "how much" are on the first screen.</b> The bars say 33% today (the study); the ladder says 50%. That is deliberate and labelled, but it is two numbers until you choose.</li>
+<li><b>The ranking is a proposal.</b> Places among the candidates, weighed 50 / 25 / 25, is one transparent rule; it has no history behind it. "Regime fit" reads what the sleeve itself is doing; the market's own regime does not yet change which kind of sleeve is preferred.</li>
+<li><b>Growth is the middle company's</b> and is the same for a sleeve of five names and of ninety. Metals and crypto have no growth reading and sit in the middle on that question.</li>
+<li><b>Micron's +99% on comps is thin</b> — three peers, and the three foreign memory makers have no figures yet. The card says so and the page prints the card's own warnings.</li>
+<li><b>The zones are as of the 6 Oct close.</b> A two-week line steps on 12 Oct; the page shows the date and does not move the levels itself.</li>
+<li><b>The cards and the zones are dated copies</b> kept with the page. They go stale until the Hub serves fresh ones each evening.</li>
+<li><b>Steps 4 and 5 still stand on the older cohorts</b>, not the tree, as on 6 Oct.</li>
+<li><b>Not done:</b> nothing is deployed; the deployment engine is not wired (by design); no table was written beyond the suite's own two labelled test rows.</li></ul></div>
+
+<div class="panel"><h2>8 · TESTS</h2>
+<p class="what"><b>68 of 69</b> passed before (the evening of 6 Oct's code, run 7 Oct, 02:21–02:24 ET, on the evening of 6 Oct's code — its 71 tests less the two that write a labelled test row, which ran in a first pass whose output was not kept) → <b>97 of 98</b> pass now (run 7 Oct, 03:21–03:25 ET, every file, the two write-tests included; run again on the final code at 03:27–03:31 ET without those two: 95 of 96). The one failure is the same on both sides: a check that the sector ranking is under three hours old, which fails by the clock at this hour. 27 tests are new.</p>
+<p class="what dim">Older checks that changed, and why: the 6 Oct fixed shape (a fifth to conviction, half the core to the index, six sleeves) — replaced by your 7 Oct direction; the sample decision card — replaced by the real cards' field names; "the index sleeve's bet" and one study named by its code — reworded; fifteen sections — sixteen, the money first; a kept name "takes its part of the conviction share" — it now waits for its own size; two more sources may read "old", each for a stated reason.</p></div>
+
+<div class="panel"><h2>9 · DECISIONS FOR YOU</h2>
+<ul><li><b>1 · Which number says how much?</b> The ladder (50%) or the deployment study (33% today, 88% at VIX 23.5). <b>Recommend:</b> keep the ladder driving the page until you have read the study; the bars let you watch both.</li>
+<li><b>2 · Should the sector-compare weights stop reaching the heat?</b> They do, through one voter, by at most 0.003 today. <b>Recommend yes:</b> let that voter read the blend at equal weights, so "where it goes" is cleanly separate from "how much".</li>
+<li><b>3 · The ranking's weights — growth 50, regime fit 25, opportunity 25?</b> <b>Recommend yes as a start;</b> they are dials, and the table shows each answer so you can argue with any row.</li></ul></div>
+</body></html>

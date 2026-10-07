@@ -1,0 +1,326 @@
+[
+ {
+  "input": "The ladder — five rungs (5 sliders)",
+  "where": "INPUTS · how much",
+  "moves": "the % invested",
+  "also": null,
+  "proof": [
+   {
+    "line": 2695,
+    "says": "the heat's condition picks one of the five numbers"
+   },
+   {
+    "line": 1396,
+    "says": "and that number is how much is invested, everywhere"
+   }
+  ]
+ },
+ {
+  "input": "The voters' weights (a slider on each of the 33 voters)",
+  "where": "step 1, on each voter's row",
+  "moves": "the % invested",
+  "also": "the names",
+  "proof": [
+   {
+    "line": 2664,
+    "says": "the heat is the weighted average of the voting rows"
+   },
+   {
+    "line": 2275,
+    "says": "the heat also sets how many names AUTO offers"
+   }
+  ]
+ },
+ {
+  "input": "VIX — where it reads fully cold",
+  "where": "INPUTS · how much (moved from step 1)",
+  "moves": "the % invested",
+  "also": null,
+  "proof": [
+   {
+    "line": 2405,
+    "says": "sets the VIX voter's reading"
+   }
+  ]
+ },
+ {
+  "input": "10-year yield — where it reads fully cold",
+  "where": "INPUTS · how much (moved from step 1)",
+  "moves": "the % invested",
+  "also": null,
+  "proof": [
+   {
+    "line": 2409,
+    "says": "sets the 10-year voter's reading"
+   }
+  ]
+ },
+ {
+  "input": "The blended sector reading — five weights (5 sliders)",
+  "where": "INPUTS · where it goes",
+  "moves": "the mix",
+  "also": "the % invested, slightly",
+  "proof": [
+   {
+    "line": 1207,
+    "says": "each sector's reading is the weighted average of five methods"
+   },
+   {
+    "line": 1419,
+    "says": "the reading is two of a sleeve's three ranking answers"
+   },
+   {
+    "line": 2442,
+    "says": "the same blend is one voter in the heat — the one way these reach the %"
+   }
+  ]
+ },
+ {
+  "input": "The ranking — growth, regime fit, opportunity (3 sliders, new)",
+  "where": "INPUTS · where it goes",
+  "moves": "the mix",
+  "also": null,
+  "proof": [
+   {
+    "line": 1423,
+    "says": "a sleeve's score is its three places, weighed"
+   }
+  ]
+ },
+ {
+  "input": "Smallest sleeve",
+  "where": "INPUTS · where it goes",
+  "moves": "the mix",
+  "also": null,
+  "proof": [
+   {
+    "line": 1458,
+    "says": "the last of the ranking is left out while any sleeve would be smaller"
+   }
+  ]
+ },
+ {
+  "input": "A conviction name's own size (a figure on each name, new)",
+  "where": "step 6, on the name's row",
+  "moves": "the mix",
+  "also": null,
+  "proof": [
+   {
+    "line": 1441,
+    "says": "his figure is the name's size; the core is what is left"
+   }
+  ]
+ },
+ {
+  "input": "KEEP and DROP",
+  "where": "steps 5, 8 and 8b",
+  "moves": "the names",
+  "also": "the mix",
+  "proof": [
+   {
+    "line": 3498,
+    "says": "a kept name joins the picks"
+   },
+   {
+    "line": 1436,
+    "says": "the conviction list is the approved names and the picks"
+   }
+  ]
+ },
+ {
+  "input": "The cohort in the knockout",
+  "where": "step 4",
+  "moves": "the names",
+  "also": null,
+  "proof": [
+   {
+    "line": 3375,
+    "says": "which companies face off"
+   }
+  ]
+ },
+ {
+  "input": "Names — AUTO or MANUAL · most per sleeve · concentration lean · names per sleeve (a toggle and 3 sliders)",
+  "where": "INPUTS · where it goes",
+  "moves": "the names",
+  "also": null,
+  "proof": [
+   {
+    "line": 2275,
+    "says": "the count of pick cards"
+   },
+   {
+    "line": 3483,
+    "says": "the knockout offers that many"
+   }
+  ]
+ },
+ {
+  "input": "Most names in all",
+  "where": "INPUTS · where it goes",
+  "moves": "the names",
+  "also": null,
+  "proof": [
+   {
+    "line": 3676,
+    "says": "the comps sheet refuses a pick past it"
+   }
+  ]
+ },
+ {
+  "input": "★ on a name",
+  "where": "step 8",
+  "moves": "the names",
+  "also": null,
+  "proof": [
+   {
+    "line": 3305,
+    "says": "adds the name to the comps sheet"
+   }
+  ]
+ },
+ {
+  "input": "Invested now",
+  "where": "INPUTS · where you are",
+  "moves": "the gap only",
+  "also": null,
+  "proof": [
+   {
+    "line": 2778,
+    "says": "the move is the target minus this; the target is not touched"
+   }
+  ]
+ },
+ {
+  "input": "Conviction, as one share",
+  "where": "INPUTS · listed for removal",
+  "moves": "nothing",
+  "also": null,
+  "proof": [
+   {
+    "line": 2758,
+    "says": "nothing computes with it: its only mentions are its own read-out and its row in this audit (lines 2758, 3122)"
+   }
+  ]
+ },
+ {
+  "input": "Index sleeve",
+  "where": "INPUTS · listed for removal",
+  "moves": "nothing",
+  "also": null,
+  "proof": [
+   {
+    "line": 1459,
+    "says": "the equal-weight fund is all or nothing now — the split does not read the dial; its only mentions are its read-out and its audit row (lines 2758, 3123)"
+   }
+  ]
+ },
+ {
+  "input": "Most sleeves",
+  "where": "INPUTS · listed for removal",
+  "moves": "nothing",
+  "also": null,
+  "proof": [
+   {
+    "line": 1456,
+    "says": "every candidate starts in — no cap is read; its only mentions are its read-out and its audit row (lines 2758, 3124)"
+   }
+  ]
+ },
+ {
+  "input": "…of which large caps",
+  "where": "INPUTS · listed for removal",
+  "moves": "nothing",
+  "also": null,
+  "proof": [
+   {
+    "line": 2777,
+    "says": "it only feeds two numbers that are handed to three functions and read by none of them (every line that names them: 2778, 2833, 2835, 2839, 3029, 3260, 3678)"
+   }
+  ]
+ },
+ {
+  "input": "Heat tilt toward large caps",
+  "where": "INPUTS · listed for removal",
+  "moves": "nothing",
+  "also": null,
+  "proof": [
+   {
+    "line": 2705,
+    "says": "it tilts a large / small split"
+   },
+   {
+    "line": 3708,
+    "says": "that is printed in one line of the audit trace and used nowhere else"
+   }
+  ]
+ },
+ {
+  "input": "Positions, large and small (stored, no control)",
+  "where": "the saved settings",
+  "moves": "nothing",
+  "also": null,
+  "proof": [
+   {
+    "line": 2775,
+    "says": "they divide a split that is handed on and read by nothing (every line that names the result: 2775, 2839, 3678)"
+   }
+  ]
+ },
+ {
+  "input": "Three Geiger dials from July (stored, no control)",
+  "where": "the saved settings",
+  "moves": "nothing",
+  "also": null,
+  "proof": [
+   {
+    "line": 2136,
+    "says": "their default is the only line that names them"
+   }
+  ]
+ },
+ {
+  "input": "The sector method (stored, no control)",
+  "where": "the saved settings",
+  "moves": "nothing",
+  "also": null,
+  "proof": [
+   {
+    "line": 1305,
+    "says": "it is only ever set to one word; nothing computes with it (every mention: 1305, 2173, 2174, 3129 — set here, two old migrations, its audit row)"
+   }
+  ]
+ },
+ {
+  "input": "Sectors or cohorts (stored, no control)",
+  "where": "the saved settings",
+  "moves": "the mix — and nothing on the page can set it",
+  "also": null,
+  "proof": [
+   {
+    "line": 2086,
+    "says": "read at load from the device"
+   },
+   {
+    "line": 2087,
+    "says": "the only line that could change it — nothing calls it (every mention of setAxis: 2087)"
+   }
+  ]
+ },
+ {
+  "input": "A section open or folded · what each voter is · refresh feeds",
+  "where": "every section · step 1 · step 8",
+  "moves": "what is drawn — no number",
+  "also": null,
+  "proof": [
+   {
+    "line": 3746,
+    "says": "the fold"
+   },
+   {
+    "line": 3739,
+    "says": "reads every source again"
+   }
+  ]
+ }
+]

@@ -1,0 +1,13 @@
+{
+ "before": {
+  "tests": 69,
+  "pass": 68,
+  "when": "7 Oct, 02:21–02:24 ET, on the evening of 6 Oct's code — its 71 tests less the two that write a labelled test row, which ran in a first pass whose output was not kept"
+ },
+ "after": {
+  "tests": 98,
+  "pass": 97,
+  "when": "7 Oct, 03:21–03:25 ET, every file, the two write-tests included; run again on the final code at 03:27–03:31 ET without those two: 95 of 96"
+ },
+ "note": "The one failure is the same on both sides: a check that the sector ranking is under three hours old, which fails by the clock at this hour. 27 tests are new."
+}

@@ -3073,6 +3073,7 @@ function renderScen(){
   const seg=(cls,eq,label,title)=>{ if(!(eq>0.0005)) return ''; const short=label.slice(label.lastIndexOf(' ')+1); return '<div class="'+cls+'" style="flex:'+eq.toFixed(4)+' 1 0" title="'+esc2(title).replace(/"/g,'')+'">'+(fits(eq,label)?'<span>'+esc2(label)+'</span>':fits(eq,short)?'<span>'+short+'</span>':'')+'</div>'; };
   const ap=approvedOf('MU');
   const rows=R.map(r=>{ const facts=[]; if(r.spy!=null) facts.push('S&P '+(+r.spy).toFixed(0)); if(r.rsi!=null) facts.push('RSI '+(+r.rsi).toFixed(0)); if(r.vix!=null) facts.push('VIX '+(+r.vix).toFixed(1)+(r.vixPct!=null?', the '+ord(r.vixPct)+' percentile of its year':''));
+    if(r.line!=null) facts.push('its three-evening average '+pc(r.line/100));   // the study's smoothed line, where it gives one (today's row)
     const mu=r.micron, muWord=(mu==null||!ap)?'':(mu>=ap.ceiling_pct/100-1e-9?'Micron at its '+ap.ceiling_pct+'% ceiling':mu>=ap.full_build_pct/100-1e-9?'room for Micron\'s full '+ap.full_build_pct+'% build':'Micron '+pc(mu)+' — short of its '+ap.full_build_pct+'% full build');
     const drift=(r.engineMicron!=null&&mu!=null&&Math.abs(r.engineMicron-mu)>0.0005)?' · the study\'s own Micron figure for this row is '+pc(r.engineMicron):'';
     return '<div class="a8-scen" data-key="'+esc2(r.key)+'"><div class="who"><b>'+esc2(r.title)+'</b><small>'+esc2(r.sub)+'</small></div>'+
