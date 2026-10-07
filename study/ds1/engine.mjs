@@ -112,8 +112,9 @@ export const DEFAULTS = {
   nebiusPct: 5,         // Nebius's conviction slot, % of the account
   coreWeights: { NVDA: 3, AVGO: 3, TSM: 3, ORCL: 3, AMZN: 2, GOOGL: 1, MU: 2 },   // rank weights inside the core, comps order; MU = Micron's core share (the memory sleeve)
   dips: [1.5, 3, 5],    // the dips drawn, % in SPY and QQQ together
+  dipCredit: 0,         // on the dips drawn: 0 = a calm dip, credit holds where it is (the headline number); the same dip with credit sold off as usual is always shown beside it
   spyPerQqq: 0.70,      // a 1% move in QQQ has gone with this many % in SPY (the build re-measures it over 120 sessions)
-  lineEvenings: 3,      // the line is the average of this many readings (this minute and the closes before it)
+  lineEvenings: 1,      // how many readings are averaged into the number that moves the tactical part: 1 = this minute's own (replayed 2018–2026 it did better than an average of 3 or 5, before costs, and moves about twice as much a session)
 };
 export function pie(reading, A = DEFAULTS, account = null) {
   const w = A.coreWeights, tot = Object.values(w).reduce((a, b) => a + b, 0) || 1, tactical = (A.tacticalPct * clamp(reading, 0, 100)) / 100;
@@ -133,40 +134,45 @@ export function pie(reading, A = DEFAULTS, account = null) {
 /* ---------- levels per name ----------
    For one name: its 21-, 50-, 100- and 200-day and the named pivots under the price, each with how far away it is and the QQQ and SPY
    level it maps to through the name's beta ("QQQ at its own 21-day puts TSMC near its 21-day"). lines = [{ id, level, kind }] or []. */
-export function levelsFor(sym, o, k, price, idx, lines = [], beta = BETA_QQQ[sym], spyPerQqq = DEFAULTS.spyPerQqq) {
+export function levelsFor(sym, o, k, price, idx, lines = [], beta = BETA_QQQ[sym], spyPerQqq = DEFAULTS.spyPerQqq, maxLines = 4) {
   const rows = []; for (const [id, a] of [["21-day", "s21"], ["50-day", "s50"], ["100-day", "s100"], ["200-day", "s200"]]) if (o[a][k] != null) rows.push({ id, kind: "average", level: o[a][k] });
-  for (const ln of lines) if (ln.level > 0 && ln.level < price * 1.001 && ln.level > price * 0.7) rows.push({ id: ln.id, kind: ln.kind || "line", level: ln.level });
+  /* the named pivots: the nearest few under the price; two lines within 0.15% of each other are one level with both names */
+  const under = lines.filter((ln) => ln.level > 0 && ln.level < price).sort((a, b) => b.level - a.level), merged = [];
+  for (const ln of under) { const last = merged[merged.length - 1]; if (last && Math.abs(last.level / ln.level - 1) < 0.0015) { if (!last.id.split(" / ").includes(ln.id)) last.id += " / " + ln.id; } else merged.push({ id: ln.id, kind: ln.kind || "line", level: ln.level }); }
+  rows.push(...merged.slice(0, maxLines));
   for (const r of rows) { r.awayPct = (r.level / price - 1) * 100; r.below = r.level < price;
     if (beta > 0 && idx) { const q = r.awayPct / beta; r.qqqMovePct = q; r.qqqAt = idx.qqq * (1 + q / 100); r.spyAt = idx.spy * (1 + (q * spyPerQqq) / 100);
-      /* which of QQQ's own averages that level sits nearest */
-      let best = null; for (const [nm, lv] of Object.entries(idx.qqqLevels || {})) { const gap = Math.abs(r.qqqAt / lv - 1) * 100; if (lv != null && (best == null || gap < best.gap)) best = { name: nm, gap }; } r.qqqNear = best && best.gap <= 1.0 ? best.name : null; } }
+      /* which of QQQ's own averages that level sits nearest (within 1%) */
+      let best = null; for (const [nm, lv] of Object.entries(idx.qqqLevels || {})) { if (lv == null) continue; const gap = Math.abs(r.qqqAt / lv - 1) * 100; if (best == null || gap < best.gap) best = { name: nm, gap }; } r.qqqNear = best && best.gap <= 1.0 ? best.name : null; } }
   return rows.sort((a, b) => b.level - a.level); }
 
 /* ---------- the reset tracker ----------
    A PUSH is a session where the name closes at its highest close of 60 sessions with its RSI at or above its own usual hot mark (the
-   75th percentile of its own past two years). The COOL-OFF is everything from the last push until the close is back above that push's
-   close (the next leg). Inside a cool-off the tracker keeps the lowest RSI, the lowest Williams %R and the lowest Geiger momentum.
+   75th percentile of its own past year). It starts a leg; the leg's TOP is the highest close since. The COOL-OFF is everything from
+   that top until the close is back above it (the next leg). Inside a cool-off the tracker keeps the lowest RSI, the lowest Williams %R and the lowest Geiger momentum.
    The build measures every past cool-off of each name (how low each gauge went before the leader resumed); the live page asks: how far
    has THIS cool-off gone against that name's own usual one? */
-export const PUSH = { window: 60, hotPct: 75, hotYears: 504, minSessions: 5, giveUp: 120 };
+export const PUSH = { window: 60, hotPct: 75, hotYears: 252, minSessions: 5, giveUp: 120, lookBack: 250 };   // hotYears + lookBack must fit inside the bars the live page holds (540)
 export function hotMark(R, k) { const v = []; for (let i = Math.max(0, k - PUSH.hotYears + 1); i <= k; i++) if (R[i] != null) v.push(R[i]); if (v.length < 150) return null; v.sort((a, b) => a - b); return v[Math.floor((v.length - 1) * (PUSH.hotPct / 100))]; }
 export function isPush(o, k) { if (o.c[k] == null || o.rsi[k] == null || k < PUSH.window) return false; for (let i = k - PUSH.window + 1; i < k; i++) if (o.c[i] != null && o.c[i] >= o.c[k]) return false; const hot = hotMark(o.rsi, k); return hot != null && o.rsi[k] >= hot; }
-/* every finished cool-off in a name's history: from a push until the close is back above the push's close (resumed) or the wait runs out */
+/* every finished cool-off in a name's history. A leg starts at a push; its TOP is the highest close since. A cool-off runs from a top until
+   the close is back above it (resumed — that close is the leg's new top, hot RSI or not) or until 120 sessions pass with no new high
+   (gave up — the leg is over, and the next one needs a new push). Only cool-offs of five sessions or more are kept. */
 export function coolOffs(o, dates) { const out = [], N = o.c.length; let k = PUSH.window;
   while (k < N) { if (!isPush(o, k)) { k++; continue; }
-    let p = k; while (p + 1 < N && o.c[p + 1] != null && o.c[p + 1] > o.c[p]) p++;   // ride the push to its last higher close
-    const top = o.c[p]; let j = p + 1, lowR = Infinity, lowW = Infinity, lowM = Infinity, lowC = Infinity, done = null;
-    for (; j < N; j++) { if (o.c[j] == null) continue; if (o.c[j] > top) { done = "resumed"; break; } if (o.rsi[j] != null && o.rsi[j] < lowR) lowR = o.rsi[j]; if (o.wr[j] != null && o.wr[j] < lowW) lowW = o.wr[j]; if (o.mom[j] != null && o.mom[j] < lowM) lowM = o.mom[j]; if (o.c[j] < lowC) lowC = o.c[j]; if (j - p >= PUSH.giveUp) { done = "gave up"; break; } }
-    if (done && j - p - 1 >= PUSH.minSessions && isFinite(lowR)) out.push({ push: dates[p], end: dates[Math.min(j, N - 1)], sessions: j - p - 1, how: done, lowRsi: lowR, lowWr: lowW, lowMom: lowM, dipPct: (lowC / top - 1) * 100, rsiAtPush: o.rsi[p], wrAtPush: o.wr[p], momAtPush: o.mom[p] });
-    k = done ? j : N; }
+    let T = k, lowR = Infinity, lowW = Infinity, lowM = Infinity, lowC = Infinity, j = k + 1, over = false; const rec = (how, end) => { if (end - T - 1 >= PUSH.minSessions && isFinite(lowR)) out.push({ push: dates[T], end: dates[Math.min(end, N - 1)], sessions: end - T - 1, how, lowRsi: lowR, lowWr: lowW, lowMom: lowM, dipPct: (lowC / o.c[T] - 1) * 100, rsiAtPush: o.rsi[T], wrAtPush: o.wr[T], momAtPush: o.mom[T] }); };
+    for (; j < N; j++) { if (o.c[j] == null) continue; if (o.c[j] > o.c[T]) { rec("resumed", j); T = j; lowR = lowW = lowM = lowC = Infinity; continue; }
+      if (o.rsi[j] != null && o.rsi[j] < lowR) lowR = o.rsi[j]; if (o.wr[j] != null && o.wr[j] < lowW) lowW = o.wr[j]; if (o.mom[j] != null && o.mom[j] < lowM) lowM = o.mom[j]; if (o.c[j] < lowC) lowC = o.c[j];
+      if (j - T >= PUSH.giveUp) { rec("gave up", j); over = true; break; } }
+    k = over ? j : N; }
   return out; }
-/* where a name stands now: the last push, the lows since it (each with its date), and whether the next leg has already begun
-   (a close back above the push's close ends the cool-off) */
-export function coolNow(o, dates, k) { let p = -1; for (let i = k; i >= Math.max(PUSH.window, k - 250); i--) if (isPush(o, i)) { p = i; break; }
-  if (p < 0) return { push: null, rsi: o.rsi[k], wr: o.wr[k], mom: o.mom[k], trend: o.trend[k] }; while (p + 1 <= k && o.c[p + 1] != null && o.c[p + 1] > o.c[p]) p++;
-  let lowR = Infinity, lowW = Infinity, lowM = Infinity, lowC = Infinity, rAt = null, wAt = null, mAt = null, cAt = null, resumed = null;
-  for (let j = p + 1; j <= k; j++) { if (o.c[j] == null) continue; if (o.c[j] > o.c[p]) { resumed = dates[j]; break; } if (o.rsi[j] != null && o.rsi[j] < lowR) { lowR = o.rsi[j]; rAt = dates[j]; } if (o.wr[j] != null && o.wr[j] < lowW) { lowW = o.wr[j]; wAt = dates[j]; } if (o.mom[j] != null && o.mom[j] < lowM) { lowM = o.mom[j]; mAt = dates[j]; } if (o.c[j] < lowC) { lowC = o.c[j]; cAt = dates[j]; } }
-  const fin = (x) => (isFinite(x) ? x : null); return { push: dates[p], pushClose: o.c[p], sessions: k - p, atHigh: p === k, resumed, lowRsi: fin(lowR), lowRsiAt: rAt, lowWr: fin(lowW), lowWrAt: wAt, lowMom: fin(lowM), lowMomAt: mAt, dipPct: isFinite(lowC) ? (lowC / o.c[p] - 1) * 100 : 0, dipAt: cAt, offPushPct: (o.c[k] / o.c[p] - 1) * 100, rsi: o.rsi[k], wr: o.wr[k], mom: o.mom[k], trend: o.trend[k] }; }
+/* where a name stands now: the last push inside the look-back, the top of the leg it started (the highest close since), and the lows
+   since that top, each with its date. gaveUp = 120 sessions or more without a new high (the leg is over). */
+export function coolNow(o, dates, k) { let p = -1; for (let i = k; i >= Math.max(PUSH.window, k - PUSH.lookBack); i--) if (isPush(o, i)) { p = i; break; }
+  if (p < 0) return { push: null, rsi: o.rsi[k], wr: o.wr[k], mom: o.mom[k], trend: o.trend[k] }; let T = p; for (let j = p + 1; j <= k; j++) if (o.c[j] != null && o.c[j] > o.c[T]) T = j;
+  let lowR = Infinity, lowW = Infinity, lowM = Infinity, lowC = Infinity, rAt = null, wAt = null, mAt = null, cAt = null;
+  for (let j = T + 1; j <= k; j++) { if (o.c[j] == null) continue; if (o.rsi[j] != null && o.rsi[j] < lowR) { lowR = o.rsi[j]; rAt = dates[j]; } if (o.wr[j] != null && o.wr[j] < lowW) { lowW = o.wr[j]; wAt = dates[j]; } if (o.mom[j] != null && o.mom[j] < lowM) { lowM = o.mom[j]; mAt = dates[j]; } if (o.c[j] < lowC) { lowC = o.c[j]; cAt = dates[j]; } }
+  const fin = (x) => (isFinite(x) ? x : null); return { push: dates[T], firstPush: dates[p], pushClose: o.c[T], sessions: k - T, atHigh: T === k, gaveUp: k - T >= PUSH.giveUp, resumed: null, lowRsi: fin(lowR), lowRsiAt: rAt, lowWr: fin(lowW), lowWrAt: wAt, lowMom: fin(lowM), lowMomAt: mAt, dipPct: isFinite(lowC) ? (lowC / o.c[T] - 1) * 100 : 0, dipAt: cAt, offPushPct: (o.c[k] / o.c[T] - 1) * 100, rsi: o.rsi[k], wr: o.wr[k], mom: o.mom[k], trend: o.trend[k] }; }
 /* one gauge against the name's own usual cool-off. usual = { q25, med, q75, start } of the lows of its past cool-offs (start = where the
    gauge stood at the push). Two marks, both the name's own:
      COOLED       at or under the mark the shallowest quarter of its past cool-offs reached (q75) — "reset, not necessarily oversold"
@@ -177,11 +183,35 @@ export function resetState(low, usual) { if (low == null || !usual || usual.med 
 
 /* ---------- a dip, drawn: SPY and QQQ fall x% together from the last bar, and everything else moves the way it usually has ----------
    scn = { vixPerPct, hygPerPct, iefPerPct, fundBeta: { SYM: beta to the blend } } (measured by the build). Names move by their beta to QQQ.
+   creditHolds = true draws the CALM dip: HYG and treasuries stay where they are, so only the indices, the VIX, the funds and the names move.
    Returns a copy of S whose LAST bar is the dip; the averages behind it are untouched. hygTR is moved with HYG. */
-export function dipSeries(S, hygTR, x, scn, beta = BETA_QQQ) {
-  const k = S.dates.length - 1, bars = {}, mv = (s) => (s === "SPY" || s === "QQQ" ? -x : s === "VIX" ? x * scn.vixPerPct : s === "HYG" ? -x * scn.hygPerPct : s === "IEF" ? x * scn.iefPerPct : beta[s] != null ? -x * beta[s] : -x * ((scn.fundBeta || {})[s] ?? 1));
+export function dipSeries(S, hygTR, x, scn, beta = BETA_QQQ, creditHolds = false) {
+  const k = S.dates.length - 1, bars = {}, mv = (s) => (s === "SPY" || s === "QQQ" ? -x : s === "VIX" ? x * scn.vixPerPct : s === "HYG" ? (creditHolds ? 0 : -x * scn.hygPerPct) : s === "IEF" ? (creditHolds ? 0 : x * scn.iefPerPct) : beta[s] != null ? -x * beta[s] : -x * ((scn.fundBeta || {})[s] ?? 1));
   for (const [s, b] of Object.entries(S.bars)) { if (!b || b.c[k] == null) { bars[s] = b; continue; } const c = b.c.slice(), h = b.h.slice(), l = b.l.slice(), n = c[k] * (1 + mv(s) / 100); c[k] = n; h[k] = Math.max(h[k] ?? n, n); l[k] = Math.min(l[k] ?? n, n); bars[s] = { c, h, l }; }
   let tr = hygTR; if (hygTR && hygTR[k] != null) { tr = hygTR.slice(); tr[k] = hygTR[k] * (1 + mv("HYG") / 100); }
   return { S: { dates: S.dates, bars }, hygTR: tr }; }
 /* the inputs of every part at session k of a readings table */
 export function inputsAt(X, k) { const o = {}; for (const key of Object.keys(X)) o[key] = X[key][k]; return o; }
+
+/* ---------- the stretched end: the rules tried for trimming the tactical part ----------
+   One list, read by the build (which scores each rule on history) and by the live page (which says which are on now), so "on now" and
+   "paid x times in y" are the same rule. ctx = stretchCtx(readings); i = a session. */
+export function stretchCtx(RD, S) { const spy = S.bars.SPY.c, qqq = S.bars.QQQ.c; return { X: RD.X, rsS: RD.ind.SPY.rsi, rsQ: RD.ind.QQQ.rsi, wrS: RD.ind.SPY.wr, wrQ: RD.ind.QQQ.wr, d50pl: yearPlaces(RD.X.d50), ldDpl: yearPlaces(RD.X.ldD50),
+  offHigh: (i, n) => { let hi = 0; for (let k = 0; k < n && i - k >= 0; k++) hi = Math.max(hi, (0.5 * spy[i - k]) / spy[i] + (0.5 * qqq[i - k]) / qqq[i]); return hi; } }; }
+const both70 = (c, i) => c.rsS[i] >= 70 && c.rsQ[i] >= 70, pinned3 = (c, i) => i >= 2 && [0, 1, 2].every((k) => c.wrS[i - k] >= -10 && c.wrQ[i - k] >= -10), vixLow = (c, i) => c.X.vixPct[i] != null && c.X.vixPct[i] <= 10, ldHot = (c, i) => c.X.ldHot[i] != null && c.X.ldHot[i] >= 50;
+export const STRETCH = [
+  { key: "rsi70", name: "SPY and QQQ both at RSI 70 or more", f: both70 },
+  { key: "rsi75", name: "their average RSI at 75 or more", f: (c, i) => c.X.rsi[i] >= 75 },
+  { key: "wr3", name: "both pinned at the top of their range (Williams %R above −10) three sessions running", f: pinned3 },
+  { key: "vixLow", name: "the VIX in the lowest tenth of its own year", f: vixLow },
+  { key: "d50top", name: "SPY and QQQ further above their 50-day than on nine evenings in ten of the past year", f: (c, i) => c.d50pl[i] != null && c.d50pl[i] >= 90 },
+  { key: "ldHot", name: "half or more of the core candidates at RSI 70 or more", f: ldHot },
+  { key: "ldExt", name: "the core candidates further above their 50-day than on nine evenings in ten of the past year", f: (c, i) => c.ldDpl[i] != null && c.ldDpl[i] >= 90 },
+  { key: "rsi70+vixLow", name: "both at RSI 70+ and the VIX in its lowest tenth", f: (c, i) => both70(c, i) && vixLow(c, i) },
+  { key: "rsi70+ldHot", name: "both at RSI 70+ and half the core candidates at RSI 70+", f: (c, i) => both70(c, i) && ldHot(c, i) },
+  { key: "rsi70+wr3", name: "both at RSI 70+ and pinned at the top three sessions", f: (c, i) => both70(c, i) && pinned3(c, i) },
+  { key: "all3", name: "all three: both at RSI 70+, the VIX in its lowest tenth, half the core candidates at RSI 70+", f: (c, i) => both70(c, i) && vixLow(c, i) && ldHot(c, i) },
+  { key: "narrow", addedAfterFirstRun: true, name: "SPY and QQQ within 1% of their 60-session high while a third or fewer of the sector and equal-weight funds hold their 50-day", f: (c, i) => i >= 60 && c.X.br50[i] != null && c.X.br50[i] <= 34 && c.offHigh(i, 60) <= 1.01 },
+  { key: "rsiCool", name: "RSI was 70+ within ten sessions and has cooled under 60 with price within 2% of the high", f: (c, i) => { if (i < 12 || !(c.X.rsi[i] < 60)) return false; let was = false; for (let k = 1; k <= 10; k++) if (c.X.rsi[i - k] >= 70) was = true; return was && c.offHigh(i, 21) <= 1.02; } },
+];
+export function stretchNow(ctx, i, reading) { const on = {}; for (const r of STRETCH) { try { on[r.key] = !!r.f(ctx, i); } catch (e) { on[r.key] = false; } } on.readingLow = reading != null && reading < 20; return on; }

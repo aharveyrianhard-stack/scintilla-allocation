@@ -1,0 +1,27 @@
+/* DS1 — the pictures, headless, every non-GET blocked, one page at a time: the deployment system in the allocation tool (index.html,
+   step 2) and the study page (study/ds1/DS1.html), each at 1680 and 390.   node scripts/ds1-shots.mjs [outdir] [tool|study|all] */
+import fs from "node:fs"; import path from "node:path"; import { openPage, ROOT } from "../tests/_harness.mjs";
+const OUT = process.argv[2] || path.join(ROOT, "study/ds1/pictures"), WHAT = process.argv[3] || "all"; fs.mkdirSync(OUT, { recursive: true });
+const report = [];
+const clipOf = (page, sel) => page.evaluate((s) => { const e = document.querySelector(s); if (!e) return null; const r = e.getBoundingClientRect(); return { x: Math.max(0, r.left + scrollX), y: r.top + scrollY, width: Math.min(r.width, innerWidth), height: r.height }; }, sel);
+if (WHAT !== "study") for (const [w, h] of [[1680, 1050], [390, 844]]) { const P = await openPage({ width: w, height: h }); const { page } = P;
+  try { await page.waitForFunction(() => window.DS1_LIVE_READY === true, null, { timeout: 120000 }); await page.waitForTimeout(1500);
+    /* 1 · step 2 as it loads (folded to one screen, the page's own rule) */
+    await page.evaluate(() => { document.getElementById("ds1live").closest(".panel").scrollIntoView({ block: "start" }); window.scrollBy(0, -70); }); await page.waitForTimeout(300);
+    await page.screenshot({ path: path.join(OUT, `ds1-tool-1-step-2-as-it-loads-${w}.png`) });
+    /* open the step from its corner, then picture each part of the block */
+    await page.evaluate(() => { const p = document.getElementById("ds1live").closest(".panel"); if (p.classList.contains("folded")) { const b = p.querySelector(".pfold"); if (b) b.click(); } }); await page.waitForTimeout(500);
+    const shots = [["2-the-reading-and-the-parts-in-points", "#ds1-root .g2"], ["3-the-pie-the-slices-and-the-dips", "#ds1money"], ["4-levels-and-the-reset-tracker", "#ds1-root .names"], ["5-the-stretched-end", "#ds1-root .rules"], ["6-the-whole-block", "#ds1live"]];
+    for (const [name, sel] of shots) { const clip = await clipOf(page, sel); if (clip && clip.height > 4) await page.screenshot({ path: path.join(OUT, `ds1-tool-${name}-${w}.png`), fullPage: true, clip: { x: Math.max(0, clip.x - 8), y: Math.max(0, clip.y - 30), width: Math.min(w, clip.width + 16), height: clip.height + 40 } }); }
+    const info = await page.evaluate(() => { const r = document.getElementById("ds1-root"), st = window.DS1_LIVE; const leaves = [...document.querySelectorAll("#ds1live *")].filter((e) => e.children.length === 0 && e.textContent.trim() && getComputedStyle(e).display !== "none" && e.getBoundingClientRect().width > 0 && !e.closest("svg"));
+      return { reading: r && r.dataset.reading, deployed: r && r.dataset.deployed, session: r && r.dataset.session, live: r && r.dataset.live, invested: r && r.dataset.invested, held: r && r.dataset.held, reads: st && st.reads, error: st && st.error, age: (document.getElementById("ds1-age") || {}).textContent, head: document.querySelector("#ds1-root .hd").innerText.replace(/\s+/g, " ").slice(0, 400), parts: document.querySelectorAll("#ds1-root .pt").length, names: document.querySelectorAll("#ds1-root .nc").length, slices: document.querySelectorAll("#ds1money tr[data-slice]").length, rulesOn: [...document.querySelectorAll("#ds1-root .rule[data-on='1']")].map((e) => e.dataset.rule), scrollW: document.scrollingElement.scrollWidth, innerW: innerWidth, minFont: Math.min(...leaves.map((e) => parseFloat(getComputedStyle(e).fontSize))), smallest: leaves.filter((e) => parseFloat(getComputedStyle(e).fontSize) < 11).slice(0, 5).map((e) => e.tagName + "." + e.className + ":" + e.textContent.slice(0, 30)) }; });
+    report.push({ page: "index.html", width: w, errors: P.errors, nonGet: P.nonGet.blocked + P.nonGet.allowed, ...info }); } finally { await P.close(); } }
+if (WHAT !== "tool") for (const [w, h] of [[1680, 1050], [390, 844]]) { const P = await openPage({ width: w, height: h, path: "study/ds1/DS1.html" }); const { page } = P;
+  try { await page.waitForFunction(() => window.DS1_PAGE_READY === true, null, { timeout: 120000 }); await page.waitForFunction(() => [...document.querySelectorAll("img")].every((i) => i.complete), null, { timeout: 60000 }); await page.waitForTimeout(800);
+    await page.screenshot({ path: path.join(OUT, `ds1-page-00-first-screen-${w}.png`) });
+    const ids = await page.evaluate(() => [...document.querySelectorAll("section.panel[id]")].map((p) => p.id));
+    for (const id of ids) await page.locator("#" + id).screenshot({ path: path.join(OUT, `ds1-page-${id.replace(/^p-/, "")}-${w}.png`) });
+    await page.screenshot({ path: path.join(OUT, `ds1-page-99-full-page-${w}.png`), fullPage: true });
+    const info = await page.evaluate(() => ({ scrollW: document.scrollingElement.scrollWidth, innerW: innerWidth, minFont: Math.min(...[...document.querySelectorAll("body *")].filter((e) => e.children.length === 0 && e.textContent.trim() && getComputedStyle(e).display !== "none" && e.getBoundingClientRect().width > 0 && !e.closest("svg")).map((e) => parseFloat(getComputedStyle(e).fontSize))), panels: document.querySelectorAll("section.panel[id]").length }));
+    report.push({ page: "study/ds1/DS1.html", width: w, errors: P.errors, nonGet: P.nonGet.blocked + P.nonGet.allowed, ...info }); } finally { await P.close(); } }
+console.log(JSON.stringify(report, null, 1)); console.log("pictures in", OUT, fs.readdirSync(OUT).length);
