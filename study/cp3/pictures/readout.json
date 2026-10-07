@@ -72,49 +72,49 @@
   },
   "prints_live": {
    "GOOGL": {
-    "price": 346.01,
+    "price": 346.1058,
     "text": "24.1×"
    },
    "AMZN": {
-    "price": 257.9472,
+    "price": 258.18,
     "text": "25.9×"
    },
    "AVGO": {
-    "price": 373.59,
+    "price": 374.1501,
     "text": "21.5×"
    },
    "NVDA": {
-    "price": 237.3272,
+    "price": 237.42,
     "text": "19.8×"
    },
    "TSM": {
-    "price": 473.1,
+    "price": 473.14,
     "text": "≈22.6×"
    },
    "VST": {
-    "price": 163.33,
+    "price": 163.415,
     "text": "15.9×"
    },
    "MU": {
-    "price": 1072.2,
+    "price": 1071.466,
     "text": "6.2×"
    },
    "ORCL": {
-    "price": 144.126,
+    "price": 143.8479,
     "text": "16.9×"
    },
    "DLR": {
-    "price": 182.295,
+    "price": 182.3424,
     "text": "74.8×"
    },
    "EQIX": {
-    "price": 1035.17,
-    "text": "57.3×"
+    "price": 1033.735,
+    "text": "57.2×"
    }
   },
   "knockout_rows_on_card": 24,
   "mu": {
-   "fwd_pe": 6.15986557452093,
+   "fwd_pe": 6.15564869210002,
    "card": {
     "date": "2026-10-06",
     "fields": [
@@ -128,61 +128,61 @@
   "smallest_font_px": 11,
   "under_11px": [],
   "price_source": {
-   "ts": "2026-10-07T15:40:32.120Z",
+   "ts": "2026-10-07T15:43:08.135Z",
    "mode": "LIVE",
-   "note": "321 prices from the chart API · 321 fresh"
+   "note": "321 prices from the chart API · 320 fresh"
   },
   "any_live_core_price": true,
   "prints_now": {
    "GOOGL": {
-    "price": 346.01,
+    "price": 346.1058,
     "live": true,
     "text": "24.1×"
    },
    "AMZN": {
-    "price": 257.9472,
+    "price": 258.18,
     "live": true,
     "text": "25.9×"
    },
    "AVGO": {
-    "price": 373.59,
+    "price": 374.1501,
     "live": true,
     "text": "21.5×"
    },
    "NVDA": {
-    "price": 237.3272,
+    "price": 237.42,
     "live": true,
     "text": "19.8×"
    },
    "TSM": {
-    "price": 473.1,
+    "price": 473.14,
     "live": true,
     "text": "≈22.6×"
    },
    "VST": {
-    "price": 163.33,
+    "price": 163.415,
     "live": true,
     "text": "15.9×"
    },
    "MU": {
-    "price": 1072.2,
+    "price": 1071.466,
     "live": true,
     "text": "6.2×"
    },
    "ORCL": {
-    "price": 144.126,
+    "price": 143.8479,
     "live": true,
     "text": "16.9×"
    },
    "DLR": {
-    "price": 182.295,
+    "price": 182.3424,
     "live": true,
     "text": "74.8×"
    },
    "EQIX": {
-    "price": 1035.17,
+    "price": 1033.735,
     "live": true,
-    "text": "57.3×"
+    "text": "57.2×"
    }
   },
   "internal_codes": [],
@@ -272,49 +272,49 @@
   },
   "prints_live": {
    "GOOGL": {
-    "price": 345.925,
+    "price": 346.0629,
     "text": "24.1×"
    },
    "AMZN": {
-    "price": 257.81,
+    "price": 258.33,
     "text": "25.9×"
    },
    "AVGO": {
-    "price": 373.78,
+    "price": 374.2035,
     "text": "21.5×"
    },
    "NVDA": {
-    "price": 237.3172,
+    "price": 237.416,
     "text": "19.8×"
    },
    "TSM": {
-    "price": 473.16,
+    "price": 473.1988,
     "text": "≈22.6×"
    },
    "VST": {
-    "price": 163.3,
+    "price": 163.425,
     "text": "15.9×"
    },
    "MU": {
-    "price": 1072.18,
+    "price": 1071.5205,
     "text": "6.2×"
    },
    "ORCL": {
-    "price": 144.19,
+    "price": 143.9,
     "text": "16.9×"
    },
    "DLR": {
-    "price": 182.2381,
-    "text": "74.7×"
+    "price": 182.33,
+    "text": "74.8×"
    },
    "EQIX": {
-    "price": 1034.369,
-    "text": "57.3×"
+    "price": 1033.73,
+    "text": "57.2×"
    }
   },
   "knockout_rows_on_card": 24,
   "mu": {
-   "fwd_pe": 6.159750673092567,
+   "fwd_pe": 6.15596179849231,
    "card": {
     "date": "2026-10-06",
     "fields": [
@@ -328,61 +328,61 @@
   "smallest_font_px": 11,
   "under_11px": [],
   "price_source": {
-   "ts": "2026-10-07T15:40:16.609Z",
+   "ts": "2026-10-07T15:42:48.283Z",
    "mode": "LIVE",
-   "note": "321 prices from the chart API · 321 fresh"
+   "note": "321 prices from the chart API · 320 fresh"
   },
   "any_live_core_price": true,
   "prints_now": {
    "GOOGL": {
-    "price": 345.925,
+    "price": 346.0629,
     "live": true,
     "text": "24.1×"
    },
    "AMZN": {
-    "price": 257.81,
+    "price": 258.33,
     "live": true,
     "text": "25.9×"
    },
    "AVGO": {
-    "price": 373.78,
+    "price": 374.2035,
     "live": true,
     "text": "21.5×"
    },
    "NVDA": {
-    "price": 237.3172,
+    "price": 237.416,
     "live": true,
     "text": "19.8×"
    },
    "TSM": {
-    "price": 473.16,
+    "price": 473.1988,
     "live": true,
     "text": "≈22.6×"
    },
    "VST": {
-    "price": 163.3,
+    "price": 163.425,
     "live": true,
     "text": "15.9×"
    },
    "MU": {
-    "price": 1072.18,
+    "price": 1071.5205,
     "live": true,
     "text": "6.2×"
    },
    "ORCL": {
-    "price": 144.19,
+    "price": 143.9,
     "live": true,
     "text": "16.9×"
    },
    "DLR": {
-    "price": 182.2381,
+    "price": 182.33,
     "live": true,
-    "text": "74.7×"
+    "text": "74.8×"
    },
    "EQIX": {
-    "price": 1034.369,
+    "price": 1033.73,
     "live": true,
-    "text": "57.3×"
+    "text": "57.2×"
    }
   },
   "internal_codes": [],
