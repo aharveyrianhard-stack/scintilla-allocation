@@ -1,0 +1,122 @@
+[
+ {
+  "id": "three_orders",
+  "rule": "At most three working orders, re-priced each evening",
+  "verdict": "keep",
+  "change": "keep the cap · change the spacing",
+  "number": "1,036.13 and 1,030.40 are 0.55% apart; Micron’s usual day is 3.3% ($34). In its 48 set-ups the first two drafts filled in the same session 65% of the time and all three working drafts 23%. The cap only stops a falling knife when the orders are about a usual day apart.",
+  "tool": "replay · arch"
+ },
+ {
+  "id": "bigger_lower",
+  "rule": "Sizes growing as price falls (18 / 22 / 27 / 37 shares)",
+  "verdict": "keep",
+  "change": "keep on the drafts as placed",
+  "number": "On the drafts it bought 0.4 points cheaper than equal quarters and changed the 60-session result by −0.5 points (−1.2 to 0.0). It turns costly only when the low rungs are far: on the 21 / 50 / 100-day ladder it changed the result by −1.4 points (−2.3 to −0.6), because the 100-day buy filled inside 60 sessions in 56% of Micron’s set-ups.",
+  "tool": "replay · bootstrap"
+ },
+ {
+  "id": "wait_for_levels",
+  "rule": "Wait for the levels instead of buying at the 21-day",
+  "verdict": "keep",
+  "change": "keep, knowing the price",
+  "number": "The four drafts against everything at the 21-day, Micron’s 48 set-ups: 2.3 points cheaper, 2.1 points less drawdown, 3.9 points less result at 60 sessions (−8.5 to −0.2). At least one draft filled inside 20 sessions in 92% of cases; in 6% none did inside 60 — the run-away case. Tonight’s readings favour waiting: in the 31 cases with the 50- and 100-day bunched as now, the fourth draft’s level was reached inside 20 sessions in 84%, and the middle case 60 sessions on was +1.8% for the drafts against −0.3% for everything at the 21-day.",
+  "tool": "replay · bootstrap"
+ },
+ {
+  "id": "stop_100_close",
+  "rule": "The add-on stop: out on a daily close under the 100-day",
+  "verdict": "change",
+  "change": "keep it on the close · keep it off the buy line · candidate: a 3% band under the line",
+  "number": "As it stands it changed the 60-session result by −2.5 points (−3.5 to −1.5) and the 120-session result by −6.4 (−8.4 to −4.5), for 5.2 points less drawdown inside 120 sessions, with 287 stops and 219 whipsaws per 100 cases. The 100-day buy was sold again inside five sessions in 86% of the cases where it filled. Requiring a close 3% or more under the line cut the whipsaws to 120 per 100 and changed the 120-session result by +0.7 points (+0.1 to +1.3); on Micron’s own set-ups +1.9 (+0.3 to +3.8). On Micron’s own 48 set-ups the stop as it stands changed the 60-session result by −1.6 (−3.8 to +0.6) for 5.3 points less drawdown. Tonight the stop line is 3.0% under the fourth draft; with Micron flat it is within 1% of it by 15 Oct 2026.",
+  "tool": "replay · bootstrap"
+ },
+ {
+  "id": "daily_not_intraday",
+  "rule": "Daily-close stops, not intraday prints",
+  "verdict": "keep",
+  "change": "keep",
+  "number": "On 325 one-candle flushes through a rising 100-day the intraday stop sold 2.7% under that day’s close and the share ended −3.1% on average 60 sessions on, against −0.5% with the daily-close stop and +3.6% held. Over all 2,780 breaches the intraday stop traded 5.0 times a case against 2.7.",
+  "tool": "breach-day replay"
+ },
+ {
+  "id": "buy_back",
+  "rule": "Buy back on a daily close above the 100-day",
+  "verdict": "keep",
+  "change": "keep — it is what makes a stop affordable",
+  "number": "Micron: 31 first closes under a rising 100-day; 26 closed back over it inside 60 sessions (middle case: 1 session) and all 26 were bought back dearer than sold (+3.7% in the middle case). A stop with no way back did worse: the fixed stop changed the 120-session result by −12.0 points.",
+  "tool": "replay"
+ },
+ {
+  "id": "kick_out_buy_lower",
+  "rule": "“A stop that kicks out the position but buys lower”",
+  "verdict": "change",
+  "change": "daily-close version only",
+  "number": "One-candle version: the flush candle reached the lower buys 10% of the time. Daily-close version (out at the next open, three buys 5 / 6.5 / 8% under the line, buy back the rest on a close over it): the share ended +2.6% on average against +3.3% held; worst tenth −17.7% against −19.4%.",
+  "tool": "breach-day replay"
+ },
+ {
+  "id": "deep_bid_vix",
+  "rule": "Deep bid 5–8% under the 100-day, only with the VIX at 20 or more",
+  "verdict": "keep",
+  "change": "keep — the VIX test is a risk filter",
+  "number": "Added to the stop it made +2.6 points at 60 sessions (+1.4 to +4.1) and +7.2 at 120 (+4.6 to +9.6), and gave back 4.3 points of the stop’s drawdown protection (−5.7 to −2.9). At any VIX it earned about the same (−0.1, −0.9 to +0.6) with 1.2 points more drawdown (−2.0 to −0.5). Off today (VIX 15.01); the bids would sit at 912 to 883, 3.9–4.7 usual days away, reached inside 10 sessions 14% to 8% of the time.",
+  "tool": "replay · bootstrap · arch"
+ },
+ {
+  "id": "fixed_13",
+  "rule": "A fixed stop 13% under the first fill (the old 900)",
+  "verdict": "drop",
+  "change": "drop",
+  "number": "Hit in 58% of 562 leader pullbacks and 42% of Micron’s 48 inside 120 sessions, with nothing bought back: −3.7 points at 60 sessions (−5.7 to −2.0), −12.0 at 120 (−16.7 to −7.7). The usual pullback is as deep as the stop: the deepest dip inside 60 sessions was −12.2% in the middle case.",
+  "tool": "replay · bootstrap"
+ },
+ {
+  "id": "vix_rule",
+  "rule": "Buy on a VIX spike above 20, with both hands above 23",
+  "verdict": "keep",
+  "change": "keep as the trigger for buying leaders — not as a market call",
+  "number": "For SPY the spike itself shows no edge: after 93 spikes above 20, −0.2 points at 60 sessions (−1.8 to +1.2); above 23 (71 spikes) −0.7 (−3.0 to +1.5). For leader pullbacks it does: the 213 that began with the VIX at 20 or more made +7.5 points more over 60 sessions than the 349 that did not (+0.7 to +15.0). The 20 and 23 lines still sit on the VIX’s 80th and 90th percentiles of the past year (19.9 and 23.6).",
+  "tool": "arch bootstrap · statsmodels"
+ },
+ {
+  "id": "credit_200",
+  "rule": "Credit under its 200-day is a caution",
+  "verdict": "keep",
+  "change": "keep — and it is on now",
+  "number": "With payouts added back, credit has been under its 200-day since 23 Sep 2026. SPY 60 sessions on: +0.9% against +3.1%, edge −2.2 points (−6.4 to +2.4), share higher 62% against 77%. Micron: +2.2% against +12.6%, edge −10.4 points (−20.3 to +0.3) — the nearest thing here to a proven rule, and it leans against Micron today.",
+  "tool": "arch bootstrap · statsmodels"
+ },
+ {
+  "id": "ten_short",
+  "rule": "The 10-year, short clock: a stretched yield read contrarian",
+  "verdict": "change",
+  "change": "contrarian on the low side only",
+  "number": "Yield washed out (bottom fifth of its year): SPY +1.0 points at 60 sessions (−0.6 to +2.4), share higher +9 points (+1 to +17). Yield stretched high, as now (RSI in the top 6% of its year): −0.7 (−2.2 to +0.8) — not a plus.",
+  "tool": "arch bootstrap · statsmodels"
+ },
+ {
+  "id": "ten_long",
+  "rule": "The 10-year, long clock: yield above its 200-day is a mild negative",
+  "verdict": "keep",
+  "change": "keep as backdrop, with no say in a panic",
+  "number": "SPY after evenings with the yield above its 200-day (as now: 5.27% against 4.46%): −0.7 points at 60 sessions (−2.4 to +1.0), −0.9 at 120 (−3.9 to +2.1).",
+  "tool": "arch bootstrap · statsmodels"
+ },
+ {
+  "id": "extremes",
+  "rule": "Extremes read contrarian (a rush to safety is fear, and fear is where stocks get bought)",
+  "verdict": "keep",
+  "change": "keep for the VIX, long bonds and gold · drop oil from the list",
+  "number": "SPY 20 sessions on — rush into long bonds +0.6 points (−0.4 to +1.5), share higher +11 (+1 to +19); gold +0.6 (−0.1 to +1.4); VIX in the top tenth of its year +0.6 (−1.0 to +2.0); two or more at once +0.8 (−0.5 to +2.0). Oil dumped has the wrong sign: −1.7 at 60 sessions (−4.9 to +0.7).",
+  "tool": "arch bootstrap · statsmodels"
+ },
+ {
+  "id": "twentyone_safe",
+  "rule": "“If it reaches the 21-day, that’s safe”",
+  "verdict": "change",
+  "change": "expect the 50-day",
+  "number": "18% of 562 leader pullbacks held the 21-day for 10 sessions; 61% touched the 50-day inside 20 and 23% the 100-day. With the 50- and 100-day bunched like Micron’s (31 cases): 90% and 55%.",
+  "tool": "leader comparison"
+ }
+]

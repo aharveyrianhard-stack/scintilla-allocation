@@ -1,0 +1,203 @@
+{
+ "note": "PB2 (7 Oct 2026). The first 19 names are the coordinator's own leader list of 7 Oct (kept in its order so its 185 cases can be reproduced). The rest widen the comparison. A name only ever counts when the rule itself calls it a leader on that day (25% or more over its own rising 200-day). Each name carries the sector fund it is read against.",
+ "coordinator19": [
+  "NVDA",
+  "MU",
+  "AMD",
+  "TSLA",
+  "META",
+  "NFLX",
+  "SMCI",
+  "ANET",
+  "AAPL",
+  "MSFT",
+  "AVGO",
+  "LRCX",
+  "AMAT",
+  "KLAC",
+  "TSM",
+  "ASML",
+  "PLTR",
+  "AMZN",
+  "GOOGL"
+ ],
+ "sector_fund": {
+  "SMH": [
+   "NVDA",
+   "MU",
+   "AMD",
+   "AVGO",
+   "LRCX",
+   "AMAT",
+   "KLAC",
+   "TSM",
+   "ASML",
+   "QCOM",
+   "MRVL",
+   "TXN",
+   "ADI",
+   "ON",
+   "MPWR",
+   "ARM",
+   "INTC"
+  ],
+  "XLK": [
+   "AAPL",
+   "MSFT",
+   "ANET",
+   "SMCI",
+   "PLTR",
+   "ORCL",
+   "CRM",
+   "ADBE",
+   "NOW",
+   "PANW",
+   "CRWD",
+   "SNOW",
+   "DDOG",
+   "NET",
+   "ZS",
+   "SHOP",
+   "APP",
+   "MSTR",
+   "INTU",
+   "CDNS",
+   "SNPS",
+   "FTNT",
+   "DELL",
+   "WDC",
+   "STX",
+   "SNDK",
+   "ENPH",
+   "FSLR",
+   "TTD",
+   "CRDO",
+   "COHR"
+  ],
+  "XLC": [
+   "GOOGL",
+   "META",
+   "NFLX",
+   "SPOT",
+   "RBLX",
+   "DIS"
+  ],
+  "XLY": [
+   "AMZN",
+   "TSLA",
+   "CMG",
+   "LULU",
+   "DECK",
+   "NKE",
+   "BKNG",
+   "MELI",
+   "ABNB",
+   "CVNA",
+   "HD",
+   "ULTA"
+  ],
+  "XLV": [
+   "LLY",
+   "NVO",
+   "ISRG",
+   "REGN",
+   "VRTX",
+   "UNH",
+   "DXCM",
+   "MRNA"
+  ],
+  "XLF": [
+   "JPM",
+   "GS",
+   "V",
+   "MA",
+   "COIN",
+   "HOOD",
+   "KKR"
+  ],
+  "XLI": [
+   "GE",
+   "CAT",
+   "DE",
+   "URI",
+   "AXON",
+   "TDG",
+   "GEV",
+   "ETN",
+   "PWR",
+   "VRT",
+   "UBER"
+  ],
+  "XLE": [
+   "XOM",
+   "OXY",
+   "FANG"
+  ],
+  "XLU": [
+   "VST",
+   "CEG",
+   "NRG"
+  ],
+  "XLB": [
+   "FCX",
+   "NUE"
+  ],
+  "XLP": [
+   "COST",
+   "WMT",
+   "MNST",
+   "CELH"
+  ]
+ },
+ "fund_fallback": {
+  "XLC": "QQQ"
+ },
+ "market": [
+  "SPY",
+  "QQQ",
+  "VIX",
+  "HYG",
+  "US10Y",
+  "TLT",
+  "GCUSD",
+  "CLUSD"
+ ],
+ "named_periods": [
+  {
+   "label": "Nvidia 2016–2018",
+   "sym": "NVDA",
+   "from": "2016-01-01",
+   "to": "2018-12-31"
+  },
+  {
+   "label": "AMD 2019–2020",
+   "sym": "AMD",
+   "from": "2019-01-01",
+   "to": "2020-12-31"
+  },
+  {
+   "label": "Tesla 2020",
+   "sym": "TSLA",
+   "from": "2020-01-01",
+   "to": "2020-12-31"
+  },
+  {
+   "label": "Nvidia 2023–2024",
+   "sym": "NVDA",
+   "from": "2023-01-01",
+   "to": "2024-12-31"
+  },
+  {
+   "label": "Broadcom 2024",
+   "sym": "AVGO",
+   "from": "2024-01-01",
+   "to": "2024-12-31"
+  },
+  {
+   "label": "Palantir 2025",
+   "sym": "PLTR",
+   "from": "2025-01-01",
+   "to": "2025-12-31"
+  }
+ ]
+}

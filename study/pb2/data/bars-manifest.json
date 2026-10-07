@@ -1,0 +1,1064 @@
+{
+ "AAPL": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 333.63,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "41660774922159716d20047678e6222384c1be1d25d50f47f9e5985c74026c30"
+ },
+ "ABNB": {
+  "bars": 1461,
+  "first": "2020-12-10",
+  "last": "2026-10-06",
+  "last_close": 160.39,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "755344584777618aa173a3ab4b83decb3686c30e040b07e016fb4617159eefa3"
+ },
+ "ADBE": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 238.12,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "ffd5230e8c63c8c20e2ac9b235ee47accb6911bf6a6deb36331f8768383e6b12"
+ },
+ "ADI": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 420.55,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "40d29b6ab55d9713c453ac05883419ae2127c23db4503af1a31f8b05cb174562"
+ },
+ "AMAT": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 530.27,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "1457e6011f1e39bb39f31f3507a1ca914d51d556bf00fb8c0aa41a77da2f3bc1"
+ },
+ "AMD": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 649.42,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "ffac077aa6acaa7e5802667be6d146aeb1f8ac90fe4466f49d6afe543cb63aaf"
+ },
+ "AMZN": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 256.29,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "f2a2e223834b568eee0066895531efbbbe1c8f3281012d74700323a9bc2e0b34"
+ },
+ "ANET": {
+  "bars": 3102,
+  "first": "2014-06-06",
+  "last": "2026-10-06",
+  "last_close": 215.36,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "3e1b74838e84f3672f3b677c8cd93deadd2c3c34d64638a365530fcea8989799"
+ },
+ "APP": {
+  "bars": 1376,
+  "first": "2021-04-15",
+  "last": "2026-10-06",
+  "last_close": 278.78,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "bba9675b3fdcab103b84a2b452f3baded36069162520a5e6661024d0e63d9f74"
+ },
+ "ARM": {
+  "bars": 768,
+  "first": "2023-09-14",
+  "last": "2026-10-06",
+  "last_close": 302.56,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "4965034b4e354c27018bcec504af778a89bb41b4634793f2423d150f37ad3d7f"
+ },
+ "ASML": {
+  "bars": 5784,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 1834.1,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "b1520de19ed2a95ed0c3b11e14fbd9418f784456edf1827a96a3cc8e61229cad"
+ },
+ "AVGO": {
+  "bars": 4318,
+  "first": "2009-08-06",
+  "last": "2026-10-06",
+  "last_close": 375.81,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "1c0ad4a0a7e751b840ba84d140dd747570062aed496b8d0b8b214e25bcad3c8f"
+ },
+ "AXON": {
+  "bars": 1431,
+  "first": "2021-01-26",
+  "last": "2026-10-06",
+  "last_close": 418.62,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "a7041b82ef9231840fb3afb188108c66048ec45541ac31202a3f1f9640fb837f"
+ },
+ "BKNG": {
+  "bars": 2164,
+  "first": "2018-02-27",
+  "last": "2026-10-06",
+  "last_close": 157.63,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "6778155dc06635164571478d88b2f436fde145c4c0e0fa9bd4493ab9d14d32b8"
+ },
+ "CAT": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 863.44,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "b9ba918e9334db847ed35f37a13e695b0d1f8facbbd2e4a6e643b00f732348fa"
+ },
+ "CDNS": {
+  "bars": 5805,
+  "first": "2003-09-10",
+  "last": "2026-10-06",
+  "last_close": 359.55,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "bcf11f49b03e11d722eefa255e36c62b97536ddcaef8f29ecf7cfeac5a9173fd"
+ },
+ "CEG": {
+  "bars": 1173,
+  "first": "2022-02-02",
+  "last": "2026-10-06",
+  "last_close": 300.4,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "e305f2bb5263a4c0695f97bd028b9bf93bebf05953c9ff7aa2ee7a32cc1fb90e"
+ },
+ "CELH": {
+  "error": "<HTTPError 404: 'Not Found'>",
+  "state": null
+ },
+ "CLUSD": {
+  "bars": 6616,
+  "first": "2000-08-23",
+  "last": "2026-10-06",
+  "last_close": 89.44,
+  "price_basis": "PROVIDER_INDEX_LEVEL",
+  "provider": "FMP",
+  "sha256": "c85c0e0b98455ac293a47a342cd4e2627a88e24fa20f83b437c0f1429db358a5"
+ },
+ "CMG": {
+  "error": "<HTTPError 404: 'Not Found'>",
+  "state": null
+ },
+ "COHR": {
+  "bars": 3842,
+  "first": "2011-06-27",
+  "last": "2026-10-06",
+  "last_close": 338.36,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "c52fd1ba7e6bbf9a1b22a13ef503f282a67fa3db50e3696aa22cebf4a9d42b43"
+ },
+ "COIN": {
+  "bars": 1377,
+  "first": "2021-04-14",
+  "last": "2026-10-06",
+  "last_close": 185.74,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "2771439557ef35ab295ceca3fd1f7036415dd960ad921531aa873258355144c4"
+ },
+ "COST": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 935.68,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "5d6f7d2155a17391121c10a75bfa584844c5b8942ac9811ec535d720e2e9d29e"
+ },
+ "CRDO": {
+  "bars": 1177,
+  "first": "2022-01-27",
+  "last": "2026-10-06",
+  "last_close": 220.83,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "088658bb9a5ef13398ecda2087f9b409f3e10b5fbdfd46e360534179612417b8"
+ },
+ "CRM": {
+  "bars": 5608,
+  "first": "2004-06-23",
+  "last": "2026-10-06",
+  "last_close": 224.99,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "676e7f6f64cf8e7f299bae5155de3ac31c6d5fad564bdf6ae6b4ca463024f3c3"
+ },
+ "CRWD": {
+  "bars": 1840,
+  "first": "2019-06-12",
+  "last": "2026-10-06",
+  "last_close": 278.86,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "3faf497600dcf7c8cf4fb55d1cba17b22a5324a3fa94195c68b4e61c8b94d708"
+ },
+ "CVNA": {
+  "error": "<HTTPError 404: 'Not Found'>",
+  "state": null
+ },
+ "DDOG": {
+  "bars": 1771,
+  "first": "2019-09-19",
+  "last": "2026-10-06",
+  "last_close": 278.24,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "622aec731b01c0b6b7de6384c7bad187db6b8a526bedabffc81cb6d6571fddc8"
+ },
+ "DE": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 682.79,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "17f2947b80b07918a2cefb3823753156aeed346a61232cb0aebb2354db9339a3"
+ },
+ "DECK": {
+  "error": "<HTTPError 404: 'Not Found'>",
+  "state": null
+ },
+ "DELL": {
+  "bars": 1953,
+  "first": "2018-12-28",
+  "last": "2026-10-06",
+  "last_close": 574,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "4a32dfdb8141ab6ced9ebafd090164eab0960d82d093511a20a4d017ab06f292"
+ },
+ "DIS": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 104.03,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "2ca0809611c32c24b38b68458db6eb8436690913cc9504879fd6268f902e1ba9"
+ },
+ "DXCM": {
+  "bars": 5403,
+  "first": "2005-04-14",
+  "last": "2026-10-06",
+  "last_close": 83.39,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "5becd019d4cbf97483349108f8afed9c2b9e9b947232725df079c3a429c9fde6"
+ },
+ "ENPH": {
+  "bars": 3650,
+  "first": "2012-03-30",
+  "last": "2026-10-06",
+  "last_close": 33.91,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "0ed2a76e3d600ec51d6ab09f27423d33d7e3db65e78ce6723c2891ce1c0f4082"
+ },
+ "ETN": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 445.09,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "1ab2655d5117125a478c024b6306023f50a3566bf159ea8061b2f9780dcc1135"
+ },
+ "FANG": {
+  "error": "<HTTPError 404: 'Not Found'>",
+  "state": null
+ },
+ "FCX": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 72.56,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "0c93b4d5bb0dd801b139aacf7ee08fead8e6b8f133905e6479d211aaf9e99379"
+ },
+ "FSLR": {
+  "bars": 5000,
+  "first": "2006-11-17",
+  "last": "2026-10-06",
+  "last_close": 179.8,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "aec07814163981146748fa0730dcccaa3dfac190742e1669e44894c0bfdbdf97"
+ },
+ "FTNT": {
+  "bars": 4245,
+  "first": "2009-11-18",
+  "last": "2026-10-06",
+  "last_close": 191.27,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "679517e2bc70fedf6959c02eb784c4bb45433fe6ef3d20b5541cf64b0c1a28f1"
+ },
+ "GCUSD": {
+  "bars": 10000,
+  "first": "1987-08-13",
+  "last": "2026-10-06",
+  "last_close": 4187.1,
+  "price_basis": "PROVIDER_INDEX_LEVEL",
+  "provider": "FMP",
+  "sha256": "3668959fdf723397e66f00d6ba21f9ac6255594b826534614aa7398180e38710"
+ },
+ "GE": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 309.39,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "7a5522f47e8456ff07165482077fa3056f009c26045c0b7903633c174a183a8d"
+ },
+ "GEV": {
+  "bars": 631,
+  "first": "2024-04-02",
+  "last": "2026-10-06",
+  "last_close": 1029.21,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "3e4c6d21b91179e74f26dceb1c77193e7158da9a4a5a62a8d4cdf4d0b2103966"
+ },
+ "GOOGL": {
+  "bars": 3146,
+  "first": "2014-04-03",
+  "last": "2026-10-06",
+  "last_close": 347.68,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "4403f18c3fe86d4ee06ee17b5d7591409bfe8d30c42bcda12c698c570ec10c8a"
+ },
+ "GS": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 897.18,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "d46eaecd878723584927d2a31b0976689df4e4b20436315367b1ba912992ad27"
+ },
+ "HD": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 286.69,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "e1dbe8af865b2615e9b899059ff6775e33803e723b9c80e1a29299d3b850343e"
+ },
+ "HOOD": {
+  "bars": 1303,
+  "first": "2021-07-29",
+  "last": "2026-10-06",
+  "last_close": 112,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "67eee8053fbecce0a2b438393ded6e7e6b51b7164ceabfe3969f64ac935abc32"
+ },
+ "HYG": {
+  "bars": 4904,
+  "first": "2007-04-11",
+  "last": "2026-10-06",
+  "last_close": 77.27,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "3d82c6183688a721dad2daf2a091966d5a5a4de55be5577154c4a5ec8bb9cb67"
+ },
+ "INTC": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 112.5,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "a7f160e08a5459e66f6f2a1c54c9e161ef0653d33604d5910eef14d952cd192f"
+ },
+ "INTU": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 289.81,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "36508ac50682dd697ece989c0b0262db1f024adbaeaad62cfce749902fa21e92"
+ },
+ "ISRG": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 404.76,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "e19f4096ac4103f70586f0a5f422fc9aef589c03915cee3c3f4c11413012b220"
+ },
+ "JPM": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 331.28,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "cbaaaf218061ede90bdf86c4173404f164bd690645c4b25d9a677a870db0f12c"
+ },
+ "KKR": {
+  "bars": 4082,
+  "first": "2010-07-15",
+  "last": "2026-10-06",
+  "last_close": 90.67,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "4e3f28c802fd3e005afbabdbcd75ecacabfca9ab80ad9ee8f42a3a437a659343"
+ },
+ "KLAC": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 197.46,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "16d113a6cac030744ef0a098e137b8def65ea1f52f3b7ac330b0553ce9453306"
+ },
+ "LLY": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 1157.49,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "e3575aee7178c8c112ed8ac7ae17227d70b0fe58524bc24cdd49b5918dbafa98"
+ },
+ "LRCX": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 333.89,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "5d6a59414c3dda52013d3e812547e6c5cc35d73422641d5be792eca1773a0c2c"
+ },
+ "LULU": {
+  "error": "<HTTPError 404: 'Not Found'>",
+  "state": null
+ },
+ "MA": {
+  "bars": 5123,
+  "first": "2006-05-25",
+  "last": "2026-10-06",
+  "last_close": 566.58,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "334927ef03b75b707f4bf934aa97840fe6fd4d88a89e74443bbaecbd90a3bb07"
+ },
+ "MELI": {
+  "bars": 4819,
+  "first": "2007-08-10",
+  "last": "2026-10-06",
+  "last_close": 1857.99,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "f76db44b6503dafb29cee33a4ccea7cfaec28d27ddea6313fdae96d30f313748"
+ },
+ "META": {
+  "bars": 3616,
+  "first": "2012-05-18",
+  "last": "2026-10-06",
+  "last_close": 738.88,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "8bb1e6a0260cdfa8c14f88917ca04fd2a14e7966f5e621b4fe967dade1513eca"
+ },
+ "MNST": {
+  "bars": 3707,
+  "first": "2012-01-09",
+  "last": "2026-10-06",
+  "last_close": 43.25,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "e4e1b5ff4221bdc3ae78f8bcec524c864e55aab7f8a0ad8ae30308ec4546cb89"
+ },
+ "MPWR": {
+  "bars": 5413,
+  "first": "2004-11-19",
+  "last": "2026-10-06",
+  "last_close": 1473.69,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "0f31acfe03e95b840d2a35f0b62e82eeb7a3ac591e16915037d1386c5f232083"
+ },
+ "MRNA": {
+  "bars": 1967,
+  "first": "2018-12-07",
+  "last": "2026-10-06",
+  "last_close": 187.46,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "50c3a8ecc887f3514c8c75113c60a3c5f57907afe1c8acd81ae392b36dd074db"
+ },
+ "MRVL": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 287.01,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "d1b247d660d579ee64cbf7a0da881bc4e357c573fe081600619b86729770fe17"
+ },
+ "MSFT": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 529.3,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "c9409e4ce0a02a89f451972906b3b67019635be1d78861f46684542aa502d9c5"
+ },
+ "MSTR": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 164.55,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "c6ca7679c9d17a3a7b72cb057a68d9e1a0610212ae3039400d4764221ed428bd"
+ },
+ "MU": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 1045.56,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "12e282a4b4eee677ef7126b5c7e6fb6cd0b71ce22c711e0816f9d51887220cba"
+ },
+ "NET": {
+  "bars": 1775,
+  "first": "2019-09-13",
+  "last": "2026-10-06",
+  "last_close": 355.01,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "0685fe87bc316d4b14b1c0c0aed598a656b3df2dc2dcc80ab05224eef98a758f"
+ },
+ "NFLX": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 68.69,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "2023cb350aecd746529528ff1078f3b399d8687884f84b8011a99aee4bb2edb8"
+ },
+ "NKE": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 34.61,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "ee7eef19cdd4112658ef0e924339ecd754004173441a52b73bfc5882ddb0a3d5"
+ },
+ "NOW": {
+  "bars": 3587,
+  "first": "2012-06-29",
+  "last": "2026-10-06",
+  "last_close": 137.97,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "c7483f0772ad457eff6e27dcb7bcd0c83fffefbfa27e4e121547f9b3fcf777eb"
+ },
+ "NRG": {
+  "bars": 5669,
+  "first": "2004-03-25",
+  "last": "2026-10-06",
+  "last_close": 103.6,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "bb1dea361fcf40c5fef64a19ece7e415af97c677871969821dc8e80dea55f9a1"
+ },
+ "NUE": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 251.07,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "5f821610ab8351e3cea73e14f3cdd2180dde0613a3d3d46725647a4903653fb8"
+ },
+ "NVDA": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 239.24,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "c63a77d671f2cdd1da14af2386630cfa02c72c9002aa5e98e9b81f30fcd0a91b"
+ },
+ "NVO": {
+  "error": "<HTTPError 404: 'Not Found'>",
+  "state": null
+ },
+ "ON": {
+  "bars": 2894,
+  "first": "2015-04-06",
+  "last": "2026-10-06",
+  "last_close": 86.31,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "9cebec2880cb8b7cfab999cab7f60e51eeb3082934d4b801085c9b67358c6f54"
+ },
+ "ORCL": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 144.77,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "9f3e39111a3d7211b994af0ccc0c303cd01d335739ddf54da89ea6e3d45958f2"
+ },
+ "OXY": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 58.33,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "8ec19db833cc45d8f5f97041fe6a50a374fdb0f41f66c8c61a4e799249117947"
+ },
+ "PANW": {
+  "bars": 3573,
+  "first": "2012-07-20",
+  "last": "2026-10-06",
+  "last_close": 419.91,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "4e43574a3351bec59ed00905310966521967cc1e0ade96791de37b6bc4135899"
+ },
+ "PLTR": {
+  "bars": 1511,
+  "first": "2020-09-30",
+  "last": "2026-10-06",
+  "last_close": 192.07,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "8c1a3a4f88ad7625a23faa3e27827617cb896bced1032dc3c37aa197da6082be"
+ },
+ "PWR": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 719.56,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "dc75191dbeaae97361942a41a7dc4f646b3677239ccadc087d959d23a286bb69"
+ },
+ "QCOM": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 181.03,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "8d4298ffdea97b9fab34ef40f14e28730f61ea0d44e493b1ac56772d89e74035"
+ },
+ "QQQ": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 759.66,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "90f47abd0fe860cf9ac86ea929a30f7480d2b29c3cda0ab37cc739e557083a1d"
+ },
+ "RBLX": {
+  "bars": 1401,
+  "first": "2021-03-10",
+  "last": "2026-10-06",
+  "last_close": 45.56,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "b21eacff2b767d5dc602eca0886369fc82f99b99018c68c9df5db7b63a3ae878"
+ },
+ "REGN": {
+  "bars": 5803,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 738.72,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "f9e2e443db9d0b1f6e39826d7a6b0f4a6c1dc0bb00cd5554720816e16b0271b0"
+ },
+ "SHOP": {
+  "bars": 2861,
+  "first": "2015-05-21",
+  "last": "2026-10-06",
+  "last_close": 164.44,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "d1126def3161379d3f606c8a68554f3608f3a9307b62261ba9c282c2c0420869"
+ },
+ "SMCI": {
+  "bars": 4563,
+  "first": "2007-03-29",
+  "last": "2026-10-06",
+  "last_close": 43.46,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "84945abe7e05e0df6f5a64e272fbafc128824a34654777cdc0510ede6f8a98be"
+ },
+ "SMH": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 632.5,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "f9c75ca655cbd96687796a996413618ecb501e11cd0ab7e070c6137960c9bf1b"
+ },
+ "SNDK": {
+  "bars": 407,
+  "first": "2025-02-24",
+  "last": "2026-10-06",
+  "last_close": 1660.46,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "32c4b7ddfd2d8de8ad502f9d13ea3abf171b8f28e64646bfe5c8ae715beea57d"
+ },
+ "SNOW": {
+  "bars": 1521,
+  "first": "2020-09-16",
+  "last": "2026-10-06",
+  "last_close": 335.95,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "934c55b40b0130831cf6296a2ebb578b69490cc368756937067d65757cfdd13e"
+ },
+ "SNPS": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 505.17,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "5f58bc9a4586c682b1c01efc12623934ec6a5f6d4605bab7df7c39ada12a3227"
+ },
+ "SPOT": {
+  "bars": 2140,
+  "first": "2018-04-03",
+  "last": "2026-10-06",
+  "last_close": 488.13,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "106ab1acd74e5475360654edaac1e6d34229e3b364cf7adb4488da26f11134c8"
+ },
+ "SPY": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 779.09,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "d8b50944b555cd6427a6c736067f026595a3443bdcbb07d29dadc9d5c97c05f7"
+ },
+ "STX": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 805.63,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "bea1f936886c715840bc940b2d9f606b9d1405b7147312285ff15e51b29fa6e0"
+ },
+ "TDG": {
+  "bars": 5173,
+  "first": "2006-03-15",
+  "last": "2026-10-06",
+  "last_close": 1103.33,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "28145efdd76fb4b26e98181fa6e7dd5c24708bc4a74f8307d45ebdce818e2a90"
+ },
+ "TLT": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 77.28,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "31781530e7dbc5439eda6ed1381978bdebcf4e166c47f1cf80241a1f0f1cf7ae"
+ },
+ "TSLA": {
+  "bars": 4093,
+  "first": "2010-06-29",
+  "last": "2026-10-06",
+  "last_close": 380.68,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "83a37f26408b3f00010a2e29f6878895ca180420bf5683f1512d70090e5d2b7f"
+ },
+ "TSM": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 482.3,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "396ce510e4d9227d58eb6df9733524f5274828d51fbb17fd156bb4fafcce8a8a"
+ },
+ "TTD": {
+  "error": "<HTTPError 404: 'Not Found'>",
+  "state": null
+ },
+ "TXN": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 297.23,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "f36a2a386642341023c070b0e5b5830dadaaf77d444a6fe0c28fffdc173ec327"
+ },
+ "UBER": {
+  "bars": 1862,
+  "first": "2019-05-10",
+  "last": "2026-10-06",
+  "last_close": 69.08,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "e716b5d443416926acd144999d4483d17170138056b380cd29ea8d0f45e8f1bd"
+ },
+ "ULTA": {
+  "error": "<HTTPError 404: 'Not Found'>",
+  "state": null
+ },
+ "UNH": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 376.32,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "a77a2e73eb0da7ab812a899c4de63d77a807c515a54d8f7ca070a0b7138a3fcf"
+ },
+ "URI": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 1080.62,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "8dd8b49045f778a3350bad88a0768e3d6e07d457a657eb7b3f826e6c14169195"
+ },
+ "US10Y": {
+  "bars": 10000,
+  "first": "1986-11-26",
+  "last": "2026-10-06",
+  "last_close": 5.27,
+  "price_basis": "PROVIDER_YIELD_PERCENT",
+  "provider": "FMP",
+  "sha256": "86e8264ad43ad6e6a249a9fa72e6b724847c5a191a5d8c7c07d62334b23e933d"
+ },
+ "V": {
+  "bars": 4667,
+  "first": "2008-03-19",
+  "last": "2026-10-06",
+  "last_close": 370.64,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "1752b6a3b47b42d63d1f3e888ade2a2173d7c91111fe951eccfb70ccfbd4ad51"
+ },
+ "VIX": {
+  "bars": 9281,
+  "first": "1990-01-02",
+  "last": "2026-10-06",
+  "last_close": 15.01,
+  "price_basis": "PROVIDER_INDEX_LEVEL",
+  "provider": "FMP",
+  "sha256": "5d9308e12e9c06abf4d367a101fee313ea559d521898958b43ffff2f61fcf773"
+ },
+ "VRT": {
+  "bars": 1673,
+  "first": "2020-02-10",
+  "last": "2026-10-06",
+  "last_close": 253.14,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "17b41e4abe2719daea55e9863eef3db7431a918b887072af9b4eb72d4dc3c8d1"
+ },
+ "VRTX": {
+  "bars": 5802,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 502.31,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "94fb423b490c9446804435ad53969fd7a5de6e5fc7e3d9b487b83adf659de709"
+ },
+ "VST": {
+  "bars": 2365,
+  "first": "2017-05-10",
+  "last": "2026-10-06",
+  "last_close": 160.5,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "709c0f91e3c42f50e4d9d62fd0260ffc47a91e3fa89fb03b07fbabc5ac4057e0"
+ },
+ "WDC": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 411.04,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "ddd4e81e721139d6cb591bad525951b85b55b811618b1969f7e7f47b8a96ea78"
+ },
+ "WMT": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 107.2,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "9b9af2213861ff72b36a9782b62e915da58e45bf7960eb3e1993d5a68e49415a"
+ },
+ "XLB": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 49.73,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "b1435b8adb230ebc57998e0d6d721a93b6194ce52af08aba7ac4ff72314a948a"
+ },
+ "XLC": {
+  "bars": 2086,
+  "first": "2018-06-19",
+  "last": "2026-10-06",
+  "last_close": 111.65,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "fe6a7acc146dd8278c94fd6e2da59a317b2aef913a83b2358dd2fdbf7e645df5"
+ },
+ "XLE": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 63.75,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "bd269030b8ae42ee576943820d6d5d4378083a9fd00d9deb1af57421db5f3541"
+ },
+ "XLF": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 54.01,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "d723db3c107a78ec0d9bac71ebfb934a90ebb808f79a445f72ba423df5404a1a"
+ },
+ "XLI": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 171.58,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "6a584a6d3e4bf9dd04ddee3a6f47eaf4358d415e28b8fd97a65c520fe9e5c93f"
+ },
+ "XLK": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 202,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "d8360b3c58b2e98dce1dedcb17b83f952f5bc88fa96bd722a34ba1dcb02d17ca"
+ },
+ "XLP": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 81.8,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "0b495c031684a8e2aa8ce570464bb11f1f12c794cf0a652c41816d0beca38b87"
+ },
+ "XLU": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 41.16,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "8b35504b2357b5e0827071a2b17aeaeceb5b773a1519bb0a455e90a81c55c8d9"
+ },
+ "XLV": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 167.09,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "299c0bf2a3aad9bbbb2372591af8f5e036dc729269beeb91b74c27745ce570c1"
+ },
+ "XLY": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 111.72,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "332fdda2155404bc0a633fadab87f3b20565a7b9e4b782df9a0223cd694e0bac"
+ },
+ "XOM": {
+  "bars": 5804,
+  "first": "2003-09-11",
+  "last": "2026-10-06",
+  "last_close": 164.48,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "da5aab19dd72e96c07f69fe6f1b78d493e2a8c8100fd436560c5a145646bb379"
+ },
+ "ZS": {
+  "bars": 2151,
+  "first": "2018-03-16",
+  "last": "2026-10-06",
+  "last_close": 212.25,
+  "price_basis": "SPLIT_ADJUSTED",
+  "provider": "MASSIVE",
+  "sha256": "788991d11f051f755d630769aaafa31d24cf3b4127e8ceead99c9ddf1febbdc6"
+ }
+}
