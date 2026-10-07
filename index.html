@@ -2020,15 +2020,22 @@ function drawDonutOn(id, shares, inv){
   ctx.fillStyle='#e8e8f0'; ctx.font='700 42px "SF Mono",monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText(Math.round(inv*100)+'%', cx, cy-6);
   ctx.fillStyle='#8a8aa0'; ctx.font='12px monospace'; ctx.fillText('INVESTED', cx, cy+20);
-  let ly=40; ctx.textAlign='left'; ctx.textBaseline='middle'; const lx=380;
+  let ly=40; ctx.textAlign='left'; ctx.textBaseline='middle'; const lx=372;
   ctx.fillStyle='#8a8aa0'; ctx.font='10px monospace'; ctx.fillText('OUTER RING = SLEEVE · INNER = YOUR PICKS', lx, ly-18);
   for(const [k,v] of segs){ if(v<=0.001) continue;
     ctx.fillStyle=(SLEEVE_COLOR[k]||groupColor(k)); ctx.beginPath(); ctx.roundRect(lx,ly-7,14,14,4); ctx.fill();
-    const lab=(k==='CASH'?k:groupWord(k).toUpperCase()).replace('CONSUMER ','CONS. ').slice(0,18); ctx.fillStyle='#e8e8f0'; ctx.font='12px monospace'; ctx.fillText(lab, lx+24, ly);
+    /* HC1 (6 Oct 2026) — Alan, on the live tool: the legend's labels overlap ("CONS. DISCRETIONARnone picked"). The note was
+       placed after the label's width MEASURED IN THE NOTE'S 10 px FONT, while the label is drawn at 12 px: every label was taken
+       to be a sixth narrower than it is, so the note began on its last letters (7.6 px over on the longest). The label is now
+       measured in the font it is drawn in, keeps its last letter (19 characters: "CONS. DISCRETIONARY"), and the note sits in
+       what is left between the label and the percent — closer when the room is short, never on either. */
+    const lab=(k==='CASH'?k:groupWord(k).toUpperCase()).replace('CONSUMER ','CONS. ').slice(0,19); ctx.fillStyle='#e8e8f0'; ctx.font='12px monospace'; ctx.fillText(lab, lx+24, ly);
+    const pct=(v*100).toFixed(1)+'%', labEnd=lx+24+ctx.measureText(lab).width, pctStart=CSSW-8-ctx.measureText(pct).width;
     const n=k==='CASH'?null:(PM.sleeves[k]?PM.sleeves[k].names.length:0);
     if(n!=null){ ctx.fillStyle=n?'#8a8aa0':'#ff8c42'; ctx.font='10px monospace';
-      ctx.fillText(n?n+(n===1?' name':' names'):'none picked', lx+24+ctx.measureText(lab).width+14, ly); }
-    ctx.fillStyle='#8a8aa0'; ctx.font='12px monospace'; ctx.textAlign='right'; ctx.fillText((v*100).toFixed(1)+'%', CSSW-8, ly); ctx.textAlign='left';
+      const note=n?n+(n===1?' name':' names'):'none picked', room=pctStart-6-labEnd-ctx.measureText(note).width;
+      if(room>=4) ctx.fillText(note, labEnd+Math.min(14,room), ly); }
+    ctx.fillStyle='#8a8aa0'; ctx.font='12px monospace'; ctx.textAlign='right'; ctx.fillText(pct, CSSW-8, ly); ctx.textAlign='left';
     ly+=Math.min(30, Math.floor((CSSH-50)/Math.max(1,segs.filter(x=>x[1]>0.001).length))); }
 }
 /* The per-name readout under the pie — the "flows downstream" half of P2 in words. */

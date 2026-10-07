@@ -1,0 +1,281 @@
+{
+ "tag": "before",
+ "at": "2026-10-07T04:04:53.663Z",
+ "overlaps": 3,
+ "rows": [
+  [
+   {
+    "t": "CONS. DISCRETIONAR",
+    "left": 404,
+    "right": 533.6,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 526,
+    "right": 592,
+    "font": "10px"
+   },
+   {
+    "t": "6.4%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "MATERIALS",
+    "left": 404,
+    "right": 468.8,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 472,
+    "right": 538,
+    "font": "10px"
+   },
+   {
+    "t": "6.3%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "UTILITIES",
+    "left": 404,
+    "right": 468.8,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 472,
+    "right": 538,
+    "font": "10px"
+   },
+   {
+    "t": "5.6%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "INDUSTRIALS",
+    "left": 404,
+    "right": 483.2,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 484,
+    "right": 550,
+    "font": "10px"
+   },
+   {
+    "t": "5.4%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "HEALTH CARE",
+    "left": 404,
+    "right": 483.2,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 484,
+    "right": 550,
+    "font": "10px"
+   },
+   {
+    "t": "3.7%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "REAL ESTATE",
+    "left": 404,
+    "right": 483.2,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 484,
+    "right": 550,
+    "font": "10px"
+   },
+   {
+    "t": "3.6%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "METALS",
+    "left": 404,
+    "right": 447.2,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 454,
+    "right": 520,
+    "font": "10px"
+   },
+   {
+    "t": "3.1%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "FINANCIALS",
+    "left": 404,
+    "right": 476,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 478,
+    "right": 544,
+    "font": "10px"
+   },
+   {
+    "t": "3.0%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "CONS. STAPLES",
+    "left": 404,
+    "right": 497.6,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 496,
+    "right": 562,
+    "font": "10px"
+   },
+   {
+    "t": "3.0%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "COMMUNICATIONS",
+    "left": 404,
+    "right": 504.8,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 502,
+    "right": 568,
+    "font": "10px"
+   },
+   {
+    "t": "2.9%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "ENERGY",
+    "left": 404,
+    "right": 447.2,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 454,
+    "right": 520,
+    "font": "10px"
+   },
+   {
+    "t": "2.7%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "CRYPTO",
+    "left": 404,
+    "right": 447.2,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 454,
+    "right": 520,
+    "font": "10px"
+   },
+   {
+    "t": "2.4%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "TECHNOLOGY",
+    "left": 404,
+    "right": 476,
+    "font": "12px"
+   },
+   {
+    "t": "none picked",
+    "left": 478,
+    "right": 544,
+    "font": "10px"
+   },
+   {
+    "t": "1.9%",
+    "left": 623.2,
+    "right": 652,
+    "font": "12px"
+   }
+  ],
+  [
+   {
+    "t": "CASH",
+    "left": 404,
+    "right": 432.8,
+    "font": "12px"
+   },
+   {
+    "t": "50.0%",
+    "left": 616,
+    "right": 652,
+    "font": "12px"
+   }
+  ]
+ ]
+}
