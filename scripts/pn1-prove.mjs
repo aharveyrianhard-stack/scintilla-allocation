@@ -14,7 +14,7 @@
 import fs from "node:fs"; import path from "node:path"; import crypto from "node:crypto"; import { fileURLToPath } from "node:url";
 import * as E from "../study/ds1/engine.mjs";
 import { view, fetchDaily, fetchLive, baseline, alignBars, withLive, sessionRanges, hygWithPayouts, nyParts, phaseOf } from "../study/ds1/live.mjs";
-import { parsePine, replay, adjustLikeTradingView } from "../study/pn1/pine-replay.mjs";
+import { parsePine, replay, adjustLikeTradingView, labelOf } from "../study/pn1/pine-replay.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), J = (f) => JSON.parse(fs.readFileSync(f, "utf8")), iso = (t) => new Date(t).toISOString().slice(0, 10);
 const FIXTURE = path.join(ROOT, "tests/fixtures/pn1-closes-20261006.json"), OUT = path.join(ROOT, "study/pn1/data/pn1-proof.json"), PINE = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine");
 const args = process.argv.slice(2), CACHE = args.find((a) => !a.startsWith("--")), NO_LIVE = args.includes("--no-live"), QUIET = args.includes("--quiet");
@@ -61,7 +61,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
 
   /* ---------- the named days ---------- */
   const rowOf = (d, kind) => { const i = ix[d], e = eng[i], a = same[i], b = tv[i]; return { date: d, kind, engine: { reading: e.reading, invested: e.invested, rsi: r2(e.rsi), creditOwn: r3(e.creditOwn), rsiPoints: r1(e.points.rsi), creditPoints: r1(e.points.creditOwn) },
-    script: { reading: a.reading, invested: r2(a.invested), rsi: r2(a.rsiBoth), creditOwn: r3(a.creditOwn), rsiPoints: r1(a.ptsRsi), creditPoints: r1(a.ptsCredit), label: [a].map((r) => "Invested " + Math.round(r.invested) + "% · market reading " + Math.round(r.reading))[0] },
+    script: { reading: a.reading, invested: r2(a.invested), rsi: r2(a.rsiBoth), creditOwn: r3(a.creditOwn), rsiPoints: r1(a.ptsRsi), creditPoints: r1(a.ptsCredit), label: labelOf(a) },
     scriptTradingViewPayouts: { reading: b.reading, invested: r2(b.invested), creditOwn: r3(b.creditOwn) }, gap: r1(Math.abs(e.reading - a.reading)), gapTradingViewPayouts: r1(Math.abs(e.reading - b.reading)), gapInvested: r2(Math.abs(e.invested - a.invested)), gapInvestedTradingViewPayouts: r2(Math.abs(e.invested - b.invested)) }; };
   const rows = listed.map((e) => rowOf(e.date, e.date === F.asOf ? "6 Oct (the study's last day; also its last high)" : e.kind)).sort((x, y) => (x.date < y.date ? -1 : 1));
 
@@ -103,7 +103,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const cRow = scriptOn(K, long, adjustLikeTradingView(long.dates, long.HYG, F.payouts.concat((base.hygPayouts || []).filter((p) => p[0] > F.payouts.at(-1)[0])))).at(-1), c = cRow;
     today = { readAt: now.date + " " + now.hms + " New York", phase: phaseOf(now), session: v.session, live: v.live, lastSettledBar: v.lastBar, missing: v.missing, prices: { SPY: G.SPY.at(-1), QQQ: G.QQQ.at(-1), HYG: G.HYG.at(-1), IEF: G.IEF.at(-1) },
       engine: { reading: v.reading.reading, invested: v.pie.invested, rsi: r2(v.inputs.rsi), creditOwn: r3(v.inputs.creditOwn), rsiPoints: r1(v.reading.parts.find((p) => p.key === "rsi").points), creditPoints: r1(v.reading.parts.find((p) => p.key === "creditOwn").points) },
-      script: { reading: a.reading, invested: r2(a.invested), rsi: r2(a.rsiBoth), creditOwn: r3(a.creditOwn), rsiPoints: r1(a.ptsRsi), creditPoints: r1(a.ptsCredit), label: "Invested " + Math.round(a.invested) + "% · market reading " + Math.round(a.reading) },
+      script: { reading: a.reading, invested: r2(a.invested), rsi: r2(a.rsiBoth), creditOwn: r3(a.creditOwn), rsiPoints: r1(a.ptsRsi), creditPoints: r1(a.ptsCredit), label: labelOf(a) },
       scriptTradingViewPayouts: { reading: b.reading, invested: r2(b.invested), creditOwn: r3(b.creditOwn) }, scriptOnTheLongHistory: { reading: c.reading, invested: r2(c.invested), bars: long.dates.length },
       gap: r1(Math.abs(v.reading.reading - a.reading)), gapTradingViewPayouts: r1(Math.abs(v.reading.reading - b.reading)), gapOnTheLongHistory: r1(Math.abs(v.reading.reading - c.reading)), gapInvested: r2(Math.abs(v.pie.invested - a.invested)), gapInvestedTradingViewPayouts: r2(Math.abs(v.pie.invested - b.invested)),
       /* kept so the row can be worked again without the network: the sessions the row was computed on */

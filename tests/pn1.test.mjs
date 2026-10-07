@@ -6,7 +6,7 @@
 import test from "node:test"; import assert from "node:assert/strict"; import fs from "node:fs"; import path from "node:path"; import { fileURLToPath } from "node:url";
 import * as E from "../study/ds1/engine.mjs";
 import { view, fetchDaily, fetchLive, baseline, alignBars, withLive, sessionRanges, hygWithPayouts } from "../study/ds1/live.mjs";
-import { parsePine, replay, pointsAt, wilderRsi, moveOver, security, labelOf, adjustLikeTradingView, round1 } from "../study/pn1/pine-replay.mjs";
+import { parsePine, replay, pointsAt, wilderRsi, moveOver, security, labelOf, labelsOf, adjustLikeTradingView, round1 } from "../study/pn1/pine-replay.mjs";
 import { buildPine, pineNumbers } from "../scripts/pn1-build-pine.mjs";
 import { engineOn, scriptOn, codeHash, codeOf } from "../scripts/pn1-prove.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), J = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), "utf8")), T = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
@@ -56,9 +56,11 @@ test("5 · the lows and highs the deployment study lists, and 6 Oct: the study's
   for (const e of listed) { const i = ix[e.date]; assert.equal(eng[i].reading, e.reading, e.date + ": the fixture is the study's own data"); assert.ok(Math.abs(same[i].reading - e.reading) <= 0.1000001, e.date + " on the engine's prices: " + same[i].reading + " against " + e.reading); assert.ok(Math.abs(tv[i].reading - e.reading) <= 1, e.date + " with TradingView's payouts: " + tv[i].reading + " against " + e.reading); assert.ok(Math.abs(tv[i].invested - eng[i].invested) <= 0.3000001); }
   for (const [d, v] of D.series) if (v != null) assert.ok(Math.abs(same[ix[d]].reading - v) <= 0.1000001, d);   /* the study's year of readings */
   const r = same[ix["2026-10-06"]]; assert.equal(r.reading, 21.9); assert.ok(near(r.invested, 76.57, 1e-9)); assert.equal(labelOf(r), "Invested 77% · market reading 22");
-  /* with the two parts shown the label is the tool's own sum, in the tool's own points: 49.1 − 7.7 − 19.5 = 21.9 */
-  assert.equal(labelOf(r, true, K.TYPICAL_DAY), "Invested 77% · market reading 22\na typical day 49.1\nSPY and QQQ's RSI 66 → −7.7 points\ncredit's own move −0.22% → −19.5 points");
-  const tn = D.tonight; assert.equal(tn.base, 49.1); assert.equal(tn.parts.find((p) => p.key === "rsi").points, -7.7); assert.equal(tn.parts.find((p) => p.key === "creditOwn").points, -19.5); });
+  /* with the two parts shown their labels carry the tool's own points: 49.1 − 7.7 − 19.5 = 21.9 */
+  const tn = D.tonight; assert.equal(tn.base, 49.1); assert.equal(tn.parts.find((p) => p.key === "rsi").points, -7.7); assert.equal(tn.parts.find((p) => p.key === "creditOwn").points, -19.5);
+  const all = labelsOf(r, { showReading: true, showParts: true }); assert.deepEqual(all.map((l) => l.text), ["Invested 77% · market reading 22", "SPY and QQQ −7.7", "credit −19.5", "market reading 22"], "from the highest line down");
+  assert.deepEqual(all.map((l) => l.colour), [r.colour, "red", "red", "bright teal"]); for (let i = 1; i < all.length; i++) assert.ok(all[i - 1].y - all[i].y >= 12 - 1e-9, "labels " + i + " and " + (i + 1) + " keep their space"); assert.equal(all[0].y, r.invested);
+  assert.ok(near(all[1].at, 50 - 7.7, 0.06) && near(all[2].at, 50 - 19.5, 0.06), "each part is drawn as 50 plus its points"); assert.deepEqual(labelsOf(r, { showTag: false }), []); });
 
 test("6 · fed HYG's payouts the way TradingView adds them back, the script stays within a point of the engine on all but a handful of early days", () => {
   const { eng, tv } = sides(), over = [], gaps = []; for (let i = 0; i <= LAST; i++) if (eng[i].reading != null) { const g = Math.abs(eng[i].reading - tv[i].reading); gaps.push(g); if (g > 1.0000001) over.push(F.dates[i]); }
@@ -79,10 +81,10 @@ test("8 · the TradingView protocol: version 6, the plot budget stated in the he
   assert.ok(SRC.startsWith("//@version=6\n")); assert.match(SRC, /^indicator\("SCINTILLA · DEPLOYMENT PANE", shorttitle = "DEPLOYMENT", overlay = false/m);
   /* the protocol's count: a plot with a constant colour 1, a plot whose colour changes from bar to bar 2, a fill 1; level lines and labels are free */
   const plots = [...CODE.matchAll(/^(?:\w+\s*=\s*)?plot\((.*)\)\s*$/gm)].map((m) => m[1]), fills = (CODE.match(/^fill\(/gm) || []).length, constCol = (a) => /color = (C_[A-Z_]+|color\.new\(C_[A-Z_]+, \d+\))(,|$)/.test(a);
-  const count = plots.reduce((n, a) => n + (constCol(a) ? 1 : 2), 0) + fills, stated = SRC.match(/^\/\/ PLOTS (\d+)\/64/m); assert.ok(stated, "the header states PLOTS n/64"); assert.equal(plots.length, 8); assert.equal(fills, 1); assert.equal(count, 10); assert.equal(+stated[1], count); assert.ok(count <= 64);
+  const count = plots.reduce((n, a) => n + (constCol(a) ? 1 : 2), 0) + fills, stated = SRC.match(/^\/\/ PLOTS (\d+)\/64/m); assert.ok(stated, "the header states PLOTS n/64"); assert.equal(plots.length, 8); assert.equal(fills, 1); assert.equal(count, 12); assert.equal(+stated[1], count); assert.ok(count <= 64);
   const req = (CODE.match(/request\.\w+\(/g) || []).length, statedReq = SRC.match(/^\/\/ REQUESTS (\d+)\/40/m); assert.equal(req, 4); assert.equal(+statedReq[1], req);
   /* no white, ever: no named white, and no colour whose three channels are all bright and near each other */
-  assert.ok(!/color\.white|#fff\b|#ffffff/i.test(SRC)); const hexes = [...CODE.matchAll(/#([0-9A-Fa-f]{6})\b/g)].map((m) => m[1]); assert.ok(hexes.length >= 9);
+  assert.ok(!/color\.white|#fff\b|#ffffff/i.test(SRC)); const hexes = [...CODE.matchAll(/#([0-9A-Fa-f]{6})\b/g)].map((m) => m[1]); assert.ok(hexes.length >= 8);
   for (const h of hexes) { const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); assert.ok(!(Math.min(r, g, b) >= 200 && Math.max(r, g, b) - Math.min(r, g, b) <= 40), "#" + h + " reads as white"); }
   assert.ok(!/color\.(gray|silver|black|red|green|blue|yellow|orange|purple|aqua|lime|teal|navy|olive|maroon|fuchsia)\b/.test(CODE), "only the named palette at the top of the script");
   /* shape: no tabs, wrapped lines indented by five spaces (never a multiple of four), every bracket and quote closed */
@@ -94,10 +96,12 @@ test("9 · plain words: nothing a person reads on the chart or in the settings c
   const banned = [/\bv\d\b/i, /\bevening/i, /\brung/i, /line vs reading/i, /\bDS1\b/, /\bPN1\b/, /\bDM\d\b/, /\blane\b/i, /\bE\b/, /\bn\/a\b/i, /\bNaN\b/, /undefined/];
   assert.ok(STRINGS.length > 30); for (const s of STRINGS) for (const b of banned) assert.ok(!b.test(s), JSON.stringify(s) + " carries " + b);
   for (const b of [/\bv\d\b/i, /\bevening/i, /\brung/i, /line vs reading/i, /\bDS1\b/, /\bPN1\b/, /\bDM\d\b/, /\blane\b/i]) assert.ok(!b.test(SRC), "the script's header carries " + b);
-  for (const want of ["Invested ", "% · market reading ", "No reading yet · waiting for prices from", "% invested", "held through pullbacks", "market reading", "Held through pullbacks, % of the account", "Tactical at full, % of the account"]) assert.ok(STRINGS.includes(want), "the script says " + JSON.stringify(want));
+  for (const want of ["Invested ", "% · market reading ", "No reading yet · waiting for prices from", "% invested", "held through pullbacks", "market reading", "Held through pullbacks, % of the account", "Tactical at full, % of the account", "Labels on the last bar", "SPY and QQQ ", "credit "]) assert.ok(STRINGS.includes(want), "the script says " + JSON.stringify(want));
   /* the label's words in the script are the words the replay prints */
-  assert.ok(CODE.includes('txt := "Invested " + whole(invested) + "% · market reading " + whole(reading)')); assert.ok(CODE.includes(`txt += "\\nSPY and QQQ's RSI " + whole(rsiBoth) + " → " + signed1(ptsRsi) + " points"`)); assert.ok(CODE.includes(`txt += "\\ncredit's own move " + signed2(creditOwn) + "% → " + signed1(ptsCredit) + " points"`)); const { same } = sides(); assert.match(labelOf(same.at(-1)), /^Invested \d+% · market reading \d+$/);
-  assert.equal(labelOf({ invested: null, spyRsi: 60, qqqRsi: 60, hygMove: null, iefMove: 0.1 }), "No reading yet · waiting for prices from HYG"); });
+  for (const line of ['array.push(ts, "Invested " + whole(invested) + "% · market reading " + whole(reading))', 'array.push(ts, "market reading " + whole(reading))', 'array.push(ts, "SPY and QQQ " + signed1(ptsRsi))', 'array.push(ts, "credit " + signed1(ptsCredit))', "y := math.min(y, above - labelGap)", "array<int> rank = array.sort_indices(ys, order.descending)"]) assert.ok(CODE.includes(line), "the script still says: " + line); const { same } = sides(); assert.match(labelOf(same.at(-1)), /^Invested \d+% · market reading \d+$/);
+  assert.equal(labelOf({ invested: null, spyRsi: 60, qqqRsi: 60, hygMove: null, iefMove: 0.1 }), "No reading yet · waiting for prices from HYG");
+  /* the two parts are green while they add to the reading and red while they take away; the 50 line is the cut-off */
+  for (const r of same.slice(-400)) { assert.equal(r.colA, r.ptsRsi >= 0 ? "green" : "red"); assert.equal(r.partA >= 50, r.colA === "green"); assert.equal(r.partB >= 50, r.colB === "green"); } });
 
 test("10 · the proof file says what the code says: the named days, every day, and today's live row worked again from the prices it kept", () => {
   assert.equal(P.script.codeHash, codeHash(SRC), "the script's code changed after the proof was made — run node scripts/pn1-prove.mjs"); assert.equal(P.tolerance, 1); assert.equal(P.allWithinOnePoint, true);
@@ -115,3 +119,20 @@ test("11 · live: the tool's own read of the chart API and the script on the ver
   const v = view({ base: LV, candles, ...live, A }), S = withLive(alignBars(candles), live.quotes, live.macro, sessionRanges(live.intraday, live.quotes?.SPY?.price_session_et)).S, G = { dates: S.dates, SPY: S.bars.SPY.c, QQQ: S.bars.QQQ.c, IEF: S.bars.IEF.c, HYG: S.bars.HYG.c };
   const a = scriptOn(K, G, hygWithPayouts(S.dates, G.HYG, LV.hygPayouts).tr).at(-1), b = scriptOn(K, G, adjustLikeTradingView(S.dates, G.HYG, LV.hygPayouts)).at(-1);
   assert.ok(Math.abs(v.reading.reading - a.reading) <= 0.1000001, "tool " + v.reading.reading + " script " + a.reading); assert.ok(Math.abs(v.reading.reading - b.reading) <= 1, "tool " + v.reading.reading + " script with TradingView's payouts " + b.reading); assert.ok(Math.abs(v.pie.invested - a.invested) <= 0.0300001); });
+
+test("12 · the task for the installer: its eight days are the proof's own numbers, and it holds the rules that keep every existing tab untouched", () => {
+  const task = T("study/pn1/TASK-KIMI-DEPLOYMENT-LAYOUT.md"), rows = [...task.matchAll(/^\| (\d{4}-\d{2}-\d{2}) \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \| (-?[\d.]+) \|$/gm)]; assert.equal(rows.length, 8);
+  for (const [, d, inv, rd, rsi, cr] of rows) { const r = P.rows.find((x) => x.date === d); assert.ok(r, d + " is one of the proved days"); assert.equal(+inv, r.scriptTradingViewPayouts.invested, d + " % invested"); assert.equal(+rd, r.scriptTradingViewPayouts.reading, d + " reading"); assert.equal(+rsi, r.script.rsi, d + " RSI"); assert.equal(+cr, r.scriptTradingViewPayouts.creditOwn, d + " credit"); }
+  for (const want of ["Scintilla — Deployment", "Scintilla Deployment Pane", "create-new-tab-button", "/app/new-tab/index.html", "Create new layout", "NEVER navigate a tab to", "AMEX:SPY", "NASDAQ:QQQ", "TVC:VIX", "AMEX:HYG", "showWidget('scripteditor')", "Never type or paste the script", "out/SCINTILLA-DEPLOYMENT-PANE.as-saved.pine", "EVERY tab that exists when you start is forbidden", "\"authorized\": false", "25 Apr 2007", "30 minutes"]) assert.ok(task.includes(want), "the task says: " + want);
+  /* the names the task tells the installer to look for are the names the script gives its plots */
+  for (const name of ["% invested", "market reading", "SPY and QQQ's RSI, averaged", "credit's own move over ten sessions, %"]) { assert.ok(task.includes('"' + name + '"'), name); assert.ok(STRINGS.includes(name), "the script has a plot called " + name); }
+  assert.match(CODE, /^indicator\("SCINTILLA · DEPLOYMENT PANE"/m); assert.ok(task.includes('"SCINTILLA · DEPLOYMENT PANE"')); });
+
+test("13 · the check on what TradingView saved: identical passes, the one allowed fix passes with every line named, a changed number fails", async () => {
+  const { checkSaved, lineDiff } = await import("../scripts/pn1-check-saved.mjs");
+  const same = checkSaved(SRC); assert.equal(same.identical, true); assert.equal(same.ok, true); assert.equal(checkSaved(SRC.replace(/\n/g, "\r\n")).identical, true, "other line ends are not a change"); assert.equal(checkSaved(SRC.replace(/\n$/, "")).identical, true);
+  const allowed = checkSaved(SRC.replaceAll(", display = display.none", "")); assert.equal(allowed.identical, false); assert.equal(allowed.numbersUnchanged, true); assert.equal(allowed.ok, true); assert.equal(allowed.differs.length, 10, "five lines, each named on both sides"); assert.ok(allowed.replay.worstOnTheEnginesPrices <= 0.1);
+  const bad = checkSaved(SRC.replace("const float  TYPICAL_DAY = 49.075087", "const float  TYPICAL_DAY = 49.5")); assert.equal(bad.numbersUnchanged, false); assert.equal(bad.ok, false); assert.equal(bad.differs.length, 2);
+  const cut = checkSaved(SRC.replace("65.02809, ", "")); assert.equal(cut.ok, false, "a place table short of a value is caught");
+  const header = checkSaved(SRC.replace("// WHAT IT IS.", "// WHAT IT IS:")); assert.equal(header.codeIdentical, true); assert.equal(header.ok, true, "a change in the header comment alone does not un-prove the code");
+  assert.deepEqual(lineDiff("a\nb\nc", "a\nx\nc").map((d) => d.side + d.line + d.text), ["proved2b", "saved2x"]); });

@@ -1,9 +1,10 @@
 //@version=6
 // ═══════════════════════════════════════════════════════════════════════════════════════════════
 // SCINTILLA · DEPLOYMENT PANE  ·  7 Oct 2026
-// PLOTS 10/64  (the % invested line coloured by its daily direction = 2 · the held floor = 1 · the
-//              shading between the two = 1 · the market reading = 1 · its two voting parts = 2 · three
-//              Data Window numbers = 3 · the three level lines and the label are outside the plot budget)
+// PLOTS 12/64  (the % invested line coloured by its daily direction = 2 · the held floor = 1 · the
+//              shading between the two = 1 · the market reading = 1 · its two voting parts, each green
+//              or red by its sign = 4 · three Data Window numbers = 3 · the three level lines and the
+//              labels are outside the plot budget)
 // REQUESTS 4/40  (one daily call each for SPY, QQQ, HYG and the 7–10 year Treasury fund IEF)
 //
 // WHAT IT IS. The allocation tool's deployment system drawn in its own pane, with its history: how
@@ -109,8 +110,7 @@ const color C_BULL   = #00FFA3
 const color C_BEAR   = #FF2D55
 const color C_LINE   = #2FB5A8
 const color C_READ   = #7CE8DC
-const color C_PART_A = #2FB5A8
-const color C_PART_B = #1C7D75
+const color C_DEEP   = #1C7D75
 const color C_AXIS   = #3A3A52
 const color C_EDGE   = #252538
 const color C_PANEL  = #0D0D14
@@ -127,8 +127,10 @@ bool byDirection = input.bool(true,  "Colour the % invested line by its daily di
      tooltip = "On: green on a day the system has more invested than the day before, red on a day it has less. Off: one teal line.")
 bool showReading = input.bool(false, "Show the market reading (0–100)", group = G_LOOK)
 bool showParts   = input.bool(false, "Show the reading's two voting parts", group = G_LOOK,
-     tooltip = "Two thin lines: SPY and QQQ's RSI, and credit's own move. Each is drawn as 50 plus the points it adds to the reading, so above the middle line it argues for more invested and below it for less. The label then shows the sum: a typical day, plus each part's points, is the market reading (held between 0 and 100).")
-bool showTag     = input.bool(true,  "Label on the last bar", group = G_LOOK)
+     tooltip = "SPY and QQQ together (a thin line) and credit (dots). Each is drawn as 50 plus the points it adds to the market reading: green above the middle line, where it argues for more invested, red below it, where it argues for less. A typical day (49.1) plus the two parts' points is the market reading, held between 0 and 100.")
+bool showTag     = input.bool(true,  "Labels on the last bar", group = G_LOOK)
+float labelGap   = input.float(12.0, "Least space between two labels, in points of the scale", minval = 0, maxval = 40, step = 1, group = G_LOOK, display = display.none,
+     tooltip = "When more than one label is shown they are stacked from the highest value down, each at its own line. Raise this if two labels touch on a short pane.")
 
 const string G_FEED = "Where the prices come from"
 string spySym = input.symbol("AMEX:SPY",   "S&P 500 fund",                     group = G_FEED, display = display.none)
@@ -214,6 +216,7 @@ float reading   = math.round(math.max(0.0, math.min(100.0, TYPICAL_DAY + ptsRsi 
 float invested  = math.min(100.0, heldPct + tacticalPct * reading / 100.0)
 
 // ── the pane ───────────────────────────────────────────────────────────────────────────────────
+// the % invested line: green on a day the system has more invested than the day before, red on a day it has less
 var color dirCol = C_LINE
 if not na(invested) and not na(invested[1])
     if invested > invested[1]
@@ -221,13 +224,18 @@ if not na(invested) and not na(invested[1])
     else if invested < invested[1]
         dirCol := C_BEAR
 color lineCol = byDirection ? dirCol : C_LINE
+// the two voting parts, each as 50 plus its points: green while it adds to the reading, red while it takes away
+float partA = 50.0 + ptsRsi
+float partB = 50.0 + ptsCredit
+color colA  = ptsRsi >= 0 ? C_BULL : C_BEAR
+color colB  = ptsCredit >= 0 ? C_BULL : C_BEAR
 
 pInv   = plot(invested, "% invested", color = lineCol, linewidth = 2, style = plot.style_line)
-pFloor = plot(na(invested) ? na : heldPct, "held through pullbacks", color = color.new(C_PART_B, 35), linewidth = 1)
+pFloor = plot(na(invested) ? na : heldPct, "held through pullbacks", color = color.new(C_DEEP, 35), linewidth = 1)
 fill(pInv, pFloor, color = color.new(C_LINE, 85), title = "tactical money at work")
 plot(showReading ? reading : na, "market reading (line)", color = C_READ, linewidth = 1)
-plot(showParts ? 50.0 + ptsRsi : na,    "SPY and QQQ's RSI: 50 + its points",  color = C_PART_A, linewidth = 1)
-plot(showParts ? 50.0 + ptsCredit : na, "credit's own move: 50 + its points", color = C_PART_B, linewidth = 1)
+plot(showParts ? partA : na, "SPY and QQQ together: 50 + its points", color = colA, linewidth = 1)
+plot(showParts ? partB : na, "credit: 50 + its points", color = colB, linewidth = 1, style = plot.style_circles)
 // the reading and the two raw numbers behind it — Data Window only (hover a bar to read them)
 plot(reading,   "market reading",                          color = C_AXIS, display = display.data_window)
 plot(rsiBoth,   "SPY and QQQ's RSI, averaged",             color = C_AXIS, display = display.data_window)
@@ -240,20 +248,40 @@ hline(0.0,   "0",   color = C_EDGE, linestyle = hline.style_solid)
 // numbers as the allocation tool writes them: whole for the two headline numbers, signed points to one decimal
 whole(float v)   => na(v) ? "—" : str.tostring(math.round(v))
 signed1(float v) => na(v) ? "—" : (math.round(v, 1) > 0 ? "+" : math.round(v, 1) < 0 ? "−" : "") + str.tostring(math.abs(math.round(v, 1)), "0.0")
-signed2(float v) => na(v) ? "—" : (math.round(v, 2) > 0 ? "+" : math.round(v, 2) < 0 ? "−" : "") + str.tostring(math.abs(math.round(v, 2)), "0.00")
 
-var label tag = na
+// ── labels on the last bar: each at its own line, the highest first, never on top of each other ─
+var array<label> tags = array.new<label>()
 if barstate.islast and showTag
-    if not na(tag)
-        label.delete(tag)
-    string txt = ""
+    while array.size(tags) > 0
+        label.delete(array.pop(tags))
     if na(invested)
         string waiting = (na(spyRsi) ? " SPY" : "") + (na(qqqRsi) ? " QQQ" : "") + (na(hygMove) ? " HYG" : "") + (na(iefMove) ? " IEF" : "")
-        txt := "No reading yet · waiting for prices from" + waiting
+        array.push(tags, label.new(bar_index + 2, 50.0, "No reading yet · waiting for prices from" + waiting, style = label.style_label_left, color = C_PANEL, textcolor = C_LINE, size = size.small))
     else
-        txt := "Invested " + whole(invested) + "% · market reading " + whole(reading)
+        array<float>  ys = array.new<float>()
+        array<string> ts = array.new<string>()
+        array<color>  cs = array.new<color>()
+        array.push(ys, invested)
+        array.push(ts, "Invested " + whole(invested) + "% · market reading " + whole(reading))
+        array.push(cs, lineCol)
+        if showReading
+            array.push(ys, reading)
+            array.push(ts, "market reading " + whole(reading))
+            array.push(cs, C_READ)
         if showParts
-            txt += "\na typical day " + str.tostring(TYPICAL_DAY, "0.0")
-            txt += "\nSPY and QQQ's RSI " + whole(rsiBoth) + " → " + signed1(ptsRsi) + " points"
-            txt += "\ncredit's own move " + signed2(creditOwn) + "% → " + signed1(ptsCredit) + " points"
-    tag := label.new(bar_index + 2, na(invested) ? 50.0 : invested, txt, style = label.style_label_left, color = C_PANEL, textcolor = na(invested) ? C_LINE : lineCol, size = size.small, textalign = text.align_left)
+            array.push(ys, partA)
+            array.push(ts, "SPY and QQQ " + signed1(ptsRsi))
+            array.push(cs, colA)
+            array.push(ys, partB)
+            array.push(ts, "credit " + signed1(ptsCredit))
+            array.push(cs, colB)
+        // the highest value first; each label at its own value, pushed down so no two sit closer than the chosen space
+        array<int> rank = array.sort_indices(ys, order.descending)
+        float above = na
+        for i = 0 to array.size(rank) - 1
+            int   j = array.get(rank, i)
+            float y = array.get(ys, j)
+            if not na(above)
+                y := math.min(y, above - labelGap)
+            above := y
+            array.push(tags, label.new(bar_index + 2, y, array.get(ts, j), style = label.style_label_left, color = C_PANEL, textcolor = array.get(cs, j), size = size.small))

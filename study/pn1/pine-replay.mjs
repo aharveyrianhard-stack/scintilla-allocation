@@ -62,7 +62,7 @@ export function pointsAt(placeTab, curve, z) { let out = NA;
    script asks for (hyg with its payouts added back). chartDates = the chart's own daily bars (the layout puts the pane under SPY).
    inputs = the script's inputs; the defaults are the script's own. Returns one row per chart bar. */
 export function replay(K, funds, chartDates, inputs = {}) {
-  const heldPct = inputs.heldPct ?? K.heldPct, tacticalPct = inputs.tacticalPct ?? K.tacticalPct, byDirection = inputs.byDirection ?? true, showParts = inputs.showParts ?? false;
+  const heldPct = inputs.heldPct ?? K.heldPct, tacticalPct = inputs.tacticalPct ?? K.tacticalPct, byDirection = inputs.byDirection ?? true;
   const spyRsi = security(funds.spy, wilderRsi(K), chartDates), qqqRsi = security(funds.qqq, wilderRsi(K), chartDates), hygMove = security(funds.hyg, moveOver(K), chartDates), iefMove = security(funds.ief, moveOver(K), chartDates);
   const rows = []; let dirCol = "teal", prevInvested = NA;
   for (let i = 0; i < chartDates.length; i++) {
@@ -74,19 +74,26 @@ export function replay(K, funds, chartDates, inputs = {}) {
     const invested = na(reading) ? NA : Math.min(100.0, heldPct + (tacticalPct * reading) / 100.0);
     if (!na(invested) && !na(prevInvested)) { if (invested > prevInvested) dirCol = "green"; else if (invested < prevInvested) dirCol = "red"; }
     rows.push({ date: chartDates[i], spyRsi: spyRsi[i], qqqRsi: qqqRsi[i], hygMove: hygMove[i], iefMove: iefMove[i], rsiBoth, creditOwn, ptsRsi, ptsCredit, raw, reading, invested, colour: byDirection ? dirCol : "teal",
-      partA: na(ptsRsi) ? NA : 50.0 + ptsRsi, partB: na(ptsCredit) ? NA : 50.0 + ptsCredit });
+      partA: na(ptsRsi) ? NA : 50.0 + ptsRsi, partB: na(ptsCredit) ? NA : 50.0 + ptsCredit, colA: ptsRsi >= 0 ? "green" : "red", colB: ptsCredit >= 0 ? "green" : "red" });
     prevInvested = invested; }
-  rows.label = labelOf(rows[rows.length - 1], showParts, K.TYPICAL_DAY); return rows; }
-/* the label on the last bar — script lines "var label tag = na" … "tag := label.new(…)" */
-/* str.tostring(x, "0.0") / "0.00": a fixed number of decimals; math.round(x, n) first, as the script does */
+  rows.labels = labelsOf(rows[rows.length - 1], inputs); return rows; }
+/* the labels on the last bar — script lines "var array<label> tags" … the last "label.new(…)". Each label sits at its own line's value;
+   they are taken from the highest value down and each is pushed down so that no two sit closer than labelGap (the script's input, 12). */
+/* str.tostring(x, "0.0"): one decimal; math.round(x, 1) first, as the script does */
 const roundN = (x, n) => Math.round(x * 10 ** n) / 10 ** n;
-const whole = (v) => (na(v) ? "—" : String(roundWhole(v))), signedN = (n) => (v) => (na(v) ? "—" : (roundN(v, n) > 0 ? "+" : roundN(v, n) < 0 ? "−" : "") + Math.abs(roundN(v, n)).toFixed(n)), signed1 = signedN(1), signed2 = signedN(2);
-export function labelOf(r, showParts = false, typicalDay = 49.075087) {
-  if (!r) return "";
-  if (na(r.invested)) return "No reading yet · waiting for prices from" + (na(r.spyRsi) ? " SPY" : "") + (na(r.qqqRsi) ? " QQQ" : "") + (na(r.hygMove) ? " HYG" : "") + (na(r.iefMove) ? " IEF" : "");
-  let txt = "Invested " + whole(r.invested) + "% · market reading " + whole(r.reading);
-  if (showParts) { txt += "\na typical day " + typicalDay.toFixed(1); txt += "\nSPY and QQQ's RSI " + whole(r.rsiBoth) + " → " + signed1(r.ptsRsi) + " points"; txt += "\ncredit's own move " + signed2(r.creditOwn) + "% → " + signed1(r.ptsCredit) + " points"; }
-  return txt; }
+const whole = (v) => (na(v) ? "—" : String(roundWhole(v))), signed1 = (v) => (na(v) ? "—" : (roundN(v, 1) > 0 ? "+" : roundN(v, 1) < 0 ? "−" : "") + Math.abs(roundN(v, 1)).toFixed(1));
+export function labelsOf(r, inputs = {}) { const showReading = inputs.showReading ?? false, showParts = inputs.showParts ?? false, labelGap = inputs.labelGap ?? 12.0, showTag = inputs.showTag ?? true;
+  if (!r || !showTag) return [];
+  if (na(r.invested)) return [{ y: 50.0, text: "No reading yet · waiting for prices from" + (na(r.spyRsi) ? " SPY" : "") + (na(r.qqqRsi) ? " QQQ" : "") + (na(r.hygMove) ? " HYG" : "") + (na(r.iefMove) ? " IEF" : ""), colour: "teal" }];
+  const ys = [], ts = [], cs = [];
+  ys.push(r.invested); ts.push("Invested " + whole(r.invested) + "% · market reading " + whole(r.reading)); cs.push(r.colour);
+  if (showReading) { ys.push(r.reading); ts.push("market reading " + whole(r.reading)); cs.push("bright teal"); }
+  if (showParts) { ys.push(r.partA); ts.push("SPY and QQQ " + signed1(r.ptsRsi)); cs.push(r.colA); ys.push(r.partB); ts.push("credit " + signed1(r.ptsCredit)); cs.push(r.colB); }
+  const rank = ys.map((_, k) => k).sort((a, b) => ys[b] - ys[a] || a - b), out = []; let above = NA;
+  for (let i = 0; i <= rank.length - 1; i++) { const j = rank[i]; let y = ys[j]; if (!na(above)) y = Math.min(y, above - labelGap); above = y; out.push({ y, text: ts[j], colour: cs[j], at: ys[j] }); }
+  return out; }
+/* the first label's words: the one the pane always shows */
+export const labelOf = (r) => (labelsOf(r)[0] || { text: "" }).text;
 
 /* ---------- HYG with its payouts added back, the two ways it is done ---------- */
 /* TradingView's way (its help page "How does dividend adjustment work"): for each payout, every price BEFORE the ex-date is multiplied
