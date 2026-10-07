@@ -17,7 +17,11 @@ let P, s;
 const near = (a, b, eps = 1e-9) => Math.abs(a - b) <= eps;
 const J = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, "data", f), "utf8"));
 /* CP3 (7 Oct, later): the page now reads the cards RE-PRICED on the one forward basis (27: the same 26 and TSMC), so these checks read that file */
-const CARDS = J("decision-cards-20261007.json"), ZONES = J("confluence-zones-20261006.json"), APPROVED = J("approved-names-20261007.json"), DEPLOY = J("deployment-scenarios.json");
+/* CP5 (7 Oct, 17:00): the cards in use are the comps engine's (data/comps-engine/cards.json, the Hub's copy once it is served). Until
+   this round the tool kept this morning's cards — the engine's file carried no re-priced stamp and lost the tool's own tie-break — and
+   these tests were pinned to the morning's file by name and by its numbers. They now read the engine's cards as their fixture; the
+   figures they name are the engine's, and what only the morning's cards had (a set stated by hand, Micron read three ways) is gone. */
+const CARDS = J("comps-engine/cards.json"), ZONES = J("confluence-zones-20261006.json"), APPROVED = J("approved-names-20261007.json"), DEPLOY = J("deployment-scenarios.json");
 /* the same place rule as the page's, written again here: first = 1, last = 0, equal answers share the middle of their places */
 function placesJS(vals) { const have = vals.map((v, i) => [v, i]).filter(([v]) => v != null && isFinite(v)).sort((a, b) => b[0] - a[0]), n = have.length, out = vals.map(() => null);
   for (let i = 0; i < n;) { let j = i; while (j < n && have[j][0] === have[i][0]) j++; const mid = (i + j - 1) / 2, p = n > 1 ? 1 - mid / (n - 1) : 1; for (let k = i; k < j; k++) out[have[k][1]] = p; i = j; } return out; }
@@ -340,14 +344,15 @@ test("4 · funded in rank order, sized by score, with no cap on how many: the la
 
 /* ------------------------------------------------------------------ 5 · THE PICKS READ THE DECISION CARDS */
 test("5 · the card's figures, one accessor each: comps range, growth on sales, the Geiger's place in its year; a name with no peer set says so; nothing is guessed", async () => {
-  const r = await P.page.evaluate(() => ({ mu: { g: cardGrowth(cardOf("MU")), k: cardComps(cardOf("MU")), ge: cardGeiger(cardOf("MU")) }, be: cardComps(cardOf("BE")), none: [cardOf("NOT_A_NAME"), cardGrowth(null), cardComps(null), cardGeiger({}), cardGrowth({ fundamentals: {} })],
+  const r = await P.page.evaluate(() => ({ mu: { g: cardGrowth(cardOf("MU")), k: cardComps(cardOf("MU")), ge: cardGeiger(cardOf("MU")) }, be: cardComps(cardOf("BE")), noSet: cardComps({ price: 100, comps: { low: null, centre: null, high: null, peers_priced: ["AAA"], flags: [] } }), none: [cardOf("NOT_A_NAME"), cardGrowth(null), cardComps(null), cardGeiger({}), cardGrowth({ fundamentals: {} })],
     idx: [cardIndex(null), cardIndex({ cards: {} }), !!cardIndex({ cards: [{ ticker: "AAA" }] })], n: Object.keys(CARDS.cards).length, src: CARDS.src, served: CARDS.served }));
   const c = CARDS.cards.MU;
   assert.ok(near(r.mu.g.v, c.fundamentals.rev_g_ntm / 100, 1e-12) && r.mu.g.what === "sales, next 12 months" && near(r.mu.g.twoYear, c.fundamentals.rev_g_2y_a_year / 100, 1e-12), "growth is sales over the next twelve months — a one-off gain never sits in sales");
   assert.deepEqual([r.mu.k.low, r.mu.k.centre, r.mu.k.high], [c.comps.low, c.comps.centre, c.comps.high]); assert.deepEqual(r.mu.k.peers, c.comps.peers_priced); assert.deepEqual(r.mu.k.flags, c.comps.flags); assert.ok(near(r.mu.k.upside, c.comps.upside_pct / 100, 1e-12));
   assert.ok(near(r.mu.ge.pctl, c.technicals.geiger_pctl_own_year, 1e-12) && near(r.mu.ge.g, c.technicals.geiger, 1e-12));
-  assert.equal(r.be.none, true); assert.ok(/no peer set/.test(r.be.says)); assert.deepEqual(r.none, [null, null, null, null, null]); assert.deepEqual(r.idx, [null, null, true]);
-  assert.equal(r.n, 27); assert.equal(r.src, "data/decision-cards-20261007.json"); assert.equal(r.served, false, "the Hub does not serve the cards yet: the dated copy kept with the page is read, and the sources line says so"); assert.ok(/the Hub does not serve them yet/.test(s.spineNote.decision_cards));
+  /* CP5: this morning's card for Bloom Energy carried no range; the engine prices it, so the no-peer-set case is read on a card built for it */
+  assert.equal(r.noSet.none, true); assert.ok(/no peer set/.test(r.noSet.says)); assert.ok(!r.be.none && near(r.be.centre, CARDS.cards.BE.comps.centre, 1e-12), "Bloom Energy carries the engine's range"); assert.deepEqual(r.none, [null, null, null, null, null]); assert.deepEqual(r.idx, [null, null, true]);
+  assert.equal(r.n, 27); assert.match(r.src, /comps-engine\/(data\/)?cards\.json$/, "the cards in use are the comps engine's: " + r.src); assert.equal(r.served, /^https?:/.test(r.src)); assert.ok(r.served ? /the Hub's copy/.test(s.spineNote.decision_cards) : /the Hub does not serve them yet/.test(s.spineNote.decision_cards), "the sources line says which copy is read");
 });
 
 test("5 · the card over the feed: for a carded name the knockout reads growth, the forward and trailing P/E and price ÷ sales from the card, field by field; the feed's own figures are kept beside them; a name with no card is untouched", async () => {

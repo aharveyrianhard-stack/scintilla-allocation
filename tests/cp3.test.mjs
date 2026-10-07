@@ -13,8 +13,15 @@ import fs from "node:fs"; import path from "node:path";
 import { startServer, chromium, ROOT } from "./_harness.mjs";
 
 const J = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, "data", f), "utf8"));
-const CARDS = J("decision-cards-20261007.json"), TABLE = J("one-basis-30-20261007.json"), CORE = J("core-candidates-20261007.json");
+/* CP5 (7 Oct, 17:00): the cards in use are the comps engine's (data/comps-engine/cards.json, the Hub's copy once it is served). Until
+   this round the tool kept this morning's cards — the engine's file carried no re-priced stamp and lost the tool's own tie-break — and
+   these tests were pinned to the morning's file by name and by its numbers. They now read the engine's cards as their fixture; the
+   figures they name are the engine's, and what only the morning's cards had (a set stated by hand, Micron read three ways) is gone. */
+const CARDS = J("comps-engine/cards.json"), TABLE = J("one-basis-30-20261007.json"), CORE = J("core-candidates-20261007.json");
 const near = (a, b, eps = 1e-9) => Math.abs(a - b) <= eps;
+const reEsc = (s) => String(s).replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&"), words = (t) => ({ "000660.KS": "SK hynix", "005930.KS": "Samsung", "285A.T": "Kioxia" })[t] || t;
+/* a card's "to the centre" as the tool prints it on the card's own close, and one yardstick row's first cells */
+const upOf = (t) => { const v = CARDS.cards[t].comps.upside_pct; return (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(0) + "%"; };
 /* a page whose prices the test decides: quotes(symbols) → the chart API's answer, or "down"; stored: the live_quotes rows */
 async function openWith({ quotes, stored, width = 1680, height = 1050 }) {
   const srv = await startServer(), browser = await chromium.launch({ headless: true }), context = await browser.newContext({ viewport: { width, height } }), page = await context.newPage();
@@ -48,7 +55,7 @@ let A, a;
 test("1 · on the cards' own close the tool prints, for every card of the thirty, the multiple the dashboard, the COMPS tab, the card and the feed print", async () => {
   A = await openWith({ quotes: closeOf }); a = await A.page.evaluate(read);
   assert.deepEqual(A.errors, []); assert.equal(A.nonGet.blocked, 0);
-  assert.equal(a.cards.n, 27); assert.equal(a.cards.src, "data/decision-cards-20261007.json"); assert.equal(a.cards.repriced, "2026-10-07"); assert.equal(a.cards.as_of, "2026-10-06");
+  assert.equal(a.cards.n, 27); assert.match(a.cards.src, /comps-engine\/(data\/)?cards\.json$/, "the cards in use are the comps engine's: " + a.cards.src); assert.equal(a.cards.repriced, CARDS.as_of.repriced); assert.equal(a.cards.as_of, CARDS.as_of.card_date);
   const rows = TABLE.rows.filter((r) => CARDS.cards[r.ticker]); assert.equal(TABLE.rows.length, 30); assert.equal(rows.length, 27, "27 of the thirty have a card; Meta, Microsoft and AMD are read from the feed, which the Hub's own test holds to the same table");
   for (const r of rows) { const p = a.prints[r.ticker]; assert.equal(p.live, true, r.ticker + " is on the price the test gave"); assert.ok(near(p.price, r.price, 1e-9)); assert.equal(p.text, r.prints, `${r.ticker}: the tool ${p.text} · the Hub's table ${r.prints}`); }
   assert.deepEqual(["GOOGL", "AMZN", "AVGO", "NVDA", "MU", "VST", "TSM"].map((t) => a.prints[t].text), ["24.2×", "25.7×", "21.6×", "19.9×", "6.0×", "15.6×", "≈23.1×"]);
@@ -76,10 +83,10 @@ test("3 · the workflow shows the core candidates with their comps: one line und
   for (const row of a.coreRows) { const c = CARDS.cards[row.sym], nice = (t) => ({ "000660.KS": "SK HYNIX", "005930.KS": "SAMSUNG", "285A.T": "KIOXIA" })[t] || t;
     assert.deepEqual(row.chips, c.comps.peers_priced.map(nice), row.sym + " names the peers that price it"); assert.equal(row.peers, c.peers.filter((p) => p.priced).length + 1, row.sym + ": its own row and one per peer that prices it");
     assert.ok(row.text.includes(a.prints[row.sym].text), row.sym + " prints its forward P/E"); assert.ok(/net cash|×/.test(row.text)); }
-  for (const t of CORE.names) assert.ok(a.coreLine.includes(t), "the brief's core line names " + t); assert.match(a.coreLine, /GOOGL 24\.2× · −5%/); assert.match(a.coreLine, /MU 6\.0× · \+13%/);
+  for (const t of CORE.names) assert.ok(a.coreLine.includes(t), "the brief's core line names " + t); assert.match(a.coreLine, new RegExp("GOOGL 24\\.2× · " + reEsc(upOf("GOOGL")))); assert.match(a.coreLine, new RegExp("MU 6\\.0× · " + reEsc(upOf("MU"))));
   assert.match(a.picks, /FORWARD P\/E · the next four quarters/i); assert.match(a.picks, /NET DEBT ÷ EBITDA/i); assert.match(a.picks, /interest cover not on file/);
-  assert.equal(a.muPeers.length, 7, "Micron and the six that price it"); assert.match(a.muPeers.join(" | "), /SK HYNIX .*≈3\.8×/); assert.match(a.muPeers.join(" | "), /SAMSUNG .*≈4\.1×/); assert.match(a.muPeers.join(" | "), /KIOXIA .*≈4\.2×/); assert.match(a.muPeers[0], /^MU 6\.0×/);
-  assert.match(a.picks, /priced on SNDK, WDC, STX, SK hynix, Samsung, Kioxia/);
+  assert.equal(a.muPeers.length, CARDS.cards.MU.peers.filter((p) => p.priced).length + 1, "Micron and every peer that prices it"); assert.match(a.muPeers.join(" | "), /SK HYNIX .*≈3\.8×/); assert.match(a.muPeers.join(" | "), /SAMSUNG .*≈4\.1×/); assert.match(a.muPeers.join(" | "), /KIOXIA .*≈4\.2×/); assert.match(a.muPeers[0], /^MU 6\.0×/);
+  assert.ok(a.picks.includes("priced on " + CARDS.cards.MU.comps.peers_priced.map(words).join(", ")), "the pick names the peers that price it, in words"); for (const t of ["SNDK", "WDC", "STX", "000660.KS", "005930.KS", "285A.T"]) assert.ok(CARDS.cards.MU.comps.peers_priced.includes(t), words(t) + " prices Micron");
 });
 test("4 · seventeen sections with 5b CORE between the knockout and the picks; no internal code; text at 11px or more; nothing sideways on a phone", async () => {
   assert.equal(a.sections.length, 17); assert.deepEqual(a.sections.slice(8, 11), ["p-knockout", "p-core", "p-mix"]); assert.ok(a.bar.includes("5b CORE"));
@@ -92,14 +99,14 @@ test("4 · seventeen sections with 5b CORE between the knockout and the picks; n
 test("5 · the steering of 11:20: the blend leads, growth is shown two ways, the growth credit is said, the set check is on the card, Micron is read three ways, the channel is named", async () => {
   /* step 5b leads with the range from every yardstick together; forward P/E comes after it */
   for (const row of a.coreRows) { assert.deepEqual(row.cells.slice(0, 6), ["", "PRICE", "COMPS RANGE", "TO THE CENTRE", "PRICED ON", "FORWARD P/E"], row.sym); assert.ok(row.cells.includes("EARNINGS GROWTH")); assert.ok(row.yard >= 6, row.sym + " opens to its yardsticks: " + row.yard); }
-  assert.ok(a.muYard.length >= 6 && a.muYard.some((r) => /^P\/E · next four quarters 6\.0× 5\.8×/.test(r)) && a.muYard.some((r) => /^EV \/ EBITDA/.test(r)) && a.muYard.some((r) => /^P\/E ÷ growth 0\.27 0\.31 .*growth credit ×1\.\d+/.test(r)), a.muYard.join(" | "));
+  const Y = CARDS.cards.MU.comps.rows; assert.ok(a.muYard.length >= 6 && a.muYard.some((r) => r.startsWith(`P/E · next four quarters ${Y.pe_fwd.own.toFixed(1)}× ${Y.pe_fwd.median.toFixed(1)}×`)) && a.muYard.some((r) => /^EV \/ EBITDA/.test(r)) && a.muYard.some((r) => r.startsWith(`P/E ÷ growth ${Y.peg.own.toFixed(2)} ${Y.peg.median.toFixed(2)}`)), a.muYard.join(" | "));
   const weights = a.muYard.map((r) => +(/(\d+)%( · growth credit.*)?$/.exec(r) || [0, 0])[1]); assert.ok(Math.abs(weights.reduce((x, y) => x + y, 0) - 100) <= 3, "the yardsticks' weights add up: " + weights.join("+"));
-  assert.match(a.muPick, /earnings, last twelve months as reported → next four quarters \+13[45]%/); assert.match(a.muPick, /next four → the four after \+22%/); assert.match(a.muPick, /growth credit ×1\.\d+: it grows 22% into the following year against its peers' 19%/);
-  assert.match(a.muPick, /set check: only 2 of the 12 peers the sources kept share its business — it is priced on the 6 that do/);
-  assert.match(a.muPick, /THREE WAYS\s*US-listed peers only \+(89|90)%/); assert.match(a.muPick, /\+ SK hynix \+5[01]%/); assert.match(a.muPick, /\+ SK hynix, Samsung, Kioxia \+1[23]%/);
+  assert.match(a.muPick, /earnings, last twelve months as reported → next four quarters \+13[45]%/); assert.match(a.muPick, /next four → the four after \+22%/); assert.ok(a.muPick.includes(CARDS.cards.MU.comps.growth_credit_words), "the growth credit is said in words: " + CARDS.cards.MU.comps.growth_credit_words);
+  const check = CARDS.cards.MU.comps.flags.find((f) => /^set check:/.test(f)); assert.ok(check && a.muPick.includes(check), "the set check is on the card: " + check);
+  assert.ok(!/THREE WAYS/.test(a.muPick), "the engine reads Micron one way — on its six memory makers with the chip names blending in; the morning's three ways are gone");
   assert.match(a.muPick, /long-term channel: 31% of the way up its long-term channel \(3D B6 880\.30 → 3D B2 1,410\.79\)/, "on the card's close: (1,045.56 − 880.30) ÷ (1,410.79 − 880.30)");
   assert.match(a.chan.at1200, /^60% of the way up/, "on a live price the place moves with it: " + a.chan.at1200); assert.match(a.chan.below, /^below its long-term channel: 15% of the channel's height under the lower rail/); assert.equal(a.chan.none, null, "no complete channel on file for Nvidia: none shown");
   /* Amazon is priced with the three Chinese retailers in, converted */
-  const amzn = a.coreRows.find((r) => r.sym === "AMZN"); for (const t of ["BABA", "JD", "PDD"]) assert.ok(amzn.chips.includes(t), t + " prices Amazon"); assert.match(a.coreLine, /AMZN 25\.7× · \+25%/);
-  assert.match(CARDS.cards.VST.comps.growth_credit_words, /^growth credit: none/);
+  const amzn = a.coreRows.find((r) => r.sym === "AMZN"); for (const t of ["BABA", "JD", "PDD"]) assert.ok(amzn.chips.includes(t), t + " prices Amazon"); assert.match(a.coreLine, new RegExp("AMZN 25\\.7× · " + reEsc(upOf("AMZN"))));
+  assert.match(CARDS.cards.MU.comps.growth_credit_words, /^growth credit: none/); assert.match(CARDS.cards.VST.comps.growth_credit_words, /^growth credit ×\d/);
 });
