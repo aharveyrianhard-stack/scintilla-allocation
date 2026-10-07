@@ -18,13 +18,13 @@ export async function startServer() {
     if (rw) { try { const r = await fetch(rw.destination + u.search); res.writeHead(r.status, { "content-type": r.headers.get("content-type") || "application/json" }); return res.end(Buffer.from(await r.arrayBuffer())); } catch (e) { res.writeHead(502); return res.end(String(e)); } }   /* PA6: the upstream's own type — the C5 method is a JavaScript module */
     const f = path.join(ROOT, u.pathname === "/" ? "index.html" : u.pathname);
     if (!fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); return res.end(); }
-    res.writeHead(200, { "content-type": f.endsWith(".json") ? "application/json" : "text/html" }); res.end(fs.readFileSync(f));
+    res.writeHead(200, { "content-type": f.endsWith(".json") ? "application/json" : /\.m?js$/.test(f) ? "text/javascript" : f.endsWith(".png") ? "image/png" : "text/html" }); res.end(fs.readFileSync(f));   /* DM1: a module script and a picture are served as what they are */
   });
   await new Promise((ok) => server.listen(0, ok));
   return { server, port: server.address().port, url: `http://127.0.0.1:${server.address().port}/` };
 }
 /* opts.allowPost: a predicate(url) for the one write path a test lets through (it is still counted in nonGet.allowed) */
-export async function openPage({ width = 1680, height = 1050, allowPost = null, storage = null } = {}) {
+export async function openPage({ width = 1680, height = 1050, allowPost = null, storage = null, path: pagePath = "" } = {}) {   /* DM1: a study page under study/ can be opened by path */
   const srv = await startServer();
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width, height } });
@@ -33,7 +33,7 @@ export async function openPage({ width = 1680, height = 1050, allowPost = null, 
   const errors = [], nonGet = { blocked: 0, allowed: 0, urls: [] };
   await page.route("**/*", (r) => { const m = r.request().method(); if (m !== "GET") { nonGet.urls.push(m + " " + r.request().url()); if (allowPost && allowPost(r.request().url())) { nonGet.allowed++; return r.continue(); } nonGet.blocked++; return r.abort(); } r.continue(); });
   page.on("pageerror", (e) => errors.push(String(e)));
-  await page.goto(srv.url, { waitUntil: "networkidle", timeout: 180000 }); await page.waitForTimeout(2500);
+  await page.goto(srv.url + pagePath, { waitUntil: "networkidle", timeout: 180000 }); await page.waitForTimeout(2500);
   const close = async () => { await browser.close(); srv.server.close(); };
   return { page, browser, errors, nonGet, close, url: srv.url };
 }
