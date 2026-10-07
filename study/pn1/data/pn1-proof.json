@@ -1,6 +1,6 @@
 {
  "what": "PN1 — the deployment pane's script against the allocation tool's engine",
- "built": "2026-10-07T20:32:03.366Z",
+ "built": "2026-10-07T20:33:36.522Z",
  "script": {
   "file": "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine",
   "codeHash": "26f02d1b4027c365",
@@ -546,14 +546,14 @@
   }
  ],
  "today": {
-  "readAt": "2026-10-07 16:11:39 New York",
+  "readAt": "2026-10-07 16:33:35 New York",
   "phase": "after hours",
   "session": "2026-10-07",
-  "live": true,
-  "lastSettledBar": "2026-10-06",
+  "live": false,
+  "lastSettledBar": "2026-10-07",
   "missing": [],
   "prices": {
-   "SPY": 777.23,
+   "SPY": 777.22,
    "QQQ": 757.73,
    "HYG": 77.18,
    "IEF": 89.11
@@ -592,7 +592,6 @@
   "gapInvestedTradingViewPayouts": 0,
   "closes": {
    "dates": [
-    "2024-08-12",
     "2024-08-13",
     "2024-08-14",
     "2024-08-15",
@@ -1135,7 +1134,6 @@
     "2026-10-07"
    ],
    "SPY": [
-    533.27,
     542.04,
     543.75,
     553.07,
@@ -1675,10 +1673,9 @@
     769.64,
     774.83,
     779.09,
-    777.23
+    777.22
    ],
    "QQQ": [
-    null,
     462.58,
     462.73,
     474.42,
@@ -2221,7 +2218,6 @@
     757.73
    ],
    "HYG": [
-    null,
     78.38,
     78.52,
     78.59,
@@ -2764,7 +2760,6 @@
     77.18
    ],
    "IEF": [
-    null,
     97.36,
     97.49,
     96.88,
@@ -3651,6 +3646,52 @@
    "scriptOnTheLongHistory": {
     "reading": 35.5,
     "invested": 80.65,
+    "bars": 5805
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapOnTheLongHistory": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0
+  },
+  {
+   "readAt": "2026-10-07 16:11:39 New York",
+   "phase": "after hours",
+   "session": "2026-10-07",
+   "live": true,
+   "lastSettledBar": "2026-10-06",
+   "missing": [],
+   "prices": {
+    "SPY": 777.23,
+    "QQQ": 757.73,
+    "HYG": 77.18,
+    "IEF": 89.11
+   },
+   "engine": {
+    "reading": 30.4,
+    "invested": 79.12,
+    "rsi": 63.92,
+    "creditOwn": -0.14,
+    "rsiPoints": -2.5,
+    "creditPoints": -16.2
+   },
+   "script": {
+    "reading": 30.4,
+    "invested": 79.12,
+    "rsi": 63.92,
+    "creditOwn": -0.14,
+    "rsiPoints": -2.5,
+    "creditPoints": -16.2,
+    "label": "Invested 79% · market reading 30"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 30.4,
+    "invested": 79.12,
+    "creditOwn": -0.14
+   },
+   "scriptOnTheLongHistory": {
+    "reading": 30.4,
+    "invested": 79.12,
     "bars": 5805
    },
    "gap": 0,
