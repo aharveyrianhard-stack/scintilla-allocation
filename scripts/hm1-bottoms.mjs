@@ -55,7 +55,9 @@ const GA = {}; for (const s of Object.keys(SYM)) GA[s] = SYM[s] ? GE.geigerSerie
 /* the check: the rebuilt Geiger on the last evening against the Hub's own /geiger taken that evening */
 const geigerCheck = (() => { const f = path.join(CACHE, "geiger_live_evening.json"); if (!fs.existsSync(f)) return null; const L = JSON.parse(fs.readFileSync(f, "utf8")); const rows = []; let worst = 0;
   for (const s of [...new Set([...HUB7, ...SECTOR_FUNDS])]) { const h = L.symbols && L.symbols[s], r = GA[s][N - 1]; if (!h || !r) continue; const d = [r.g - h.composite, r.trend - h.trend, r.mom - h.momentum]; worst = Math.max(worst, ...d.map(Math.abs)); rows.push({ sym: s, hub: r4(h.composite), rebuilt: r4(r.g), diff: +d[0].toFixed(5), trendDiff: +d[1].toFixed(5), momDiff: +d[2].toFixed(5), rungs: r.n }); }
-  return { published_utc: L.published_utc, session: TODAY, funds: rows.length, largestAbsDiff: +worst.toFixed(5), rungs: (L.participating_rungs || []).map((r) => ({ key: r.equalizer_key, weight: r.weight })), rows }; })();
+  /* and at any other instant a /geiger answer was saved that evening (the finality rule in full, not its end-of-day shortcut) */
+  const instants = fs.readdirSync(CACHE).filter((n) => /^geiger_live_.*\.json$/.test(n)).map((n) => { const P2 = JSON.parse(fs.readFileSync(path.join(CACHE, n), "utf8")); const T = Date.parse(P2.computed_utc); let w = 0, k = 0; for (const s of [...new Set([...HUB7, ...SECTOR_FUNDS])]) { const h = P2.symbols && P2.symbols[s], r = GE.geigerAt(SYM[s], T, sessDn); if (!h || !r) continue; k++; w = Math.max(w, Math.abs(r.g - h.composite), Math.abs(r.trend - h.trend), Math.abs(r.mom - h.momentum)); } return { computed_utc: P2.computed_utc, funds: k, largestAbsDiff: +w.toFixed(5) }; }).sort((a, b) => (a.computed_utc < b.computed_utc ? -1 : 1));
+  return { published_utc: L.published_utc, session: TODAY, funds: rows.length, largestAbsDiff: +worst.toFixed(5), rungs: (L.participating_rungs || []).map((r) => ({ key: r.equalizer_key, weight: r.weight })), instants, rows }; })();
 
 /* ---------- the tables, lined up on the sessions ---------- */
 const tbl = (n) => { const f = path.join(CACHE, "data", n + ".json"); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : null; };
@@ -91,7 +93,8 @@ const P200 = new Array(N).fill(null); { const over = new Float64Array(N), cnt = 
 const NEW_WRITER = "2026-08-10"; const TABLE_FROM = intern.length ? isoDn(dayNum(intern[0].asof) + 1) : null;   // the first session the table describes
 const INA = new Array(N).fill(null);
 { const rows = intern.filter((r) => r.asof); let p = 0, last = null; for (let i = 0; i < N; i++) { const d = sessions[i]; const strict = d < NEW_WRITER; while (p < rows.length && (strict ? rows[p].asof < d : rows[p].asof <= d)) { last = rows[p]; p++; }
-    if (last && dayNum(d) - dayNum(last.asof) <= 7) INA[i] = { trin: last.trin == null ? null : +last.trin, av: +last.adv_volume, dv: +last.dec_volume, adv: last.advancers, dec: last.decliners, universe: last.universe, asof: last.asof, src: "market_internals" }; } }
+    /* the page drops the newest row once it is more than five days old; read on the evening of a session that is a row stamped up to four days before it */
+    if (last && dayNum(d) - dayNum(last.asof) <= 4) INA[i] = { trin: last.trin == null ? null : +last.trin, av: +last.adv_volume, dv: +last.dec_volume, adv: last.advancers, dec: last.decliners, universe: last.universe, asof: last.asof, src: "market_internals" }; } }
 /* before the table: the same two readings from the served companies' own bars (TRIN = (advancers ÷ decliners) ÷ (up volume ÷ down volume)) */
 const REBUILT = new Array(N).fill(null); if (VOLS) for (let i = sOff + 1; i < N; i++) { const a = TA.up[i], d = TA.dn[i], av = TA.av[i], dv = TA.dv[i]; if (a + d < 50 || !a || !d || !(av > 0) || !(dv > 0)) continue; REBUILT[i] = { trin: (a / d) / (av / dv), av, dv, adv: a, dec: d, universe: TA.cnt[i], asof: sessions[i], src: "rebuilt from the served companies" }; }
 const INT = INA.map((x, i) => x || (TABLE_FROM && sessions[i] < TABLE_FROM ? REBUILT[i] : null));

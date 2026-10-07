@@ -14,6 +14,7 @@ test("the rebuilt seven-rung Geiger equals the Hub's own /geiger on the last eve
   const g = H.geigerCheck; assert.ok(g, "the engine ran without the Hub's /geiger file"); assert.ok(g.funds >= 18, "funds " + g.funds);
   assert.ok(g.largestAbsDiff < 0.001, "largest difference " + g.largestAbsDiff); assert.equal(g.rungs.length, 7);
   for (const r of g.rows) assert.equal(r.rungs, 7, r.sym + " read on " + r.rungs + " rungs");
+  assert.ok(g.instants.length >= 1); for (const x of g.instants) { assert.ok(x.funds >= 18, x.computed_utc); assert.ok(x.largestAbsDiff < 0.001, x.computed_utc + " differs by " + x.largestAbsDiff); }   // every /geiger answer saved that evening, by the finality rule in full
 });
 
 test("only completed bars are read: Monday to Thursday the weekly rung is last week's bar, on Friday evening it is this week's; a 3-day bar counts only once no later session falls inside it", () => {

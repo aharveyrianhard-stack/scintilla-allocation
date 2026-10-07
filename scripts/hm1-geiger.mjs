@@ -56,7 +56,7 @@ export const SPAN = { "3d": 3, "1w": 7 };
 export function rollup(D, key) { const out = { dn: [], h: [], l: [], c: [] }; let id = null; for (let i = 0; i < D.dn.length; i++) { const s = bucketStart[key](D.dn[i]);
     if (s !== id) { out.dn.push(s); out.h.push(D.h[i]); out.l.push(D.l[i]); out.c.push(D.c[i]); id = s; } else { const j = out.dn.length - 1; if (D.h[i] > out.h[j]) out.h[j] = D.h[i]; if (D.l[i] < out.l[j]) out.l[j] = D.l[i]; out.c[j] = D.c[i]; } } return out; }
 
-const cols = (rows) => { const o = { dn: new Array(rows.length), h: new Array(rows.length), l: new Array(rows.length), c: new Array(rows.length) }; for (let i = 0; i < rows.length; i++) { const r = rows[i]; o.dn[i] = dayNumOf(r[0]); o.h[i] = r[1]; o.l[i] = r[2]; o.c[i] = r[3]; } return o; };
+const cols = (rows) => { const o = { t: new Array(rows.length), dn: new Array(rows.length), h: new Array(rows.length), l: new Array(rows.length), c: new Array(rows.length) }; for (let i = 0; i < rows.length; i++) { const r = rows[i]; o.t[i] = r[0]; o.dn[i] = dayNumOf(r[0]); o.h[i] = r[1]; o.l[i] = r[2]; o.c[i] = r[3]; } return o; };
 /* every rung's bars for one symbol, from the cache scripts/hm1-pull.mjs filled */
 export function loadSymbol(cache, sym) { const out = { sym, bars: {}, source: {} };
   const df = path.join(cache, `${sym}_D.json`); if (!fs.existsSync(df)) return null;
@@ -95,3 +95,22 @@ export function geigerSeries(S, sessDn, nextDn, { keep = false, only = null } = 
     else if (left.length) row.left = left.map((x) => x.key);
     out[i] = row; }
   return out; }
+
+/* The same reading at any instant T (UTC ms), with the publisher's finality rule in full rather than its end-of-day shortcut: a bar counts once the
+   last possible trading close inside it has passed — an intraday bar at its own end or at 20:00 New York, whichever is first; the day's bar at
+   16:00 New York; a 3-day or weekly bar once no session that has not yet closed falls inside it. Used only to check the rebuild against a /geiger
+   answer saved in the middle of an evening; the replay itself reads every session at its end (geigerSeries). */
+const NYF = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+const nyOffset = (t) => { const p = {}; for (const x of NYF.formatToParts(new Date(t))) p[x.type] = +x.value; return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(t / 1000) * 1000; };
+export const nyClock = (t, hour) => { const off = nyOffset(t); return Math.floor((t + off) / DAY) * DAY + hour * 3600e3 - off; };   // HH:00 New York on the New York day of t, as a UTC instant
+const HOURS = { "3h": 3, "4h": 4, "6h": 6, "12h": 12 };
+export function geigerAt(S, T, sessDn) { let li = -1; for (let i = sessDn.length - 1; i >= 0; i--) if (nyClock(sessDn[i] * DAY + 12 * 3600e3, 20) <= T) { li = i; break; }
+  let nx; if (li + 1 < sessDn.length) nx = sessDn[li + 1]; else { nx = sessDn[li] + 1; while ([0, 6].includes(new Date(nx * DAY).getUTCDay())) nx++; }
+  const reads = []; let dailyNewest = null;
+  for (const [k, , w] of [...RUNGS].sort((a, b) => (b[0] === "1d") - (a[0] === "1d"))) { let B = S.bars[k]; if (!B && (k === "3d" || k === "1w")) B = S.bars[k + "_rolled"]; if (!B) continue;
+    let cnt = 0; const fin = (j) => (k === "1d" ? nyClock(B.t[j], 16) <= T : HOURS[k] ? Math.min(B.t[j] + HOURS[k] * 3600e3, nyClock(B.t[j], 20)) <= T : B.dn[j] + SPAN[k] <= nx);
+    for (let j = B.dn.length - 1; j >= 0; j--) if (fin(j)) { cnt = j + 1; break; }
+    if (!cnt) continue; const newest = B.dn[cnt - 1]; if (k === "1d") dailyNewest = newest; if (INTRADAY.has(k) && dailyNewest != null && newest < dailyNewest) continue;
+    const r = rungRead(B.c, B.h, B.l, Math.max(0, cnt - BARS_PER_RUNG), cnt); if (r) reads.push({ key: k, w, r, newest }); }
+  if (!reads.length) return null; let W = 0, c = 0, t = 0, mW = 0, m = 0; for (const x of reads) { W += x.w; c += x.w * x.r.read; t += x.w * x.r.trend; if (x.r.mom != null) { mW += x.w; m += x.w * x.r.mom; } }
+  return { g: c / W, trend: t / W, mom: mW ? m / mW : null, n: reads.length }; }
