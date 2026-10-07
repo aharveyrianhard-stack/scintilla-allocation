@@ -1,0 +1,2750 @@
+{
+ "390": {
+  "heat": 0.06886898389396455,
+  "rung": {
+   "cond": "NEUTRAL",
+   "pct": 50
+  },
+  "pageWidth": 390,
+  "viewport": 390,
+  "sections": [
+   "p-scen",
+   "p-brief",
+   "p-heat",
+   "p-inputs",
+   "p-howmuch",
+   "p-bowtie",
+   "p-money",
+   "p-cohorts",
+   "p-knockout",
+   "p-mix",
+   "p-moves",
+   "p-options",
+   "p-comps",
+   "p-map",
+   "p-state",
+   "p-trace"
+  ],
+  "inputs": [
+   "maxInv",
+   "invCold",
+   "invMid",
+   "invHot",
+   "minInv",
+   "vixCold",
+   "tenCold",
+   "mixSPDR",
+   "mixHUBCMP",
+   "mixMKTBOW",
+   "mixTREE",
+   "mixRANK",
+   "rankGrowth",
+   "rankRegime",
+   "rankOpp",
+   "minSleeve",
+   "divToggle",
+   "maxNames",
+   "concLean",
+   "nPer",
+   "maxTotal",
+   "curInv",
+   "convShare",
+   "coreIndexShare",
+   "maxSleeves",
+   "curLC",
+   "lcTilt"
+  ],
+  "al7": {
+   "heat": 0.06886898389396455,
+   "rung": {
+    "cond": "NEUTRAL",
+    "pct": 50
+   },
+   "heatBefore": 0.052743407862238016,
+   "weightBefore": 9.75,
+   "rungBefore": {
+    "cond": "NEUTRAL",
+    "pct": 50
+   },
+   "oneRuler": {
+    "heat": 0.11238034103682167,
+    "rung": {
+     "cond": "NEUTRAL",
+     "pct": 50
+    },
+    "oil": {
+     "future": 0.6672,
+     "fund": -0.013873
+    },
+    "gold": {
+     "future": 0.0582,
+     "trust": -0.407131
+    }
+   },
+   "camps": {
+    "hot": 0.5887338696899502,
+    "hotShare": 0.47619047619047616,
+    "cold": -0.4037354577387498,
+    "coldShare": 0.5238095238095238
+   },
+   "weight": 10.5,
+   "voting": 24,
+   "readOnly": 3,
+   "cannot": 6,
+   "families": [
+    {
+     "id": "index",
+     "share": 0.3571,
+     "avg": 0.509,
+     "rows": [
+      [
+       "SPY",
+       0.807,
+       0.0952
+      ],
+      [
+       "QQQ",
+       0.85,
+       0.0952
+      ],
+      [
+       "IWM",
+       -0.228,
+       0.0476
+      ],
+      [
+       "SMH",
+       0.754,
+       0.0476
+      ],
+      [
+       "SECTORS",
+       -0.015,
+       0.0714
+      ]
+     ]
+    },
+    {
+     "id": "breadth",
+     "share": 0.2619,
+     "avg": -0.255,
+     "rows": [
+      [
+       "BREADTH_X",
+       -0.157,
+       0.0476
+      ],
+      [
+       "BREADTH_SC",
+       -1,
+       0.0238
+      ],
+      [
+       "ADLINE",
+       -0.037,
+       0.0476
+      ],
+      [
+       "CONC",
+       -0.749,
+       0.0476
+      ],
+      [
+       "B_200D",
+       0.016,
+       0.0238
+      ],
+      [
+       "B_50D",
+       -0.257,
+       0.0238
+      ],
+      [
+       "TRIN",
+       -0.037,
+       0.0238
+      ],
+      [
+       "B_VOL",
+       0.359,
+       0.0238
+      ]
+     ]
+    },
+    {
+     "id": "rates",
+     "share": 0.2143,
+     "avg": -0.501,
+     "rows": [
+      [
+       "US10Y",
+       -1,
+       0.0476
+      ],
+      [
+       "OIL",
+       -0.667,
+       0.0476
+      ],
+      [
+       "CURVE",
+       0.32,
+       0.0476
+      ],
+      [
+       "CREDIT",
+       -0.48,
+       0.0476
+      ],
+      [
+       "DURATION",
+       -0.852,
+       0.0238
+      ]
+     ]
+    },
+    {
+     "id": "sentiment",
+     "share": 0.119,
+     "avg": 0.521,
+     "rows": [
+      [
+       "VIX",
+       0.666,
+       0.0476
+      ],
+      [
+       "CRYPTO",
+       0.478,
+       0.0238
+      ],
+      [
+       "VIX_TERM",
+       0.596,
+       0.0238
+      ],
+      [
+       "PCC",
+       0.2,
+       0.0238
+      ]
+     ]
+    },
+    {
+     "id": "defensives",
+     "share": 0.0476,
+     "avg": -0.019,
+     "rows": [
+      [
+       "HAVEN",
+       -0.058,
+       0.0238
+      ],
+      [
+       "DEF",
+       0.021,
+       0.0238
+      ]
+     ]
+    }
+   ],
+   "pairs": {
+    "n": 13,
+    "avg": -0.1566753076923077,
+    "below": 10,
+    "above": 1,
+    "level": 2,
+    "rows": [
+     [
+      "Health care",
+      0.435
+     ],
+     [
+      "Financials",
+      0.037
+     ],
+     [
+      "Technology",
+      0.022
+     ],
+     [
+      "Nasdaq-100",
+      -0.127
+     ],
+     [
+      "Materials",
+      -0.141
+     ],
+     [
+      "Energy",
+      -0.152
+     ],
+     [
+      "Utilities",
+      -0.158
+     ],
+     [
+      "Consumer discretionary",
+      -0.178
+     ],
+     [
+      "Consumer staples",
+      -0.195
+     ],
+     [
+      "Real estate",
+      -0.229
+     ],
+     [
+      "Industrials",
+      -0.265
+     ],
+     [
+      "Communications",
+      -0.49
+     ],
+     [
+      "S&P 500",
+      -0.595
+     ]
+    ]
+   },
+   "longBars": {
+    "asof": "2026-10-06",
+    "n": 452,
+    "pct200": 50.779510022271715,
+    "pct50": 37.16814159292036,
+    "idx": {
+     "SPY": {
+      "close": 779.09,
+      "bars": 225,
+      "fromHigh": 0,
+      "highDate": "2026-10-06",
+      "vs50": 0.018125240290311595,
+      "vs200": 0.07983590885103276,
+      "rising200": true,
+      "rsi": 62.00054053341626
+     },
+     "RSP": {
+      "close": 212.33,
+      "bars": 225,
+      "fromHigh": -0.04686447905911928,
+      "highDate": "2026-08-14",
+      "vs50": -0.01953993690478839,
+      "vs200": 0.031031959417168187,
+      "rising200": true,
+      "rsi": 47.54529070669652
+     },
+     "IWM": {
+      "close": 281.34,
+      "bars": 225,
+      "fromHigh": -0.0778458815431512,
+      "highDate": "2026-08-14",
+      "vs50": -0.03713139491028783,
+      "vs200": 0.01692378927187721,
+      "rising200": true,
+      "rsi": 40.49720409114076
+     }
+    }
+   },
+   "putcall": {
+    "reading": 0.718020142475241,
+    "val": 0.19999999999999998,
+    "place": {
+     "n": 6,
+     "below": 1,
+     "pct": 16.666666666666668,
+     "min": 0.704326833547966,
+     "max": 0.81020198255317
+    },
+    "strength": 0.3,
+    "asof": "2026-10-06"
+   },
+   "money": {
+    "invested": 0.5,
+    "cash": 0.5,
+    "core": 0.3,
+    "index": 0,
+    "conviction": 0.2,
+    "names": [
+     [
+      "MU",
+      0.2,
+      "rule"
+     ]
+    ],
+    "sleeves": [
+     [
+      "NEOCLOUDS_MINERS",
+      0.0648,
+      0.001,
+      "improve",
+      null
+     ],
+     [
+      "DC_PROPERTY",
+      0.0496,
+      -0.049,
+      "improve",
+      "XLRE"
+     ],
+     [
+      "MEMORY_STORAGE",
+      0.0469,
+      0.071,
+      "buy",
+      "DRAM"
+     ],
+     [
+      "AI_SERVERS_DC_KIT",
+      0.0467,
+      0.58,
+      "go",
+      "AGIX"
+     ],
+     [
+      "AI_POWERTRAIN",
+      0.0464,
+      0.174,
+      "improve",
+      "URA"
+     ],
+     [
+      "DISCRET",
+      0.0457,
+      -0.12,
+      "improve",
+      "XLY"
+     ]
+    ],
+    "ranking": [
+     [
+      "NEOCLOUDS_MINERS",
+      0.864
+     ],
+     [
+      "DC_PROPERTY",
+      0.661
+     ],
+     [
+      "MEMORY_STORAGE",
+      0.626
+     ],
+     [
+      "AI_SERVERS_DC_KIT",
+      0.623
+     ],
+     [
+      "AI_POWERTRAIN",
+      0.618
+     ],
+     [
+      "DISCRET",
+      0.609
+     ],
+     [
+      "INDUSTRIAL",
+      0.591
+     ],
+     [
+      "ROBOTICS_AUTOMATION",
+      0.591
+     ],
+     [
+      "AI_ACCELERATORS",
+      0.55
+     ],
+     [
+      "AI_NETWORKING_OPTICAL",
+      0.536
+     ],
+     [
+      "TECH",
+      0.532
+     ],
+     [
+      "METALS",
+      0.511
+     ],
+     [
+      "REAL_ESTATE",
+      0.498
+     ],
+     [
+      "AI_SOFTWARE_DATA",
+      0.484
+     ],
+     [
+      "MATERIALS",
+      0.473
+     ],
+     [
+      "UTILITIES",
+      0.452
+     ],
+     [
+      "CRYPTO",
+      0.443
+     ],
+     [
+      "HEALTH",
+      0.397
+     ],
+     [
+      "COMMS",
+      0.377
+     ],
+     [
+      "FINANCIALS",
+      0.375
+     ],
+     [
+      "STAPLES",
+      0.289
+     ],
+     [
+      "ENERGY",
+      0.23
+     ],
+     [
+      "OIL",
+      0.17
+     ]
+    ],
+    "candidates": 23,
+    "minEq": 0.04
+   },
+   "metals": {
+    "score": -0.3597155,
+    "parts": {
+     "TRUST": -0.36,
+     "FUTURE": 0.053
+    },
+    "lines": [
+     [
+      "GOLD",
+      -0.407,
+      0.058
+     ],
+     [
+      "SILVER",
+      -0.312,
+      0.048
+     ],
+     [
+      "COPPER",
+      null,
+      null
+     ]
+    ],
+    "miners": 22,
+    "minersScore": -0.05842477272727271
+   },
+   "tree": {
+    "rows": 91,
+    "links": 771,
+    "companies": 453,
+    "sleeves": [
+     [
+      "AI_ACCELERATORS",
+      0.634,
+      13,
+      "SMH"
+     ],
+     [
+      "AI_NETWORKING_OPTICAL",
+      0.617,
+      14,
+      "IYZ"
+     ],
+     [
+      "AI_SERVERS_DC_KIT",
+      0.58,
+      4,
+      "AGIX"
+     ],
+     [
+      "AI_SOFTWARE_DATA",
+      0.572,
+      16,
+      "IGV"
+     ],
+     [
+      "ROBOTICS_AUTOMATION",
+      0.316,
+      5,
+      "BOTZ"
+     ],
+     [
+      "AI_POWERTRAIN",
+      0.174,
+      12,
+      "URA"
+     ],
+     [
+      "MEMORY_STORAGE",
+      0.071,
+      6,
+      "DRAM"
+     ],
+     [
+      "NEOCLOUDS_MINERS",
+      0.001,
+      12,
+      null
+     ],
+     [
+      "DC_PROPERTY",
+      -0.049,
+      4,
+      "XLRE"
+     ]
+    ]
+   },
+   "lines": 19,
+   "cards": 26
+  },
+  "al8": {
+   "invested": 0.5,
+   "heat": 0.06886898389396455,
+   "conviction": [
+    {
+     "sym": "MU",
+     "size": 0.2,
+     "how": "rule",
+     "cut": false
+    }
+   ],
+   "core": 0.3,
+   "index": 0,
+   "sleeves": [
+    {
+     "key": "NEOCLOUDS_MINERS",
+     "equity": 0.06475433115592161,
+     "rank": 1,
+     "parked": null
+    },
+    {
+     "key": "DC_PROPERTY",
+     "equity": 0.04958818517466629,
+     "rank": 2,
+     "parked": "XLRE"
+    },
+    {
+     "key": "MEMORY_STORAGE",
+     "equity": 0.046946890088043175,
+     "rank": 3,
+     "parked": "DRAM"
+    },
+    {
+     "key": "AI_SERVERS_DC_KIT",
+     "equity": 0.046691280886111894,
+     "rank": 4,
+     "parked": "AGIX"
+    },
+    {
+     "key": "AI_POWERTRAIN",
+     "equity": 0.046350468616870207,
+     "rank": 5,
+     "parked": "URA"
+    },
+    {
+     "key": "DISCRET",
+     "equity": 0.04566884407838682,
+     "rank": 6,
+     "parked": "XLY"
+    }
+   ],
+   "ranking": [
+    {
+     "key": "NEOCLOUDS_MINERS",
+     "rank": 1,
+     "funded": true,
+     "growth": 0.8428879730300153,
+     "kind": "improve",
+     "score": 0.0011936090300020963,
+     "pGrowth": 1,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.5909090909090908,
+     "rankScore": 0.8636363636363636,
+     "why": null
+    },
+    {
+     "key": "DC_PROPERTY",
+     "rank": 2,
+     "funded": true,
+     "growth": 0.0996325235323049,
+     "kind": "improve",
+     "score": -0.04873026481742182,
+     "pGrowth": 0.55,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.6818181818181819,
+     "rankScore": 0.6613636363636364,
+     "why": null
+    },
+    {
+     "key": "MEMORY_STORAGE",
+     "rank": 3,
+     "funded": true,
+     "growth": 0.5096179813174025,
+     "kind": "buy",
+     "score": 0.07142270780270618,
+     "pGrowth": 0.9,
+     "pRegime": 0.25,
+     "pOpp": 0.4545454545454546,
+     "rankScore": 0.6261363636363637,
+     "why": null
+    },
+    {
+     "key": "AI_SERVERS_DC_KIT",
+     "rank": 4,
+     "funded": true,
+     "growth": 0.7138195996494565,
+     "kind": "go",
+     "score": 0.579508885335959,
+     "pGrowth": 0.95,
+     "pRegime": 0.5,
+     "pOpp": 0.09090909090909094,
+     "rankScore": 0.6227272727272727,
+     "why": null
+    },
+    {
+     "key": "AI_POWERTRAIN",
+     "rank": 5,
+     "funded": true,
+     "growth": 0.1344473179986777,
+     "kind": "improve",
+     "score": 0.17418427219303254,
+     "pGrowth": 0.6,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.40909090909090906,
+     "rankScore": 0.6181818181818182,
+     "why": null
+    },
+    {
+     "key": "DISCRET",
+     "rank": 6,
+     "funded": true,
+     "growth": 0.08534342725456945,
+     "kind": "improve",
+     "score": -0.11987626173349057,
+     "pGrowth": 0.4,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.7727272727272727,
+     "rankScore": 0.609090909090909,
+     "why": null
+    },
+    {
+     "key": "INDUSTRIAL",
+     "rank": 7,
+     "funded": false,
+     "growth": 0.09665325644009126,
+     "kind": "improve",
+     "score": 0.0647427355462185,
+     "pGrowth": 0.5,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.5,
+     "rankScore": 0.5909090909090909,
+     "why": "growth +10% — low among the candidates"
+    },
+    {
+     "key": "ROBOTICS_AUTOMATION",
+     "rank": 8,
+     "funded": false,
+     "growth": 0.291601455524092,
+     "kind": "go",
+     "score": 0.31579716978757805,
+     "pGrowth": 0.75,
+     "pRegime": 0.5,
+     "pOpp": 0.36363636363636365,
+     "rankScore": 0.5909090909090909,
+     "why": "not washed out: +0.32"
+    },
+    {
+     "key": "AI_ACCELERATORS",
+     "rank": 9,
+     "funded": false,
+     "growth": 0.3477161408131286,
+     "kind": "go",
+     "score": 0.6336600054392446,
+     "pGrowth": 0.85,
+     "pRegime": 0.5,
+     "pOpp": 0,
+     "rankScore": 0.55,
+     "why": "not washed out: +0.63"
+    },
+    {
+     "key": "AI_NETWORKING_OPTICAL",
+     "rank": 10,
+     "funded": false,
+     "growth": 0.3115756899715736,
+     "kind": "go",
+     "score": 0.6169025883651457,
+     "pGrowth": 0.8,
+     "pRegime": 0.5,
+     "pOpp": 0.045454545454545414,
+     "rankScore": 0.5363636363636364,
+     "why": "not washed out: +0.62"
+    },
+    {
+     "key": "TECH",
+     "rank": 11,
+     "funded": false,
+     "growth": 0.22276611200778285,
+     "kind": "go",
+     "score": 0.5375604567669172,
+     "pGrowth": 0.7,
+     "pRegime": 0.5,
+     "pOpp": 0.2272727272727273,
+     "rankScore": 0.5318181818181817,
+     "why": "not washed out: +0.54"
+    },
+    {
+     "key": "METALS",
+     "rank": 12,
+     "funded": false,
+     "growth": null,
+     "kind": "avoid",
+     "score": -0.3597155,
+     "pGrowth": null,
+     "pRegime": 0.09090909090909094,
+     "pOpp": 0.9545454545454546,
+     "rankScore": 0.5113636363636364,
+     "why": "breaking down"
+    },
+    {
+     "key": "REAL_ESTATE",
+     "rank": 13,
+     "funded": false,
+     "growth": 0.09106082330864074,
+     "kind": "avoid",
+     "score": -0.4062571834677419,
+     "pGrowth": 0.44999999999999996,
+     "pRegime": 0.09090909090909094,
+     "pOpp": 1,
+     "rankScore": 0.4977272727272727,
+     "why": "breaking down"
+    },
+    {
+     "key": "AI_SOFTWARE_DATA",
+     "rank": 14,
+     "funded": false,
+     "growth": 0.17754761743915204,
+     "kind": "go",
+     "score": 0.5722289253318783,
+     "pGrowth": 0.65,
+     "pRegime": 0.5,
+     "pOpp": 0.13636363636363635,
+     "rankScore": 0.48409090909090907,
+     "why": "not washed out: +0.57"
+    },
+    {
+     "key": "MATERIALS",
+     "rank": 15,
+     "funded": false,
+     "growth": 0.047325288877175686,
+     "kind": "improve",
+     "score": -0.10136914007936508,
+     "pGrowth": 0.15000000000000002,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.7272727272727273,
+     "rankScore": 0.4727272727272727,
+     "why": "growth +5% — low among the candidates"
+    },
+    {
+     "key": "UTILITIES",
+     "rank": 16,
+     "funded": false,
+     "growth": 0.05499116419532968,
+     "kind": "improve",
+     "score": 0.026331637254901955,
+     "pGrowth": 0.19999999999999996,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.5454545454545454,
+     "rankScore": 0.4522727272727272,
+     "why": "growth +5% — low among the candidates"
+    },
+    {
+     "key": "CRYPTO",
+     "rank": 17,
+     "funded": false,
+     "growth": null,
+     "kind": "go",
+     "score": 0.5027840909090908,
+     "pGrowth": null,
+     "pRegime": 0.5,
+     "pOpp": 0.2727272727272727,
+     "rankScore": 0.4431818181818182,
+     "why": "not washed out: +0.50"
+    },
+    {
+     "key": "HEALTH",
+     "rank": 18,
+     "funded": false,
+     "growth": 0.082718133492931,
+     "kind": "buy",
+     "score": -0.03805883138888889,
+     "pGrowth": 0.35,
+     "pRegime": 0.25,
+     "pOpp": 0.6363636363636364,
+     "rankScore": 0.39659090909090905,
+     "why": "pulling back"
+    },
+    {
+     "key": "COMMS",
+     "rank": 19,
+     "funded": false,
+     "growth": 0.07738795563698553,
+     "kind": "avoid",
+     "score": -0.14001497564935064,
+     "pGrowth": 0.30000000000000004,
+     "pRegime": 0.09090909090909094,
+     "pOpp": 0.8181818181818181,
+     "rankScore": 0.37727272727272726,
+     "why": "breaking down"
+    },
+    {
+     "key": "FINANCIALS",
+     "rank": 20,
+     "funded": false,
+     "growth": 0.06274050885417859,
+     "kind": "avoid",
+     "score": -0.18198540544699562,
+     "pGrowth": 0.25,
+     "pRegime": 0.09090909090909094,
+     "pOpp": 0.9090909090909091,
+     "rankScore": 0.375,
+     "why": "breaking down"
+    },
+    {
+     "key": "STAPLES",
+     "rank": 21,
+     "funded": false,
+     "growth": 0.031000757597955175,
+     "kind": "avoid",
+     "score": -0.17025204097744362,
+     "pGrowth": 0.09999999999999998,
+     "pRegime": 0.09090909090909094,
+     "pOpp": 0.8636363636363636,
+     "rankScore": 0.28863636363636364,
+     "why": "breaking down"
+    },
+    {
+     "key": "ENERGY",
+     "rank": 22,
+     "funded": false,
+     "growth": 0.010963728675129847,
+     "kind": "go",
+     "score": 0.36863339833333336,
+     "pGrowth": 0.050000000000000044,
+     "pRegime": 0.5,
+     "pOpp": 0.31818181818181823,
+     "rankScore": 0.22954545454545458,
+     "why": "growth +1% — low among the candidates"
+    },
+    {
+     "key": "OIL",
+     "rank": 23,
+     "funded": false,
+     "growth": -0.04057203018663702,
+     "kind": "go",
+     "score": 0.5486735294117646,
+     "pGrowth": 0,
+     "pRegime": 0.5,
+     "pOpp": 0.18181818181818177,
+     "rankScore": 0.17045454545454544,
+     "why": "growth −4% — low among the candidates"
+    }
+   ],
+   "weights": {
+    "growth": 50,
+    "regime": 25,
+    "opportunity": 25
+   },
+   "minEq": 0.04,
+   "leak": {
+    "heat": 0.06886898389396455,
+    "lo": 0.06705305838935105,
+    "hi": 0.07209729590216626,
+    "reach": 0.003228312008201714,
+    "rung": false,
+    "share": 0.07142857142857142,
+    "pct": 50
+   },
+   "feed": {
+    "n": 1185,
+    "earn": 342,
+    "fwd": 61,
+    "thin": true
+   },
+   "scen": [
+    {
+     "key": "today",
+     "title": "TODAY",
+     "sub": "as it stands",
+     "inv": 0.33399999999999996,
+     "cash": 0.666,
+     "core": 0.20039999999999997,
+     "conv": 0.1336,
+     "names": [
+      {
+       "sym": "MU",
+       "size": 0.1336,
+       "cut": false
+      }
+     ],
+     "rsi": 62,
+     "vix": 15.01,
+     "vixPct": 10.8,
+     "spy": 779.09,
+     "line": 25.4,
+     "micron": 0.1336,
+     "engineMicron": 0.1336
+    },
+    {
+     "key": "a",
+     "title": "S&P DIPS 1.5%",
+     "sub": "one session",
+     "inv": 0.22399999999999998,
+     "cash": 0.776,
+     "core": 0.13439999999999996,
+     "conv": 0.0896,
+     "names": [
+      {
+       "sym": "MU",
+       "size": 0.0896,
+       "cut": false
+      }
+     ],
+     "rsi": 50.5,
+     "vix": 15.01,
+     "vixPct": 10.8,
+     "spy": 767.404,
+     "line": null,
+     "micron": 0.0896,
+     "engineMicron": 0.08959999999999999
+    },
+    {
+     "key": "b",
+     "title": "VIX 20",
+     "sub": "the S&P down 3%",
+     "inv": 0.442,
+     "cash": 0.558,
+     "core": 0.2652,
+     "conv": 0.1768,
+     "names": [
+      {
+       "sym": "MU",
+       "size": 0.1768,
+       "cut": false
+      }
+     ],
+     "rsi": 41.6,
+     "vix": 20,
+     "vixPct": 80.9,
+     "spy": 755.717,
+     "line": null,
+     "micron": 0.1768,
+     "engineMicron": 0.17680000000000004
+    },
+    {
+     "key": "c",
+     "title": "VIX 23.5",
+     "sub": "the S&P down 5%",
+     "inv": 0.879,
+     "cash": 0.121,
+     "core": 0.579,
+     "conv": 0.3,
+     "names": [
+      {
+       "sym": "MU",
+       "size": 0.3,
+       "cut": false
+      }
+     ],
+     "rsi": 32.9,
+     "vix": 23.5,
+     "vixPct": 89.6,
+     "spy": 740.135,
+     "line": null,
+     "micron": 0.3,
+     "engineMicron": 0.3
+    },
+    {
+     "key": "d",
+     "title": "PANIC",
+     "sub": "RSI under 35 · VIX in its top 5%",
+     "inv": 0.835,
+     "cash": 0.16500000000000004,
+     "core": 0.5349999999999999,
+     "conv": 0.3,
+     "names": [
+      {
+       "sym": "MU",
+       "size": 0.3,
+       "cut": false
+      }
+     ],
+     "rsi": 33,
+     "vix": 26,
+     "vixPct": 96.4,
+     "spy": null,
+     "line": null,
+     "micron": 0.3,
+     "engineMicron": 0.3
+    }
+   ],
+   "deploy": {
+    "status": "placeholder",
+    "built": "2026-10-07T05:51:15.190Z",
+    "src": "data/deployment-scenarios.json",
+    "n": 5
+   },
+   "cards": {
+    "n": 26,
+    "as_of": "2026-10-06",
+    "served": false,
+    "src": "data/decision-cards-20261006.json"
+   },
+   "zones": {
+    "n": 39,
+    "as_of": "2026-10-06"
+   },
+   "approved": [
+    "MU"
+   ],
+   "overlaid": [
+    [
+     "AMAT",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "AME",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "AMZN",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "AVGO",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "BAC",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "CRDO",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "CRWV",
+     [
+      "rev_growth",
+      "ps"
+     ]
+    ],
+    [
+     "DLR",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "EQIX",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "GOOGL",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "IREN",
+     [
+      "rev_growth",
+      "ps"
+     ]
+    ],
+    [
+     "JPM",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "LLY",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "LRCX",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "MU",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "NBIS",
+     [
+      "rev_growth",
+      "ps"
+     ]
+    ],
+    [
+     "NVDA",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "ORCL",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "SNDK",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "STX",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "WDC",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "BE",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "CEG",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "VST",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "COHR",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "IRM",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ]
+   ],
+   "growthRead": true
+  },
+  "mu": {
+   "rev_growth": 0.9196001991692448,
+   "fwd_pe": 5.912332293436163,
+   "pe": 14.09,
+   "ps": 8.03,
+   "feed": {
+    "rev_growth": -0.5928386941766526,
+    "fwd_pe": 0,
+    "pe": 14.2648881703045,
+    "ps": 19.9657157609397
+   },
+   "card": {
+    "date": "2026-10-06",
+    "fields": [
+     "rev_growth",
+     "fwd_pe",
+     "pe",
+     "ps"
+    ]
+   }
+  },
+  "errors": [],
+  "nonGet": {
+   "blocked": 0,
+   "allowed": 0,
+   "urls": []
+  }
+ },
+ "1680": {
+  "heat": 0.06886898389396455,
+  "rung": {
+   "cond": "NEUTRAL",
+   "pct": 50
+  },
+  "pageWidth": 1680,
+  "viewport": 1680,
+  "sections": [
+   "p-scen",
+   "p-brief",
+   "p-heat",
+   "p-inputs",
+   "p-howmuch",
+   "p-bowtie",
+   "p-money",
+   "p-cohorts",
+   "p-knockout",
+   "p-mix",
+   "p-moves",
+   "p-options",
+   "p-comps",
+   "p-map",
+   "p-state",
+   "p-trace"
+  ],
+  "inputs": [
+   "maxInv",
+   "invCold",
+   "invMid",
+   "invHot",
+   "minInv",
+   "vixCold",
+   "tenCold",
+   "mixSPDR",
+   "mixHUBCMP",
+   "mixMKTBOW",
+   "mixTREE",
+   "mixRANK",
+   "rankGrowth",
+   "rankRegime",
+   "rankOpp",
+   "minSleeve",
+   "divToggle",
+   "maxNames",
+   "concLean",
+   "nPer",
+   "maxTotal",
+   "curInv",
+   "convShare",
+   "coreIndexShare",
+   "maxSleeves",
+   "curLC",
+   "lcTilt"
+  ],
+  "al7": {
+   "heat": 0.06886898389396455,
+   "rung": {
+    "cond": "NEUTRAL",
+    "pct": 50
+   },
+   "heatBefore": 0.052743407862238016,
+   "weightBefore": 9.75,
+   "rungBefore": {
+    "cond": "NEUTRAL",
+    "pct": 50
+   },
+   "oneRuler": {
+    "heat": 0.11238034103682167,
+    "rung": {
+     "cond": "NEUTRAL",
+     "pct": 50
+    },
+    "oil": {
+     "future": 0.6672,
+     "fund": -0.013873
+    },
+    "gold": {
+     "future": 0.0582,
+     "trust": -0.407131
+    }
+   },
+   "camps": {
+    "hot": 0.5887338696899502,
+    "hotShare": 0.47619047619047616,
+    "cold": -0.4037354577387498,
+    "coldShare": 0.5238095238095238
+   },
+   "weight": 10.5,
+   "voting": 24,
+   "readOnly": 3,
+   "cannot": 6,
+   "families": [
+    {
+     "id": "index",
+     "share": 0.3571,
+     "avg": 0.509,
+     "rows": [
+      [
+       "SPY",
+       0.807,
+       0.0952
+      ],
+      [
+       "QQQ",
+       0.85,
+       0.0952
+      ],
+      [
+       "IWM",
+       -0.228,
+       0.0476
+      ],
+      [
+       "SMH",
+       0.754,
+       0.0476
+      ],
+      [
+       "SECTORS",
+       -0.015,
+       0.0714
+      ]
+     ]
+    },
+    {
+     "id": "breadth",
+     "share": 0.2619,
+     "avg": -0.255,
+     "rows": [
+      [
+       "BREADTH_X",
+       -0.157,
+       0.0476
+      ],
+      [
+       "BREADTH_SC",
+       -1,
+       0.0238
+      ],
+      [
+       "ADLINE",
+       -0.037,
+       0.0476
+      ],
+      [
+       "CONC",
+       -0.749,
+       0.0476
+      ],
+      [
+       "B_200D",
+       0.016,
+       0.0238
+      ],
+      [
+       "B_50D",
+       -0.257,
+       0.0238
+      ],
+      [
+       "TRIN",
+       -0.037,
+       0.0238
+      ],
+      [
+       "B_VOL",
+       0.359,
+       0.0238
+      ]
+     ]
+    },
+    {
+     "id": "rates",
+     "share": 0.2143,
+     "avg": -0.501,
+     "rows": [
+      [
+       "US10Y",
+       -1,
+       0.0476
+      ],
+      [
+       "OIL",
+       -0.667,
+       0.0476
+      ],
+      [
+       "CURVE",
+       0.32,
+       0.0476
+      ],
+      [
+       "CREDIT",
+       -0.48,
+       0.0476
+      ],
+      [
+       "DURATION",
+       -0.852,
+       0.0238
+      ]
+     ]
+    },
+    {
+     "id": "sentiment",
+     "share": 0.119,
+     "avg": 0.521,
+     "rows": [
+      [
+       "VIX",
+       0.666,
+       0.0476
+      ],
+      [
+       "CRYPTO",
+       0.478,
+       0.0238
+      ],
+      [
+       "VIX_TERM",
+       0.596,
+       0.0238
+      ],
+      [
+       "PCC",
+       0.2,
+       0.0238
+      ]
+     ]
+    },
+    {
+     "id": "defensives",
+     "share": 0.0476,
+     "avg": -0.019,
+     "rows": [
+      [
+       "HAVEN",
+       -0.058,
+       0.0238
+      ],
+      [
+       "DEF",
+       0.021,
+       0.0238
+      ]
+     ]
+    }
+   ],
+   "pairs": {
+    "n": 13,
+    "avg": -0.1566753076923077,
+    "below": 10,
+    "above": 1,
+    "level": 2,
+    "rows": [
+     [
+      "Health care",
+      0.435
+     ],
+     [
+      "Financials",
+      0.037
+     ],
+     [
+      "Technology",
+      0.022
+     ],
+     [
+      "Nasdaq-100",
+      -0.127
+     ],
+     [
+      "Materials",
+      -0.141
+     ],
+     [
+      "Energy",
+      -0.152
+     ],
+     [
+      "Utilities",
+      -0.158
+     ],
+     [
+      "Consumer discretionary",
+      -0.178
+     ],
+     [
+      "Consumer staples",
+      -0.195
+     ],
+     [
+      "Real estate",
+      -0.229
+     ],
+     [
+      "Industrials",
+      -0.265
+     ],
+     [
+      "Communications",
+      -0.49
+     ],
+     [
+      "S&P 500",
+      -0.595
+     ]
+    ]
+   },
+   "longBars": {
+    "asof": "2026-10-06",
+    "n": 452,
+    "pct200": 50.779510022271715,
+    "pct50": 37.16814159292036,
+    "idx": {
+     "SPY": {
+      "close": 779.09,
+      "bars": 225,
+      "fromHigh": 0,
+      "highDate": "2026-10-06",
+      "vs50": 0.018125240290311595,
+      "vs200": 0.07983590885103276,
+      "rising200": true,
+      "rsi": 62.00054053341626
+     },
+     "RSP": {
+      "close": 212.33,
+      "bars": 225,
+      "fromHigh": -0.04686447905911928,
+      "highDate": "2026-08-14",
+      "vs50": -0.01953993690478839,
+      "vs200": 0.031031959417168187,
+      "rising200": true,
+      "rsi": 47.54529070669652
+     },
+     "IWM": {
+      "close": 281.34,
+      "bars": 225,
+      "fromHigh": -0.0778458815431512,
+      "highDate": "2026-08-14",
+      "vs50": -0.03713139491028783,
+      "vs200": 0.01692378927187721,
+      "rising200": true,
+      "rsi": 40.49720409114076
+     }
+    }
+   },
+   "putcall": {
+    "reading": 0.718020142475241,
+    "val": 0.19999999999999998,
+    "place": {
+     "n": 6,
+     "below": 1,
+     "pct": 16.666666666666668,
+     "min": 0.704326833547966,
+     "max": 0.81020198255317
+    },
+    "strength": 0.3,
+    "asof": "2026-10-06"
+   },
+   "money": {
+    "invested": 0.5,
+    "cash": 0.5,
+    "core": 0.3,
+    "index": 0,
+    "conviction": 0.2,
+    "names": [
+     [
+      "MU",
+      0.2,
+      "rule"
+     ]
+    ],
+    "sleeves": [
+     [
+      "NEOCLOUDS_MINERS",
+      0.0648,
+      0.001,
+      "improve",
+      null
+     ],
+     [
+      "DC_PROPERTY",
+      0.0496,
+      -0.049,
+      "improve",
+      "XLRE"
+     ],
+     [
+      "MEMORY_STORAGE",
+      0.0469,
+      0.071,
+      "buy",
+      "DRAM"
+     ],
+     [
+      "AI_SERVERS_DC_KIT",
+      0.0467,
+      0.58,
+      "go",
+      "AGIX"
+     ],
+     [
+      "AI_POWERTRAIN",
+      0.0464,
+      0.174,
+      "improve",
+      "URA"
+     ],
+     [
+      "DISCRET",
+      0.0457,
+      -0.12,
+      "improve",
+      "XLY"
+     ]
+    ],
+    "ranking": [
+     [
+      "NEOCLOUDS_MINERS",
+      0.864
+     ],
+     [
+      "DC_PROPERTY",
+      0.661
+     ],
+     [
+      "MEMORY_STORAGE",
+      0.626
+     ],
+     [
+      "AI_SERVERS_DC_KIT",
+      0.623
+     ],
+     [
+      "AI_POWERTRAIN",
+      0.618
+     ],
+     [
+      "DISCRET",
+      0.609
+     ],
+     [
+      "INDUSTRIAL",
+      0.591
+     ],
+     [
+      "ROBOTICS_AUTOMATION",
+      0.591
+     ],
+     [
+      "AI_ACCELERATORS",
+      0.55
+     ],
+     [
+      "AI_NETWORKING_OPTICAL",
+      0.536
+     ],
+     [
+      "TECH",
+      0.532
+     ],
+     [
+      "METALS",
+      0.511
+     ],
+     [
+      "REAL_ESTATE",
+      0.498
+     ],
+     [
+      "AI_SOFTWARE_DATA",
+      0.484
+     ],
+     [
+      "MATERIALS",
+      0.473
+     ],
+     [
+      "UTILITIES",
+      0.452
+     ],
+     [
+      "CRYPTO",
+      0.443
+     ],
+     [
+      "HEALTH",
+      0.397
+     ],
+     [
+      "COMMS",
+      0.377
+     ],
+     [
+      "FINANCIALS",
+      0.375
+     ],
+     [
+      "STAPLES",
+      0.289
+     ],
+     [
+      "ENERGY",
+      0.23
+     ],
+     [
+      "OIL",
+      0.17
+     ]
+    ],
+    "candidates": 23,
+    "minEq": 0.04
+   },
+   "metals": {
+    "score": -0.3597155,
+    "parts": {
+     "TRUST": -0.36,
+     "FUTURE": 0.053
+    },
+    "lines": [
+     [
+      "GOLD",
+      -0.407,
+      0.058
+     ],
+     [
+      "SILVER",
+      -0.312,
+      0.048
+     ],
+     [
+      "COPPER",
+      null,
+      null
+     ]
+    ],
+    "miners": 22,
+    "minersScore": -0.05842477272727271
+   },
+   "tree": {
+    "rows": 91,
+    "links": 771,
+    "companies": 453,
+    "sleeves": [
+     [
+      "AI_ACCELERATORS",
+      0.634,
+      13,
+      "SMH"
+     ],
+     [
+      "AI_NETWORKING_OPTICAL",
+      0.617,
+      14,
+      "IYZ"
+     ],
+     [
+      "AI_SERVERS_DC_KIT",
+      0.58,
+      4,
+      "AGIX"
+     ],
+     [
+      "AI_SOFTWARE_DATA",
+      0.572,
+      16,
+      "IGV"
+     ],
+     [
+      "ROBOTICS_AUTOMATION",
+      0.316,
+      5,
+      "BOTZ"
+     ],
+     [
+      "AI_POWERTRAIN",
+      0.174,
+      12,
+      "URA"
+     ],
+     [
+      "MEMORY_STORAGE",
+      0.071,
+      6,
+      "DRAM"
+     ],
+     [
+      "NEOCLOUDS_MINERS",
+      0.001,
+      12,
+      null
+     ],
+     [
+      "DC_PROPERTY",
+      -0.049,
+      4,
+      "XLRE"
+     ]
+    ]
+   },
+   "lines": 19,
+   "cards": 26
+  },
+  "al8": {
+   "invested": 0.5,
+   "heat": 0.06886898389396455,
+   "conviction": [
+    {
+     "sym": "MU",
+     "size": 0.2,
+     "how": "rule",
+     "cut": false
+    }
+   ],
+   "core": 0.3,
+   "index": 0,
+   "sleeves": [
+    {
+     "key": "NEOCLOUDS_MINERS",
+     "equity": 0.06475433115592161,
+     "rank": 1,
+     "parked": null
+    },
+    {
+     "key": "DC_PROPERTY",
+     "equity": 0.04958818517466629,
+     "rank": 2,
+     "parked": "XLRE"
+    },
+    {
+     "key": "MEMORY_STORAGE",
+     "equity": 0.046946890088043175,
+     "rank": 3,
+     "parked": "DRAM"
+    },
+    {
+     "key": "AI_SERVERS_DC_KIT",
+     "equity": 0.046691280886111894,
+     "rank": 4,
+     "parked": "AGIX"
+    },
+    {
+     "key": "AI_POWERTRAIN",
+     "equity": 0.046350468616870207,
+     "rank": 5,
+     "parked": "URA"
+    },
+    {
+     "key": "DISCRET",
+     "equity": 0.04566884407838682,
+     "rank": 6,
+     "parked": "XLY"
+    }
+   ],
+   "ranking": [
+    {
+     "key": "NEOCLOUDS_MINERS",
+     "rank": 1,
+     "funded": true,
+     "growth": 0.8428879730300153,
+     "kind": "improve",
+     "score": 0.0011936090300020963,
+     "pGrowth": 1,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.5909090909090908,
+     "rankScore": 0.8636363636363636,
+     "why": null
+    },
+    {
+     "key": "DC_PROPERTY",
+     "rank": 2,
+     "funded": true,
+     "growth": 0.0996325235323049,
+     "kind": "improve",
+     "score": -0.04873026481742182,
+     "pGrowth": 0.55,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.6818181818181819,
+     "rankScore": 0.6613636363636364,
+     "why": null
+    },
+    {
+     "key": "MEMORY_STORAGE",
+     "rank": 3,
+     "funded": true,
+     "growth": 0.5096179813174025,
+     "kind": "buy",
+     "score": 0.07142270780270618,
+     "pGrowth": 0.9,
+     "pRegime": 0.25,
+     "pOpp": 0.4545454545454546,
+     "rankScore": 0.6261363636363637,
+     "why": null
+    },
+    {
+     "key": "AI_SERVERS_DC_KIT",
+     "rank": 4,
+     "funded": true,
+     "growth": 0.7138195996494565,
+     "kind": "go",
+     "score": 0.579508885335959,
+     "pGrowth": 0.95,
+     "pRegime": 0.5,
+     "pOpp": 0.09090909090909094,
+     "rankScore": 0.6227272727272727,
+     "why": null
+    },
+    {
+     "key": "AI_POWERTRAIN",
+     "rank": 5,
+     "funded": true,
+     "growth": 0.1344473179986777,
+     "kind": "improve",
+     "score": 0.17418427219303254,
+     "pGrowth": 0.6,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.40909090909090906,
+     "rankScore": 0.6181818181818182,
+     "why": null
+    },
+    {
+     "key": "DISCRET",
+     "rank": 6,
+     "funded": true,
+     "growth": 0.08534342725456945,
+     "kind": "improve",
+     "score": -0.11987626173349057,
+     "pGrowth": 0.4,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.7727272727272727,
+     "rankScore": 0.609090909090909,
+     "why": null
+    },
+    {
+     "key": "INDUSTRIAL",
+     "rank": 7,
+     "funded": false,
+     "growth": 0.09665325644009126,
+     "kind": "improve",
+     "score": 0.0647427355462185,
+     "pGrowth": 0.5,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.5,
+     "rankScore": 0.5909090909090909,
+     "why": "growth +10% — low among the candidates"
+    },
+    {
+     "key": "ROBOTICS_AUTOMATION",
+     "rank": 8,
+     "funded": false,
+     "growth": 0.291601455524092,
+     "kind": "go",
+     "score": 0.31579716978757805,
+     "pGrowth": 0.75,
+     "pRegime": 0.5,
+     "pOpp": 0.36363636363636365,
+     "rankScore": 0.5909090909090909,
+     "why": "not washed out: +0.32"
+    },
+    {
+     "key": "AI_ACCELERATORS",
+     "rank": 9,
+     "funded": false,
+     "growth": 0.3477161408131286,
+     "kind": "go",
+     "score": 0.6336600054392446,
+     "pGrowth": 0.85,
+     "pRegime": 0.5,
+     "pOpp": 0,
+     "rankScore": 0.55,
+     "why": "not washed out: +0.63"
+    },
+    {
+     "key": "AI_NETWORKING_OPTICAL",
+     "rank": 10,
+     "funded": false,
+     "growth": 0.3115756899715736,
+     "kind": "go",
+     "score": 0.6169025883651457,
+     "pGrowth": 0.8,
+     "pRegime": 0.5,
+     "pOpp": 0.045454545454545414,
+     "rankScore": 0.5363636363636364,
+     "why": "not washed out: +0.62"
+    },
+    {
+     "key": "TECH",
+     "rank": 11,
+     "funded": false,
+     "growth": 0.22276611200778285,
+     "kind": "go",
+     "score": 0.5375604567669172,
+     "pGrowth": 0.7,
+     "pRegime": 0.5,
+     "pOpp": 0.2272727272727273,
+     "rankScore": 0.5318181818181817,
+     "why": "not washed out: +0.54"
+    },
+    {
+     "key": "METALS",
+     "rank": 12,
+     "funded": false,
+     "growth": null,
+     "kind": "avoid",
+     "score": -0.3597155,
+     "pGrowth": null,
+     "pRegime": 0.09090909090909094,
+     "pOpp": 0.9545454545454546,
+     "rankScore": 0.5113636363636364,
+     "why": "breaking down"
+    },
+    {
+     "key": "REAL_ESTATE",
+     "rank": 13,
+     "funded": false,
+     "growth": 0.09106082330864074,
+     "kind": "avoid",
+     "score": -0.4062571834677419,
+     "pGrowth": 0.44999999999999996,
+     "pRegime": 0.09090909090909094,
+     "pOpp": 1,
+     "rankScore": 0.4977272727272727,
+     "why": "breaking down"
+    },
+    {
+     "key": "AI_SOFTWARE_DATA",
+     "rank": 14,
+     "funded": false,
+     "growth": 0.17754761743915204,
+     "kind": "go",
+     "score": 0.5722289253318783,
+     "pGrowth": 0.65,
+     "pRegime": 0.5,
+     "pOpp": 0.13636363636363635,
+     "rankScore": 0.48409090909090907,
+     "why": "not washed out: +0.57"
+    },
+    {
+     "key": "MATERIALS",
+     "rank": 15,
+     "funded": false,
+     "growth": 0.047325288877175686,
+     "kind": "improve",
+     "score": -0.10136914007936508,
+     "pGrowth": 0.15000000000000002,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.7272727272727273,
+     "rankScore": 0.4727272727272727,
+     "why": "growth +5% — low among the candidates"
+    },
+    {
+     "key": "UTILITIES",
+     "rank": 16,
+     "funded": false,
+     "growth": 0.05499116419532968,
+     "kind": "improve",
+     "score": 0.026331637254901955,
+     "pGrowth": 0.19999999999999996,
+     "pRegime": 0.8636363636363636,
+     "pOpp": 0.5454545454545454,
+     "rankScore": 0.4522727272727272,
+     "why": "growth +5% — low among the candidates"
+    },
+    {
+     "key": "CRYPTO",
+     "rank": 17,
+     "funded": false,
+     "growth": null,
+     "kind": "go",
+     "score": 0.5027840909090908,
+     "pGrowth": null,
+     "pRegime": 0.5,
+     "pOpp": 0.2727272727272727,
+     "rankScore": 0.4431818181818182,
+     "why": "not washed out: +0.50"
+    },
+    {
+     "key": "HEALTH",
+     "rank": 18,
+     "funded": false,
+     "growth": 0.082718133492931,
+     "kind": "buy",
+     "score": -0.03805883138888889,
+     "pGrowth": 0.35,
+     "pRegime": 0.25,
+     "pOpp": 0.6363636363636364,
+     "rankScore": 0.39659090909090905,
+     "why": "pulling back"
+    },
+    {
+     "key": "COMMS",
+     "rank": 19,
+     "funded": false,
+     "growth": 0.07738795563698553,
+     "kind": "avoid",
+     "score": -0.14001497564935064,
+     "pGrowth": 0.30000000000000004,
+     "pRegime": 0.09090909090909094,
+     "pOpp": 0.8181818181818181,
+     "rankScore": 0.37727272727272726,
+     "why": "breaking down"
+    },
+    {
+     "key": "FINANCIALS",
+     "rank": 20,
+     "funded": false,
+     "growth": 0.06274050885417859,
+     "kind": "avoid",
+     "score": -0.18198540544699562,
+     "pGrowth": 0.25,
+     "pRegime": 0.09090909090909094,
+     "pOpp": 0.9090909090909091,
+     "rankScore": 0.375,
+     "why": "breaking down"
+    },
+    {
+     "key": "STAPLES",
+     "rank": 21,
+     "funded": false,
+     "growth": 0.031000757597955175,
+     "kind": "avoid",
+     "score": -0.17025204097744362,
+     "pGrowth": 0.09999999999999998,
+     "pRegime": 0.09090909090909094,
+     "pOpp": 0.8636363636363636,
+     "rankScore": 0.28863636363636364,
+     "why": "breaking down"
+    },
+    {
+     "key": "ENERGY",
+     "rank": 22,
+     "funded": false,
+     "growth": 0.010963728675129847,
+     "kind": "go",
+     "score": 0.36863339833333336,
+     "pGrowth": 0.050000000000000044,
+     "pRegime": 0.5,
+     "pOpp": 0.31818181818181823,
+     "rankScore": 0.22954545454545458,
+     "why": "growth +1% — low among the candidates"
+    },
+    {
+     "key": "OIL",
+     "rank": 23,
+     "funded": false,
+     "growth": -0.04057203018663702,
+     "kind": "go",
+     "score": 0.5486735294117646,
+     "pGrowth": 0,
+     "pRegime": 0.5,
+     "pOpp": 0.18181818181818177,
+     "rankScore": 0.17045454545454544,
+     "why": "growth −4% — low among the candidates"
+    }
+   ],
+   "weights": {
+    "growth": 50,
+    "regime": 25,
+    "opportunity": 25
+   },
+   "minEq": 0.04,
+   "leak": {
+    "heat": 0.06886898389396455,
+    "lo": 0.06705305838935105,
+    "hi": 0.07209729590216626,
+    "reach": 0.003228312008201714,
+    "rung": false,
+    "share": 0.07142857142857142,
+    "pct": 50
+   },
+   "feed": {
+    "n": 1185,
+    "earn": 342,
+    "fwd": 61,
+    "thin": true
+   },
+   "scen": [
+    {
+     "key": "today",
+     "title": "TODAY",
+     "sub": "as it stands",
+     "inv": 0.33399999999999996,
+     "cash": 0.666,
+     "core": 0.20039999999999997,
+     "conv": 0.1336,
+     "names": [
+      {
+       "sym": "MU",
+       "size": 0.1336,
+       "cut": false
+      }
+     ],
+     "rsi": 62,
+     "vix": 15.01,
+     "vixPct": 10.8,
+     "spy": 779.09,
+     "line": 25.4,
+     "micron": 0.1336,
+     "engineMicron": 0.1336
+    },
+    {
+     "key": "a",
+     "title": "S&P DIPS 1.5%",
+     "sub": "one session",
+     "inv": 0.22399999999999998,
+     "cash": 0.776,
+     "core": 0.13439999999999996,
+     "conv": 0.0896,
+     "names": [
+      {
+       "sym": "MU",
+       "size": 0.0896,
+       "cut": false
+      }
+     ],
+     "rsi": 50.5,
+     "vix": 15.01,
+     "vixPct": 10.8,
+     "spy": 767.404,
+     "line": null,
+     "micron": 0.0896,
+     "engineMicron": 0.08959999999999999
+    },
+    {
+     "key": "b",
+     "title": "VIX 20",
+     "sub": "the S&P down 3%",
+     "inv": 0.442,
+     "cash": 0.558,
+     "core": 0.2652,
+     "conv": 0.1768,
+     "names": [
+      {
+       "sym": "MU",
+       "size": 0.1768,
+       "cut": false
+      }
+     ],
+     "rsi": 41.6,
+     "vix": 20,
+     "vixPct": 80.9,
+     "spy": 755.717,
+     "line": null,
+     "micron": 0.1768,
+     "engineMicron": 0.17680000000000004
+    },
+    {
+     "key": "c",
+     "title": "VIX 23.5",
+     "sub": "the S&P down 5%",
+     "inv": 0.879,
+     "cash": 0.121,
+     "core": 0.579,
+     "conv": 0.3,
+     "names": [
+      {
+       "sym": "MU",
+       "size": 0.3,
+       "cut": false
+      }
+     ],
+     "rsi": 32.9,
+     "vix": 23.5,
+     "vixPct": 89.6,
+     "spy": 740.135,
+     "line": null,
+     "micron": 0.3,
+     "engineMicron": 0.3
+    },
+    {
+     "key": "d",
+     "title": "PANIC",
+     "sub": "RSI under 35 · VIX in its top 5%",
+     "inv": 0.835,
+     "cash": 0.16500000000000004,
+     "core": 0.5349999999999999,
+     "conv": 0.3,
+     "names": [
+      {
+       "sym": "MU",
+       "size": 0.3,
+       "cut": false
+      }
+     ],
+     "rsi": 33,
+     "vix": 26,
+     "vixPct": 96.4,
+     "spy": null,
+     "line": null,
+     "micron": 0.3,
+     "engineMicron": 0.3
+    }
+   ],
+   "deploy": {
+    "status": "placeholder",
+    "built": "2026-10-07T05:51:15.190Z",
+    "src": "data/deployment-scenarios.json",
+    "n": 5
+   },
+   "cards": {
+    "n": 26,
+    "as_of": "2026-10-06",
+    "served": false,
+    "src": "data/decision-cards-20261006.json"
+   },
+   "zones": {
+    "n": 39,
+    "as_of": "2026-10-06"
+   },
+   "approved": [
+    "MU"
+   ],
+   "overlaid": [
+    [
+     "AMAT",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "AME",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "AMZN",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "AVGO",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "BAC",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "CRDO",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "CRWV",
+     [
+      "rev_growth",
+      "ps"
+     ]
+    ],
+    [
+     "DLR",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "EQIX",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "GOOGL",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "IREN",
+     [
+      "rev_growth",
+      "ps"
+     ]
+    ],
+    [
+     "JPM",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "LLY",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "LRCX",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "MU",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "NBIS",
+     [
+      "rev_growth",
+      "ps"
+     ]
+    ],
+    [
+     "NVDA",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "ORCL",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "SNDK",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "STX",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "WDC",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "BE",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "CEG",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "VST",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "COHR",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ],
+    [
+     "IRM",
+     [
+      "rev_growth",
+      "fwd_pe",
+      "pe",
+      "ps"
+     ]
+    ]
+   ],
+   "growthRead": true
+  },
+  "mu": {
+   "rev_growth": 0.9196001991692448,
+   "fwd_pe": 5.912332293436163,
+   "pe": 14.09,
+   "ps": 8.03,
+   "feed": {
+    "rev_growth": -0.5928386941766526,
+    "fwd_pe": 0,
+    "pe": 14.2648881703045,
+    "ps": 19.9657157609397
+   },
+   "card": {
+    "date": "2026-10-06",
+    "fields": [
+     "rev_growth",
+     "fwd_pe",
+     "pe",
+     "ps"
+    ]
+   }
+  },
+  "errors": [],
+  "nonGet": {
+   "blocked": 0,
+   "allowed": 0,
+   "urls": []
+  }
+ }
+}
