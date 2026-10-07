@@ -275,4 +275,27 @@ test("6 · on a phone nothing scrolls sideways, and a panel's body uses the pane
   } finally { await Q.close(); }
 });
 
+test("a device that already holds saved dials keeps them: only the breadth weight moves to the every-pair row and the put/call takes its weight, once", async () => {
+  /* the state the live page (main @e8b2862) saves, with three weights the owner changed, a picked name and his own caps */
+  const saved = { dTrend: 0.5, dRsi: 0.6, dTf: 0.763, vixCold: 32, tenCold: 4.8, maxInv: 100, minInv: 20, invCold: 80, invMid: 50, invHot: 30, nLC: 4, nSC: 2, nPer: 2, divAuto: 1, lcTilt: 0, maxTotal: 10, maxNames: 6, concLean: 0, curInv: 0, curLC: 0,
+    wts: { SPY: 0.75, QQQ: 1, IWM: 0.5, SMH: 0.5, VIX: 0.5, US10Y: 0.5, OIL: 0.5, VALUE: 0, CRYPTO: 0.25, DEF: 0.25, BREADTH_EW: 0.75, BREADTH_SC: 0.25, SECTORS: 0.75, VIX_TERM: 0.25, CURVE: 0.5, PCC: 0, SKEW: 0.25, ADLINE: 0.5, TRIN: 0.25, B_VOL: 0.25, CONC: 0.25, CREDIT: 0.5, DURATION: 0.25, HAVEN: 0.25 },
+    _v4: 1, _v5: 1, _v6: 1, mixMethod: "BLEND", mixW: { SPDR: 40, HUBCMP: 20, MKTBOW: 20, TREE: 10, RANK: 10 } };
+  const run = async (state) => { const Q = await openPage({ storage: { "alloc-module-v1": JSON.stringify(state), "alloc-picks": JSON.stringify(["NVDA"]) } });
+    try { await Q.page.waitForFunction(() => window.AL7 && AL7.ready(), null, { timeout: 120000 }); await Q.page.waitForTimeout(400);
+      const r = await Q.page.evaluate(() => ({ S: JSON.parse(JSON.stringify(S)), stored: JSON.parse(localStorage.getItem("alloc-module-v1")), picks: [...PICKS], per: pickMix(sleeveShares(), investedAt(heat())).perName, conv: allocation().convEq, mixtop: document.getElementById("mixtop").innerText, hand: (() => { let n = 0, d = 0; for (const v of voters()) { if (!canVote(v)) continue; const w = S.wts[v.key] ?? 0; n += v.val * w; d += w; } return d ? n / d : 0; })(), heat: heat() }));
+      assert.deepEqual(Q.errors, []); assert.equal(Q.nonGet.blocked, 0); return r; } finally { await Q.close(); } };
+  const a = await run(saved);
+  assert.equal(a.S.wts.BREADTH_X, 0.75, "the weight he gave the S&P pair moves to the row that reads every pair"); assert.equal(a.S.wts.BREADTH_EW, 0); assert.equal(a.S.wts.PCC, 0.25, "the put/call takes a weight");
+  for (const [k, v] of Object.entries(saved.wts)) if (!["BREADTH_EW", "PCC"].includes(k)) assert.equal(a.S.wts[k], v, k + " is as he left it");
+  assert.equal(a.S.wts.B_200D, 0.25); assert.equal(a.S.wts.B_50D, 0.25);
+  for (const k of ["vixCold", "tenCold", "maxInv", "minInv", "invCold", "invMid", "invHot", "maxTotal", "maxNames", "concLean", "divAuto", "nPer", "lcTilt"]) assert.equal(a.S[k], saved[k], k + " is as he left it");
+  assert.deepEqual(a.S.mixW, saved.mixW, "his blend weights are untouched"); assert.equal(a.S._v7, 1); assert.equal(a.stored._v7, 1, "and it is saved, so it happens once");
+  assert.deepEqual([a.S.maxSleeves, a.S.minSleeve, a.S.convShare, a.S.coreIndexShare], [6, 4, 20, 50], "the four new dials start at their proposals");
+  assert.deepEqual(a.picks, ["NVDA"], "his picked name is kept"); assert.ok(Math.abs(a.per.NVDA - a.conv) < 1e-12 && /NVDA/.test(a.mixtop), "and it holds the conviction part");
+  assert.ok(Math.abs(a.heat - a.hand) < 1e-12, "the heat is the weighted average of his weights");
+  /* a second visit: he has since muted the put/call and the every-pair row — nothing puts them back */
+  const b = await run({ ...a.stored, wts: { ...a.stored.wts, PCC: 0, BREADTH_X: 0 } });
+  assert.equal(b.S.wts.PCC, 0, "a weight he sets after the change is his"); assert.equal(b.S.wts.BREADTH_X, 0); assert.equal(b.S.wts.BREADTH_EW, 0); assert.equal(b.S.wts.SPY, 0.75);
+});
+
 test("close", async () => { if (P) await P.close(); });
