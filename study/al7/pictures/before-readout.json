@@ -1,30 +1,30 @@
 {
  "390": {
-  "heat": 0.05606844794901811,
+  "heat": 0.05752545914428932,
   "rung": {
    "cond": "NEUTRAL",
    "pct": 50
   },
-  "brief": "The market's heat is middling (+0.06 on a scale from −1 washed out to +1 stretched), so the plan keeps about half the money in cash: 50% invested, 50% in cash. The index is hot (S&P +0.81, Nasdaq +0.86), but the average stock is not (equal-weight +0.18, small caps -0.13): the biggest names carry the tape. 2 of 11 sectors lead (Technology, Energy), 5 lag, 3 turning up from below (Industrials, Utilities, Consumer discretionary), 1 pulling back (Health care). Read beside them, not counted in: Crypto +0.49, Metals -0.29. Inside the sectors the bow tie reads -0.17: the big names carry each sector. Across the 318 served names the advance/decline line fell 216 over the last 20 sessions (today 221 up, 91 down), and 73% of the set's move came from its ten largest names. Rates are a headwind at 5.27%. Volatility is calm (VIX 15.0).\n\nThe sectors are read by one blended bow tie — five readings per sector, averaged. The rung for a middling market is 50% invested, 50% cash. You hold 0% invested, so 50% of equity is to deploy, spread by each sector's own coldness — the biggest shares go to Consumer discretionary 7%, Utilities 6%, Industrials 6%, Real estate 4% of equity (the full split is in 3b · HOW THE MONEY SPLITS).\n\nInside those sectors the names that rank first — fundamentals first, then the Geiger for timing — are WDC (Technology, cheap vs peers, target +48%), GOOG (Communications, cheap vs peers, target +19%), GOOGL (Communications, in line vs peers, target +21%), NVDA (Technology, cheap vs peers, target +34%), TSM (Technology, cheap vs peers, target +12%). The knockout inside a cohort is section 5; their comparables and the checked analyst targets are in 8b.",
+  "brief": "The market's heat is middling (+0.06 on a scale from −1 washed out to +1 stretched), so the plan keeps about half the money in cash: 50% invested, 50% in cash. The index is hot (S&P +0.81, Nasdaq +0.85), but the average stock is not (equal-weight +0.21, small caps -0.23): the biggest names carry the tape. 2 of 11 sectors lead (Technology, Energy), 4 lag (Communications, Consumer staples, Financials, Real estate), 4 turning up from below (Industrials, Utilities, Materials, Consumer discretionary), 1 pulling back (Health care). Read beside them, not counted in: Oil +0.55, Crypto +0.50, Metals +0.00. Inside the sectors the bow tie reads -0.15: the big names carry each sector. Across the 318 served names the advance/decline line fell 216 over the last 20 sessions (today 224 up, 90 down), and 73% of the set's move came from its ten largest names. Rates are a headwind at 5.27%. Volatility is calm (VIX 15.0).\n\nThe sectors are read by one blended bow tie — five readings per sector, averaged. The rung for a middling market is 50% invested, 50% cash. You hold 0% invested, so 50% of equity is to deploy, spread by each sector's own coldness — the biggest shares go to Consumer discretionary 6%, Materials 6%, Metals 5%, Utilities 5% of equity (the full split is in 3b · HOW THE MONEY SPLITS).\n\nInside those sectors the names that rank first — fundamentals first, then the Geiger for timing — are GOOGL (Communications, in line vs peers, target +21%), GOOG (Communications, cheap vs peers, target +19%), WDC (Technology, cheap vs peers, target +53%), NVDA (Technology, cheap vs peers, target +34%), TSM (Technology, cheap vs peers, target +12%). The knockout inside a cohort is section 5; their comparables and the checked analyst targets are in 8b.",
   "voters": [
    [
     "SPY",
-    0.808,
+    0.807,
     1
    ],
    [
     "QQQ",
-    0.86,
+    0.85,
     1
    ],
    [
     "IWM",
-    -0.131,
+    -0.228,
     0.5
    ],
    [
     "SMH",
-    0.766,
+    0.754,
     0.5
    ],
    [
@@ -39,32 +39,32 @@
    ],
    [
     "OIL",
-    -0.469,
+    -0.519,
     0.5
    ],
    [
     "VALUE",
-    0.176,
+    0.212,
     0
    ],
    [
     "CRYPTO",
-    0.663,
+    0.511,
     0.25
    ],
    [
     "BREADTH_EW",
-    -0.633,
+    -0.595,
     0.5
    ],
    [
     "BREADTH_SC",
-    -0.94,
+    -1,
     0.25
    ],
    [
     "SECTORS",
-    -0.041,
+    -0.015,
     0.75
    ],
    [
@@ -79,7 +79,7 @@
    ],
    [
     "ADLINE",
-    -0.039,
+    -0.037,
     0.5
    ],
    [
@@ -89,92 +89,96 @@
    ],
    [
     "TRIN",
-    -0.319,
+    -0.037,
     0.25
    ],
    [
     "B_VOL",
-    0.26,
+    0.359,
     0.25
    ],
    [
     "MAGS",
-    -0.045,
+    -0.055,
     0
    ],
    [
     "CREDIT",
-    -0.474,
+    -0.48,
     0.5
    ],
    [
     "DURATION",
-    -0.826,
+    -0.852,
     0.25
    ],
    [
     "HAVEN",
-    -0.34,
+    -0.201,
     0.25
    ],
    [
     "DEF",
-    0.028,
+    0.021,
     0.25
    ]
   ],
   "sleeves": [
    [
     "DISCRET",
-    7
-   ],
-   [
-    "UTILITIES",
-    6.4
-   ],
-   [
-    "INDUSTRIAL",
-    5.8
-   ],
-   [
-    "REAL_ESTATE",
-    3.9
-   ],
-   [
-    "HEALTH",
-    3.9
-   ],
-   [
-    "METALS",
-    3.4
-   ],
-   [
-    "FINANCIALS",
-    3.2
-   ],
-   [
-    "STAPLES",
-    3.2
-   ],
-   [
-    "COMMS",
-    3.1
+    5.9
    ],
    [
     "MATERIALS",
-    3
+    5.8
+   ],
+   [
+    "METALS",
+    5.3
+   ],
+   [
+    "UTILITIES",
+    5.1
+   ],
+   [
+    "INDUSTRIAL",
+    4.9
+   ],
+   [
+    "HEALTH",
+    3.5
+   ],
+   [
+    "REAL_ESTATE",
+    3.3
+   ],
+   [
+    "FINANCIALS",
+    2.8
+   ],
+   [
+    "STAPLES",
+    2.7
+   ],
+   [
+    "COMMS",
+    2.7
    ],
    [
     "ENERGY",
-    2.9
+    2.5
    ],
    [
     "CRYPTO",
-    2.3
+    1.9
    ],
    [
     "TECH",
-    2
+    1.8
+   ],
+   [
+    "OIL",
+    1.8
    ]
   ],
   "pageWidth": 709,
@@ -188,31 +192,31 @@
   }
  },
  "1680": {
-  "heat": 0.0560451040770938,
+  "heat": 0.05752545914428932,
   "rung": {
    "cond": "NEUTRAL",
    "pct": 50
   },
-  "brief": "The market's heat is middling (+0.06 on a scale from −1 washed out to +1 stretched), so the plan keeps about half the money in cash: 50% invested, 50% in cash. The index is hot (S&P +0.81, Nasdaq +0.86), but the average stock is not (equal-weight +0.18, small caps -0.13): the biggest names carry the tape. 2 of 11 sectors lead (Technology, Energy), 5 lag, 3 turning up from below (Industrials, Utilities, Consumer discretionary), 1 pulling back (Health care). Read beside them, not counted in: Crypto +0.49, Metals -0.29. Inside the sectors the bow tie reads -0.17: the big names carry each sector. Across the 318 served names the advance/decline line fell 216 over the last 20 sessions (today 221 up, 92 down), and 73% of the set's move came from its ten largest names. Rates are a headwind at 5.27%. Volatility is calm (VIX 15.0).\n\nThe sectors are read by one blended bow tie — five readings per sector, averaged. The rung for a middling market is 50% invested, 50% cash. You hold 0% invested, so 50% of equity is to deploy, spread by each sector's own coldness — the biggest shares go to Consumer discretionary 7%, Utilities 6%, Industrials 6%, Real estate 4% of equity (the full split is in 3b · HOW THE MONEY SPLITS).\n\nInside those sectors the names that rank first — fundamentals first, then the Geiger for timing — are WDC (Technology, cheap vs peers, target +48%), GOOG (Communications, cheap vs peers, target +19%), GOOGL (Communications, in line vs peers, target +21%), NVDA (Technology, cheap vs peers, target +34%), TSM (Technology, cheap vs peers, target +12%). The knockout inside a cohort is section 5; their comparables and the checked analyst targets are in 8b.",
+  "brief": "The market's heat is middling (+0.06 on a scale from −1 washed out to +1 stretched), so the plan keeps about half the money in cash: 50% invested, 50% in cash. The index is hot (S&P +0.81, Nasdaq +0.85), but the average stock is not (equal-weight +0.21, small caps -0.23): the biggest names carry the tape. 2 of 11 sectors lead (Technology, Energy), 4 lag (Communications, Consumer staples, Financials, Real estate), 4 turning up from below (Industrials, Utilities, Materials, Consumer discretionary), 1 pulling back (Health care). Read beside them, not counted in: Oil +0.55, Crypto +0.50, Metals +0.00. Inside the sectors the bow tie reads -0.15: the big names carry each sector. Across the 318 served names the advance/decline line fell 216 over the last 20 sessions (today 224 up, 90 down), and 73% of the set's move came from its ten largest names. Rates are a headwind at 5.27%. Volatility is calm (VIX 15.0).\n\nThe sectors are read by one blended bow tie — five readings per sector, averaged. The rung for a middling market is 50% invested, 50% cash. You hold 0% invested, so 50% of equity is to deploy, spread by each sector's own coldness — the biggest shares go to Consumer discretionary 6%, Materials 6%, Metals 5%, Utilities 5% of equity (the full split is in 3b · HOW THE MONEY SPLITS).\n\nInside those sectors the names that rank first — fundamentals first, then the Geiger for timing — are GOOGL (Communications, in line vs peers, target +21%), GOOG (Communications, cheap vs peers, target +19%), WDC (Technology, cheap vs peers, target +53%), NVDA (Technology, cheap vs peers, target +34%), TSM (Technology, cheap vs peers, target +12%). The knockout inside a cohort is section 5; their comparables and the checked analyst targets are in 8b.",
   "voters": [
    [
     "SPY",
-    0.808,
+    0.807,
     1
    ],
    [
     "QQQ",
-    0.86,
+    0.85,
     1
    ],
    [
     "IWM",
-    -0.131,
+    -0.228,
     0.5
    ],
    [
     "SMH",
-    0.766,
+    0.754,
     0.5
    ],
    [
@@ -227,32 +231,32 @@
    ],
    [
     "OIL",
-    -0.469,
+    -0.519,
     0.5
    ],
    [
     "VALUE",
-    0.176,
+    0.212,
     0
    ],
    [
     "CRYPTO",
-    0.663,
+    0.511,
     0.25
    ],
    [
     "BREADTH_EW",
-    -0.633,
+    -0.595,
     0.5
    ],
    [
     "BREADTH_SC",
-    -0.94,
+    -1,
     0.25
    ],
    [
     "SECTORS",
-    -0.041,
+    -0.015,
     0.75
    ],
    [
@@ -267,7 +271,7 @@
    ],
    [
     "ADLINE",
-    -0.039,
+    -0.037,
     0.5
    ],
    [
@@ -277,92 +281,96 @@
    ],
    [
     "TRIN",
-    -0.319,
+    -0.037,
     0.25
    ],
    [
     "B_VOL",
-    0.26,
+    0.359,
     0.25
    ],
    [
     "MAGS",
-    -0.045,
+    -0.055,
     0
    ],
    [
     "CREDIT",
-    -0.474,
+    -0.48,
     0.5
    ],
    [
     "DURATION",
-    -0.826,
+    -0.852,
     0.25
    ],
    [
     "HAVEN",
-    -0.34,
+    -0.201,
     0.25
    ],
    [
     "DEF",
-    0.028,
+    0.021,
     0.25
    ]
   ],
   "sleeves": [
    [
     "DISCRET",
-    7
-   ],
-   [
-    "UTILITIES",
-    6.4
-   ],
-   [
-    "INDUSTRIAL",
-    5.8
-   ],
-   [
-    "REAL_ESTATE",
-    3.9
-   ],
-   [
-    "HEALTH",
-    3.9
-   ],
-   [
-    "METALS",
-    3.4
-   ],
-   [
-    "FINANCIALS",
-    3.2
-   ],
-   [
-    "STAPLES",
-    3.2
-   ],
-   [
-    "COMMS",
-    3.1
+    5.9
    ],
    [
     "MATERIALS",
-    3
+    5.8
+   ],
+   [
+    "METALS",
+    5.3
+   ],
+   [
+    "UTILITIES",
+    5.1
+   ],
+   [
+    "INDUSTRIAL",
+    4.9
+   ],
+   [
+    "HEALTH",
+    3.5
+   ],
+   [
+    "REAL_ESTATE",
+    3.3
+   ],
+   [
+    "FINANCIALS",
+    2.8
+   ],
+   [
+    "STAPLES",
+    2.7
+   ],
+   [
+    "COMMS",
+    2.7
    ],
    [
     "ENERGY",
-    2.9
+    2.5
    ],
    [
     "CRYPTO",
-    2.3
+    1.9
    ],
    [
     "TECH",
-    2
+    1.8
+   ],
+   [
+    "OIL",
+    1.8
    ]
   ],
   "pageWidth": 1680,

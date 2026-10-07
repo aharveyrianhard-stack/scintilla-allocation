@@ -1,11 +1,11 @@
 {
  "390": {
-  "heat": 0.07329993627491695,
+  "heat": 0.07330946008444073,
   "rung": {
    "cond": "NEUTRAL",
    "pct": 50
   },
-  "brief": "The market's heat is middling (+0.07), so the plan keeps about half the money in cash: 50% invested, 50% in cash.\n+0.07 today\n−1\n−0.5\n−0.2\n+0.2\n+0.5\n+1\n100%\n80%\n50%\n30%\n15%\n% = invested on that rung · next rung: under −0.20 (0.27 away) → 80% · over +0.20 (0.13 away) → 30% invested\nTWO CAMPS — the heat is what is left when they pull against each other\nHOT\n+0.59\n48% of the vote\nNasdaq · S&P · semis · VIX · yield curve · VIX term · bitcoin · +4 more\nCOLD\n−0.40\n52% of the vote\n10-year yield · concentration · oil · small vs large · credit · long bonds · small caps · +6 more\nHOW MUCH\nyou hold 0% invested, the rung says 50% · 50% of equity to put to work\nBREADTH\n10 of 13 equal-weight funds trail their index · 51% of our companies above their 200-day, 37% above their 50-day · today 224 up / 90 down · the ten largest carried 73% of the 20-session move\nSECTORS\n2 of 11 sectors lead (Technology, Energy), 4 lag, 4 turning up from below, 1 pulling back · inside the sectors the bow tie reads −0.15: the big names carry each sector · not counted in: Oil +0.55, Crypto +0.50, Metals −0.36\nWHERE\ncore 40% — the equal-weight index 20%, then Consumer discretionary 5.2%, Materials 5.2%, Datacenter property 4.9%, Neoclouds & AI miners 4.7% · conviction 10% — no name kept yet\nNAMES\nfirst on fundamentals in those sleeves: BKNG target +46%, MCD target +28%, LOW target +37%, IREN target +112%, CORZ target +109%\nRATES · FEAR\n10-year 5.27% — a headwind · VIX 15.0 — calm · put/call 0.72",
+  "brief": "The market's heat is middling (+0.07), so the plan keeps about half the money in cash: 50% invested, 50% in cash.\n+0.07 today\n−1\n−0.5\n−0.2\n+0.2\n+0.5\n+1\n100%\n80%\n50%\n30%\n15%\n% = invested on that rung · next rung: under −0.20 (0.27 away) → 80% · over +0.20 (0.13 away) → 30% invested\nTWO CAMPS — what is left between them is the heat\nHOT\n+0.59\n48% of the vote\nNasdaq · S&P · semis · VIX · +7 more\nCOLD\n−0.40\n52% of the vote\n10-year yield · concentration · oil · small vs large · +9 more\nHOW MUCH\nyou hold 0% invested, the rung says 50% · 50% of equity to put to work\nBREADTH\n10 of 13 equal-weight funds trail their index · 51% of our companies above their 200-day, 37% above their 50-day · today 224 up / 90 down\nSECTORS\n2 of 11 sectors lead (Technology, Energy), 4 lag, 4 turning up from below, 1 pulling back · inside them the bow tie reads −0.15: the big names carry each · not counted in: Oil +0.55, Crypto +0.50, Metals −0.36\nWHERE\nthe equal-weight index 20% · Consumer discretionary, Materials, Datacenter property, Neoclouds & AI miners 20% · conviction 10%\nNAMES\nfirst on fundamentals there: BKNG, MCD, LOW, IREN, CORZ\nRATES · FEAR\n10-year 5.27% — a headwind · VIX 15.0 — calm · put/call 0.72",
   "voters": [
    [
     "SPY",
@@ -134,7 +134,7 @@
    ],
    [
     "HAVEN",
-    -0.202,
+    -0.201,
     0.25
    ],
    [
@@ -168,16 +168,37 @@
   "pageWidth": 390,
   "viewport": 390,
   "al7": {
-   "heat": 0.07329993627491695,
+   "heat": 0.07330946008444073,
    "rung": {
     "cond": "NEUTRAL",
     "pct": 50
    },
-   "heatBefore": 0.05751520273403292,
+   "heatBefore": 0.05752545914428932,
    "weightBefore": 9.75,
    "rungBefore": {
     "cond": "NEUTRAL",
     "pct": 50
+   },
+   "oneRuler": {
+    "heat": 0.113163674370155,
+    "rung": {
+     "cond": "NEUTRAL",
+     "pct": 50
+    },
+    "oil": {
+     "future": 0.5188,
+     "fund": -0.013873
+    },
+    "gold": {
+     "future": 0.2014,
+     "trust": -0.407131
+    }
+   },
+   "camps": {
+    "hot": 0.5903788696899503,
+    "hotShare": 0.47619047619047616,
+    "cold": -0.39675363955693166,
+    "coldShare": 0.5238095238095238
    },
    "weight": 10.5,
    "voting": 24,
@@ -325,11 +346,11 @@
     {
      "id": "defensives",
      "share": 0.0476,
-     "avg": -0.091,
+     "avg": -0.09,
      "rows": [
       [
        "HAVEN",
-       -0.202,
+       -0.201,
        0.0238
       ],
       [
@@ -585,18 +606,18 @@
     "score": -0.3597155,
     "parts": {
      "TRUST": -0.36,
-     "FUTURE": 0.185
+     "FUTURE": 0.184
     },
     "lines": [
      [
       "GOLD",
       -0.407,
-      0.202
+      0.201
      ],
      [
       "SILVER",
       -0.312,
-      0.168
+      0.167
      ],
      [
       "COPPER",
@@ -679,12 +700,12 @@
   }
  },
  "1680": {
-  "heat": 0.07329993627491695,
+  "heat": 0.07330946008444073,
   "rung": {
    "cond": "NEUTRAL",
    "pct": 50
   },
-  "brief": "The market's heat is middling (+0.07), so the plan keeps about half the money in cash: 50% invested, 50% in cash.\n+0.07 today\n−1\n−0.5\n−0.2\n+0.2\n+0.5\n+1\n100%\ndeeply washed out\n80%\nwashed out\n50%\nmiddling\n30%\nstretched\n15%\ndeeply stretched\n% = invested on that rung · next rung: under −0.20 (0.27 away) → 80% · over +0.20 (0.13 away) → 30% invested\nTWO CAMPS — the heat is what is left when they pull against each other\nHOT\n+0.59\n48% of the vote\nNasdaq · S&P · semis · VIX · yield curve · VIX term · bitcoin · +4 more\nCOLD\n−0.40\n52% of the vote\n10-year yield · concentration · oil · small vs large · credit · long bonds · small caps · +6 more\nHOW MUCH\nyou hold 0% invested, the rung says 50% · 50% of equity to put to work\nBREADTH\n10 of 13 equal-weight funds trail their index · 51% of our companies above their 200-day, 37% above their 50-day · today 224 up / 90 down · the ten largest carried 73% of the 20-session move\nSECTORS\n2 of 11 sectors lead (Technology, Energy), 4 lag, 4 turning up from below, 1 pulling back · inside the sectors the bow tie reads −0.15: the big names carry each sector · not counted in: Oil +0.55, Crypto +0.50, Metals −0.36\nWHERE\ncore 40% — the equal-weight index 20%, then Consumer discretionary 5.2%, Materials 5.2%, Datacenter property 4.9%, Neoclouds & AI miners 4.7% · conviction 10% — no name kept yet\nNAMES\nfirst on fundamentals in those sleeves: BKNG target +46%, MCD target +28%, LOW target +37%, IREN target +112%, CORZ target +109%\nRATES · FEAR\n10-year 5.27% — a headwind · VIX 15.0 — calm · put/call 0.72",
+  "brief": "The market's heat is middling (+0.07), so the plan keeps about half the money in cash: 50% invested, 50% in cash.\n+0.07 today\n−1\n−0.5\n−0.2\n+0.2\n+0.5\n+1\n100%\ndeeply washed out\n80%\nwashed out\n50%\nmiddling\n30%\nstretched\n15%\ndeeply stretched\n% = invested on that rung · next rung: under −0.20 (0.27 away) → 80% · over +0.20 (0.13 away) → 30% invested\nTWO CAMPS — what is left between them is the heat\nHOT\n+0.59\n48% of the vote\nNasdaq · S&P · semis · VIX · +7 more\nCOLD\n−0.40\n52% of the vote\n10-year yield · concentration · oil · small vs large · +9 more\nHOW MUCH\nyou hold 0% invested, the rung says 50% · 50% of equity to put to work\nBREADTH\n10 of 13 equal-weight funds trail their index · 51% of our companies above their 200-day, 37% above their 50-day · today 224 up / 90 down\nSECTORS\n2 of 11 sectors lead (Technology, Energy), 4 lag, 4 turning up from below, 1 pulling back · inside them the bow tie reads −0.15: the big names carry each · not counted in: Oil +0.55, Crypto +0.50, Metals −0.36\nWHERE\nthe equal-weight index 20% · Consumer discretionary, Materials, Datacenter property, Neoclouds & AI miners 20% · conviction 10%\nNAMES\nfirst on fundamentals there: BKNG, MCD, LOW, IREN, CORZ\nRATES · FEAR\n10-year 5.27% — a headwind · VIX 15.0 — calm · put/call 0.72",
   "voters": [
    [
     "SPY",
@@ -813,7 +834,7 @@
    ],
    [
     "HAVEN",
-    -0.202,
+    -0.201,
     0.25
    ],
    [
@@ -847,16 +868,37 @@
   "pageWidth": 1680,
   "viewport": 1680,
   "al7": {
-   "heat": 0.07329993627491695,
+   "heat": 0.07330946008444073,
    "rung": {
     "cond": "NEUTRAL",
     "pct": 50
    },
-   "heatBefore": 0.05751520273403292,
+   "heatBefore": 0.05752545914428932,
    "weightBefore": 9.75,
    "rungBefore": {
     "cond": "NEUTRAL",
     "pct": 50
+   },
+   "oneRuler": {
+    "heat": 0.113163674370155,
+    "rung": {
+     "cond": "NEUTRAL",
+     "pct": 50
+    },
+    "oil": {
+     "future": 0.5188,
+     "fund": -0.013873
+    },
+    "gold": {
+     "future": 0.2014,
+     "trust": -0.407131
+    }
+   },
+   "camps": {
+    "hot": 0.5903788696899503,
+    "hotShare": 0.47619047619047616,
+    "cold": -0.39675363955693166,
+    "coldShare": 0.5238095238095238
    },
    "weight": 10.5,
    "voting": 24,
@@ -1004,11 +1046,11 @@
     {
      "id": "defensives",
      "share": 0.0476,
-     "avg": -0.091,
+     "avg": -0.09,
      "rows": [
       [
        "HAVEN",
-       -0.202,
+       -0.201,
        0.0238
       ],
       [
@@ -1264,18 +1306,18 @@
     "score": -0.3597155,
     "parts": {
      "TRUST": -0.36,
-     "FUTURE": 0.185
+     "FUTURE": 0.184
     },
     "lines": [
      [
       "GOLD",
       -0.407,
-      0.202
+      0.201
      ],
      [
       "SILVER",
       -0.312,
-      0.168
+      0.167
      ],
      [
       "COPPER",

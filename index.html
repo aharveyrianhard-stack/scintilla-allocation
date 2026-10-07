@@ -58,7 +58,6 @@
   .heatlabel{font-size:15px; letter-spacing:.18em; font-weight:600;}
   .axis{display:flex; justify-content:space-between; color:var(--dim); font-size:9px; letter-spacing:.12em; margin-top:2px;}
   canvas{width:100%; height:190px; display:block; margin-top:8px;}
-  #donut{width:auto !important; height:auto !important; max-width:100%; margin:10px auto;}
   #curve{width:100% !important; height:auto !important;}
   /* moves */
   .move{display:grid; grid-template-columns:110px 1fr; gap:12px; padding:10px 0; border-bottom:1px solid #14141e; align-items:center;}
@@ -246,7 +245,7 @@
   .famhead span:nth-child(n+3){text-align:right}
   @media(max-width:700px){
     #gauges details.fam>summary{grid-template-columns:minmax(0,1fr) 54px 14px}#gauges details.fam>summary .fambar{grid-column:1 / -1;grid-row:2}#gauges details.fam>summary .famshare{grid-column:1 / -1;grid-row:3;text-align:left}
-    #gauges details.fam .gauge{grid-template-columns:minmax(0,1fr) 54px 58px;padding-left:0}#gauges details.fam .gauge .barcell{grid-column:1 / -1;grid-row:2}#gauges details.fam .gauge .wt{grid-column:1 / -1}
+    #gauges details.fam .gauge{grid-template-columns:minmax(0,1fr) 54px auto;padding-left:0}#gauges details.fam .gauge .barcell{grid-column:1 / -1;grid-row:2}#gauges details.fam .gauge .wt{grid-column:1 / -1}
     .famhead{display:none}.heatline{flex-wrap:wrap}.heatline>div{min-width:0}
   }
   /* a 0–100 place meter (today against its own past): reference lines at the quartiles */
@@ -288,8 +287,15 @@
   .treetab td.nm{color:var(--txt);font-size:12px;white-space:nowrap}.treetab td.nm small{display:block;color:var(--dim);font-size:11px}
   .treetab td.chip{min-width:130px}.treetab td.v{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;color:#c8c8d8}
   .treetab td.word{white-space:nowrap;font-size:11px;letter-spacing:.08em;color:var(--dim)}
-  .sectab th,.sectab td.nm small,.sectab td.word{font-size:11px}.sectab .ends{font-size:9px}
+  .sectab th,.sectab td.nm small,.sectab td.word{font-size:11px}.sectab .ends{font-size:11px;letter-spacing:.04em}
   .a7-mini{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}.a7-mini .sc-gmini{flex:1;min-width:60px}
+  /* phone: a sector row shows its name, its blended chip and the number — the two halves and the words are one swipe away on a wide screen only */
+  @media(max-width:700px){
+    #bowtie .sectab th:nth-child(2),#bowtie .sectab th:nth-child(4),#bowtie .sectab th:nth-child(6),#bowtie .sectab th:nth-child(7),#bowtie .sectab td:nth-child(2),#bowtie .sectab td:nth-child(4),#bowtie .sectab td:nth-child(6),#bowtie .sectab td:nth-child(7),
+    .treetab th:nth-child(2),.treetab th:nth-child(4),.treetab th:nth-child(6),.treetab th:nth-child(7),.treetab td:nth-child(2),.treetab td:nth-child(4),.treetab td:nth-child(6),.treetab td:nth-child(7){display:none}
+    #bowtie .sectab td.chip,.treetab td.chip{min-width:84px !important}#bowtie .sectab td.nm,.treetab td.nm{white-space:normal}#bowtie .sectab .ends{display:none}
+    #bowtie .sectab td,.treetab td,#bowtie .sectab th,.treetab th{padding-left:4px;padding-right:4px}
+  }
   /* the branch: funds to track, then the names that pass the comps filter */
   #branch:empty{display:none}
   .a7-branch{border:1px solid #2a2a3a;border-radius:8px;background:#0c0c13;padding:12px 14px;margin:10px 0 4px}
@@ -495,8 +501,9 @@
     <h2>10 · STATE &amp; ROADMAP</h2>
     <details><summary>where this tool came from, and where it is going</summary>
     <div class="note" style="line-height:1.75;margin-top:8px">
+    <b style="color:var(--gold)">AL7 · 6 OCT 2026, EVENING.</b> Alan: "making me read paragraphs is going to be tough … how can we express things visually"; "I would never diversify to this degree"; "metals … I measure the commodity"; "no AI at all"; "we should start to see branches from here"; "is all this being used?" THE BRIEF became a gauge, two bars and bullets; the voters are grouped in five families with each row's share of the vote; breadth reads every equal-weight pair, our own companies above their averages and the put/call vote; the sectors read the tree (the AI cohorts beside Technology, metals from the metal), show their five methods side by side and open into branches (funds to track, names that pass the comps filter); the money is a few sleeves, core and conviction. PAGE SPECS at the foot of the page says how each piece is computed.<br><br>
     <b style="color:var(--gold)">PA6 · 6 OCT 2026.</b> Alan: "let's go little by little on how everything is built from top to bottom in the fresh version … there's a lot of filler and old stuff." The way back to the Hub; the sources as one line; step 3 split into 3a SECTORS (the reading, in the Hub's Geiger chip) and 3b HOW THE MONEY SPLITS; the knockout rebuilt to its written concept (business line by business line, the podium); the July-tool leftovers and the duplicated tables removed. The history of this tool — the July Google Sheets lineage, the August consolidation, the parity tests, PA3, PA4 and PA5 — is kept word for word in <code>HISTORY.md</code> in the repository, and the reports live on the Hub (deliverables/20261005/pa5-allocation, deliverables/20261006/pa6-allocation).<br><br>
-    <b style="color:var(--txt)">THE CHAIN.</b> 1 the market's heat (the voters) → 2 how much is invested (the ladder) → 3a which sectors are overbought and oversold (one blended reading each) → 3b how the invested part splits across them → 4 the cohorts in those sectors → 5 the knockout inside a cohort, by business line → 6 the picks and their % → 7 the moves. Percent only, never dollars. Canonical source: GitHub aharveyrianhard-stack/scintilla-allocation; served at allocation.scintillahub.ai.
+    <b style="color:var(--txt)">THE CHAIN.</b> 1 the market's heat (the voters) → 2 how much is invested (the ladder) → 3a which sectors and tree cohorts are overbought and oversold (one blended reading each; a row opens its branch) → 3b how the invested part splits: conviction, the index sleeve and a few sleeves → 4 the cohorts in those sectors → 5 the knockout inside a cohort, by business line → 6 the picks and their % → 7 the moves. Percent only, never dollars. Canonical source: GitHub aharveyrianhard-stack/scintilla-allocation; served at allocation.scintillahub.ai.
     </div></details>
   </div>
 
@@ -1371,7 +1378,12 @@ window.AL7={ openBranch, renderBranch, branchNames, branchFunds,
     /* the heat by the rule this branch replaces, on the same readings at the same moment: the S&P pair alone at the breadth weight, no row for
        every pair, no put/call vote, no count of our companies above their averages */
     const before=(()=>{ let n=0,d=0; for(const v of voters()){ if(!canVote(v)) continue; if(['BREADTH_X','B_200D','B_50D','PCC'].includes(v.key)) continue; const w=v.key==='BREADTH_EW'?(S.wts.BREADTH_X??0):(S.wts[v.key]??0); n+=v.val*w; d+=w; } return {heat:d?n/d:0,weight:d}; })();
-    return { heat:heat(), rung:policyStep(heat()), heatBefore:before.heat, weightBefore:before.weight, rungBefore:policyStep(before.heat), weight:B.W, voting:B.voting, readOnly:B.silent, cannot:B.cannot, families:B.fams.map(f=>({id:f.id,share:+f.share.toFixed(4),avg:f.avg==null?null:+f.avg.toFixed(3),rows:f.on.map(r=>[r.key,+r.v.val.toFixed(3),+r.share.toFixed(4)])})),
+    /* a finding, not a change: the oil and gold voters still read the Hub's second source (the futures rows); this is the heat if they read
+       the chart API's Geiger for the same thing instead (the oil fund USO, the gold trust GLD) — same weights, everything else as it is */
+    const ruler=(()=>{ const u=geigerRow('USO'), gl=geigerRow('GLD'); if(!u||!gl) return null; let n=0,d=0; for(const v of voters()){ if(!canVote(v)) continue; const w=S.wts[v.key]??0; const val=v.key==='OIL'?clamp(-u.composite):v.key==='HAVEN'?clamp(-gl.composite):v.val; n+=val*w; d+=w; }
+      return {heat:d?n/d:0, rung:policyStep(d?n/d:0), oil:{future:COMPOSITE.CLUSD?+COMPOSITE.CLUSD.composite:null,fund:u.composite}, gold:{future:COMPOSITE.GCUSD?+COMPOSITE.GCUSD.composite:null,trust:gl.composite}}; })();
+    const sp=campSplit();
+    return { heat:heat(), rung:policyStep(heat()), heatBefore:before.heat, weightBefore:before.weight, rungBefore:policyStep(before.heat), oneRuler:ruler, camps:{hot:sp.hot.avg,hotShare:sp.W?sp.hot.w/sp.W:0,cold:sp.cold.avg,coldShare:sp.W?sp.cold.w/sp.W:0}, weight:B.W, voting:B.voting, readOnly:B.silent, cannot:B.cannot, families:B.fams.map(f=>({id:f.id,share:+f.share.toFixed(4),avg:f.avg==null?null:+f.avg.toFixed(3),rows:f.on.map(r=>[r.key,+r.v.val.toFixed(3),+r.share.toFixed(4)])})),
       pairs:{n:X.n,avg:X.avg,below:X.below,above:X.above,level:X.level,rows:X.rows.map(r=>[r.label,+r.gap.toFixed(3)])},
       longBars:LONGB&&!LONGB.error?{asof:LONGB.asof,n:LONGB.n,pct200:LONGB.pct200,pct50:LONGB.pct50,idx:LONGB.idx}:LONGB,
       putcall:(()=>{ const v=voters().find(x=>x.key==='PCC'); return v&&{reading:v.reading,val:v.val,place:v.place,strength:v.strength,asof:v.asof}; })(),
@@ -1926,7 +1938,7 @@ async function loadLongBars(){
 const clamp = x => Math.max(-1, Math.min(1, x));
 // diversification: AUTO scales names with regime — HOT (defend) concentrate in best few, COLD (deploy) cast wider for the rebound.
 function namesPer(h){ const cap=S.maxNames??6; let n; if(!S.divAuto){ n=S.nPer; } else { const base=2 + (1-(h??0))/2 * 3; n=Math.round(base - (S.concLean??0)*1.5); } return Math.max(1, Math.min(cap, n)); } // AUTO: 2+(1-heat)/2*3, leaned by concLean, clamped 1..maxNames
-function f2v(x){return x==null?'—':(x>=0?'+':'−')+Math.abs(+x).toFixed(2)}   // AL7: the true minus sign, as the gauge prints it
+function f2v(x){ if(x==null) return '—'; const r=Math.abs(+x).toFixed(2); return ((x>=0||r==='0.00')?'+':'−')+r; }   // AL7: the true minus sign, as the gauge prints it
 /* R3 — which put/call session the row reads: the newest with measured > 0 and a ratio; `empty` = the newer sessions that measured nothing */
 function putcallPick(rows){
   const list=(rows||[]).slice().sort((a,b)=>String(b.session_et).localeCompare(String(a.session_et)));
@@ -2389,7 +2401,7 @@ function barCSS(el, val, scale=50){
   el.style.background = val >= 0 ? 'var(--cyan)' : 'var(--orange)';
 }
 function render(){
-  A7_MEMO=null;   // AL7: one allocation per render
+  A7_MEMO=null; buildGroupReads();   // AL7: one allocation per render, on this render's own group reads
   renderVoters();   // AL7: the voters by family, each row with its share of the vote; the rows that cannot vote folded below (R3)
   const h = heat(), [lbl, color] = heatLabel(h);
   document.getElementById('heatnum').textContent = (h>=0?'+':'') + h.toFixed(2);
@@ -2713,6 +2725,7 @@ function renderInputMap(h){
   const rows = [
     ['Voter weights ×'+Object.keys(S.wts).length, P, Object.entries(S.wts).map(([k,v])=>k+' '+v).join(' · '), 'Each voter enters MACRO HEAT as value × weight ÷ total weight. Weight 0 = displayed, silent. The EFFECT line under each voter shows the exact Δ of flipping it today.'],
     ['Policy ladder', P, policyLadder().map(([c,r,v])=>c.toLowerCase()+' '+v+'%').join(' · '), 'HOW MUCH. The condition (from the heat bands −0.5 / −0.2 / +0.2 / +0.5) picks one of five steps; today '+policyStep(h).cond+' → '+policyStep(h).pct+'%. The two ends are the ceiling and floor dials; the middle three are their own dials.'],
+    ['Sleeves · core and conviction', P, 'most sleeves '+S.maxSleeves+' · smallest '+S.minSleeve+'% of equity · conviction '+S.convShare+'% of invested · index sleeve '+S.coreIndexShare+'% of the core', 'WHERE, in how many places. Conviction = that share of the invested money, held by the kept names. Core = the rest: the index sleeve (equal-weight S&P) takes its share, and the first (most sleeves − 2) candidates by coldness × turn take the remainder — the last dropped while any is under the smallest sleeve. Proposals of 6 Oct; yours to set.'],
     ['Invested when washed out', P, S.maxInv+'%', 'The top rung of the ladder — deep oversold, heat below −0.5.'],
     ['Invested when stretched', P, S.minInv+'%', 'The bottom rung — deep overbought, heat above +0.5.'],
     ['Positions LC / SC', P, S.nLC+' / '+S.nSC, 'Divides each sleeve into per-position units — changes nothing about totals, only the size of "one position" that moves are quoted in.'],
