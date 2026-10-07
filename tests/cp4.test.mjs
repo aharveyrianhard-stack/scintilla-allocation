@@ -7,7 +7,7 @@ test("the cards and the click-through read the one comps engine's files", () => 
   assert.ok(S.includes("const ENGINE_SOURCES=['https://scintillahub.ai/deliverables/20261007/comps-engine/data/names/','data/comps-engine/names/']"));
   assert.ok(existsSync(ROOT + "/data/comps-engine/cards.json") && existsSync(ROOT + "/data/comps-engine/names/MU.json"), "the local copies are beside the page"); });
 test("the reader inline is byte-identical to the Hub's lib/comps-artifact.mjs (when the Hub worktree is beside this one)", () => {
-  const hub = ROOT.replace(/_worktrees\/.*$/, "_worktrees/hub-cp4-comps-engine-20261007/lib/comps-artifact.mjs"); if (!existsSync(hub)) return;
+  const hub = ["hub-cp5-comps-default-20261007", "hub-cp4-comps-engine-20261007"].map((d) => ROOT.replace(/_worktrees\/.*$/, "_worktrees/" + d + "/lib/comps-artifact.mjs")).find((f) => existsSync(f)); if (!hub) return;   // CP5: this round's Hub worktree first
   const lib = readFileSync(hub, "utf8").replace(/export const /g, "const ").replace(/export function /g, "function "), a = S.indexOf("/*C4-READER-BEGIN*/\n") + "/*C4-READER-BEGIN*/\n".length, b = S.indexOf("\n/*C4-READER-END*/");
   assert.equal(S.slice(a, b).trim(), lib.trim()); });
 test("every ticker in the core table, the pick cards, the knockout's cards and the comps table carries the opener", () => {
