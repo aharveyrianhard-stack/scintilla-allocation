@@ -1,0 +1,124 @@
+{
+ "status": "placeholder",
+ "what": "the deployment study's five scenario rows from the 6 Oct close — a study on a branch, not reviewed and not wired; the page labels every number read from this file as a placeholder",
+ "built_utc": "2026-10-07T05:51:15.190Z",
+ "source": {
+  "branch": "dm1-deployment-engine-20261007",
+  "sha": "8306c3a",
+  "file": "study/dm1/data/dm1.json"
+ },
+ "today": {
+  "date": "2026-10-06",
+  "spy": 779.09,
+  "rsi": 62,
+  "vix": 15.01,
+  "vixPct": 10.8,
+  "sma200": 721.489,
+  "pctOver200": 0.0798,
+  "rising": true,
+  "sma200MonthAgo": 712.153,
+  "creditAbove": false,
+  "creditPriceOnly": false,
+  "putCall": {
+   "ib": 0.718020142475241,
+   "ibPct": null
+  },
+  "ten": {
+   "yield": 5.27,
+   "stretchPct": 94,
+   "above200": true
+  }
+ },
+ "scenarios": [
+  {
+   "key": "today",
+   "name": "6 Oct close, as it stands",
+   "note": "SPY 779.09, RSI 62, VIX 15.01",
+   "spy": 779.09,
+   "rsi": 62,
+   "vix": 15.01,
+   "vixPct": 10.8,
+   "pct": 33.4,
+   "line": 25.4,
+   "money": {
+    "invested": 33.4,
+    "cash": 66.6,
+    "conviction": 6.68,
+    "micron": 13.36,
+    "core": 20.04
+   }
+  },
+  {
+   "key": "a",
+   "name": "(a) SPY −1.5%",
+   "note": "one session; the VIX left where it is (15.01) — it would likely tick up, which only helps",
+   "spy": 767.404,
+   "rsi": 50.5,
+   "vix": 15.01,
+   "vixPct": 10.8,
+   "pct": 22.4,
+   "line": null,
+   "money": {
+    "invested": 22.4,
+    "cash": 77.6,
+    "conviction": 4.4799999999999995,
+    "micron": 8.959999999999999,
+    "core": 13.44
+   }
+  },
+  {
+   "key": "b",
+   "name": "(b) SPY −3% with VIX 20",
+   "note": "three sessions of −1%; VIX 20 = Alan's first line",
+   "spy": 755.717,
+   "rsi": 41.6,
+   "vix": 20,
+   "vixPct": 80.9,
+   "pct": 44.2,
+   "line": null,
+   "money": {
+    "invested": 44.2,
+    "cash": 55.8,
+    "conviction": 8.840000000000002,
+    "micron": 17.680000000000003,
+    "core": 26.52
+   }
+  },
+  {
+   "key": "c",
+   "name": "(c) SPY −5% with VIX 23.5",
+   "note": "five sessions of −1%; VIX 23.5 = the year's 90th percentile, Alan's both-hands line",
+   "spy": 740.135,
+   "rsi": 32.9,
+   "vix": 23.5,
+   "vixPct": 89.6,
+   "pct": 87.9,
+   "line": null,
+   "money": {
+    "invested": 87.9,
+    "cash": 12.099999999999994,
+    "conviction": 17.580000000000002,
+    "micron": 30,
+    "core": 57.900000000000006
+   }
+  },
+  {
+   "key": "d",
+   "name": "(d) panic: RSI under 35, VIX in its top 5%",
+   "note": "RSI 33 (about −8% over two weeks), VIX 26 (the year's 95th percentile is 25.3)",
+   "spy": null,
+   "rsi": 33,
+   "vix": 26,
+   "vixPct": 96.4,
+   "pct": 83.5,
+   "line": null,
+   "money": {
+    "invested": 83.5,
+    "cash": 16.5,
+    "conviction": 16.7,
+    "micron": 30,
+    "core": 53.5
+   }
+  }
+ ]
+}
