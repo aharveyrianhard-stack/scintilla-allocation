@@ -16,7 +16,8 @@ import { openPage, startServer, chromium, ROOT } from "./_harness.mjs";
 let P, s;
 const near = (a, b, eps = 1e-9) => Math.abs(a - b) <= eps;
 const J = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, "data", f), "utf8"));
-const CARDS = J("decision-cards-20261006.json"), ZONES = J("confluence-zones-20261006.json"), APPROVED = J("approved-names-20261007.json"), DEPLOY = J("deployment-scenarios.json");
+/* CP3 (7 Oct, later): the page now reads the cards RE-PRICED on the one forward basis (27: the same 26 and TSMC), so these checks read that file */
+const CARDS = J("decision-cards-20261007.json"), ZONES = J("confluence-zones-20261006.json"), APPROVED = J("approved-names-20261007.json"), DEPLOY = J("deployment-scenarios.json");
 /* the same place rule as the page's, written again here: first = 1, last = 0, equal answers share the middle of their places */
 function placesJS(vals) { const have = vals.map((v, i) => [v, i]).filter(([v]) => v != null && isFinite(v)).sort((a, b) => b[0] - a[0]), n = have.length, out = vals.map(() => null);
   for (let i = 0; i < n;) { let j = i; while (j < n && have[j][0] === have[i][0]) j++; const mid = (i + j - 1) / 2, p = n > 1 ? 1 - mid / (n - 1) : 1; for (let k = i; k < j; k++) out[have[k][1]] = p; i = j; } return out; }
@@ -339,18 +340,20 @@ test("5 · the card's figures, one accessor each: comps range, growth on sales, 
   assert.deepEqual([r.mu.k.low, r.mu.k.centre, r.mu.k.high], [c.comps.low, c.comps.centre, c.comps.high]); assert.deepEqual(r.mu.k.peers, c.comps.peers_priced); assert.deepEqual(r.mu.k.flags, c.comps.flags); assert.ok(near(r.mu.k.upside, c.comps.upside_pct / 100, 1e-12));
   assert.ok(near(r.mu.ge.pctl, c.technicals.geiger_pctl_own_year, 1e-12) && near(r.mu.ge.g, c.technicals.geiger, 1e-12));
   assert.equal(r.be.none, true); assert.ok(/no peer set/.test(r.be.says)); assert.deepEqual(r.none, [null, null, null, null, null]); assert.deepEqual(r.idx, [null, null, true]);
-  assert.equal(r.n, 26); assert.equal(r.src, "data/decision-cards-20261006.json"); assert.equal(r.served, false, "the Hub does not serve the cards yet: the dated copy kept with the page is read, and the sources line says so"); assert.ok(/the Hub does not serve them yet/.test(s.spineNote.decision_cards));
+  assert.equal(r.n, 27); assert.equal(r.src, "data/decision-cards-20261007.json"); assert.equal(r.served, false, "the Hub does not serve the cards yet: the dated copy kept with the page is read, and the sources line says so"); assert.ok(/the Hub does not serve them yet/.test(s.spineNote.decision_cards));
 });
 
 test("5 · the card over the feed: for a carded name the knockout reads growth, the forward and trailing P/E and price ÷ sales from the card, field by field; the feed's own figures are kept beside them; a name with no card is untouched", async () => {
   const r = await P.page.evaluate(() => { const over = Object.entries(COMPS).filter(([, x]) => x && x.card); const plain = Object.entries(COMPS).find(([t, x]) => x && !x.card && x.pe > 0 && !CARDS.cards[t]);
-    return { over: over.map(([t, x]) => [t, x.card.fields, x.card.date, { rev_growth: x.rev_growth, fwd_pe: x.fwd_pe, pe: x.pe, ps: x.ps }, x.feed]), plain: plain && [plain[0], Object.keys(plain[1]).includes("feed")], FH: feedHealth(), mode: SPINE["comps-feed"].mode, note: SPINE["comps-feed"].note, mu: { fund: fundScore("MU"), row: COMPS.MU } }; });
-  assert.ok(r.over.length >= 20 && r.over.length <= 26, r.over.length + " carded names are in the feed's answer");
-  for (const [t, fields, date, now, feed] of r.over) { const c = CARDS.cards[t], want = { rev_growth: c.fundamentals.rev_g_ntm != null ? c.fundamentals.rev_g_ntm / 100 : null, fwd_pe: c.fundamentals.fwd_pe, pe: c.comps.rows && c.comps.rows.pe_ttm && c.comps.rows.pe_ttm.own, ps: c.comps.rows && c.comps.rows.ps && c.comps.rows.ps.own };
+    return { lp: Object.fromEntries(over.map(([t]) => [t, livePrice(t)])), over: over.map(([t, x]) => [t, x.card.fields, x.card.date, { rev_growth: x.rev_growth, fwd_pe: x.fwd_pe, pe: x.pe, ps: x.ps }, x.feed]), plain: plain && [plain[0], Object.keys(plain[1]).includes("feed")], FH: feedHealth(), mode: SPINE["comps-feed"].mode, note: SPINE["comps-feed"].note, mu: { fund: fundScore("MU"), row: COMPS.MU } }; });
+  assert.ok(r.over.length >= 20 && r.over.length <= 27, r.over.length + " carded names are in the feed's answer");
+  /* CP3: the forward P/E is the one basis — a fresh live price over the card's forward EPS (the dashboard's number to the tick), else the card's own on its close */
+  const fwdOf = (t) => { const f = CARDS.cards[t].fundamentals, lp = r.lp[t]; if (lp > 0 && f.fwd_eps > 0) return lp / f.fwd_eps >= 2.5 ? lp / f.fwd_eps : null; return f.fwd_pe ?? null; };
+  for (const [t, fields, date, now, feed] of r.over) { const c = CARDS.cards[t], want = { rev_growth: c.fundamentals.rev_g_ntm != null ? c.fundamentals.rev_g_ntm / 100 : null, fwd_pe: fwdOf(t), pe: c.comps.rows && c.comps.rows.pe_ttm && c.comps.rows.pe_ttm.own, ps: c.comps.rows && c.comps.rows.ps && c.comps.rows.ps.own };
     assert.equal(date, c.card_date); for (const k of fields) { assert.ok(want[k] != null && near(now[k], want[k], 1e-9), t + " " + k + " is the card's: " + now[k] + " vs " + want[k]); assert.ok(k in feed, t + " keeps the feed's own " + k); }
     for (const k of Object.keys(want)) if (want[k] == null || !isFinite(want[k])) assert.ok(!fields.includes(k), t + " " + k + ": the card has none, so the feed's stays"); }
   const mu = r.over.find((x) => x[0] === "MU"); assert.ok(mu, "Micron is one of them"); assert.ok(near(mu[3].rev_growth, CARDS.cards.MU.fundamentals.rev_g_ntm / 100, 1e-9) && mu[3].rev_growth > 0.5, "Micron's growth in the knockout is the card's +92%, whatever the feed says tonight (" + mu[4].rev_growth + ")");
-  assert.ok(r.mu.fund.parts.some((p) => p[0] === "growth" && /growth 92%/.test(p[2])), "and its growth reading says so: " + JSON.stringify(r.mu.fund.parts)); assert.ok(near(mu[3].fwd_pe, CARDS.cards.MU.fundamentals.fwd_pe, 1e-9));
+  assert.ok(r.mu.fund.parts.some((p) => p[0] === "growth" && /growth 92%/.test(p[2])), "and its growth reading says so: " + JSON.stringify(r.mu.fund.parts)); assert.ok(near(mu[3].fwd_pe, fwdOf("MU"), 1e-9));
   assert.ok(r.plain && r.plain[1] === false, "a name without a card is not touched");
   /* the feed itself is measured, never assumed: of the names it shows earnings for, how many does it give a forward P/E */
   assert.equal(r.FH.thin, r.FH.earn >= 20 && r.FH.fwd < r.FH.earn / 2); assert.equal(r.mode, r.FH.thin ? "STALE" : "LIVE", "the sources line marks the feed exactly while it is thin");
@@ -358,14 +361,15 @@ test("5 · the card over the feed: for a carded name the knockout reads growth, 
 });
 
 test("5 · step 6: each conviction name is its decision card — the comps range drawn, growth, the Geiger's place in its own year, the nearest named line — with its own size and the parent fund of its branch", async () => {
-  const r = await P.page.evaluate(() => { setFold("p-mix", false); const el = document.querySelector('#picks .a8-pick[data-sym="MU"]'), price = +QUOTES.MU.price, k = cardComps(cardOf("MU")), L = nearestLines("MU", price);
+  const r = await P.page.evaluate(() => { setFold("p-mix", false); const el = document.querySelector('#picks .a8-pick[data-sym="MU"]'), price = (QUOTES.MU && QUOTES.MU.price != null) ? +QUOTES.MU.price : +cardOf("MU").price,   /* CP3: the price the picks themselves use — the live quote, else the card's close (a stored quote older than four days is no longer a price) */
+    k = cardComps(cardOf("MU")), L = nearestLines("MU", price);
     const ff = el.querySelector(".a8-ff"), band = ff.querySelector("span"), out = { price, text: el.innerText.replace(/\s+/g, " "), cells: [...el.querySelectorAll(".cells .cell > span")].map((x) => x.innerText), band: [parseFloat(band.style.left), parseFloat(band.style.width)], centre: parseFloat(ff.querySelector("i.c").style.left), needle: parseFloat(ff.querySelector("i.p").style.left), aria: ff.getAttribute("aria-label"),
       tags: [...el.querySelectorAll(".hd .tags u")].map((u) => u.innerText), amt: el.querySelector(".hd .amt").innerText, input: (() => { const i = el.querySelector("input.a8-size"); return [i.type, i.placeholder, i.value, i.getAttribute("aria-label")]; })(), chip: el.querySelectorAll(".cells .sc-gmini").length, L, up: k.centre / price - 1, g: gv("MU"), cap: document.querySelector("#picks .a7-cap").innerText, small: [...el.querySelectorAll("*")].filter((e) => e.children.length === 0 && e.innerText && e.innerText.trim() && parseFloat(getComputedStyle(e).fontSize) < 11).length };
     setFold("p-mix", true); return out; });
   const c = CARDS.cards.MU, lo = Math.min(c.comps.low, r.price), hi = Math.max(c.comps.high, r.price), pos = (x) => (x - lo) / (hi - lo) * 100;
-  assert.deepEqual(r.cells.map((x) => x.split(" · ")[0]), ["COMPS RANGE", "GROWTH", "GEIGER", "NEAREST NAMED LINE"], "the four readings the picks are made on");
+  assert.deepEqual(r.cells.map((x) => x.split(" · ")[0]), ["COMPS RANGE", "GROWTH", "GEIGER", "NEAREST NAMED LINE", "FORWARD P/E", "NET DEBT ÷ EBITDA"], "the four readings the picks are made on, and CP3's two: the forward P/E on the one basis and the debt reading");
   assert.ok(near(r.band[0], pos(c.comps.low), 0.06) && near(r.band[0] + r.band[1], pos(c.comps.high), 0.11) && near(r.centre, pos(c.comps.centre), 0.06) && near(r.needle, pos(r.price), 0.06), "the band runs low → high, the mark is the centre, the needle is the price"); assert.ok(/comps range/.test(r.aria));
-  const up = (r.up >= 0 ? "+" : "−") + Math.abs(r.up * 100).toFixed(0) + "%"; assert.ok(r.text.includes(up + " to the centre") && r.text.includes("priced on " + c.comps.peers_priced.join(", ")), "the upside is to the centre from the live price: " + up);
+  const up = (r.up >= 0 ? "+" : "−") + Math.abs(r.up * 100).toFixed(0) + "%"; assert.ok(r.text.includes(up + " to the centre") && r.text.includes("priced on " + c.comps.peers_priced.map((t) => ({ "000660.KS": "SK hynix", "005930.KS": "Samsung", "285A.T": "Kioxia" })[t] || t).join(", "))   /* CP3: a comps-only foreign peer is named in words, not by its listing code */, "the upside is to the centre from the live price: " + up);
   for (const f of c.comps.flags) assert.ok(r.text.includes(f), "the card's own warning is on it: " + f);
   assert.ok(r.text.includes("+" + Math.round(c.fundamentals.rev_g_ntm) + "%") && /sales, next 12 months/i.test(r.text) && r.text.includes("two years: +" + Math.round(c.fundamentals.rev_g_2y_a_year) + "% a year"), "growth");
   const p = Math.round(c.technicals.geiger_pctl_own_year); assert.ok(new RegExp("the " + p + "(st|nd|rd|th) percentile").test(r.text) && r.chip === 1, "the Geiger's place in its own year: " + p);
@@ -392,7 +396,8 @@ test("5 · the knockout: every card says CARD or NO CARD · FEED; a carded name 
 
 /* ------------------------------------------------------------------ 6 · MICRON'S LADDER */
 test("6 · Micron's ladder is its three confluence zones — 1,028–1,036 · 980–989 · 960–962 — each with its named members; a line standing alone between them is named and is not a zone", async () => {
-  const r = await P.page.evaluate(() => { setFold("p-mix", false); const el = document.querySelector('#picks .a8-pick[data-sym="MU"]'), price = +QUOTES.MU.price, Z = zonesOf("MU", price), C = zonesOf("MU", 1045.56), inside = zonesOf("MU", 1030);
+  const r = await P.page.evaluate(() => { setFold("p-mix", false); const el = document.querySelector('#picks .a8-pick[data-sym="MU"]'), price = (QUOTES.MU && QUOTES.MU.price != null) ? +QUOTES.MU.price : +cardOf("MU").price,   /* CP3: the price the picks themselves use — the live quote, else the card's close (a stored quote older than four days is no longer a price) */
+    Z = zonesOf("MU", price), C = zonesOf("MU", 1045.56), inside = zonesOf("MU", 1030);
     const out = { price, close: { below: C.below.map((z) => [z.low, z.high, z.members.map((m) => m.label), +z.pct.toFixed(2), z.two_sources]), alone: C.alone.map((a) => [a.label, a.level]), as_of: C.as_of }, live: Z.below.map((z) => [z.low, z.high, z.pct]), inside: { below: inside.below.length, at: inside.at.map((z) => [z.low, z.high]) },
       rows: [...el.querySelectorAll(".a8-zr .zr")].map((d) => ({ zone: d.getAttribute("data-zone"), alone: d.classList.contains("alone"), range: d.querySelector("b").innerText, members: d.querySelector("span").innerText.replace(/\s+/g, " "), pct: d.querySelector("i").innerText })),
       bands: [...el.querySelectorAll(".a8-lad span")].map((x) => [parseFloat(x.style.left), parseFloat(x.style.width), x.innerText, x.title]), ticks: el.querySelectorAll(".a8-lad i.l").length, needle: [parseFloat(el.querySelector(".a8-lad i.p").style.left), el.querySelector(".a8-lad i.p b").innerText], cap: el.querySelector(".a8-cap2").innerText.replace(/\s+/g, " "), none: zonesOf("NOT_A_NAME", 10), noLadder: ladderHTML("NOT_A_NAME", 10) };

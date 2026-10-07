@@ -1,0 +1,402 @@
+{
+ "390": {
+  "pageWidth": 390,
+  "viewport": 390,
+  "sections": [
+   "p-scen",
+   "p-brief",
+   "p-heat",
+   "p-inputs",
+   "p-howmuch",
+   "p-bowtie",
+   "p-money",
+   "p-cohorts",
+   "p-knockout",
+   "p-core",
+   "p-mix",
+   "p-moves",
+   "p-options",
+   "p-comps",
+   "p-map",
+   "p-state",
+   "p-trace"
+  ],
+  "cards": {
+   "n": 27,
+   "as_of": "2026-10-06",
+   "repriced": "2026-10-07",
+   "src": "data/decision-cards-20261007.json",
+   "served": false
+  },
+  "core": [
+   "GOOGL",
+   "AMZN",
+   "AVGO",
+   "NVDA",
+   "TSM",
+   "VST",
+   "MU",
+   "ORCL",
+   "DLR",
+   "EQIX"
+  ],
+  "core_rows": 10,
+  "prints_on_the_cards_close": {
+   "MU": "6.0×",
+   "SNDK": "7.3×",
+   "WDC": "17.4×",
+   "AVGO": "21.6×",
+   "GOOGL": "24.2×",
+   "AMZN": "25.7×",
+   "VST": "15.6×",
+   "NBIS": "—",
+   "BE": "68.1×",
+   "IREN": "—",
+   "EQIX": "58.0×",
+   "DLR": "75.7×",
+   "IRM": "44.3×",
+   "LRCX": "33.2×",
+   "CRDO": "30.3×",
+   "COHR": "32.6×",
+   "STX": "19.3×",
+   "NVDA": "19.9×",
+   "AMAT": "30.0×",
+   "CEG": "23.5×",
+   "LLY": "26.3×",
+   "JPM": "13.4×",
+   "BAC": "10.7×",
+   "ORCL": "17.0×",
+   "CRWV": "—",
+   "AME": "28.1×",
+   "TSM": "≈23.1×"
+  },
+  "prints_live": {
+   "GOOGL": {
+    "price": 345.91,
+    "text": "24.1×"
+   },
+   "AMZN": {
+    "price": 258.725,
+    "text": "26.0×"
+   },
+   "AVGO": {
+    "price": 374.58,
+    "text": "21.5×"
+   },
+   "NVDA": {
+    "price": 237.1355,
+    "text": "19.8×"
+   },
+   "TSM": {
+    "price": 472.5392,
+    "text": "≈22.6×"
+   },
+   "VST": {
+    "price": 164.3107,
+    "text": "16.0×"
+   },
+   "MU": {
+    "price": 1081.025,
+    "text": "6.2×"
+   },
+   "ORCL": {
+    "price": 143.905,
+    "text": "16.9×"
+   },
+   "DLR": {
+    "price": 182.864,
+    "text": "75.0×"
+   },
+   "EQIX": {
+    "price": 1036.4828,
+    "text": "57.4×"
+   }
+  },
+  "knockout_rows_on_card": 24,
+  "mu": {
+   "fwd_pe": 6.210565829785944,
+   "card": {
+    "date": "2026-10-06",
+    "fields": [
+     "rev_growth",
+     "fwd_pe",
+     "pe",
+     "ps"
+    ]
+   }
+  },
+  "smallest_font_px": 11,
+  "under_11px": [],
+  "price_source": {
+   "ts": "2026-10-07T16:15:34.521Z",
+   "mode": "LIVE",
+   "note": "321 prices from the chart API · 318 fresh"
+  },
+  "any_live_core_price": true,
+  "prints_now": {
+   "GOOGL": {
+    "price": 345.91,
+    "live": true,
+    "text": "24.1×"
+   },
+   "AMZN": {
+    "price": 258.725,
+    "live": true,
+    "text": "26.0×"
+   },
+   "AVGO": {
+    "price": 374.58,
+    "live": true,
+    "text": "21.5×"
+   },
+   "NVDA": {
+    "price": 237.1355,
+    "live": true,
+    "text": "19.8×"
+   },
+   "TSM": {
+    "price": 472.5392,
+    "live": true,
+    "text": "≈22.6×"
+   },
+   "VST": {
+    "price": 164.3107,
+    "live": true,
+    "text": "16.0×"
+   },
+   "MU": {
+    "price": 1081.025,
+    "live": true,
+    "text": "6.2×"
+   },
+   "ORCL": {
+    "price": 143.905,
+    "live": true,
+    "text": "16.9×"
+   },
+   "DLR": {
+    "price": 182.864,
+    "live": true,
+    "text": "75.0×"
+   },
+   "EQIX": {
+    "price": 1036.4828,
+    "live": true,
+    "text": "57.4×"
+   }
+  },
+  "internal_codes": [],
+  "errors": [],
+  "nonGet": {
+   "blocked": 0,
+   "allowed": 0,
+   "urls": []
+  },
+  "core_panel_width": {
+   "panel": 328,
+   "table": 293,
+   "page": 390,
+   "viewport": 390
+  }
+ },
+ "1680": {
+  "pageWidth": 1680,
+  "viewport": 1680,
+  "sections": [
+   "p-scen",
+   "p-brief",
+   "p-heat",
+   "p-inputs",
+   "p-howmuch",
+   "p-bowtie",
+   "p-money",
+   "p-cohorts",
+   "p-knockout",
+   "p-core",
+   "p-mix",
+   "p-moves",
+   "p-options",
+   "p-comps",
+   "p-map",
+   "p-state",
+   "p-trace"
+  ],
+  "cards": {
+   "n": 27,
+   "as_of": "2026-10-06",
+   "repriced": "2026-10-07",
+   "src": "data/decision-cards-20261007.json",
+   "served": false
+  },
+  "core": [
+   "GOOGL",
+   "AMZN",
+   "AVGO",
+   "NVDA",
+   "TSM",
+   "VST",
+   "MU",
+   "ORCL",
+   "DLR",
+   "EQIX"
+  ],
+  "core_rows": 10,
+  "prints_on_the_cards_close": {
+   "MU": "6.0×",
+   "SNDK": "7.3×",
+   "WDC": "17.4×",
+   "AVGO": "21.6×",
+   "GOOGL": "24.2×",
+   "AMZN": "25.7×",
+   "VST": "15.6×",
+   "NBIS": "—",
+   "BE": "68.1×",
+   "IREN": "—",
+   "EQIX": "58.0×",
+   "DLR": "75.7×",
+   "IRM": "44.3×",
+   "LRCX": "33.2×",
+   "CRDO": "30.3×",
+   "COHR": "32.6×",
+   "STX": "19.3×",
+   "NVDA": "19.9×",
+   "AMAT": "30.0×",
+   "CEG": "23.5×",
+   "LLY": "26.3×",
+   "JPM": "13.4×",
+   "BAC": "10.7×",
+   "ORCL": "17.0×",
+   "CRWV": "—",
+   "AME": "28.1×",
+   "TSM": "≈23.1×"
+  },
+  "prints_live": {
+   "GOOGL": {
+    "price": 345.87,
+    "text": "24.1×"
+   },
+   "AMZN": {
+    "price": 258.75,
+    "text": "26.0×"
+   },
+   "AVGO": {
+    "price": 374.5501,
+    "text": "21.5×"
+   },
+   "NVDA": {
+    "price": 237.23,
+    "text": "19.8×"
+   },
+   "TSM": {
+    "price": 472.512,
+    "text": "≈22.6×"
+   },
+   "VST": {
+    "price": 164.225,
+    "text": "16.0×"
+   },
+   "MU": {
+    "price": 1080.7,
+    "text": "6.2×"
+   },
+   "ORCL": {
+    "price": 143.855,
+    "text": "16.9×"
+   },
+   "DLR": {
+    "price": 182.865,
+    "text": "75.0×"
+   },
+   "EQIX": {
+    "price": 1036.4827,
+    "text": "57.4×"
+   }
+  },
+  "knockout_rows_on_card": 24,
+  "mu": {
+   "fwd_pe": 6.208698681575051,
+   "card": {
+    "date": "2026-10-06",
+    "fields": [
+     "rev_growth",
+     "fwd_pe",
+     "pe",
+     "ps"
+    ]
+   }
+  },
+  "smallest_font_px": 11,
+  "under_11px": [],
+  "price_source": {
+   "ts": "2026-10-07T16:15:19.881Z",
+   "mode": "LIVE",
+   "note": "321 prices from the chart API · 318 fresh"
+  },
+  "any_live_core_price": true,
+  "prints_now": {
+   "GOOGL": {
+    "price": 345.87,
+    "live": true,
+    "text": "24.1×"
+   },
+   "AMZN": {
+    "price": 258.75,
+    "live": true,
+    "text": "26.0×"
+   },
+   "AVGO": {
+    "price": 374.5501,
+    "live": true,
+    "text": "21.5×"
+   },
+   "NVDA": {
+    "price": 237.23,
+    "live": true,
+    "text": "19.8×"
+   },
+   "TSM": {
+    "price": 472.512,
+    "live": true,
+    "text": "≈22.6×"
+   },
+   "VST": {
+    "price": 164.225,
+    "live": true,
+    "text": "16.0×"
+   },
+   "MU": {
+    "price": 1080.7,
+    "live": true,
+    "text": "6.2×"
+   },
+   "ORCL": {
+    "price": 143.855,
+    "live": true,
+    "text": "16.9×"
+   },
+   "DLR": {
+    "price": 182.865,
+    "live": true,
+    "text": "75.0×"
+   },
+   "EQIX": {
+    "price": 1036.4827,
+    "live": true,
+    "text": "57.4×"
+   }
+  },
+  "internal_codes": [],
+  "errors": [],
+  "nonGet": {
+   "blocked": 0,
+   "allowed": 0,
+   "urls": []
+  },
+  "core_panel_width": {
+   "panel": 1498,
+   "table": 1462,
+   "page": 1680,
+   "viewport": 1680
+  }
+ }
+}

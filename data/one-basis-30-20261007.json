@@ -1,0 +1,187 @@
+{
+ "what": "the forward P/E every screen prints for thirty names on the 6 Oct close (the Hub's one-basis table: dashboard = COMPS tab = card = feed). The allocation tool's own test holds what it prints to this.",
+ "today": "2026-10-06",
+ "price_is": "the 2026-10-06 regular-session close (chart API /quotes, captured 2026-10-07T03:57:17Z)",
+ "rows": [
+  {
+   "ticker": "MU",
+   "price": 1045.56,
+   "prints": "6.0\u00d7",
+   "eps_usd": 174.06224
+  },
+  {
+   "ticker": "SNDK",
+   "price": 1660.46,
+   "prints": "7.3\u00d7",
+   "eps_usd": 226.62015000000002
+  },
+  {
+   "ticker": "WDC",
+   "price": 411.04,
+   "prints": "17.4\u00d7",
+   "eps_usd": 23.58208
+  },
+  {
+   "ticker": "AVGO",
+   "price": 375.81,
+   "prints": "21.6\u00d7",
+   "eps_usd": 17.38328
+  },
+  {
+   "ticker": "GOOGL",
+   "price": 347.68,
+   "prints": "24.2\u00d7",
+   "eps_usd": 14.35944
+  },
+  {
+   "ticker": "AMZN",
+   "price": 256.29,
+   "prints": "25.7\u00d7",
+   "eps_usd": 9.96888
+  },
+  {
+   "ticker": "VST",
+   "price": 160.5,
+   "prints": "15.6\u00d7",
+   "eps_usd": 10.27088
+  },
+  {
+   "ticker": "NBIS",
+   "price": 249.87,
+   "prints": "\u2014",
+   "eps_usd": -3.28187
+  },
+  {
+   "ticker": "BE",
+   "price": 295.78,
+   "prints": "68.1\u00d7",
+   "eps_usd": 4.34483
+  },
+  {
+   "ticker": "IREN",
+   "price": 41.28,
+   "prints": "\u2014",
+   "eps_usd": -1.28516
+  },
+  {
+   "ticker": "EQIX",
+   "price": 1047.36,
+   "prints": "58.0\u00d7",
+   "eps_usd": 18.06474
+  },
+  {
+   "ticker": "DLR",
+   "price": 184.65,
+   "prints": "75.7\u00d7",
+   "eps_usd": 2.43855
+  },
+  {
+   "ticker": "IRM",
+   "price": 116.5,
+   "prints": "44.3\u00d7",
+   "eps_usd": 2.6273299999999997
+  },
+  {
+   "ticker": "LRCX",
+   "price": 333.89,
+   "prints": "33.2\u00d7",
+   "eps_usd": 10.0602
+  },
+  {
+   "ticker": "CRDO",
+   "price": 220.83,
+   "prints": "30.3\u00d7",
+   "eps_usd": 7.27797
+  },
+  {
+   "ticker": "COHR",
+   "price": 338.36,
+   "prints": "32.6\u00d7",
+   "eps_usd": 10.38853
+  },
+  {
+   "ticker": "STX",
+   "price": 805.63,
+   "prints": "19.3\u00d7",
+   "eps_usd": 41.791959999999996
+  },
+  {
+   "ticker": "NVDA",
+   "price": 239.24,
+   "prints": "19.9\u00d7",
+   "eps_usd": 12.0064
+  },
+  {
+   "ticker": "AMAT",
+   "price": 530.27,
+   "prints": "30.0\u00d7",
+   "eps_usd": 17.6672
+  },
+  {
+   "ticker": "CEG",
+   "price": 300.4,
+   "prints": "23.5\u00d7",
+   "eps_usd": 12.79563
+  },
+  {
+   "ticker": "LLY",
+   "price": 1157.49,
+   "prints": "26.3\u00d7",
+   "eps_usd": 43.963849999999994
+  },
+  {
+   "ticker": "JPM",
+   "price": 331.28,
+   "prints": "13.4\u00d7",
+   "eps_usd": 24.71152
+  },
+  {
+   "ticker": "BAC",
+   "price": 54.09,
+   "prints": "10.7\u00d7",
+   "eps_usd": 5.05983
+  },
+  {
+   "ticker": "ORCL",
+   "price": 144.77,
+   "prints": "17.0\u00d7",
+   "eps_usd": 8.51967
+  },
+  {
+   "ticker": "CRWV",
+   "price": 91.72,
+   "prints": "\u2014",
+   "eps_usd": -2.43285
+  },
+  {
+   "ticker": "AME",
+   "price": 253.72,
+   "prints": "28.1\u00d7",
+   "eps_usd": 9.040989999999999
+  },
+  {
+   "ticker": "TSM",
+   "price": 482.3,
+   "prints": "\u224823.1\u00d7",
+   "eps_usd": 20.914727765420214
+  },
+  {
+   "ticker": "META",
+   "price": 738.88,
+   "prints": "23.1\u00d7",
+   "eps_usd": 31.987949999999998
+  },
+  {
+   "ticker": "MSFT",
+   "price": 529.3,
+   "prints": "25.9\u00d7",
+   "eps_usd": 20.45717
+  },
+  {
+   "ticker": "AMD",
+   "price": 649.42,
+   "prints": "47.9\u00d7",
+   "eps_usd": 13.561720000000001
+  }
+ ]
+}
