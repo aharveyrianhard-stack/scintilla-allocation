@@ -115,11 +115,12 @@ test("5 · today against its own past: the voters' own formulas, like for like, 
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" }); for (const d of R.replay.dates) assert.ok(d < today, "today is not compared with itself");
   assert.equal(R.replay.place.n, R.replay.n); assert.ok(R.replay.place.pct >= 0 && R.replay.place.pct <= 100);
   assert.ok(s.pastText.includes(R.replay.keys.length + " of today's " + R.voting.length + " voters keep a stored past"), s.pastText);
-  assert.ok(s.pastText.includes("hotter than " + R.replay.place.below + " of the " + R.replay.n + " past evenings"), s.pastText);
-  assert.ok(s.pastText.includes("hotter than " + R.year.place.below + " of the " + R.year.n + " past evenings"));
-  assert.equal(/THIN: \d+ evenings/.test(s.pastText), R.replay.n < 60, "thin coverage is said in the line");
+  /* AL9 re-pin (7 Oct): the word on the screen is "days" (Alan: "I don't know what an evening is"); the figures are the same */
+  assert.ok(s.pastText.includes("hotter than " + R.replay.place.below + " of the " + R.replay.n + " past days"), s.pastText);
+  assert.ok(s.pastText.includes("hotter than " + R.year.place.below + " of the " + R.year.n + " past days"));
+  assert.equal(/THIN: \d+ days/.test(s.pastText), R.replay.n < 60, "thin coverage is said in the line");
   for (const k of R.noPast) assert.ok(!s.keys.replay.includes(k)); assert.ok(R.noPast.length === 0 || /No usable stored past: /.test(s.pastText));
-  assert.deepEqual(s.place, { n: 4, below: 2, pct: 62.5, min: 0.1, max: 0.9 }); assert.ok(/THIN: 2 evenings/.test(s.thin)); assert.ok(/cannot be read/.test(s.thin));
+  assert.deepEqual(s.place, { n: 4, below: 2, pct: 62.5, min: 0.1, max: 0.9 }); assert.ok(/THIN: 2 days/.test(s.thin)); assert.ok(/cannot be read/.test(s.thin));
 });
 
 test("6 · turning rates, credit and long bonds changes those three rows and nothing else; nothing on the live page turns them", () => {

@@ -158,7 +158,7 @@ test("1 · the one way the sector-compare weights reach the %, measured as it st
     const B = voteBook(), sec = B.rows.find((x) => x.key === "SECTORS"); return { L, lo, hi, h0, share: sec.share, w: sec.w, W: B.W, text: document.getElementById("in-leak").innerText.replace(/\s+/g, " "), same: structuredClone(S.mixW) }; });
   assert.ok(near(r.L.lo, r.lo, 1e-12) && near(r.L.hi, r.hi, 1e-12) && near(r.L.heat, r.h0, 1e-12)); assert.ok(near(r.L.reach, Math.max(r.h0 - r.lo, r.hi - r.h0), 1e-12));
   assert.ok(near(r.share, r.w / r.W, 1e-12) && near(r.L.share, r.share, 1e-12), "the sectors row's share of the vote");
-  assert.ok(r.text.includes(Math.round(r.share * 100) + "% of the vote") && r.text.includes(r.L.reach.toFixed(3)) && (r.L.rung ? /would change/.test(r.text) : new RegExp("the rung stays at " + r.L.pct + "%").test(r.text)), r.text);
+  assert.ok(r.text.includes(Math.round(r.share * 100) + "% of the vote") && r.text.includes(r.L.reach.toFixed(3)) && (r.L.rung ? /would change/.test(r.text) : new RegExp("the step stays at " + r.L.pct + "%").test(r.text)), r.text);
   assert.deepEqual(r.same, { SPDR: 20, HUBCMP: 20, MKTBOW: 20, TREE: 20, RANK: 20 }, "measuring it changes no weight");
 });
 
@@ -174,15 +174,19 @@ test("1 · step 9 prints the table: one row per input with the one thing it move
    file, then, since RL1, from the second version of the deployment matrix under the words "next round in progress"). DS1 is that next
    round, and its brief says "replace DM2's slot and AL8's money panel": the panel is now the deployment system's pie. What these tests
    held about the bars cannot be held any more; what they held about the page around the panel still is, and is kept here. The pie's own
-   arithmetic and behaviour are tested in tests/ds1.test.mjs (tests 10, 20, 21). */
+   arithmetic and behaviour are tested in tests/ds1.test.mjs (tests 10, 20, 21).
+   AL9 (7 Oct 2026, the same day) — re-pinned again on purpose: the panel is now the one that explains itself (study/al9/panel.mjs): one
+   number, its history, the chain as ten labelled pies (now and fully invested) and room to play. DS1's single pie, its slice table and its
+   four dip bars are not drawn here any more, and the panel is longer than one screen — what is held to the first screen is the number, its
+   history and the first row of pies. The panel's own arithmetic and behaviour are tested in tests/al9.test.mjs. */
 test("2 · the money picture is the deployment system's pie: the first panel, open on the first screen, above THE BRIEF — and the five-market bars are no longer drawn", async () => {
   const r = await P.page.evaluate(() => { const host = document.getElementById("ds1money-host"), p = document.getElementById("p-scen");
-    return { scenbars: !!document.getElementById("scenbars"), bars: document.querySelectorAll(".a8-scen").length, inPanel: !!host && host.closest(".panel") === p, pie: host ? host.querySelectorAll("svg.pie").length : 0, slices: host ? [...host.querySelectorAll("tr[data-slice]")].map((t) => t.getAttribute("data-slice")) : [], dips: host ? host.querySelectorAll(".dipr").length : 0, h2: p.querySelector("h2").innerText,
+    return { scenbars: !!document.getElementById("scenbars"), bars: document.querySelectorAll(".a8-scen").length, inPanel: !!host && host.closest(".panel") === p, pie: host ? host.querySelectorAll(".a9-pie svg").length : 0, slices: host ? [...host.querySelectorAll('.a9-row[data-chain="now"] .a9-pie')].map((t) => t.getAttribute("data-pie")) : [], dips: host ? host.querySelectorAll("[data-dipn]").length : 0, h2: p.querySelector("h2").innerText, firstRow: (() => { const e = host && host.querySelector('.a9-row[data-chain="now"]'); return e ? e.getBoundingClientRect().bottom : null; })(),
       folded: p.classList.contains("folded"), top: p.getBoundingClientRect().top, briefTop: document.getElementById("p-brief").getBoundingClientRect().top, h: p.getBoundingClientRect().height, scen: scenRows(), drew: (() => { try { renderScen(); } catch (e) { return String(e); } return document.querySelectorAll(".a8-scen").length; })() }; });
   assert.equal(r.scenbars, false, "the bars' host is gone"); assert.equal(r.bars, 0); assert.deepEqual(r.scen, [], "and they have no rows"); assert.equal(r.drew, 0, "the old renderer, asked to draw, draws nothing");
-  assert.ok(r.inPanel && r.pie === 1, "the pie stands in the money panel"); assert.deepEqual(r.slices, ["MU:conviction", "NBIS:conviction", "NVDA:core", "AVGO:core", "TSM:core", "ORCL:core", "AMZN:core", "GOOGL:core", "MU:core", "tactical", "cash"], "Micron's slot and Nebius's, the core sleeves in comps order with Micron's core share, the tactical part, cash");
-  assert.equal(r.dips, 4, "now, and the three dips"); assert.match(r.h2, /^THE MONEY — the pie today and on a dip/);
-  assert.equal(r.folded, false, "open on the first screen"); assert.ok(r.top < r.briefTop && r.top + r.h < 1050, "above THE BRIEF, inside the first screen: " + r.top + " + " + r.h);
+  assert.ok(r.inPanel && r.pie === 10, "the pies stand in the money panel: five now, five fully invested"); assert.deepEqual(r.slices, ["account", "invested", "who", "conviction", "core"], "the chain, link by link: the account, what is invested, who gets it, inside conviction, inside the core");
+  assert.equal(r.dips, 3, "the number on the three dips"); assert.match(r.h2, /^THE MONEY — the number, how it splits, how much room is left/);
+  assert.equal(r.folded, false, "open on the first screen"); assert.ok(r.top < r.briefTop && r.firstRow != null && r.firstRow < 1050, "above THE BRIEF, with the number, its history and the first row of pies inside the first screen: " + r.firstRow);
 });
 
 test("2 · the next round is here: the panel no longer says 'next round in progress', the sources line names the deployment system — and nothing below the panel uses its reading", async () => {
@@ -190,7 +194,7 @@ test("2 · the next round is here: the panel no longer says 'next round in progr
     A: allocation().inv, brief: document.querySelector("#brief .a7-lead").innerText, deploy: DEPLOY, note: SPINE.deployment_scenarios.note, mode: SPINE.deployment_scenarios.mode, sources: typeof DEPLOY_SOURCES === "undefined" ? null : DEPLOY_SOURCES.slice() }));
   assert.equal(DEPLOY.status, "placeholder", "the old file still says what it is — and nothing reads it"); assert.equal(r.deploy, null, "the page holds no scenario rows"); assert.deepEqual(r.sources, [], "no file feeds the panel");
   assert.equal(r.ph, 0, "no PLACEHOLDER tag"); assert.equal(r.v2, 0, "no 'next round in progress' tag"); assert.ok(!/next round in progress/i.test(r.text) && !/PLACEHOLDER/.test(r.text), r.text.slice(0, 200));
-  assert.equal(r.mode, "LIVE"); assert.ok(/the deployment system on live prices/.test(r.note) && /study\/ds1\/live\.mjs/.test(r.note), r.note);
+  assert.equal(r.mode, "LIVE"); assert.ok(/the number on live prices/.test(r.note) && /study\/ds1\/live\.mjs/.test(r.note), r.note);
   assert.equal(r.A, s.ladder, "step 3b is still sized on the ladder's number, not on the deployment system's"); assert.ok(r.brief.includes(Math.round(s.ladder * 100) + "% invested"), r.brief);
 });
 
@@ -199,8 +203,8 @@ test("2 · the seam, turned again: version 1's file and the placeholder file are
   const engine = { built_utc: "2026-10-08T21:30:00.000Z", scenarios: [{ key: "today", name: "x", spy: 770, rsi: 55, vix: 17.2, vixPct: 48, pct: 3.3, line: 2.2, money: { micron: 1.3 } }, { key: "a", name: "(a)", rsi: 47, vix: 17.2, pct: 4.4, money: { micron: 1.7 } }] };
   const Q = await openWith([[/\/study\/dm1\/data\/dm1\.json/, engine], [/\/data\/deployment-scenarios\.json/, { status: "placeholder", scenarios: engine.scenarios }]]);
   try { await Q.page.waitForFunction(() => window.DS1_LIVE_READY === true && window.DS1_LIVE && window.DS1_LIVE.view, null, { timeout: 120000 });
-    const r = await Q.page.evaluate(() => ({ deploy: DEPLOY, text: document.getElementById("ds1money-host").innerText, pie: document.querySelectorAll("#ds1money-host svg.pie").length, bars: document.querySelectorAll(".a8-scen").length, ladder: investedNow(), A: allocation().inv, fetched: performance.getEntriesByType("resource").map((e) => e.name) }));
-    assert.deepEqual(Q.errors, []); assert.equal(Q.nonGet.blocked, 0); assert.equal(r.deploy, null); assert.equal(r.pie, 1); assert.equal(r.bars, 0);
+    const r = await Q.page.evaluate(() => ({ deploy: DEPLOY, text: document.getElementById("ds1money-host").innerText, pie: document.querySelectorAll("#ds1money-host .a9-pie svg").length, bars: document.querySelectorAll(".a8-scen").length, ladder: investedNow(), A: allocation().inv, fetched: performance.getEntriesByType("resource").map((e) => e.name) }));
+    assert.deepEqual(Q.errors, []); assert.equal(Q.nonGet.blocked, 0); assert.equal(r.deploy, null); assert.equal(r.pie, 10); assert.equal(r.bars, 0);
     assert.ok(!r.fetched.some((u) => /study\/dm1\/data\/dm1\.json|data\/deployment-scenarios\.json/.test(u)), "neither file was even asked for");
     assert.equal(r.A, r.ladder, "and step 3b still reads the one seat that says how much — today the ladder");
   } finally { await Q.close(); }
@@ -433,10 +437,10 @@ test("7 · on a phone: the money picture, the ranking, the picks and INPUTS — 
       const w = (sel) => { const e = document.querySelector(sel); return e ? [e.scrollWidth, e.clientWidth] : null; };
       /* DS1 (7 Oct), re-pinned: the money picture is the deployment system's pie — its text, its width and its dip bars are held to the same rule the five bars were */
       return { page: document.documentElement.scrollWidth, vw: innerWidth, small: { scen: small("#ds1money-host"), money: small("#moneysplit"), picks: small("#picks"), inputs: small("#p-inputs"), audit: small("#auditmap") }, rank: w("#moneysplit .scrollx"), scen: w("#ds1money-host"), drawer: w("#p-inputs"), pick: w("#picks .a8-pick"),
-        bars: [...document.querySelectorAll("#ds1money-host .dipr .stk")].map((b) => b.getBoundingClientRect().width), rows: document.querySelectorAll("#ds1money-host .dipr").length, rankRow: getComputedStyle(document.querySelector("#moneysplit table.a8-rk3 tr.in")).display, q: getComputedStyle(document.querySelector("#moneysplit table.a8-rk3 tr.in td.q"), "::before").content }; });
+        bars: [...document.querySelectorAll("#ds1money-host svg")].map((b) => b.getBoundingClientRect().right), rows: document.querySelectorAll("#ds1money-host .a9-pie").length, rankRow: getComputedStyle(document.querySelector("#moneysplit table.a8-rk3 tr.in")).display, q: getComputedStyle(document.querySelector("#moneysplit table.a8-rk3 tr.in td.q"), "::before").content }; });
     assert.deepEqual(Q.errors, []); assert.ok(r.page <= r.vw, "no sideways scroll: " + r.page + " in " + r.vw);
     for (const [k, v] of Object.entries(r.small)) assert.deepEqual(v, [], "no text under 11px in " + k);
-    assert.equal(r.rows, 4, "now and the three dips"); for (const b of r.bars) assert.ok(b >= 240, "each bar has room: " + b);
+    assert.equal(r.rows, 10, "AL9: the ten pies"); for (const b of r.bars) assert.ok(b <= r.vw + 1, "AL9: no drawing reaches past the phone's edge: " + b);
     assert.ok(r.rank[0] <= r.rank[1] + 1, "the ranking fits the phone without a swipe: " + r.rank); assert.equal(r.rankRow, "grid"); assert.equal(r.q, '"growth"', "each of a sleeve's three answers is named on the phone");
     assert.ok(r.drawer[0] <= r.drawer[1] + 1 && r.pick[0] <= r.pick[1] + 1 && r.scen[0] <= r.scen[1] + 1, "INPUTS, a pick and the money picture fit their width");
   } finally { await Q.close(); }

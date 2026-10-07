@@ -80,7 +80,8 @@ test("1 · THE BRIEF is a walkthrough: one sentence, the heat as one gauge with 
   assert.ok(b.needleText.includes((s.heat >= 0 ? "+" : "−") + Math.abs(s.heat).toFixed(2)), b.needleText);
   assert.deepEqual(b.rungs, s.ladder.map((v) => v + "%"), "under each band, what is invested on that rung");
   assert.deepEqual(b.ticks, ["−1", "−0.5", "−0.2", "+0.2", "+0.5", "+1"], "the rungs' edges are the reference lines");
-  assert.ok(/next rung/.test(b.near) && /% invested/.test(b.near), "the edges that would change the rung, and how far: " + b.near);
+  /* AL9 re-pin (7 Oct): the word on the screen is "step" (Alan could not read "rung"); the line says the same thing */
+  assert.ok(/next step/.test(b.near) && /% invested/.test(b.near), "the edges that would change the step, and how far: " + b.near);
   assert.equal(b.camps, 2, "two camps"); assert.equal(b.campChips, 2, "two bars");
   assert.ok(b.bullets.length >= 4 && b.bullets.length <= 6, "four to six bullets: " + b.bullets.join(" | "));
   assert.equal(b.paragraphs, 0, "no paragraph breaks left in the brief");
