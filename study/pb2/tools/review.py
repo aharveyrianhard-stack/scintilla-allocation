@@ -209,10 +209,19 @@ def regimes(ctx, K=3, seeds=12):
                 if best is None or sc > best[0]: best = (sc, m)
             except Exception: pass
         return best
+    def forward(m):                                         # the forward filter: each day read with nothing later than that day
+        lb = m._compute_log_likelihood(Z); la = np.log(m.transmat_ + 1e-300); a_ = np.log(m.startprob_ + 1e-300) + lb[0]; a_ -= logsumexp(a_); f_ = np.zeros_like(lb); f_[0] = np.exp(a_)
+        for t in range(1, len(Z)):
+            a_ = logsumexp(a_[:, None] + la, axis=0) + lb[t]; a_ -= logsumexp(a_); f_[t] = np.exp(a_)
+        return f_
+    other = {}
     for k in (2, 3, 4):
         b = fit(k)
         if b: p = k * k - 1 + k * Z.shape[1] + k * Z.shape[1] * (Z.shape[1] + 1) / 2; bic[k] = float(-2 * b[0] + p * np.log(len(Z)))
         if k == K: sc, model = b
+        elif b:                                             # the same question asked of a 2-state and a 4-state model: where does today sit, calmest = 1
+            f_ = forward(b[1]); st_ = f_.argmax(axis=1); vm = [float(np.exp(X[st_ == j, 2]).mean()) if (st_ == j).any() else 1e9 for j in range(k)]; rank = sorted(range(k), key=lambda j: vm[j])
+            other[str(k)] = dict(states=k, today_rank=int(rank.index(int(st_[-1])) + 1), today_prob=float(f_[-1].max()), today_state_vix_mean=vm[int(st_[-1])], vix_means=sorted(vm))
     # forward filter (no look ahead in the state reading)
     logB = model._compute_log_likelihood(Z); logA = np.log(model.transmat_ + 1e-300); a = np.log(model.startprob_ + 1e-300) + logB[0]; filt = np.zeros_like(logB)
     a -= logsumexp(a); filt[0] = np.exp(a)
@@ -238,6 +247,7 @@ def regimes(ctx, K=3, seeds=12):
     run = 1
     while T - run >= 0 and state[T - run] == state[T]: run += 1
     out["today"]["in_state_since"] = dd[T - run + 1]; out["today"]["sessions_in_state"] = run
+    out["other_models"] = other
     out["by_date"] = {dd[t]: name_of[int(state[t])] for t in range(len(Z))}
     out["recent"] = [[dd[t], name_of[int(state[t])], round(float(filt[t].max()), 3)] for t in range(len(Z) - 130, len(Z))]
     return out
