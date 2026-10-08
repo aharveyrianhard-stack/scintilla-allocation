@@ -26,7 +26,7 @@ export const RULES = { creditRule: 1, fadeFrom: 45, fadeTo: 35, cashRule: 1, nea
 /* how much of credit's subtraction counts at an index RSI: 1 … 0 */
 export const fadeAt = (rsi, R = RULES) => (rsi == null || !isFinite(rsi) ? 1 : clamp((rsi - R.fadeTo) / ((R.fadeFrom - R.fadeTo) || 1), 0, 1));
 /* the credit part's points as version 2 counts them */
-export const creditCounted = (points, rsi, R = RULES) => (points == null ? null : R.creditRule && points < 0 ? points * fadeAt(rsi, R) : points);
+export const creditCounted = (points, rsi, R = RULES) => (points == null ? null : R.creditRule && points < 0 ? points * fadeAt(rsi, R) + 0 : points);   // + 0: a subtraction faded to nothing is 0, never the "−0" a product of a negative and zero would print as
 
 /* a fund's close against its highest close of the last n sessions (itself among them), in %: 0 at the high, −2 two per cent under it.
    null until it has n closes. */

@@ -1,10 +1,10 @@
 {
  "what": "DS2 — version 2 of the deployment pane's script against the allocation tool's version 2 sum",
- "built": "2026-10-08T00:53:21.076Z",
+ "built": "2026-10-08T01:06:05.501Z",
  "script": {
   "file": "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine",
   "codeHash": "278e725778096f7b",
-  "bytes": 26481,
+  "bytes": 26948,
   "typicalDay": 49.075087,
   "held": 70,
   "tactical": 30,
@@ -1235,8 +1235,54 @@
    "sameRaiseCashState": true
   }
  ],
- "today": null,
- "namedDays": 29,
+ "today": {
+  "readAt": "2026-10-07 21:06:03 New York",
+  "phase": "closed",
+  "session": "2026-10-07",
+  "live": false,
+  "lastSettledBar": "2026-10-07",
+  "prices": {
+   "SPY": 777.22,
+   "QQQ": 757.73,
+   "HYG": 77.18,
+   "IEF": 89.11
+  },
+  "engine": {
+   "reading": 15.2,
+   "invested": 74.56,
+   "cash": true,
+   "cashSince": "2026-08-13",
+   "version1": {
+    "reading": 30.4,
+    "invested": 79.12
+   },
+   "rsi": 63.92,
+   "creditOwn": -0.14,
+   "toolsWindowBars": 540
+  },
+  "script": {
+   "reading": 15.2,
+   "invested": 74.56,
+   "cash": true,
+   "version1": {
+    "reading": 30.4,
+    "invested": 79.12
+   },
+   "rsi": 63.92,
+   "creditOwn": -0.14,
+   "label": "Invested 75% · market reading 15 · cash raised",
+   "bars": 5805
+  },
+  "scriptTradingViewPayouts": {
+   "reading": 15.2,
+   "invested": 74.56,
+   "cash": true
+  },
+  "gap": 0,
+  "gapTradingViewPayouts": 0,
+  "sameRaiseCashState": true
+ },
+ "namedDays": 30,
  "worstNamed": {
   "samePrices": 0,
   "tradingViewPayouts": 0.2
