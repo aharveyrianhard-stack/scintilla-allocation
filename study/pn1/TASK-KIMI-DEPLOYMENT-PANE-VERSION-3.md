@@ -24,7 +24,7 @@ to a chart address, headless-quiet, and stop rather than improvise. One rule is 
 ## The three files (all in this folder)
 | file | what it is | sha256 |
 |---|---|---|
-| `SCINTILLA-DEPLOYMENT-PANE.pine` | version 3, the text to save | `f6d73390192498117c1fc1b6bc4275b7758d59d5973e2728ff7c2fa53dce6fe9` |
+| `SCINTILLA-DEPLOYMENT-PANE.pine` | version 3, the text to save | `198c3a91a95776cf42894aa93e1400ed28a8eefcb66c20c371ef81bb01df391e` |
 | `SCINTILLA-DEPLOYMENT-PANE.v2.pine` | version 2 — to recognise what is installed, and for the way back | `7a54375f36fca2fc70da59215069936f6ef84b65af16bb4dbaaeccba759bc0c9` |
 | `SCINTILLA-DEPLOYMENT-PANE.v1.pine` | version 1 — to recognise what is installed, and for the way back | `1e291cfdd4da1200ee3ecb9f4d5d3b6f78a6eda067d2af9c8926c27c11d40daa` |
 

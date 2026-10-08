@@ -68,7 +68,7 @@ export function buildPine3(n = pineNumbers(), R = J(RULES_FILE).rules, proof = f
 //      differs from the Hub's, a touch of ${pr(R.vixLo)} or ${pr(R.vixHi)} can count on one and not on the other: half a step,
 //      ${pr(Math.max(R.vixAddLo, R.vixAddHi - R.vixAddLo) * R.vixTouch)} points of the market reading at most. While "Count the VIX" is switched on there is no reading
 //      on a bar with no price for the VIX.
-//  10. The allocation tool itself still shows version 1 on 8 Oct 2026. This pane is ahead of it.
+//  10. The allocation tool does not show version 3 on 8 Oct 2026. This pane is ahead of it.
 //`, "known differences 9 and 10");
   t = rep(t, `// four funds on any symbol's chart, so it shows the same line under SPY, QQQ, the VIX or anything else.`, `// four funds and the VIX on any symbol's chart, so it shows the same line under SPY, QQQ or anything else.`, "the paste line");
   /* ---------- the numbers ---------- */

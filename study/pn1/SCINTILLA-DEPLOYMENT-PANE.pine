@@ -100,7 +100,7 @@
 //      differs from the Hub's, a touch of 20 or 23 can count on one and not on the other: half a step,
 //      5 points of the market reading at most. While "Count the VIX" is switched on there is no reading
 //      on a bar with no price for the VIX.
-//  10. The allocation tool itself still shows version 1 on 8 Oct 2026. This pane is ahead of it.
+//  10. The allocation tool does not show version 3 on 8 Oct 2026. This pane is ahead of it.
 //
 // PASTE: Pine Editor → open "Scintilla Deployment Pane" → select all → paste → Save. It reads the same
 // four funds and the VIX on any symbol's chart, so it shows the same line under SPY, QQQ or anything else.
