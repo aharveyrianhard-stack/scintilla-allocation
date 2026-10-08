@@ -1,14 +1,13 @@
 //@version=6
 // ═══════════════════════════════════════════════════════════════════════════════════════════════
-// SCINTILLA · DEPLOYMENT PANE  ·  version 3  ·  8 Oct 2026
-// PLOTS 23/64  (the % invested line coloured by its daily direction = 2 · the held floor = 1 · the
-//              shading between the two = 1 · version 1's line = 1 · version 2's line = 1 · the market
-//              reading = 1 · its three counted parts, each coloured by its sign = 6 · eight Data
-//              Window numbers = 8 · the band behind the stretches where cash is raised = 2 · the
-//              three level lines and the labels are outside the plot budget)
-// REQUESTS 10/40  (SPY and QQQ: their RSI, their distance from their 252-session high and from their
-//              200-day average · HYG and the 7–10 year Treasury fund IEF: their ten-session move ·
-//              the VIX: its close and its high)
+// SCINTILLA · DEPLOYMENT PANE  ·  version 2  ·  7 Oct 2026
+// PLOTS 17/64  (the % invested line coloured by its daily direction = 2 · the held floor = 1 · the
+//              shading between the two = 1 · version 1's line = 1 · the market reading = 1 · its two
+//              voting parts, each green or red by its sign = 4 · five Data Window numbers = 5 · the
+//              band behind the stretches where cash is raised = 2 · the three level lines and the
+//              labels are outside the plot budget)
+// REQUESTS 8/40  (SPY and QQQ: their RSI, their distance from their 252-session high and from their
+//              200-day average · HYG and the 7–10 year Treasury fund IEF: their ten-session move)
 //
 // WHAT IT IS. The allocation tool's deployment system drawn in its own pane, with its history: how
 // much of the account the system has invested on every daily bar, on a scale from 0 to 100.
@@ -44,23 +43,6 @@
 //      when it was raised in 7 finished stretches out of 14. Tested on years the rule had not seen it
 //      cost nothing in the end result and made nothing either; it makes the line lighter after a long run-up.
 //
-// WHAT VERSION 3 CHANGES (8 Oct 2026). Two more things, each with its own switch; with these two
-// switched off this pane draws version 2 exactly, and with all four off version 1.
-//   C. THE VIX IS COUNTED, BY ITS LEVEL. A close at 20 or more adds 10 points to the market reading; a
-//      close at 23 or more adds 20 in all. A day whose high reached a level its close did not counts
-//      that level's step at a half. Under 20 it adds nothing. The VIX's points go into the reading with
-//      the other parts, so they are held to 0–100 and halved while cash is raised.
-//      Why: these are the levels the account's owner buys at. On years the rule had not seen, the
-//      days the VIX closed at 23 or more were followed by a higher market a month later 74% of the
-//      time (any day: 67%).
-//   D. A TREASURY RALLY CAN ONLY RAISE THE CREDIT PART. Credit's own move takes half of the Treasury
-//      fund's move off HYG's, so a rally in Treasuries pulls it down. When the Treasury fund is up
-//      over the ten sessions the credit part is read both ways — on credit's own move, and on HYG's
-//      move alone — and the higher of the two counts. When Treasuries fell, nothing changes.
-//      Why: money running to Treasuries is fear, not credit weakness. It is "the higher of the two"
-//      because on the big flight-to-safety days the first reading is already so low that the curve
-//      reads a washout and adds; HYG's move alone would take that add away.
-//
 // WHICH BARS COUNT. Every finished daily bar shows the reading at that day's close. The last bar is
 // live: it counts today's prices as they trade and settles at the close. Before the New York open it
 // still shows yesterday's close.
@@ -76,13 +58,13 @@
 //   2. HYG's payouts. TradingView adds them back by scaling every earlier price; the tool chains them
 //      day by day, and its long history comes from a table rounded to the cent. The two agree closely,
 //      not exactly. (TradingView does not print its arithmetic; "scaling" is the standard form.)
-//      Measured with a replay of this script's arithmetic against the sum the study tested, on the
+//      Measured with a replay of this script's arithmetic against the allocation tool's own sum on the
 //      4,894 days from 25 Apr 2007 to 6 Oct 2026:
 //        · fed the tool's own prices, the reading is the same on every one of those days, and the
 //          raise-cash rule is on and off on the same days;
 //        · fed HYG's payouts the way TradingView adds them back, it is within one point on 99.9% of
 //          days (median gap 0.0; 99 days in 100 within 0.6); the worst is 2.2 on 28 Nov 2007,
-//          and in the last year 0.5.
+//          and in the last year 0.4.
 //   3. HYG's payout day. On the first trading day of a month HYG trades without its payout (about 0.5%).
 //      If TradingView were late adding that payout back, credit's own move would read too low that day
 //      and the reading would be off by several points until it caught up. The tool keeps its own
@@ -91,19 +73,14 @@
 //      16:00 New York; this pane reads the regular session only, so for a while the two can differ.
 //   5. The raise-cash rule remembers. Its state on a bar depends on every bar before it, so it needs
 //      the chart's full daily history: with fewer than 252 daily bars of SPY and QQQ loaded it stays off.
-//   6. The tool lets you switch a light on so that it counts. This pane shows the counted parts only.
+//   6. The tool lets you switch a light on so that it counts. This pane shows the two voting parts only.
 //   7. The account's shape (70 held, 30 tactical) is the tool's baseline on 7 Oct 2026. If you change
 //      it in the tool, change the two inputs here as well.
 //   8. Made for a daily chart. On a weekly chart each bar shows its last day. On an intraday chart a
 //      past day's reading appears on that day's last bar, and the live bar is live.
-//   9. The VIX. Its close and its high are TradingView's own daily bar for the VIX. If that bar's high
-//      differs from the Hub's, a touch of 20 or 23 can count on one and not on the other: half a step,
-//      5 points of the market reading at most. While "Count the VIX" is switched on there is no reading
-//      on a bar with no price for the VIX.
-//  10. The allocation tool itself still shows version 1 on 8 Oct 2026. This pane is ahead of it.
 //
 // PASTE: Pine Editor → open "Scintilla Deployment Pane" → select all → paste → Save. It reads the same
-// four funds and the VIX on any symbol's chart, so it shows the same line under SPY, QQQ or anything else.
+// four funds on any symbol's chart, so it shows the same line under SPY, QQQ, the VIX or anything else.
 // ═══════════════════════════════════════════════════════════════════════════════════════════════
 indicator("SCINTILLA · DEPLOYMENT PANE", shorttitle = "DEPLOYMENT", overlay = false, precision = 1, max_labels_count = 50)
 
@@ -121,12 +98,6 @@ const float  NEAR_PCT    = 2.0         // "at the high" = within this % of it
 const float  EXT_PCT     = 11.21       // "extended" = SPY and QQQ this % or more above their long average, averaged
 const float  RESET_RSI   = 40.0        // the cash goes back at a close with the average RSI under this
 const float  CASH_CUT    = 0.5         // while cash is raised, the market reading is multiplied by this
-// version 3's numbers (written from the study's rule file)
-const float  VIX_LO      = 20.0        // a VIX close at this or more adds VIX_ADD_LO points to the market reading
-const float  VIX_HI      = 23.0        // a VIX close at this or more adds VIX_ADD_HI points in all
-const float  VIX_ADD_LO  = 10.0
-const float  VIX_ADD_HI  = 20.0
-const float  VIX_TOUCH   = 0.5         // a day whose high reached a level its close did not counts that step at this share
 
 // place tables: the value that sat at each whole place, 0 … 100, among the days the rule was measured on
 var array<float> RSI_PLACES = array.from(18.06061, 29.50187, 32.009649, 33.776939, 35.349941, 36.459968,
@@ -183,23 +154,15 @@ bool creditRule = input.bool(true, "Credit does not subtract in a washed-out mar
 bool cashRule   = input.bool(true, "Raise cash at an extended high, put it back at the next washout", group = G_RULE,
      tooltip = "On: from a close where SPY and QQQ are both within 2% of their highest close of 252 sessions and on average 11.21% or more above their 200-day averages, the market reading is halved, until a close where their average RSI is under 40. Off: the reading is never halved, as in version 1.")
 
-const string G_RULE3 = "What version 3 changed — switch either off to see the line without it"
-bool vixRule  = input.bool(true, "Count the VIX: adds from 20, more from 23", group = G_RULE3,
-     tooltip = "On: a VIX close at 20 or more adds 10 points to the market reading, a close at 23 or more adds 20 in all; a day whose high reached a level its close did not counts that step at a half; under 20 it adds nothing. Off: the VIX is not counted, as in version 2.")
-bool fearRule = input.bool(true, "A Treasury rally can only raise the credit part", group = G_RULE3,
-     tooltip = "On: when the 7–10 year Treasury fund is up over the ten sessions, the credit part is read both ways — on credit's own move, and on HYG's move alone — and the higher of the two counts. Off: credit's own move alone, as in version 2.")
-
 const string G_LOOK = "Look"
 bool byDirection = input.bool(true,  "Colour the % invested line by its daily direction", group = G_LOOK,
      tooltip = "On: green on a day the system has more invested than the day before, red on a day it has less. Off: one teal line.")
 bool showOld     = input.bool(false, "Show version 1's line beside it", group = G_LOOK,
-     tooltip = "A thin line: the % invested with none of the four changes of versions 2 and 3.")
-bool showV2      = input.bool(false, "Show version 2's line beside it", group = G_LOOK,
-     tooltip = "A thin line: the % invested with version 2's two changes as they are switched and neither of version 3's. Where the two lines part, version 3 changed the number.")
+     tooltip = "A thin line: the % invested with neither of version 2's two changes. Where the two lines part, version 2 changed the number.")
 bool showCash    = input.bool(true,  "Shade the stretches where cash is raised", group = G_LOOK)
 bool showReading = input.bool(false, "Show the market reading (0–100)", group = G_LOOK)
-bool showParts   = input.bool(false, "Show the reading's counted parts", group = G_LOOK,
-     tooltip = "SPY and QQQ together (a thin line), credit (dots) and the VIX (a thin line). Each is drawn as 50 plus the points it adds to the market reading: green above the middle line, where it argues for more invested, red below it, where it argues for less. Credit is drawn as it is counted, after version 2's fade and version 3's Treasury rule. The VIX sits on the middle line while it adds nothing.")
+bool showParts   = input.bool(false, "Show the reading's two voting parts", group = G_LOOK,
+     tooltip = "SPY and QQQ together (a thin line) and credit (dots). Each is drawn as 50 plus the points it adds to the market reading: green above the middle line, where it argues for more invested, red below it, where it argues for less. Credit is drawn as it is counted, after version 2's fade.")
 bool showTag     = input.bool(true,  "Labels on the last bar", group = G_LOOK)
 float labelGap   = input.float(12.0, "Least space between two labels, in points of the scale", minval = 0, maxval = 40, step = 1, group = G_LOOK, display = display.none,
      tooltip = "When more than one label is shown they are stacked from the highest value down, each at its own line. Raise this if two labels touch on a short pane.")
@@ -209,7 +172,6 @@ string spySym = input.symbol("AMEX:SPY",   "S&P 500 fund",                     g
 string qqqSym = input.symbol("NASDAQ:QQQ", "Nasdaq 100 fund",                  group = G_FEED, display = display.none)
 string hygSym = input.symbol("AMEX:HYG",   "High-yield bond fund (credit)",    group = G_FEED, display = display.none)
 string iefSym = input.symbol("NASDAQ:IEF", "7–10 year Treasury fund (rates)",  group = G_FEED, display = display.none)
-string vixSym = input.symbol("TVC:VIX",    "The VIX",                          group = G_FEED, display = display.none)
 
 // ── Wilder's RSI, written out so the arithmetic is the allocation tool's own ───────────────────
 // the first average is the plain mean of the first 14 daily changes; every later one is (13 × the last + today's) ÷ 14
@@ -270,7 +232,6 @@ string spyT = ticker.modify(spySym, session.regular, adjustment.splits)
 string qqqT = ticker.modify(qqqSym, session.regular, adjustment.splits)
 string iefT = ticker.modify(iefSym, session.regular, adjustment.splits)
 string hygT = ticker.modify(hygSym, session.regular, adjustment.dividends)
-string vixT = vixSym
 float spyRsi  = request.security(spyT, "D", wilderRsi(close), lookahead = barmerge.lookahead_off)
 float qqqRsi  = request.security(qqqT, "D", wilderRsi(close), lookahead = barmerge.lookahead_off)
 float hygMove = request.security(hygT, "D", close / close[CREDIT_DAYS] - 1.0, lookahead = barmerge.lookahead_off)
@@ -279,9 +240,6 @@ float spyOff  = request.security(spyT, "D", offHigh(close), lookahead = barmerge
 float qqqOff  = request.security(qqqT, "D", offHigh(close), lookahead = barmerge.lookahead_off)
 float spyOver = request.security(spyT, "D", overAvg(close), lookahead = barmerge.lookahead_off)
 float qqqOver = request.security(qqqT, "D", overAvg(close), lookahead = barmerge.lookahead_off)
-// version 3: the VIX's own daily bar — its close and its high
-float vixClose = request.security(vixT, "D", close, lookahead = barmerge.lookahead_off)
-float vixHigh  = request.security(vixT, "D", high, lookahead = barmerge.lookahead_off)
 
 // ── a part's points: its value → its place among the measured days → the points on its curve ────
 pointsAt(array<float> placeTab, array<float> curve, float z) =>
@@ -317,42 +275,27 @@ pointsAt(array<float> placeTab, array<float> curve, float z) =>
 float rsiBoth   = (spyRsi + qqqRsi) / 2.0
 float creditOwn = (hygMove - RATES_SHARE * iefMove) * 100.0
 float ptsRsi    = pointsAt(RSI_PLACES, RSI_POINTS, rsiBoth)
-float ptsOwn    = pointsAt(CREDIT_PLACES, CREDIT_POINTS, creditOwn)
-// version 3, D: when the Treasury fund is up over the ten sessions, credit is read both ways and the higher counts
-float hygAlone  = hygMove * 100.0
-float ptsAlone  = pointsAt(CREDIT_PLACES, CREDIT_POINTS, hygAlone)
-bool  rally     = iefMove > 0.0
-float ptsFitted = na(ptsOwn) ? na : fearRule and rally and not na(ptsAlone) ? math.max(ptsOwn, ptsAlone) : ptsOwn
+float ptsFitted = pointsAt(CREDIT_PLACES, CREDIT_POINTS, creditOwn)
 // version 2, A: what credit takes away counts in full at an RSI of 45, not at all at 35 and under
 float fade      = math.max(0.0, math.min(1.0, (rsiBoth - FADE_TO) / (FADE_FROM - FADE_TO)))
 float ptsCredit = creditRule and ptsFitted < 0.0 ? ptsFitted * fade : ptsFitted
-// version 3, C: the VIX by its level — a close at 20 adds 10, at 23 adds 20 in all; a touch counts at a half
-float vixTop    = na(vixHigh) ? vixClose : math.max(vixHigh, vixClose)
-float stepLo    = vixClose >= VIX_LO ? 1.0 : vixTop >= VIX_LO ? VIX_TOUCH : 0.0
-float stepHi    = vixClose >= VIX_HI ? 1.0 : vixTop >= VIX_HI ? VIX_TOUCH : 0.0
-float ptsVix    = not vixRule ? 0.0 : na(vixClose) ? na : VIX_ADD_LO * stepLo + (VIX_ADD_HI - VIX_ADD_LO) * stepHi
 // version 2, B: on at an extended high, off at the next washout; the state is kept from bar to bar
 float extended  = math.max(0.0, (spyOver + qqqOver) / 2.0)
 bool  atHigh    = spyOff >= -NEAR_PCT and qqqOff >= -NEAR_PCT
 var bool cash = false
-if not na(ptsRsi) and not na(ptsFitted) and not na(ptsVix)
+if not na(ptsRsi) and not na(ptsFitted)
     if rsiBoth < RESET_RSI
         cash := false
     else if atHigh and extended >= EXT_PCT
         cash := true
 bool  cashOn    = cashRule and cash
-// no reading unless every counted part has one (before 25 Apr 2007 HYG did not trade)
-float beforeCut = na(ptsRsi) or na(ptsCredit) or na(ptsVix) ? na : math.max(0.0, math.min(100.0, TYPICAL_DAY + ptsRsi + ptsCredit + ptsVix))
+// no reading unless both parts have one (before 25 Apr 2007 HYG did not trade)
+float beforeCut = na(ptsRsi) or na(ptsCredit) ? na : math.max(0.0, math.min(100.0, TYPICAL_DAY + ptsRsi + ptsCredit))
 float reading   = na(beforeCut) ? na : math.round(cashOn ? beforeCut * CASH_CUT : beforeCut, 1)
 float invested  = math.min(100.0, heldPct + tacticalPct * reading / 100.0)
-// version 1, for the thin line: none of the four changes
-float readingOld  = na(ptsRsi) or na(ptsOwn) ? na : math.round(math.max(0.0, math.min(100.0, TYPICAL_DAY + ptsRsi + ptsOwn)), 1)
+// version 1, for the thin line: neither change
+float readingOld  = na(ptsRsi) or na(ptsFitted) ? na : math.round(math.max(0.0, math.min(100.0, TYPICAL_DAY + ptsRsi + ptsFitted)), 1)
 float investedOld = math.min(100.0, heldPct + tacticalPct * readingOld / 100.0)
-// version 2, for its thin line: version 2's two changes as they are switched, neither of version 3's
-float ptsCredit2 = creditRule and ptsOwn < 0.0 ? ptsOwn * fade : ptsOwn
-float before2    = na(ptsRsi) or na(ptsCredit2) ? na : math.max(0.0, math.min(100.0, TYPICAL_DAY + ptsRsi + ptsCredit2))
-float reading2   = na(before2) ? na : math.round(cashOn ? before2 * CASH_CUT : before2, 1)
-float invested2  = math.min(100.0, heldPct + tacticalPct * reading2 / 100.0)
 
 // ── the pane ───────────────────────────────────────────────────────────────────────────────────
 // the % invested line: green on a day the system has more invested than the day before, red on a day it has less
@@ -363,13 +306,11 @@ if not na(invested) and not na(invested[1])
     else if invested < invested[1]
         dirCol := C_BEAR
 color lineCol = byDirection ? dirCol : C_LINE
-// the counted parts, each as 50 plus its points: green while it adds to the reading, red while it takes away
+// the two voting parts, each as 50 plus its points: green while it adds to the reading, red while it takes away
 float partA = 50.0 + ptsRsi
 float partB = 50.0 + ptsCredit
 color colA  = ptsRsi >= 0 ? C_BULL : C_BEAR
 color colB  = ptsCredit >= 0 ? C_BULL : C_BEAR
-float partC = 50.0 + ptsVix
-color colC  = ptsVix > 0 ? C_BULL : C_AXIS
 
 // the band behind the stretches where cash is raised
 bgcolor(showCash and cashOn and not na(invested) ? color.new(C_DEEP, 86) : na, title = "cash raised at an extended high")
@@ -378,20 +319,15 @@ pInv   = plot(invested, "% invested", color = lineCol, linewidth = 2, style = pl
 pFloor = plot(na(invested) ? na : heldPct, "held through pullbacks", color = color.new(C_DEEP, 35), linewidth = 1, display = display.pane)
 fill(pInv, pFloor, color = color.new(C_LINE, 85), title = "tactical money at work")
 plot(showOld ? investedOld : na, "version 1 (line)", color = color.new(C_LINE, 45), linewidth = 1, display = display.all - display.status_line)
-plot(showV2 ? invested2 : na, "version 2 (line)", color = color.new(C_DEEP, 20), linewidth = 1, display = display.all - display.status_line)
 plot(showReading ? reading : na, "market reading (line)", color = C_LINE, linewidth = 1, display = display.all - display.status_line)
 plot(showParts ? partA : na, "SPY and QQQ together: 50 + its points", color = colA, linewidth = 1, display = display.all - display.status_line)
 plot(showParts ? partB : na, "credit: 50 + its points", color = colB, linewidth = 1, style = plot.style_circles, display = display.all - display.status_line)
-plot(showParts ? partC : na, "the VIX: 50 + its points", color = colC, linewidth = 1, display = display.all - display.status_line)
 // the numbers behind the line — Data Window only (hover a bar to read them)
 plot(reading,     "market reading",                          color = C_AXIS, display = display.data_window)
 plot(rsiBoth,     "SPY and QQQ's RSI, averaged",             color = C_AXIS, display = display.data_window)
 plot(creditOwn,   "credit's own move over ten sessions, %", color = C_AXIS, display = display.data_window)
 plot(na(invested) ? na : cashOn ? 1.0 : 0.0, "cash raised at an extended high (1 = yes)", color = C_AXIS, display = display.data_window)
 plot(investedOld, "% invested, version 1",                   color = C_AXIS, display = display.data_window)
-plot(invested2,   "% invested, version 2",                   color = C_AXIS, display = display.data_window)
-plot(ptsVix,      "the VIX adds, points of the market reading", color = C_AXIS, display = display.data_window)
-plot(na(invested) ? na : fearRule and rally and ptsAlone > ptsOwn ? 1.0 : 0.0, "a Treasury rally raised the credit part (1 = yes)", color = C_AXIS, display = display.data_window)
 
 hline(100.0, "100", color = C_EDGE, linestyle = hline.style_solid)
 hline(50.0,  "50",  color = C_EDGE, linestyle = hline.style_dotted)
@@ -407,22 +343,18 @@ if barstate.islast and showTag
     while array.size(tags) > 0
         label.delete(array.pop(tags))
     if na(invested)
-        string waiting = (na(spyRsi) ? " SPY" : "") + (na(qqqRsi) ? " QQQ" : "") + (na(hygMove) ? " HYG" : "") + (na(iefMove) ? " IEF" : "") + (vixRule and na(vixClose) ? " VIX" : "")
+        string waiting = (na(spyRsi) ? " SPY" : "") + (na(qqqRsi) ? " QQQ" : "") + (na(hygMove) ? " HYG" : "") + (na(iefMove) ? " IEF" : "")
         array.push(tags, label.new(bar_index + 2, 50.0, "No reading yet · waiting for prices from" + waiting, style = label.style_label_left, color = C_PANEL, textcolor = C_LINE, size = size.small))
     else
         array<float>  ys = array.new<float>()
         array<string> ts = array.new<string>()
         array<color>  cs = array.new<color>()
         array.push(ys, invested)
-        array.push(ts, "Invested " + whole(invested) + "% · market reading " + whole(reading) + (cashOn ? " · cash raised" : "") + (ptsVix > 0 ? " · VIX +" + whole(ptsVix) : ""))
+        array.push(ts, "Invested " + whole(invested) + "% · market reading " + whole(reading) + (cashOn ? " · cash raised" : ""))
         array.push(cs, lineCol)
         if showOld
             array.push(ys, investedOld)
             array.push(ts, "version 1: " + whole(investedOld) + "%")
-            array.push(cs, C_LINE)
-        if showV2
-            array.push(ys, invested2)
-            array.push(ts, "version 2: " + whole(invested2) + "%")
             array.push(cs, C_LINE)
         if showReading
             array.push(ys, reading)
@@ -435,9 +367,6 @@ if barstate.islast and showTag
             array.push(ys, partB)
             array.push(ts, "credit " + signed1(ptsCredit))
             array.push(cs, colB)
-            array.push(ys, partC)
-            array.push(ts, "the VIX " + signed1(ptsVix))
-            array.push(cs, colC)
         // the highest value first; each label at its own value, pushed down so no two sit closer than the chosen space
         array<int> rank = array.sort_indices(ys, order.descending)
         float above = na

@@ -1,0 +1,1691 @@
+{
+ "what": "DS3 — version 3 of the deployment pane's script against the study's version 3 sum",
+ "built": "2026-10-08T13:30:40.886Z",
+ "script": {
+  "file": "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine",
+  "codeHash": "b2b846ec11cadcfd",
+  "bytes": 33387,
+  "typicalDay": 49.075087,
+  "held": 70,
+  "tactical": 30,
+  "funds": {
+   "spy": {
+    "symbol": "AMEX:SPY",
+    "adjustment": "splits"
+   },
+   "qqq": {
+    "symbol": "NASDAQ:QQQ",
+    "adjustment": "splits"
+   },
+   "hyg": {
+    "symbol": "AMEX:HYG",
+    "adjustment": "dividends"
+   },
+   "ief": {
+    "symbol": "NASDAQ:IEF",
+    "adjustment": "splits"
+   },
+   "vix": {
+    "symbol": "TVC:VIX",
+    "adjustment": "none"
+   }
+  },
+  "rules": {
+   "FADE_FROM": 45,
+   "FADE_TO": 35,
+   "HIGH_DAYS": 252,
+   "AVG_DAYS": 200,
+   "NEAR_PCT": 2,
+   "EXT_PCT": 11.21,
+   "RESET_RSI": 40,
+   "CASH_CUT": 0.5,
+   "VIX_LO": 20,
+   "VIX_HI": 23,
+   "VIX_ADD_LO": 10,
+   "VIX_ADD_HI": 20,
+   "VIX_TOUCH": 0.5
+  },
+  "switches": {
+   "creditRule": true,
+   "cashRule": true,
+   "vixRule": true,
+   "fearRule": true
+  }
+ },
+ "fixture": {
+  "file": "tests/fixtures/pn1-closes-20261006.json",
+  "vix": "tests/fixtures/ds3-vix-20261006.json",
+  "sessions": 5804,
+  "from": "2003-09-11",
+  "to": "2026-10-06"
+ },
+ "tolerance": 1,
+ "rows": [
+  {
+   "date": "2025-03-13",
+   "kind": "a March 2025 low",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 77.8,
+     "invested": 93.34
+    },
+    "rsi": 28.77,
+    "creditOwn": -1.274,
+    "creditCounted": 0,
+    "vixClose": 24.66,
+    "vixHigh": 26.13,
+    "vixAdd": 20,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 77.8,
+     "invested": 93.34
+    },
+    "version2": {
+     "reading": 82.6,
+     "invested": 94.78
+    },
+    "rsi": 28.77,
+    "creditOwn": -1.274,
+    "creditCounted": 0,
+    "vixAdd": 20,
+    "raisedByRally": false,
+    "label": "Invested 100% · market reading 100 · VIX +20"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": -1.284
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2025-03-28",
+   "kind": "the late-March 2025 low",
+   "engine": {
+    "reading": 83.5,
+    "invested": 95.05,
+    "cash": false,
+    "version1": {
+     "reading": 52.9,
+     "invested": 85.87
+    },
+    "rsi": 37.18,
+    "creditOwn": -0.42,
+    "creditCounted": -3,
+    "vixClose": 21.65,
+    "vixHigh": 22.18,
+    "vixAdd": 10,
+    "raisedByRally": true
+   },
+   "script": {
+    "reading": 83.5,
+    "invested": 95.05,
+    "cash": false,
+    "version1": {
+     "reading": 52.9,
+     "invested": 85.87
+    },
+    "version2": {
+     "reading": 71.4,
+     "invested": 91.42
+    },
+    "rsi": 37.18,
+    "creditOwn": -0.42,
+    "creditCounted": -3,
+    "vixAdd": 10,
+    "raisedByRally": true,
+    "label": "Invested 95% · market reading 84 · VIX +10"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 83.4,
+    "invested": 95.02,
+    "cash": false,
+    "creditOwn": -0.424
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2025-04-08",
+   "kind": "the April 2025 low",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 22.27,
+    "creditOwn": -4.303,
+    "creditCounted": 27.3,
+    "vixClose": 52.33,
+    "vixHigh": 57.52,
+    "vixAdd": 20,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "version2": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 22.27,
+    "creditOwn": -4.303,
+    "creditCounted": 27.3,
+    "vixAdd": 20,
+    "raisedByRally": false,
+    "label": "Invested 100% · market reading 100 · VIX +20"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": -4.303
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2025-07-21",
+   "kind": "21 July 2025",
+   "engine": {
+    "reading": 6.6,
+    "invested": 71.98,
+    "cash": false,
+    "version1": {
+     "reading": 4.7,
+     "invested": 71.41
+    },
+    "rsi": 71.1,
+    "creditOwn": 0.179,
+    "creditCounted": -3.6,
+    "vixClose": 16.65,
+    "vixHigh": 16.99,
+    "vixAdd": 0,
+    "raisedByRally": true
+   },
+   "script": {
+    "reading": 6.6,
+    "invested": 71.98,
+    "cash": false,
+    "version1": {
+     "reading": 4.7,
+     "invested": 71.41
+    },
+    "version2": {
+     "reading": 4.7,
+     "invested": 71.41
+    },
+    "rsi": 71.1,
+    "creditOwn": 0.179,
+    "creditCounted": -3.6,
+    "vixAdd": 0,
+    "raisedByRally": true,
+    "label": "Invested 72% · market reading 7"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 6.6,
+    "invested": 71.98,
+    "cash": false,
+    "creditOwn": 0.182
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2025-09-22",
+   "kind": "22 September 2025",
+   "engine": {
+    "reading": 0.2,
+    "invested": 70.06,
+    "cash": true,
+    "version1": {
+     "reading": 0.3,
+     "invested": 70.09
+    },
+    "rsi": 74.49,
+    "creditOwn": 0.881,
+    "creditCounted": 0.4,
+    "vixClose": 16.1,
+    "vixHigh": 16.35,
+    "vixAdd": 0,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 0.2,
+    "invested": 70.06,
+    "cash": true,
+    "version1": {
+     "reading": 0.3,
+     "invested": 70.09
+    },
+    "version2": {
+     "reading": 0.2,
+     "invested": 70.06
+    },
+    "rsi": 74.49,
+    "creditOwn": 0.881,
+    "creditCounted": 0.4,
+    "vixAdd": 0,
+    "raisedByRally": false,
+    "label": "Invested 70% · market reading 0 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 0.2,
+    "invested": 70.06,
+    "cash": true,
+    "creditOwn": 0.871
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2025-12-11",
+   "kind": "mid-December 2025",
+   "engine": {
+    "reading": 25.8,
+    "invested": 77.74,
+    "cash": true,
+    "version1": {
+     "reading": 51.6,
+     "invested": 85.48
+    },
+    "rsi": 60.32,
+    "creditOwn": 0.794,
+    "creditCounted": 0.6,
+    "vixClose": 14.85,
+    "vixHigh": 16.88,
+    "vixAdd": 0,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 25.8,
+    "invested": 77.74,
+    "cash": true,
+    "version1": {
+     "reading": 51.6,
+     "invested": 85.48
+    },
+    "version2": {
+     "reading": 25.8,
+     "invested": 77.74
+    },
+    "rsi": 60.32,
+    "creditOwn": 0.794,
+    "creditCounted": 0.6,
+    "vixAdd": 0,
+    "raisedByRally": false,
+    "label": "Invested 78% · market reading 26 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 25.8,
+    "invested": 77.74,
+    "cash": true,
+    "creditOwn": 0.804
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2026-01-27",
+   "kind": "SPY's highest close before the fall",
+   "engine": {
+    "reading": 23.6,
+    "invested": 77.08,
+    "cash": true,
+    "version1": {
+     "reading": 47.2,
+     "invested": 84.16
+    },
+    "rsi": 59.12,
+    "creditOwn": 0.272,
+    "creditCounted": -4.3,
+    "vixClose": 16.35,
+    "vixHigh": 16.37,
+    "vixAdd": 0,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 23.6,
+    "invested": 77.08,
+    "cash": true,
+    "version1": {
+     "reading": 47.2,
+     "invested": 84.16
+    },
+    "version2": {
+     "reading": 23.6,
+     "invested": 77.08
+    },
+    "rsi": 59.12,
+    "creditOwn": 0.272,
+    "creditCounted": -4.3,
+    "vixAdd": 0,
+    "raisedByRally": false,
+    "label": "Invested 77% · market reading 24 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 23.5,
+    "invested": 77.05,
+    "cash": true,
+    "creditOwn": 0.264
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2026-02-23",
+   "kind": "23 February 2026",
+   "engine": {
+    "reading": 66.7,
+    "invested": 90.01,
+    "cash": false,
+    "version1": {
+     "reading": 40.3,
+     "invested": 82.09
+    },
+    "rsi": 43.78,
+    "creditOwn": -0.649,
+    "creditCounted": -6.9,
+    "vixClose": 21.01,
+    "vixHigh": 22.04,
+    "vixAdd": 10,
+    "raisedByRally": true
+   },
+   "script": {
+    "reading": 66.7,
+    "invested": 90.01,
+    "cash": false,
+    "version1": {
+     "reading": 40.3,
+     "invested": 82.09
+    },
+    "version2": {
+     "reading": 43.1,
+     "invested": 82.93
+    },
+    "rsi": 43.78,
+    "creditOwn": -0.649,
+    "creditCounted": -6.9,
+    "vixAdd": 10,
+    "raisedByRally": true,
+    "label": "Invested 90% · market reading 67 · VIX +10"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 67,
+    "invested": 90.1,
+    "cash": false,
+    "creditOwn": -0.639
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.3,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2026-03-26",
+   "kind": "26 March 2026",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 71,
+     "invested": 91.3
+    },
+    "rsi": 33.42,
+    "creditOwn": 0.027,
+    "creditCounted": 0,
+    "vixClose": 27.44,
+    "vixHigh": 28.49,
+    "vixAdd": 20,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 71,
+     "invested": 91.3
+    },
+    "version2": {
+     "reading": 80.3,
+     "invested": 94.09
+    },
+    "rsi": 33.42,
+    "creditOwn": 0.027,
+    "creditCounted": 0,
+    "vixAdd": 20,
+    "raisedByRally": false,
+    "label": "Invested 100% · market reading 100 · VIX +20"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": 0.033
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2026-03-30",
+   "kind": "the March 2026 low",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 59.1,
+     "invested": 87.73
+    },
+    "rsi": 27.87,
+    "creditOwn": -0.417,
+    "creditCounted": 0,
+    "vixClose": 30.61,
+    "vixHigh": 31.52,
+    "vixAdd": 20,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 59.1,
+     "invested": 87.73
+    },
+    "version2": {
+     "reading": 82.7,
+     "invested": 94.81
+    },
+    "rsi": 27.87,
+    "creditOwn": -0.417,
+    "creditCounted": 0,
+    "vixAdd": 20,
+    "raisedByRally": false,
+    "label": "Invested 100% · market reading 100 · VIX +20"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": -0.415
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2026-07-29",
+   "kind": "29 July 2026",
+   "engine": {
+    "reading": 87.4,
+    "invested": 96.22,
+    "cash": false,
+    "version1": {
+     "reading": 55.5,
+     "invested": 86.65
+    },
+    "rsi": 35.52,
+    "creditOwn": -0.387,
+    "creditCounted": -1.2,
+    "vixClose": 20.66,
+    "vixHigh": 20.88,
+    "vixAdd": 10,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 87.4,
+    "invested": 96.22,
+    "cash": false,
+    "version1": {
+     "reading": 55.5,
+     "invested": 86.65
+    },
+    "version2": {
+     "reading": 77.4,
+     "invested": 93.22
+    },
+    "rsi": 35.52,
+    "creditOwn": -0.387,
+    "creditCounted": -1.2,
+    "vixAdd": 10,
+    "raisedByRally": false,
+    "label": "Invested 96% · market reading 87 · VIX +10"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 87.4,
+    "invested": 96.22,
+    "cash": false,
+    "creditOwn": -0.389
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2026-09-16",
+   "kind": "16 September 2026",
+   "engine": {
+    "reading": 26.7,
+    "invested": 78.01,
+    "cash": true,
+    "version1": {
+     "reading": 50.2,
+     "invested": 85.06
+    },
+    "rsi": 42.94,
+    "creditOwn": -0.12,
+    "creditCounted": -12,
+    "vixClose": 17.71,
+    "vixHigh": 18.94,
+    "vixAdd": 0,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 26.7,
+    "invested": 78.01,
+    "cash": true,
+    "version1": {
+     "reading": 50.2,
+     "invested": 85.06
+    },
+    "version2": {
+     "reading": 26.7,
+     "invested": 78.01
+    },
+    "rsi": 42.94,
+    "creditOwn": -0.12,
+    "creditCounted": -12,
+    "vixAdd": 0,
+    "raisedByRally": false,
+    "label": "Invested 78% · market reading 27 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 26.8,
+    "invested": 78.04,
+    "cash": true,
+    "creditOwn": -0.116
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2026-10-06",
+   "kind": "the last day in the study",
+   "engine": {
+    "reading": 11,
+    "invested": 73.3,
+    "cash": true,
+    "version1": {
+     "reading": 21.9,
+     "invested": 76.57
+    },
+    "rsi": 65.97,
+    "creditOwn": -0.224,
+    "creditCounted": -19.5,
+    "vixClose": 15.01,
+    "vixHigh": 15.54,
+    "vixAdd": 0,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 11,
+    "invested": 73.3,
+    "cash": true,
+    "version1": {
+     "reading": 21.9,
+     "invested": 76.57
+    },
+    "version2": {
+     "reading": 11,
+     "invested": 73.3
+    },
+    "rsi": 65.97,
+    "creditOwn": -0.224,
+    "creditCounted": -19.5,
+    "vixAdd": 0,
+    "raisedByRally": false,
+    "label": "Invested 73% · market reading 11 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 10.9,
+    "invested": 73.27,
+    "cash": true,
+    "creditOwn": -0.227
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2007-10-09",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 8.1,
+    "invested": 72.43,
+    "cash": false,
+    "version1": {
+     "reading": 8.1,
+     "invested": 72.43
+    },
+    "rsi": 71.6,
+    "creditOwn": 0.498,
+    "creditCounted": 0.1,
+    "vixClose": 16.12,
+    "vixHigh": 17.28,
+    "vixAdd": 0,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 8.1,
+    "invested": 72.43,
+    "cash": false,
+    "version1": {
+     "reading": 8.1,
+     "invested": 72.43
+    },
+    "version2": {
+     "reading": 8.1,
+     "invested": 72.43
+    },
+    "rsi": 71.6,
+    "creditOwn": 0.498,
+    "creditCounted": 0.1,
+    "vixAdd": 0,
+    "raisedByRally": false,
+    "label": "Invested 72% · market reading 8"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 7.9,
+    "invested": 72.37,
+    "cash": false,
+    "creditOwn": 0.484
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.2,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2009-03-02",
+   "kind": "a low the deployment study lists",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 30.13,
+    "creditOwn": -10.679,
+    "creditCounted": 29.8,
+    "vixClose": 52.65,
+    "vixHigh": 53.25,
+    "vixAdd": 20,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "version2": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 30.13,
+    "creditOwn": -10.679,
+    "creditCounted": 29.8,
+    "vixAdd": 20,
+    "raisedByRally": false,
+    "label": "Invested 100% · market reading 100 · VIX +20"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": -10.698
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2018-01-26",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 0,
+    "invested": 70,
+    "cash": true,
+    "version1": {
+     "reading": 0,
+     "invested": 70
+    },
+    "rsi": 84.03,
+    "creditOwn": 0.452,
+    "creditCounted": -0.5,
+    "vixClose": 11.08,
+    "vixHigh": 11.61,
+    "vixAdd": 0,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 0,
+    "invested": 70,
+    "cash": true,
+    "version1": {
+     "reading": 0,
+     "invested": 70
+    },
+    "version2": {
+     "reading": 0,
+     "invested": 70
+    },
+    "rsi": 84.03,
+    "creditOwn": 0.452,
+    "creditCounted": -0.5,
+    "vixAdd": 0,
+    "raisedByRally": false,
+    "label": "Invested 70% · market reading 0 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 0,
+    "invested": 70,
+    "cash": true,
+    "creditOwn": 0.45
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2018-12-21",
+   "kind": "a low the deployment study lists",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 25.24,
+    "creditOwn": -2.857,
+    "creditCounted": 21.4,
+    "vixClose": 30.11,
+    "vixHigh": 31.35,
+    "vixAdd": 20,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "version2": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 25.24,
+    "creditOwn": -2.857,
+    "creditCounted": 21.4,
+    "vixAdd": 20,
+    "raisedByRally": false,
+    "label": "Invested 100% · market reading 100 · VIX +20"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": -2.873
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2020-02-19",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 4.6,
+    "invested": 71.38,
+    "cash": true,
+    "version1": {
+     "reading": 8.8,
+     "invested": 72.64
+    },
+    "rsi": 71.54,
+    "creditOwn": 0.524,
+    "creditCounted": 1,
+    "vixClose": 14.38,
+    "vixHigh": 14.74,
+    "vixAdd": 0,
+    "raisedByRally": true
+   },
+   "script": {
+    "reading": 4.6,
+    "invested": 71.38,
+    "cash": true,
+    "version1": {
+     "reading": 8.8,
+     "invested": 72.64
+    },
+    "version2": {
+     "reading": 4.4,
+     "invested": 71.32
+    },
+    "rsi": 71.54,
+    "creditOwn": 0.524,
+    "creditCounted": 1,
+    "vixAdd": 0,
+    "raisedByRally": true,
+    "label": "Invested 71% · market reading 5 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 4.6,
+    "invested": 71.38,
+    "cash": true,
+    "creditOwn": 0.527
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2020-03-17",
+   "kind": "a low the deployment study lists",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 37.44,
+    "creditOwn": -10.742,
+    "creditCounted": 29.9,
+    "vixClose": 75.91,
+    "vixHigh": 84.83,
+    "vixAdd": 20,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "version2": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 37.44,
+    "creditOwn": -10.742,
+    "creditCounted": 29.9,
+    "vixAdd": 20,
+    "raisedByRally": false,
+    "label": "Invested 100% · market reading 100 · VIX +20"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": -10.738
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2022-01-03",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 31.2,
+    "invested": 79.36,
+    "cash": true,
+    "version1": {
+     "reading": 62.5,
+     "invested": 88.75
+    },
+    "rsi": 58.39,
+    "creditOwn": 1.596,
+    "creditCounted": 10.9,
+    "vixClose": 16.6,
+    "vixHigh": 18.54,
+    "vixAdd": 0,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 31.2,
+    "invested": 79.36,
+    "cash": true,
+    "version1": {
+     "reading": 62.5,
+     "invested": 88.75
+    },
+    "version2": {
+     "reading": 31.2,
+     "invested": 79.36
+    },
+    "rsi": 58.39,
+    "creditOwn": 1.596,
+    "creditCounted": 10.9,
+    "vixAdd": 0,
+    "raisedByRally": false,
+    "label": "Invested 79% · market reading 31 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 31.2,
+    "invested": 79.36,
+    "cash": true,
+    "creditOwn": 1.591
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2022-10-17",
+   "kind": "a low the deployment study lists",
+   "engine": {
+    "reading": 98.8,
+    "invested": 99.64,
+    "cash": false,
+    "version1": {
+     "reading": 78.8,
+     "invested": 93.64
+    },
+    "rsi": 44.04,
+    "creditOwn": 1.9,
+    "creditCounted": 15.5,
+    "vixClose": 31.37,
+    "vixHigh": 32.59,
+    "vixAdd": 20,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 98.8,
+    "invested": 99.64,
+    "cash": false,
+    "version1": {
+     "reading": 78.8,
+     "invested": 93.64
+    },
+    "version2": {
+     "reading": 78.8,
+     "invested": 93.64
+    },
+    "rsi": 44.04,
+    "creditOwn": 1.9,
+    "creditCounted": 15.5,
+    "vixAdd": 20,
+    "raisedByRally": false,
+    "label": "Invested 100% · market reading 99 · VIX +20"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 98.9,
+    "invested": 99.67,
+    "cash": false,
+    "creditOwn": 1.904
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2023-10-30",
+   "kind": "a low the deployment study lists",
+   "engine": {
+    "reading": 77.2,
+    "invested": 93.16,
+    "cash": false,
+    "version1": {
+     "reading": 65.4,
+     "invested": 89.62
+    },
+    "rsi": 38.05,
+    "creditOwn": 0.015,
+    "creditCounted": -3,
+    "vixClose": 19.75,
+    "vixHigh": 21.16,
+    "vixAdd": 5,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 77.2,
+    "invested": 93.16,
+    "cash": false,
+    "version1": {
+     "reading": 65.4,
+     "invested": 89.62
+    },
+    "version2": {
+     "reading": 72.2,
+     "invested": 91.66
+    },
+    "rsi": 38.05,
+    "creditOwn": 0.015,
+    "creditCounted": -3,
+    "vixAdd": 5,
+    "raisedByRally": false,
+    "label": "Invested 93% · market reading 77 · VIX +5"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 77.3,
+    "invested": 93.19,
+    "cash": false,
+    "creditOwn": 0.026
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2024-07-16",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 14.7,
+    "invested": 74.41,
+    "cash": true,
+    "version1": {
+     "reading": 13,
+     "invested": 73.9
+    },
+    "rsi": 70.66,
+    "creditOwn": 0.742,
+    "creditCounted": 17.1,
+    "vixClose": 13.19,
+    "vixHigh": 13.47,
+    "vixAdd": 0,
+    "raisedByRally": true
+   },
+   "script": {
+    "reading": 14.7,
+    "invested": 74.41,
+    "cash": true,
+    "version1": {
+     "reading": 13,
+     "invested": 73.9
+    },
+    "version2": {
+     "reading": 6.5,
+     "invested": 71.95
+    },
+    "rsi": 70.66,
+    "creditOwn": 0.742,
+    "creditCounted": 17.1,
+    "vixAdd": 0,
+    "raisedByRally": true,
+    "label": "Invested 74% · market reading 15 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 14.7,
+    "invested": 74.41,
+    "cash": true,
+    "creditOwn": 0.751
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2025-02-19",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 23,
+    "invested": 76.9,
+    "cash": true,
+    "version1": {
+     "reading": 46,
+     "invested": 83.8
+    },
+    "rsi": 62.23,
+    "creditOwn": 0.332,
+    "creditCounted": -3.4,
+    "vixClose": 15.27,
+    "vixHigh": 15.96,
+    "vixAdd": 0,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 23,
+    "invested": 76.9,
+    "cash": true,
+    "version1": {
+     "reading": 46,
+     "invested": 83.8
+    },
+    "version2": {
+     "reading": 23,
+     "invested": 76.9
+    },
+    "rsi": 62.23,
+    "creditOwn": 0.332,
+    "creditCounted": -3.4,
+    "vixAdd": 0,
+    "raisedByRally": false,
+    "label": "Invested 77% · market reading 23 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 22.9,
+    "invested": 76.87,
+    "cash": true,
+    "creditOwn": 0.329
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2025-04-04",
+   "kind": "a low the deployment study lists",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 23.68,
+    "creditOwn": -3.442,
+    "creditCounted": 24.4,
+    "vixClose": 45.31,
+    "vixHigh": 45.61,
+    "vixAdd": 20,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "version2": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 23.68,
+    "creditOwn": -3.442,
+    "creditCounted": 24.4,
+    "vixAdd": 20,
+    "raisedByRally": false,
+    "label": "Invested 100% · market reading 100 · VIX +20"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": -3.444
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2026-06-02",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 0,
+    "invested": 70,
+    "cash": true,
+    "version1": {
+     "reading": 0,
+     "invested": 70
+    },
+    "rsi": 77.49,
+    "creditOwn": 0.554,
+    "creditCounted": 0.9,
+    "vixClose": 15.77,
+    "vixHigh": 16.29,
+    "vixAdd": 0,
+    "raisedByRally": false
+   },
+   "script": {
+    "reading": 0,
+    "invested": 70,
+    "cash": true,
+    "version1": {
+     "reading": 0,
+     "invested": 70
+    },
+    "version2": {
+     "reading": 0,
+     "invested": 70
+    },
+    "rsi": 77.49,
+    "creditOwn": 0.554,
+    "creditCounted": 0.9,
+    "vixAdd": 0,
+    "raisedByRally": false,
+    "label": "Invested 70% · market reading 0 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 0,
+    "invested": 70,
+    "cash": true,
+    "creditOwn": 0.555
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  },
+  {
+   "date": "2026-08-13",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 23.7,
+    "invested": 77.11,
+    "cash": true,
+    "version1": {
+     "reading": 47.3,
+     "invested": 84.19
+    },
+    "rsi": 63.74,
+    "creditOwn": 0.833,
+    "creditCounted": 0.4,
+    "vixClose": 14.63,
+    "vixHigh": 14.8,
+    "vixAdd": 0,
+    "raisedByRally": true
+   },
+   "script": {
+    "reading": 23.7,
+    "invested": 77.11,
+    "cash": true,
+    "version1": {
+     "reading": 47.3,
+     "invested": 84.19
+    },
+    "version2": {
+     "reading": 23.6,
+     "invested": 77.08
+    },
+    "rsi": 63.74,
+    "creditOwn": 0.833,
+    "creditCounted": 0.4,
+    "vixAdd": 0,
+    "raisedByRally": true,
+    "label": "Invested 77% · market reading 24 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 23.7,
+    "invested": 77.11,
+    "cash": true,
+    "creditOwn": 0.842
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "sameRaiseCashState": true,
+   "sameVixAdd": true,
+   "sameRallyFlag": true
+  }
+ ],
+ "today": [
+  {
+   "readAt": "2026-10-08 09:05:07 New York",
+   "phase": "pre-market",
+   "session": "2026-10-08",
+   "prices": {
+    "SPY": 774.5395,
+    "QQQ": 753.495,
+    "HYG": 76.99,
+    "IEF": 88.93,
+    "VIX": 15.69,
+    "vixHigh": 16.02
+   },
+   "engine": {
+    "reading": 14.9,
+    "invested": 74.47,
+    "cash": true,
+    "version1": {
+     "reading": 29.8,
+     "invested": 78.94
+    },
+    "rsi": 60.3,
+    "creditOwn": -0.293,
+    "vixAdd": 0,
+    "treasuriesUpOverTenSessions": false,
+    "toolsWindowBars": 541
+   },
+   "script": {
+    "reading": 14.9,
+    "invested": 74.47,
+    "cash": true,
+    "version1": {
+     "reading": 29.8,
+     "invested": 78.94
+    },
+    "version2": {
+     "reading": 14.9,
+     "invested": 74.47
+    },
+    "rsi": 60.3,
+    "creditOwn": -0.293,
+    "vixAdd": 0,
+    "label": "Invested 74% · market reading 15 · cash raised",
+    "bars": 5806
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 14.9,
+    "invested": 74.47,
+    "cash": true
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  }
+ ],
+ "namedDays": 28,
+ "worstNamed": {
+  "samePrices": 0,
+  "tradingViewPayouts": 0.3
+ },
+ "allWithinOnePoint": true,
+ "history": {
+  "from": "2007-04-25",
+  "to": "2026-10-06",
+  "samePrices": {
+   "days": 4894,
+   "oneSided": 0,
+   "raiseCashDaysThatDiffer": 0,
+   "worst": 0,
+   "worstOn": "2007-04-25",
+   "median": 0,
+   "p99": 0,
+   "shareWithin1": 100,
+   "over1": 0
+  },
+  "tradingViewPayouts": {
+   "days": 4894,
+   "oneSided": 0,
+   "raiseCashDaysThatDiffer": 0,
+   "worst": 2.2,
+   "worstOn": "2007-11-28",
+   "median": 0,
+   "p99": 0.6,
+   "shareWithin1": 99.92,
+   "over1": 4
+  },
+  "lastYear": {
+   "samePrices": {
+    "days": 252,
+    "oneSided": 0,
+    "raiseCashDaysThatDiffer": 0,
+    "worst": 0,
+    "worstOn": "2025-10-06",
+    "median": 0,
+    "p99": 0,
+    "shareWithin1": 100,
+    "over1": 0
+   },
+   "tradingViewPayouts": {
+    "days": 252,
+    "oneSided": 0,
+    "raiseCashDaysThatDiffer": 0,
+    "worst": 0.5,
+    "worstOn": "2026-02-26",
+    "median": 0,
+    "p99": 0.4,
+    "shareWithin1": 100,
+    "over1": 0
+   }
+  },
+  "firstScriptReading": "2007-04-25",
+  "raiseCashDays": {
+   "engine": 1318,
+   "script": 1318
+  },
+  "investedWorst": 0,
+  "version3Parts": {
+   "daysTheVixAdds": 2051,
+   "daysItsAddDiffers": 0,
+   "daysARallyRaisedCredit": 1666,
+   "daysThatFlagDiffers": 0
+  },
+  "fromTheScriptsOwnText": {
+   "days": 4894,
+   "oneSided": 0,
+   "raiseCashDaysThatDiffer": 0,
+   "worstAgainstTheHandWrittenReplay": 0,
+   "worstAgainstTheToolsSum": 0,
+   "worstVersion1Line": 0,
+   "worstVersion2Line": 0
+  },
+  "newSwitchesOff": {
+   "days": 4894,
+   "worstAgainstVersion2sOwnScript": 0,
+   "raiseCashDaysThatDiffer": 0
+  },
+  "allSwitchesOff": {
+   "days": 4894,
+   "worstAgainstVersion1sOwnScript": 0
+  },
+  "theThinLines": {
+   "worstOfVersion2sLine": 0,
+   "worstOfVersion1sLine": 0
+  },
+  "aHairOnAThreshold": {
+   "of": 4894,
+   "nudges": [
+    {
+     "what": "within 2% of the high",
+     "movedTo": 1.98,
+     "state": "cash raised",
+     "days": 12,
+     "longestRun": 12,
+     "inTheLastYear": 0,
+     "mostItMovesTheNumber": 10.11
+    },
+    {
+     "what": "within 2% of the high",
+     "movedTo": 2.02,
+     "state": "cash raised",
+     "days": 2,
+     "longestRun": 2,
+     "inTheLastYear": 0,
+     "mostItMovesTheNumber": 9.9
+    },
+    {
+     "what": "11.21% above the long average",
+     "movedTo": 11.19,
+     "state": "cash raised",
+     "days": 1,
+     "longestRun": 1,
+     "inTheLastYear": 0,
+     "mostItMovesTheNumber": 7.53
+    },
+    {
+     "what": "11.21% above the long average",
+     "movedTo": 11.23,
+     "state": "cash raised",
+     "days": 0,
+     "longestRun": 0,
+     "inTheLastYear": 0,
+     "mostItMovesTheNumber": 0
+    },
+    {
+     "what": "an RSI of 40",
+     "movedTo": 39.9,
+     "state": "cash raised",
+     "days": 0,
+     "longestRun": 0,
+     "inTheLastYear": 0,
+     "mostItMovesTheNumber": 0
+    },
+    {
+     "what": "an RSI of 40",
+     "movedTo": 40.1,
+     "state": "cash raised",
+     "days": 0,
+     "longestRun": 0,
+     "inTheLastYear": 0,
+     "mostItMovesTheNumber": 0
+    },
+    {
+     "what": "the VIX at 20",
+     "movedTo": 19.95,
+     "state": "what the VIX adds",
+     "days": 25,
+     "longestRun": 1,
+     "inTheLastYear": 3,
+     "mostItMovesTheNumber": 1.5
+    },
+    {
+     "what": "the VIX at 20",
+     "movedTo": 20.05,
+     "state": "what the VIX adds",
+     "days": 27,
+     "longestRun": 2,
+     "inTheLastYear": 2,
+     "mostItMovesTheNumber": 1.5
+    },
+    {
+     "what": "the VIX at 23",
+     "movedTo": 22.95,
+     "state": "what the VIX adds",
+     "days": 20,
+     "longestRun": 1,
+     "inTheLastYear": 1,
+     "mostItMovesTheNumber": 3
+    },
+    {
+     "what": "the VIX at 23",
+     "movedTo": 23.05,
+     "state": "what the VIX adds",
+     "days": 17,
+     "longestRun": 1,
+     "inTheLastYear": 1,
+     "mostItMovesTheNumber": 1.5
+    }
+   ],
+   "worst": {
+    "what": "the VIX at 20",
+    "movedTo": 20.05,
+    "state": "what the VIX adds",
+    "days": 27,
+    "longestRun": 2,
+    "inTheLastYear": 2,
+    "mostItMovesTheNumber": 1.5
+   }
+  }
+ }
+}

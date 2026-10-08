@@ -12,7 +12,7 @@ import fs from "node:fs"; import path from "node:path"; import { fileURLToPath }
 import { parsePine2 } from "../study/ds2/pane-replay.mjs"; import { engineV2On, scriptV2On, codeHash } from "./ds2-prove-pane.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), J = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), "utf8")), norm = (t) => t.replace(/\r\n/g, "\n").replace(/\n+$/, "") + "\n";
 export function lineDiff(a, b) { const A = a.split("\n"), B = b.split("\n"), out = []; for (let i = 0; i < Math.max(A.length, B.length); i++) if (A[i] !== B[i]) out.push({ line: i + 1, proved: A[i] ?? null, saved: B[i] ?? null }); return out; }
-export function checkSaved2(saved, proved = fs.readFileSync(path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine"), "utf8")) {
+export function checkSaved2(saved, proved = fs.readFileSync(path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v2.pine"), "utf8")) {
   const a = norm(proved), b = norm(saved); if (a === b) return { identical: true, ok: true, codeHash: codeHash(a) };
   const differs = lineDiff(a, b); let K1, K2; try { K1 = parsePine2(a); K2 = parsePine2(b); } catch (e) { return { identical: false, ok: false, differs, cannotRead: String(e.message || e) }; }
   const numbersUnchanged = JSON.stringify(K1) === JSON.stringify(K2), F = J("tests/fixtures/pn1-closes-20261006.json"), base = J("study/ds1/data/ds1-live.json"), R = J("study/ds2/data/ds2-live.json").rules, eng = engineV2On(F, base.model, R); let worst = 0, cashDiffer = 0, days = 0, failed = null;

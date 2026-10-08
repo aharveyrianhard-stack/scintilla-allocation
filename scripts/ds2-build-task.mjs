@@ -2,7 +2,7 @@
    days are the proof's own numbers (study/ds2/data/ds2-pane-proof.json); none is typed.   node scripts/ds2-build-task.mjs */
 import fs from "node:fs"; import path from "node:path"; import crypto from "node:crypto"; import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), J = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), "utf8")), P = J("study/ds2/data/ds2-pane-proof.json"), R = J("study/ds2/data/ds2-live.json").rules;
-const SRC = fs.readFileSync(path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine"), "utf8"), V1 = fs.readFileSync(path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine"), "utf8"), sha = (t) => crypto.createHash("sha256").update(t).digest("hex");
+const SRC = fs.readFileSync(path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v2.pine"), "utf8"), V1 = fs.readFileSync(path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine"), "utf8"), sha = (t) => crypto.createHash("sha256").update(t).digest("hex");
 export const DAYS = ["2026-10-06", "2026-03-30", "2026-01-27", "2025-12-11", "2025-07-21", "2025-04-08", "2025-03-28", "2020-03-17"];
 const rows = DAYS.map((d) => { const r = P.rows.find((x) => x.date === d); if (!r) throw new Error(d + " is not one of the proved days"); return `| ${d} | ${r.scriptTradingViewPayouts.invested.toFixed(2)} | ${r.scriptTradingViewPayouts.reading.toFixed(1)} | ${r.script.rsi.toFixed(2)} | ${r.scriptTradingViewPayouts.creditOwn.toFixed(3)} | ${r.scriptTradingViewPayouts.cash ? 1 : 0} | ${r.script.version1.invested.toFixed(2)} |`; });
 const md = `# TASK — version 2 of "Scintilla Deployment Pane", on the layout "Scintilla — Deployment" (7 Oct 2026, evening)

@@ -12,7 +12,7 @@
 import fs from "node:fs"; import path from "node:path"; import { fileURLToPath } from "node:url";
 import { pineNumbers } from "./pn1-build-pine.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-export const PINE2 = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine"), PINE1 = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine"), PROOF2 = path.join(ROOT, "study/ds2/data/ds2-pane-proof.json"), RULES_FILE = path.join(ROOT, "study/ds2/data/ds2-live.json");
+export const PINE2 = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v2.pine")   /* DS3 (8 Oct): the installer's path now holds version 3; version 2 is kept beside it, byte for byte */, PINE1 = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine"), PROOF2 = path.join(ROOT, "study/ds2/data/ds2-pane-proof.json"), RULES_FILE = path.join(ROOT, "study/ds2/data/ds2-live.json");
 const J = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
 function wrapList(head, nums, tail = ")") { const lines = []; let cur = head; nums.forEach((v, i) => { const piece = String(v) + (i < nums.length - 1 ? ", " : tail); if ((cur + piece).length > 112) { lines.push(cur.replace(/\s+$/, "")); cur = "     " + piece; } else cur += piece; }); lines.push(cur); return lines.join("\n"); }
 const day = (iso) => { const [y, m, d] = iso.split("-"); return `${+d} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][+m - 1]} ${y}`; };

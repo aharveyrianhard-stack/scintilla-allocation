@@ -17,7 +17,7 @@ import fs from "node:fs"; import path from "node:path"; import crypto from "node
 import * as E from "../study/ds1/engine.mjs"; import * as V2 from "../study/ds2/number.mjs"; import { numberAt } from "../study/al9/chain.mjs";
 import { parsePine2, replay2, labelOf2 } from "../study/ds2/pane-replay.mjs"; import { parsePine, replay as replay1, adjustLikeTradingView } from "../study/pn1/pine-replay.mjs"; import { runFromText2 } from "../study/pn1/pine-transliterate.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), J = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
-const FIXTURE = path.join(ROOT, "tests/fixtures/pn1-closes-20261006.json"), OUT = path.join(ROOT, "study/ds2/data/ds2-pane-proof.json"), PINE = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine"), PINE1 = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine");
+const FIXTURE = path.join(ROOT, "tests/fixtures/pn1-closes-20261006.json"), OUT = path.join(ROOT, "study/ds2/data/ds2-pane-proof.json"), PINE = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v2.pine")   /* DS3 (8 Oct): version 2's own file, kept beside version 3 */, PINE1 = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine");
 const args = process.argv.slice(2), NO_LIVE = args.includes("--no-live"), QUIET = args.includes("--quiet");
 const r1 = (x) => (x == null || !isFinite(x) ? null : +x.toFixed(1)), r2 = (x) => (x == null || !isFinite(x) ? null : +x.toFixed(2)), r3 = (x) => (x == null || !isFinite(x) ? null : +x.toFixed(3));
 const pctl = (a, q) => { const s = a.slice().sort((p, r) => p - r); if (!s.length) return null; const k = ((s.length - 1) * q) / 100, lo = Math.floor(k), hi = Math.ceil(k); return s[lo] + (s[hi] - s[lo]) * (k - lo); };

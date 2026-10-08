@@ -18,6 +18,9 @@
      array.max(a) → the greatest of the list    array.avg(a) → the list's sum over its length
      bool x = e → let x = e    code at the left margin (the sum) is translated by the same rules as a function's body
 
+   ADDED FOR VERSION 3 (DS3, 8 Oct 2026 — versions 1 and 2 are translated exactly as before):
+     a request's expression may be the bare word close or high → that fund's close, or its high, on that bar of its own
+
    WHAT THIS STILL TAKES ON TRUST, because only TradingView can show it: that arithmetic on a missing value gives a missing value and a
    comparison with one is false (JavaScript's not-a-number behaves that way, which is why it stands in for na here); that a `var` keeps
    its value between bars; and that request.security hands each chart bar the value of the fund's bar of the same day. */
@@ -107,3 +110,21 @@ export function runFromText2(src, funds, chartDates, inputs) {
   const names = [...Object.keys(S), "heldPct", "tacticalPct", "creditRule", "cashRule", "pointsAt", "isNa", "pineRound", "avgOf"], js = `${state.join("\n")}\nreturn function (spyRsi, qqqRsi, hygMove, iefMove, spyOff, qqqOff, spyOver, qqqOver) {\n${out.join("\n")}\nreturn { ${want.join(", ")} };\n};`;
   const bar = new Function(...names, js)(...Object.values(S), inputs.heldPct, inputs.tacticalPct, inputs.creditRule ?? true, inputs.cashRule ?? true, pointsAt, isNa, pineRound, avgOf);
   return chartDates.map((d, i) => ({ date: d, ...bar(seen.spyRsi[i], seen.qqqRsi[i], seen.hygMove[i], seen.iefMove[i], seen.spyOff[i], seen.qqqOff[i], seen.spyOver[i], seen.qqqOver[i]) })); }
+
+/* ---------- VERSION 3 (DS3): the whole arithmetic of the version 3 script from its own text ----------
+   Ten requests (the VIX's close and its high are the two new ones); the sum is version 2's short program with the Treasury rule, the
+   VIX's steps and the two earlier versions' lines in it, translated by the same rules. funds.vix = [{ date, close, high }].
+   inputs = { heldPct, tacticalPct, creditRule, cashRule, vixRule, fearRule }. */
+export function runFromText3(src, funds, chartDates, inputs) {
+  const S = scope(src), fns = Object.fromEntries(["wilderRsi", "offHigh", "overAvg"].map((f) => [f, functionJs(src, f)])), pointsAt = compile(functionJs(src, "pointsAt").source, S);
+  const req = {}; for (const m of src.matchAll(/^float (\w+)\s*=\s*request\.security\((\w+)T, "D", (.+), lookahead = barmerge\.lookahead_off\)\s*$/gm)) req[m[1]] = { fund: m[2], expression: m[3] };
+  if (Object.keys(req).join() !== "spyRsi,qqqRsi,hygMove,iefMove,spyOff,qqqOff,spyOver,qqqOver,vixClose,vixHigh") throw new Error("the script's requests are " + Object.keys(req).join());
+  const seen = {}; for (const [name, r] of Object.entries(req)) { const own = funds[r.fund], closes = [], at = new Map(); let step; const call = r.expression.match(/^(\w+)\(close\)$/);
+    if (call) { if (!fns[call[1]]) throw new Error("the script asks for " + call[1] + ", which has no translation"); const f = compile(fns[call[1]].source, S); step = (close) => f(close); }
+    else { const f = new Function(...Object.keys(S), "close", "high", "ago", "return " + expr(r.expression) + ";"); step = (close, high) => f(...Object.values(S), close, high, (n) => (closes.length - 1 - n >= 0 ? closes[closes.length - 1 - n] : NaN)); }
+    for (const b of own) { closes.push(b.close); const v = step(b.close, b.high == null ? NaN : b.high); at.set(b.date, v == null ? NaN : v); }
+    const dates = own.map((b) => b.date), col = []; let j = -1; for (const d of chartDates) { while (j + 1 < dates.length && dates[j + 1] <= d) j++; col.push(j < 0 ? NaN : at.get(dates[j])); } seen[name] = col; }
+  const { state, out } = bodyJs(sumText(src), "the sum"), want = ["rsiBoth", "creditOwn", "ptsRsi", "ptsOwn", "ptsAlone", "rally", "ptsFitted", "ptsCredit", "ptsVix", "cashOn", "reading", "invested", "readingOld", "investedOld", "reading2", "invested2"];
+  const names = [...Object.keys(S), "heldPct", "tacticalPct", "creditRule", "cashRule", "vixRule", "fearRule", "pointsAt", "isNa", "pineRound", "avgOf"], js = `${state.join("\n")}\nreturn function (spyRsi, qqqRsi, hygMove, iefMove, spyOff, qqqOff, spyOver, qqqOver, vixClose, vixHigh) {\n${out.join("\n")}\nreturn { ${want.join(", ")} };\n};`;
+  const bar = new Function(...names, js)(...Object.values(S), inputs.heldPct, inputs.tacticalPct, inputs.creditRule ?? true, inputs.cashRule ?? true, inputs.vixRule ?? true, inputs.fearRule ?? true, pointsAt, isNa, pineRound, avgOf);
+  return chartDates.map((d, i) => ({ date: d, ...bar(seen.spyRsi[i], seen.qqqRsi[i], seen.hygMove[i], seen.iefMove[i], seen.spyOff[i], seen.qqqOff[i], seen.spyOver[i], seen.qqqOver[i], seen.vixClose[i], seen.vixHigh[i]) })); }
