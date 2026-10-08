@@ -1,6 +1,6 @@
 {
  "what": "DS3 — version 3 of the deployment pane's script against the study's version 3 sum",
- "built": "2026-10-08T14:01:35.751Z",
+ "built": "2026-10-08T14:09:02.145Z",
  "script": {
   "file": "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine",
   "codeHash": "b2b846ec11cadcfd",
