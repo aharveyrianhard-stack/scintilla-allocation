@@ -2,6 +2,7 @@
    Read-only: the chart API (no key) and study/ds1/data/ds1-live.json.   node scripts/ds1-live-check.mjs [--json] */
 import fs from "node:fs"; import path from "node:path"; import { fileURLToPath } from "node:url";
 import { view, fetchDaily, fetchLive, baseline, nyParts, phaseOf } from "../study/ds1/live.mjs";
+import { useLocalAccount } from "./local-account.mjs"; const ACCOUNT_USED = useLocalAccount();   /* DS3: the account is not in the repository — the private file if it is on this machine, else the made-up example */
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), API = "https://scintilla-massive-chart-api.fly.dev";
 const getApi = async (p) => { const r = await fetch(API + p, { headers: { Origin: "https://scintillahub.ai" }, signal: AbortSignal.timeout(60000) }); if (!r.ok) throw new Error(p.split("?")[0] + " " + r.status); return r.json(); };
 const base = JSON.parse(fs.readFileSync(path.join(ROOT, "study/ds1/data/ds1-live.json"), "utf8")), A = baseline(base), now = nyParts();
