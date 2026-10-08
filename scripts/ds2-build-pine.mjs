@@ -1,4 +1,40 @@
-//@version=6
+/* DS2 (7 Oct 2026) — writes VERSION 2 of the TradingView script to study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine, the path the installer reads.
+     node scripts/ds2-build-pine.mjs            write the file
+     node scripts/ds2-build-pine.mjs --check    exit 1 if the file on disk is not what this would write
+   No key, no network, no table: it reads files in this repo and writes one.
+
+   WHERE EVERY PART OF THE SCRIPT COMES FROM — nothing in it is typed by hand
+     · the place tables, the points curves, the typical day, the account's shape: the tool's model file, through PN1's own pineNumbers()
+     · version 2's thresholds: study/ds2/data/ds2-live.json → rules (study/ds2/number.mjs is the sum they belong to)
+     · the lines that did not change — Wilder's RSI, pointsAt, the palette, the two number formats — are copied OUT OF VERSION 1's FILE
+       (study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine), so the arithmetic PN1 proved is in version 2 byte for byte (a test holds it)
+   The measured gaps quoted in the header come from study/ds2/data/ds2-pane-proof.json (scripts/ds2-prove-pane.mjs) when that file exists. */
+import fs from "node:fs"; import path from "node:path"; import { fileURLToPath } from "node:url";
+import { pineNumbers } from "./pn1-build-pine.mjs";
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+export const PINE2 = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine"), PINE1 = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine"), PROOF2 = path.join(ROOT, "study/ds2/data/ds2-pane-proof.json"), RULES_FILE = path.join(ROOT, "study/ds2/data/ds2-live.json");
+const J = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
+function wrapList(head, nums, tail = ")") { const lines = []; let cur = head; nums.forEach((v, i) => { const piece = String(v) + (i < nums.length - 1 ? ", " : tail); if ((cur + piece).length > 112) { lines.push(cur.replace(/\s+$/, "")); cur = "     " + piece; } else cur += piece; }); lines.push(cur); return lines.join("\n"); }
+const day = (iso) => { const [y, m, d] = iso.split("-"); return `${+d} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][+m - 1]} ${y}`; };
+const one = (x) => (Math.round(x * 10) / 10).toFixed(1), fl = (x) => (Number.isInteger(x) ? x.toFixed(1) : String(x)), pr = (x) => String(x);   // fl: a number as the code wants it (45.0) · pr: as a sentence wants it (45)
+/* a block of version 1's own text, from the line that starts with `from` up to (not including) the line that starts with `to` */
+export function blockOf(src, from, to) { const lines = src.split("\n"), a = lines.findIndex((l) => l.startsWith(from)), b = lines.findIndex((l, i) => i > a && l.startsWith(to)); if (a < 0 || b < 0) throw new Error("version 1 has no block from " + JSON.stringify(from) + " to " + JSON.stringify(to)); return lines.slice(a, b).join("\n").replace(/\n+$/, ""); }
+
+function measuredLines(proof) { if (!proof) return ["//      The measured gaps are on the page beside this work (study/ds2/DS2.html)."];
+  const a = proof.history.samePrices, b = proof.history.tradingViewPayouts, yr = proof.history.lastYear.tradingViewPayouts, n = (x) => x.toLocaleString("en-US");
+  return [`//      Measured with a replay of this script's arithmetic against the allocation tool's own sum on the`,
+    `//      ${n(a.days)} days from ${day(proof.history.from)} to ${day(proof.history.to)}:`,
+    `//        · fed the tool's own prices, ${a.worst === 0 ? "the reading is the same on every one of those days" : `the reading never differs by more than ${one(a.worst)} of a point`}, and the`,
+    `//          raise-cash rule is on and off on the same days;`,
+    `//        · fed HYG's payouts the way TradingView adds them back, it is within one point on ${one(b.shareWithin1)}% of`,
+    `//          days (median gap ${b.median.toFixed(1)}; 99 days in 100 within ${one(b.p99)}); the worst is ${one(b.worst)} on ${day(b.worstOn)},`,
+    `//          and in the last year ${one(yr.worst)}.`]; }
+
+/* how the raise-cash stretches of the rule AS THE PANE CARRIES IT turned out since 2018 (study/ds2/data/ds2.json → firm.latchAll) */
+export function stretches(study = J(path.join(ROOT, "study/ds2/data/ds2.json"))) { const e = study.firm.latchAll.filter((x) => x.from >= "2018-01-01" && !x.open); return { n: e.length, higher: e.filter((x) => x.blendPct > 0).length }; }
+export function buildPine2(n = pineNumbers(), R = J(RULES_FILE).rules, proof = fs.existsSync(PROOF2) ? J(PROOF2) : null, v1 = fs.readFileSync(PINE1, "utf8"), st = stretches()) {
+  const palette = blockOf(v1, "// colours —", "// ── inputs"), wilder = blockOf(v1, "// ── Wilder's RSI", "// ── requests"), points = blockOf(v1, "// ── a part's points", "// ── the sum"), formats = blockOf(v1, "// numbers as the allocation tool writes them", "// ── labels on the last bar");
+  return `//@version=6
 // ═══════════════════════════════════════════════════════════════════════════════════════════════
 // SCINTILLA · DEPLOYMENT PANE  ·  version 2  ·  7 Oct 2026
 // PLOTS 17/64  (the % invested line coloured by its daily direction = 2 · the held floor = 1 · the
@@ -11,9 +47,9 @@
 //
 // WHAT IT IS. The allocation tool's deployment system drawn in its own pane, with its history: how
 // much of the account the system has invested on every daily bar, on a scale from 0 to 100.
-//     % invested = the part held through pullbacks (70) + the tactical part (30) × the market reading ÷ 100
-// A market reading of 0 leaves all the tactical money in cash (70% invested); 100 puts all of it to
-// work (100% invested).
+//     % invested = the part held through pullbacks (${n.held}) + the tactical part (${n.tactical}) × the market reading ÷ 100
+// A market reading of 0 leaves all the tactical money in cash (${n.held}% invested); 100 puts all of it to
+// work (${Math.min(100, n.held + n.tactical)}% invested).
 //
 // THE MARKET READING (0–100) is the allocation tool's own sum, from the two parts that earned a vote
 // when the tool was tested on years it had not seen:
@@ -21,26 +57,26 @@
 //   2. CREDIT'S OWN MOVE — HYG's move over ten sessions with its payouts counted, less half of the
 //      7–10 year Treasury fund's move over the same ten sessions, in %. HYG's bonds are about half as
 //      long as that fund's, so this takes the rates part out and leaves what credit did by itself.
-//   Each of the two is given its place among the 4,362 days the rule was measured on (10 Mar 2009 –
-//   13 Jul 2026; 0 = the lowest seen, 100 = the highest), and that place is read off the part's own
+//   Each of the two is given its place among the ${n.days.toLocaleString("en-US")} days the rule was measured on (${day(n.from)} –
+//   ${day(n.to)}; 0 = the lowest seen, 100 = the highest), and that place is read off the part's own
 //   measured curve as points.
-//   Market reading = 49.1 (a typical day) + the two parts' points, held between 0 and 100.
+//   Market reading = ${one(n.typical)} (a typical day) + the two parts' points, held between 0 and 100.
 //
 // WHAT VERSION 2 CHANGES (7 Oct 2026). Two things in the market reading, each with its own switch in
 // the settings; with both switched off this pane draws version 1 exactly.
 //   A. CREDIT DOES NOT SUBTRACT IN A WASHED-OUT MARKET. When the credit part would take points away,
-//      what it takes is counted in full while SPY and QQQ's average RSI is 45 or more, not at all at
-//      35 and under, and in proportion between. When credit adds, it adds in full, as before.
+//      what it takes is counted in full while SPY and QQQ's average RSI is ${pr(R.fadeFrom)} or more, not at all at
+//      ${pr(R.fadeTo)} and under, and in proportion between. When credit adds, it adds in full, as before.
 //      Why: at the lows of late March 2025 and late March 2026 the indices were washed out and credit
 //      was a little weak, and version 1 cut the number on the very days the market made its low.
 //   B. CASH IS RAISED AT AN EXTENDED HIGH AND PUT BACK AT THE NEXT WASHOUT. It switches ON at a close
-//      where SPY and QQQ are both within 2% of their own highest close of the past 252 sessions and
-//      sit, on average, 11.21% or more above their 200-day averages — further than on four days in five
-//      of the measured days. It switches OFF at a close where their average RSI is under 40. While it
+//      where SPY and QQQ are both within ${pr(R.nearPct)}% of their own highest close of the past ${R.highDays} sessions and
+//      sit, on average, ${R.extPct}% or more above their ${R.avgDays}-day averages — further than on four days in five
+//      of the measured days. It switches OFF at a close where their average RSI is under ${pr(R.resetRsi)}. While it
 //      is on, the market reading is halved, so half of the tactical money that would be at work is held
 //      as cash. The pane shades those stretches.
 //      What it is not: a call on the top. Since 2018 the market was higher when the cash went back than
-//      when it was raised in 7 finished stretches out of 14. Tested on years the rule had not seen it
+//      when it was raised in ${st.higher} finished stretches out of ${st.n}. Tested on years the rule had not seen it
 //      cost nothing in the end result and made nothing either; it makes the line lighter after a long run-up.
 //
 // WHICH BARS COUNT. Every finished daily bar shows the reading at that day's close. The last bar is
@@ -58,7 +94,7 @@
 //   2. HYG's payouts. TradingView adds them back by scaling every earlier price; the tool chains them
 //      day by day, and its long history comes from a table rounded to the cent. The two agree closely,
 //      not exactly. (TradingView does not print its arithmetic; "scaling" is the standard form.)
-//      The measured gaps are on the page beside this work (study/ds2/DS2.html).
+${measuredLines(proof).join("\n")}
 //   3. HYG's payout day. On the first trading day of a month HYG trades without its payout (about 0.5%).
 //      If TradingView were late adding that payout back, credit's own move would read too low that day
 //      and the reading would be off by several points until it caught up. The tool keeps its own
@@ -66,9 +102,9 @@
 //   4. After the close. Until the day's close is settled the tool goes on counting prices traded after
 //      16:00 New York; this pane reads the regular session only, so for a while the two can differ.
 //   5. The raise-cash rule remembers. Its state on a bar depends on every bar before it, so it needs
-//      the chart's full daily history: with fewer than 252 daily bars of SPY and QQQ loaded it stays off.
+//      the chart's full daily history: with fewer than ${R.highDays} daily bars of SPY and QQQ loaded it stays off.
 //   6. The tool lets you switch a light on so that it counts. This pane shows the two voting parts only.
-//   7. The account's shape (70 held, 30 tactical) is the tool's baseline on 7 Oct 2026. If you change
+//   7. The account's shape (${n.held} held, ${n.tactical} tactical) is the tool's baseline on 7 Oct 2026. If you change
 //      it in the tool, change the two inputs here as well.
 //   8. Made for a daily chart. On a weekly chart each bar shows its last day. On an intraday chart a
 //      past day's reading appears on that day's last bar, and the live bar is live.
@@ -82,71 +118,38 @@ indicator("SCINTILLA · DEPLOYMENT PANE", shorttitle = "DEPLOYMENT", overlay = f
 const int    RSI_DAYS    = 14
 const int    CREDIT_DAYS = 10          // credit's own move is read over ten sessions
 const float  RATES_SHARE = 0.5         // HYG moves about half as far as the 7–10 year Treasury fund for the same move in rates
-const float  TYPICAL_DAY = 49.075087   // the market reading on a typical day, before the two parts add or take away
+const float  TYPICAL_DAY = ${n.typical}   // the market reading on a typical day, before the two parts add or take away
 // version 2's numbers (written from the study's rule file)
-const float  FADE_FROM   = 45.0        // at this RSI and above, what credit subtracts counts in full
-const float  FADE_TO     = 35.0        // at this RSI and under, what credit subtracts does not count
-const int    HIGH_DAYS   = 252         // the high is the highest close of this many sessions
-const int    AVG_DAYS    = 200         // the long average is of this many closes
-const float  NEAR_PCT    = 2.0         // "at the high" = within this % of it
-const float  EXT_PCT     = 11.21       // "extended" = SPY and QQQ this % or more above their long average, averaged
-const float  RESET_RSI   = 40.0        // the cash goes back at a close with the average RSI under this
-const float  CASH_CUT    = 0.5         // while cash is raised, the market reading is multiplied by this
+const float  FADE_FROM   = ${fl(R.fadeFrom)}        // at this RSI and above, what credit subtracts counts in full
+const float  FADE_TO     = ${fl(R.fadeTo)}        // at this RSI and under, what credit subtracts does not count
+const int    HIGH_DAYS   = ${R.highDays}         // the high is the highest close of this many sessions
+const int    AVG_DAYS    = ${R.avgDays}         // the long average is of this many closes
+const float  NEAR_PCT    = ${fl(R.nearPct)}         // "at the high" = within this % of it
+const float  EXT_PCT     = ${fl(R.extPct)}       // "extended" = SPY and QQQ this % or more above their long average, averaged
+const float  RESET_RSI   = ${fl(R.resetRsi)}        // the cash goes back at a close with the average RSI under this
+const float  CASH_CUT    = ${fl(R.cashCut)}         // while cash is raised, the market reading is multiplied by this
 
 // place tables: the value that sat at each whole place, 0 … 100, among the days the rule was measured on
-var array<float> RSI_PLACES = array.from(18.06061, 29.50187, 32.009649, 33.776939, 35.349941, 36.459968,
-     37.422599, 38.29743, 39.202659, 39.980488, 40.648346, 41.25222, 42.003333, 42.488419, 42.967768,
-     43.395735, 43.940117, 44.488977, 44.96671, 45.614004, 45.974978, 46.433065, 46.846389, 47.332951,
-     47.808601, 48.28493, 48.665644, 49.14161, 49.530271, 49.888058, 50.269324, 50.679321, 51.06896, 51.572484,
-     52.030973, 52.465833, 52.904843, 53.313324, 53.626931, 54.000909, 54.235021, 54.569996, 54.802809,
-     55.119828, 55.436763, 55.73841, 56.021896, 56.39476, 56.690515, 56.883264, 57.14888, 57.434378, 57.72808,
-     58.079427, 58.320027, 58.625534, 58.919416, 59.203417, 59.46397, 59.752786, 60.014492, 60.305716,
-     60.59321, 60.895522, 61.131832, 61.465718, 61.771742, 62.063717, 62.377093, 62.669926, 62.914344,
-     63.221763, 63.513735, 63.874941, 64.125345, 64.420953, 64.748509, 65.02809, 65.323297, 65.78836,
-     66.092965, 66.335032, 66.754116, 67.040457, 67.2808, 67.603593, 67.952414, 68.24979, 68.661858, 68.996091,
-     69.436556, 69.895674, 70.315473, 70.840589, 71.487326, 72.102707, 72.807513, 73.873343, 75.440196,
-     77.559295, 84.249337)
-var array<float> CREDIT_PLACES = array.from(-17.471042, -4.693921, -3.765795, -3.005409, -2.684979, -2.300012,
-     -2.107127, -1.971754, -1.709398, -1.55512, -1.459024, -1.357945, -1.254016, -1.1592, -1.049067, -0.973536,
-     -0.889884, -0.825879, -0.768897, -0.701706, -0.63991, -0.591172, -0.529269, -0.481157, -0.437748,
-     -0.40779, -0.364628, -0.322246, -0.275532, -0.248024, -0.217029, -0.186038, -0.145157, -0.118056,
-     -0.092596, -0.066467, -0.029693, 0.001728, 0.022513, 0.046982, 0.0733, 0.10092, 0.117151, 0.143113,
-     0.168322, 0.194585, 0.226219, 0.248342, 0.272968, 0.297302, 0.320039, 0.344692, 0.363519, 0.382072,
-     0.403684, 0.432519, 0.452349, 0.480894, 0.505205, 0.530948, 0.55713, 0.588618, 0.613794, 0.643739,
-     0.675537, 0.699779, 0.732451, 0.760962, 0.785926, 0.809167, 0.832443, 0.864503, 0.896654, 0.940846,
-     0.975417, 1.018897, 1.051286, 1.090523, 1.129095, 1.184128, 1.242845, 1.291053, 1.350817, 1.412514,
-     1.462083, 1.529815, 1.591536, 1.66308, 1.757246, 1.863515, 1.997945, 2.14153, 2.312232, 2.489883,
-     2.697414, 2.948636, 3.283199, 3.695633, 4.602589, 5.596746, 11.145895)
+${wrapList("var array<float> RSI_PLACES = array.from(", n.rsiPlaces)}
+${wrapList("var array<float> CREDIT_PLACES = array.from(", n.creditPlaces)}
 // points curves: the points each part adds to the reading at places 0, 5, 10 … 100
-var array<float> RSI_POINTS = array.from(34.646613, 28.481048, 21.43638, 14.936992, 11.995729, 9.343638,
-     7.00514, 5.177347, 3.797543, 2.982205, 2.686532, 2.498377, 2.202705, 1.118573, -0.574822, -3.603223,
-     -8.044025, -18.131522, -29.663997, -43.246007, -55.634151)
-var array<float> CREDIT_POINTS = array.from(31.367016, 16.998677, 0.86942, -14.723155, -23.568958, -23.555414,
-     -19.275686, -12.266679, -7.493654, -5.214629, -3.643546, -0.870981, 0.944698, 0.962992, 0.364655,
-     0.513104, 3.203516, 9.363267, 16.57821, 27.205514, 36.64053)
+${wrapList("var array<float> RSI_POINTS = array.from(", n.rsiPoints)}
+${wrapList("var array<float> CREDIT_POINTS = array.from(", n.creditPoints)}
 
-// colours — the Hub's up and down, two tones of one teal family for everything else, greys with no white
-// (green, red and the teal were measured apart from each other, for full colour vision and for red-green colour blindness)
-const color C_BULL   = #00FFA3
-const color C_BEAR   = #FF2D55
-const color C_LINE   = #2FB5A8
-const color C_DEEP   = #1C7D75
-const color C_AXIS   = #3A3A52
-const color C_EDGE   = #252538
-const color C_PANEL  = #0D0D14
+${palette}
 
 // ── inputs ─────────────────────────────────────────────────────────────────────────────────────
 const string G_SHAPE = "The account's shape (the allocation tool's baseline, 7 Oct 2026)"
-float heldPct     = input.float(70.0, "Held through pullbacks, % of the account", minval = 0, maxval = 100, step = 1, group = G_SHAPE,
+float heldPct     = input.float(${n.held}.0, "Held through pullbacks, % of the account", minval = 0, maxval = 100, step = 1, group = G_SHAPE,
      tooltip = "The part that stays invested whatever the market reading says. If you change the shape in the allocation tool, change it here too.")
-float tacticalPct = input.float(30.0, "Tactical at full, % of the account", minval = 0, maxval = 100, step = 1, group = G_SHAPE,
+float tacticalPct = input.float(${n.tactical}.0, "Tactical at full, % of the account", minval = 0, maxval = 100, step = 1, group = G_SHAPE,
      tooltip = "The part that moves with the market reading: a reading of 0 deploys none of it, a reading of 100 deploys all of it.")
 
 const string G_RULE = "What version 2 changed — switch either off to see the line without it"
 bool creditRule = input.bool(true, "Credit does not subtract in a washed-out market", group = G_RULE,
-     tooltip = "On: when the credit part would take points away, what it takes is counted in full while SPY and QQQ's average RSI is 45 or more, not at all at 35 and under, in proportion between. Off: credit subtracts in full whatever the RSI, as in version 1.")
+     tooltip = "On: when the credit part would take points away, what it takes is counted in full while SPY and QQQ's average RSI is ${pr(R.fadeFrom)} or more, not at all at ${pr(R.fadeTo)} and under, in proportion between. Off: credit subtracts in full whatever the RSI, as in version 1.")
 bool cashRule   = input.bool(true, "Raise cash at an extended high, put it back at the next washout", group = G_RULE,
-     tooltip = "On: from a close where SPY and QQQ are both within 2% of their highest close of 252 sessions and on average 11.21% or more above their 200-day averages, the market reading is halved, until a close where their average RSI is under 40. Off: the reading is never halved, as in version 1.")
+     tooltip = "On: from a close where SPY and QQQ are both within ${pr(R.nearPct)}% of their highest close of ${R.highDays} sessions and on average ${R.extPct}% or more above their ${R.avgDays}-day averages, the market reading is halved, until a close where their average RSI is under ${pr(R.resetRsi)}. Off: the reading is never halved, as in version 1.")
 
 const string G_LOOK = "Look"
 bool byDirection = input.bool(true,  "Colour the % invested line by its daily direction", group = G_LOOK,
@@ -167,32 +170,7 @@ string qqqSym = input.symbol("NASDAQ:QQQ", "Nasdaq 100 fund",                  g
 string hygSym = input.symbol("AMEX:HYG",   "High-yield bond fund (credit)",    group = G_FEED, display = display.none)
 string iefSym = input.symbol("NASDAQ:IEF", "7–10 year Treasury fund (rates)",  group = G_FEED, display = display.none)
 
-// ── Wilder's RSI, written out so the arithmetic is the allocation tool's own ───────────────────
-// the first average is the plain mean of the first 14 daily changes; every later one is (13 × the last + today's) ÷ 14
-wilderRsi(float src) =>
-    var float prev = na
-    var float upAvg = 0.0
-    var float dnAvg = 0.0
-    var int   k    = 0
-    float out = na
-    if not na(src)
-        if na(prev)
-            prev := src
-        else
-            float d  = src - prev
-            float up = math.max(d, 0.0)
-            float dn = math.max(-d, 0.0)
-            prev := src
-            k    += 1
-            if k <= RSI_DAYS
-                upAvg += up / RSI_DAYS
-                dnAvg += dn / RSI_DAYS
-            else
-                upAvg := (upAvg * (RSI_DAYS - 1) + up) / RSI_DAYS
-                dnAvg := (dnAvg * (RSI_DAYS - 1) + dn) / RSI_DAYS
-            if k >= RSI_DAYS
-                out := dnAvg == 0 ? 100.0 : 100.0 - 100.0 / (1.0 + upAvg / dnAvg)
-    out
+${wilder}
 
 // ── version 2: where a fund stands against its own high and its own long average ───────────────
 // its close against its highest close of the last 252 sessions, itself among them, in %: 0 at the high,
@@ -235,35 +213,7 @@ float qqqOff  = request.security(qqqT, "D", offHigh(close), lookahead = barmerge
 float spyOver = request.security(spyT, "D", overAvg(close), lookahead = barmerge.lookahead_off)
 float qqqOver = request.security(qqqT, "D", overAvg(close), lookahead = barmerge.lookahead_off)
 
-// ── a part's points: its value → its place among the measured days → the points on its curve ────
-pointsAt(array<float> placeTab, array<float> curve, float z) =>
-    float out = na
-    if not na(z)
-        // the place, 0 … 100: straight lines through the place table, flat beyond its two ends
-        int   n = array.size(placeTab) - 1
-        float u = 0.0
-        if z <= array.get(placeTab, 0)
-            u := 0.0
-        else if z >= array.get(placeTab, n)
-            u := 100.0
-        else
-            int lo = 0
-            int hi = n
-            while hi - lo > 1
-                int mid = int(math.floor((lo + hi) / 2.0))
-                if array.get(placeTab, mid) <= z
-                    lo := mid
-                else
-                    hi := mid
-            float a  = array.get(placeTab, lo)
-            float b  = array.get(placeTab, hi)
-            float fl = lo
-            u := (100.0 / n) * (b == a ? fl : fl + (z - a) / (b - a))
-        // the points at that place: straight lines through the curve's 21 marks
-        int   i = math.min(array.size(curve) - 2, int(math.floor(u / 5.0)))
-        float t = (u - i * 5.0) / 5.0
-        out := array.get(curve, i) + t * (array.get(curve, i + 1) - array.get(curve, i))
-    out
+${points}
 
 // ── the sum ────────────────────────────────────────────────────────────────────────────────────
 float rsiBoth   = (spyRsi + qqqRsi) / 2.0
@@ -327,9 +277,7 @@ hline(100.0, "100", color = C_EDGE, linestyle = hline.style_solid)
 hline(50.0,  "50",  color = C_EDGE, linestyle = hline.style_dotted)
 hline(0.0,   "0",   color = C_EDGE, linestyle = hline.style_solid)
 
-// numbers as the allocation tool writes them: whole for the two headline numbers, signed points to one decimal
-whole(float v)   => na(v) ? "—" : str.tostring(math.round(v))
-signed1(float v) => na(v) ? "—" : (math.round(v, 1) > 0 ? "+" : math.round(v, 1) < 0 ? "−" : "") + str.tostring(math.abs(math.round(v, 1)), "0.0")
+${formats}
 
 // ── labels on the last bar: each at its own line, the highest first, never on top of each other ─
 var array<label> tags = array.new<label>()
@@ -371,3 +319,9 @@ if barstate.islast and showTag
                 y := math.min(y, above - labelGap)
             above := y
             array.push(tags, label.new(bar_index + 2, y, array.get(ts, j), style = label.style_label_left, color = C_PANEL, textcolor = array.get(cs, j), size = size.small))
+`; }
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const text = buildPine2();
+  if (process.argv.includes("--check")) { const on = fs.existsSync(PINE2) ? fs.readFileSync(PINE2, "utf8") : null; if (on !== text) { console.error("study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine is not what scripts/ds2-build-pine.mjs writes — run it again"); process.exit(1); } console.log("the version 2 script on disk is what the build writes"); }
+  else { fs.writeFileSync(PINE2, text); console.log(JSON.stringify({ wrote: path.relative(ROOT, PINE2), bytes: text.length, lines: text.split("\n").length })); } }

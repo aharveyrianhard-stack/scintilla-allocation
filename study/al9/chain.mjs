@@ -21,6 +21,9 @@ import { CORE } from "../ds1/engine.mjs";
 
 export const CONVICTION = ["MU", "NBIS"];
 export const ROWS = [...CONVICTION, ...CORE];                       // room to play, top to bottom: the conviction names, then the core in comps order
+/* DS2 (7 Oct, evening): a starter is a name bought a little at a time by hand. It has NO share of the core (its weight is 0, so its target is
+   0% and nothing of the number is waiting for it); room to play still shows it, by this name, with what the account holds of it. */
+export const STARTERS = { ORCL: "dollar-cost starter" };
 export const LABEL = { MU: "Micron", NBIS: "Nebius", NVDA: "Nvidia", AVGO: "Broadcom", TSM: "TSMC", ORCL: "Oracle", AMZN: "Amazon", GOOGL: "Alphabet" };
 /* every dial with its baseline — each one is an input in the tool's assumptions panel */
 export const DIALS = {
@@ -28,7 +31,9 @@ export const DIALS = {
   tacticalPct: 30,    // the tactical part at full, % of the account: the market reading puts 0–100% of it to work
   convShare: 25,      // conviction's share of what is invested at a market reading of 0, % — Alan's 1 in 4
   convLift: 5,        // points of share conviction gains as the market reading goes from 0 to 100
-  micronOfConv: 80,   // Micron's part of conviction, % (DS1's 20 against Nebius's 5); Nebius has the rest
+  micronOfConv: 60,   // Micron's part of conviction, %; Nebius has the rest. DS2 (7 Oct, evening): the baseline is 60 / 40 (it was 80 / 20), and the dial sits in the open beside the pies
+  creditRule: 1,      // DS2, version 2 of the market reading: 1 = credit does not subtract in a washed-out market (study/ds2/number.mjs); 0 = version 1
+  cashRule: 1,        // DS2, version 2: 1 = cash is raised at an extended high and put back at the next washout; 0 = version 1
   capMicron: 30,      // Micron is never more than this % of the account (the approved rule: "never more than 30% of the account")
   bandPts: 5,         // the breakout band, points of the account over the number — conviction names only, in their own proportions
   breakoutDays: 60,   // breaking out = the price is above its highest close of this many sessions
@@ -85,10 +90,10 @@ export function highOf(closes, k, days = DIALS.breakoutDays) { let hi = -Infinit
    part of the breakout band. allowed = the most the account may hold of it right now. */
 export function roomToPlay(now, full, account, A, breaking = {}) {
   const nlv = (account && account.nlv) || 0, pos = (account && account.positions) || {}, m = clamp(+A.micronOfConv, 0, 100) / 100, bandOf = { MU: +A.bandPts * m, NBIS: +A.bandPts * (1 - m) }, usd = (p) => (p / 100) * nlv, rows = [];
-  for (const s of ROWS) { const t = now.names[s] ? now.names[s].pct : 0, ceil = full.names[s] ? full.names[s].pct : 0; if (!(t > 0) && !(ceil > 0) && !pos[s]) continue;
+  for (const s of ROWS) { const t = now.names[s] ? now.names[s].pct : 0, ceil = full.names[s] ? full.names[s].pct : 0, starter = !!STARTERS[s] && !(t > 0) && !(ceil > 0); if (!(t > 0) && !(ceil > 0) && !pos[s] && !starter) continue;
     const p = pos[s], shares = p ? +p.shares : 0, price = p ? p.price : null, held = nlv > 0 && p ? (100 * shares * p.price) / nlv : 0, isConv = CONVICTION.includes(s);
-    const band = isConv ? Math.max(0, Math.min(bandOf[s] || 0, ceil - t)) : 0, open = isConv && !!breaking[s], allowed = t + (open ? band : 0), room = t - held, over = Math.max(0, held - allowed);
-    rows.push({ sym: s, name: LABEL[s] || s, conviction: isConv, target: t, ceiling: ceil, held, shares, price, room, roomUsd: usd(room), targetUsd: usd(t), heldUsd: usd(held), band, bandOpen: open, allowed, over, overUsd: usd(over), inBand: Math.max(0, Math.min(held - t, band)), parts: now.names[s] ? now.names[s].parts : [], capped: !!(full.names[s] && full.names[s].capped) }); }
+    const band = isConv ? Math.max(0, Math.min(bandOf[s] || 0, ceil - t)) : 0, open = isConv && !!breaking[s], allowed = starter ? held : t + (open ? band : 0), room = starter ? 0 : t - held, over = starter ? 0 : Math.max(0, held - allowed);   /* a starter is sized by hand: it is never "over" and never "to buy" */
+    rows.push({ sym: s, name: LABEL[s] || s, starter: starter ? STARTERS[s] : null, conviction: isConv, target: t, ceiling: ceil, held, shares, price, room, roomUsd: usd(room), targetUsd: usd(t), heldUsd: usd(held), band, bandOpen: open, allowed, over, overUsd: usd(over), inBand: Math.max(0, Math.min(held - t, band)), parts: now.names[s] ? now.names[s].parts : [], capped: !!(full.names[s] && full.names[s].capped) }); }
   const other = Object.entries(pos).filter(([s]) => !ROWS.includes(s)).map(([s, p]) => ({ sym: s, held: nlv > 0 ? (100 * p.shares * p.price) / nlv : 0 })).filter((x) => x.held > 0.005);
   const held = sum(rows.map((x) => x.held)) + sum(other.map((x) => x.held)), bandOpen = sum(rows.filter((x) => x.bandOpen).map((x) => x.band));
   return { rows, other, nlv, target: now.number, held, room: now.number - held, roomUsd: usd(now.number - held), ceiling: full.number, bandPts: +A.bandPts, bandOpen, allowed: now.number + bandOpen }; }

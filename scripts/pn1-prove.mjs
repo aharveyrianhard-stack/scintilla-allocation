@@ -13,11 +13,11 @@
      today               the tool's own live read: its 540 daily bars plus today's prices, HYG chained the tool's way and TradingView's way */
 import fs from "node:fs"; import path from "node:path"; import crypto from "node:crypto"; import { fileURLToPath } from "node:url";
 import * as E from "../study/ds1/engine.mjs";
-import { view, fetchDaily, fetchLive, baseline, alignBars, withLive, sessionRanges, hygWithPayouts, nyParts, phaseOf } from "../study/ds1/live.mjs";
+import { view, fetchDaily, fetchLive, baseline, alignBars, withLive, sessionRanges, hygWithPayouts, nyParts, phaseOf, ds1Shape } from "../study/ds1/live.mjs";
 import { parsePine, replay, adjustLikeTradingView, labelOf, pointsAt, round1 } from "../study/pn1/pine-replay.mjs";
 import { runFromText } from "../study/pn1/pine-transliterate.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), J = (f) => JSON.parse(fs.readFileSync(f, "utf8")), iso = (t) => new Date(t).toISOString().slice(0, 10);
-const FIXTURE = path.join(ROOT, "tests/fixtures/pn1-closes-20261006.json"), OUT = path.join(ROOT, "study/pn1/data/pn1-proof.json"), PINE = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine");
+const FIXTURE = path.join(ROOT, "tests/fixtures/pn1-closes-20261006.json"), OUT = path.join(ROOT, "study/pn1/data/pn1-proof.json"), PINE = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine");
 const args = process.argv.slice(2), CACHE = args.find((a) => !a.startsWith("--")), NO_LIVE = args.includes("--no-live"), QUIET = args.includes("--quiet");
 const r1 = (x) => (x == null || !isFinite(x) ? null : +x.toFixed(1)), r2 = (x) => (x == null || !isFinite(x) ? null : +x.toFixed(2)), r3 = (x) => (x == null || !isFinite(x) ? null : +x.toFixed(3)), r4 = (x) => (x == null || !isFinite(x) ? null : +x.toFixed(4));
 const pctl = (a, q) => { const s = a.slice().sort((p, r) => p - r); if (!s.length) return null; const k = ((s.length - 1) * q) / 100, lo = Math.floor(k), hi = Math.ceil(k); return s[lo] + (s[hi] - s[lo]) * (k - lo); };
@@ -40,7 +40,7 @@ export function fixtureFromCache(cache) {
 export function engineOn(F, model, A, hygTR = F.hygWithPayouts) {
   const bar = (c) => ({ c, h: c, l: c }), bars = {}; for (const s of E.ALL_SYMBOLS) bars[s] = F[s] ? bar(F[s]) : null;
   const X = E.allReadings({ dates: F.dates, bars }, hygTR).X;
-  return F.dates.map((d, i) => { const inp = E.inputsAt(X, i); if (inp.rsi == null || inp.creditOwn == null) return { date: d, reading: null, invested: null, rsi: inp.rsi, creditOwn: inp.creditOwn }; const r = E.readSystem(inp, model); return { date: d, reading: r.reading, raw: r.raw, invested: E.pie(r.reading, A).invested, rsi: inp.rsi, creditOwn: inp.creditOwn, points: Object.fromEntries(r.parts.map((p) => [p.key, p.points])) }; }); }
+  return F.dates.map((d, i) => { const inp = E.inputsAt(X, i); if (inp.rsi == null || inp.creditOwn == null) return { date: d, reading: null, invested: null, rsi: inp.rsi, creditOwn: inp.creditOwn }; const r = E.readSystem(inp, model); return { date: d, reading: r.reading, raw: r.raw, invested: E.pie(r.reading, ds1Shape(A)).invested,   /* DS2: PN1 was cut from DS1 and AL9 changed the tool's dials (a held part in place of three fixed slots); joined, DS1's pie has to be handed AL9's dials in its own shape — live.mjs's ds1Shape, as the tool itself does */ rsi: inp.rsi, creditOwn: inp.creditOwn, points: Object.fromEntries(r.parts.map((p) => [p.key, p.points])) }; }); }
 /* the script: each fund as TradingView would hand it for the adjustment the script asks for */
 export function scriptOn(K, F, hyg, inputs) { const ser = (c) => F.dates.map((d, i) => ({ date: d, close: c[i] })).filter((b) => b.close != null);
   for (const [k, want] of [["spy", "splits"], ["qqq", "splits"], ["ief", "splits"], ["hyg", "dividends"]]) if (K.funds[k].adjustment !== want) throw new Error("the script asks for " + k + " with adjustment." + K.funds[k].adjustment + "; this proof feeds it adjustment." + want);

@@ -1,67 +1,4 @@
-/* DS2 (7 Oct 2026, evening): this is VERSION 1 of the pane. Its file is now study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine, byte for byte what
-   PN1 proved and what is installed on TradingView today — the way back. Version 2 (scripts/ds2-build-pine.mjs) is written to
-   study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine, the path the installer reads.
-
-   PN1 (7 Oct 2026) — writes the TradingView script study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine from the allocation tool's own model file
-   (study/ds1/data/ds1-live.json), so every number in the script is the engine's number and none is typed by hand.
-     node scripts/pn1-build-pine.mjs            write the file
-     node scripts/pn1-build-pine.mjs --check    exit 1 if the file on disk is not what this would write
-   No key, no network, no table: it reads two files in this repo and writes one.
-
-   WHAT THE SCRIPT CARRIES
-     · for each of the two parts that vote (the engine's "kept" list): its place table (101 values — the engine's q) and ONE points curve
-       of 21 marks. The engine reads four measured curves per part and averages them in units of the model's spread, then multiplies by
-       the gain; straight-line reading is linear, so the same four curves summed mark by mark and read once give the same points
-       (to the fourteenth decimal — tests/pn1.test.mjs holds it to 1e-9);
-     · the reading on a typical day: 50 − gain × centre;
-     · the account's shape: the part held through pullbacks (core + the conviction slots) and the tactical part, from the model's defaults.
-   The measured gaps quoted in the script's header come from study/pn1/data/pn1-proof.json (scripts/pn1-prove.mjs) when that file exists. */
-import fs from "node:fs"; import path from "node:path"; import { fileURLToPath } from "node:url";
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-export const PINE = path.join(ROOT, "study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine"), PROOF = path.join(ROOT, "study/pn1/data/pn1-proof.json");
-const J = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
-
-/* the numbers the script carries, from the model */
-export function pineNumbers(base = J(path.join(ROOT, "study/ds1/data/ds1-live.json"))) {
-  const m = base.model, sc = m.scale, d = base.defaults, part = (k) => m.parts.find((p) => p.key === k);
-  if (JSON.stringify(base.kept) !== JSON.stringify(["rsi", "creditOwn"])) throw new Error("the model's voting parts are " + JSON.stringify(base.kept) + "; this script is written for the index RSI and credit's own move");
-  const points = (p) => p.gm20.map((_, i) => +((sc.gain * (p.gm20[i] / sc.sM20 + p.gp20[i] / sc.sP20 + p.gm60[i] / sc.sM60 + p.gp60[i] / sc.sP60)) / 4).toFixed(6));
-  for (const k of base.kept) { const p = part(k); if (!p || !p.vote || p.q.length !== 101 || p.gm20.length !== 21) throw new Error("part " + k + " is not a voting part with a 101-value place table and 21-mark curves"); }
-  return { typical: +(50 - sc.gain * sc.centre).toFixed(6), rsiPlaces: part("rsi").q, rsiPoints: points(part("rsi")), creditPlaces: part("creditOwn").q, creditPoints: points(part("creditOwn")),
-    held: d.corePct + d.micronPct + d.nebiusPct, tactical: d.tacticalPct, core: d.corePct, micron: d.micronPct, nebius: d.nebiusPct, days: m.evenings, from: m.fittedFrom, to: m.fittedTo, asOf: base.asOf }; }
-
-/* a long list of numbers as Pine arguments: the first on the opening line, the rest wrapped at five spaces (never a multiple of four) */
-function wrapList(head, nums, tail = ")") { const lines = []; let cur = head;
-  nums.forEach((v, i) => { const piece = String(v) + (i < nums.length - 1 ? ", " : tail); if ((cur + piece).length > 112) { lines.push(cur.replace(/\s+$/, "")); cur = "     " + piece; } else cur += piece; }); lines.push(cur); return lines.join("\n"); }
-const day = (iso) => { const [y, m, d] = iso.split("-"); return `${+d} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][+m - 1]} ${y}`; };
-const one = (x) => (Math.round(x * 10) / 10).toFixed(1);
-
-/* the lines of the header that quote what the replay measured (scripts/pn1-prove.mjs) */
-function measuredLines(proof) {
-  if (!proof) return ["//      The measured gaps are on the page beside this file (study/pn1/PN1.html)."];
-  const a = proof.history.samePrices, b = proof.history.tradingViewPayouts, s = proof.sensitivity, yr = proof.history.lastYear.tradingViewPayouts, n = (x) => x.toLocaleString("en-US"), rc = proof.history.roundingToTheCentAlone && proof.history.roundingToTheCentAlone.over1 ? proof.history.roundingToTheCentAlone : null, tw = proof.history.betweenTheTwoUsualWays || null;
-  const same = a.worst === 0 ? "the reading is the same on every one of those days" : `the reading never differs by more than ${one(a.worst)} of a point`;
-
-  return [
-    `//      Measured with a replay of this script's arithmetic against the allocation tool's own engine on`,
-    `//      the ${n(a.days)} days from ${day(proof.history.from)} to ${day(proof.history.to)}:`,
-    `//        · fed the engine's own prices, ${same};`,
-    `//        · fed HYG's payouts the way TradingView adds them back, it is within one point on ${one(b.shareWithin1)}% of`,
-    `//          days (median gap ${b.median.toFixed(1)}; 99 days in 100 within ${one(b.p99)}).`,
-    ...(b.over1 === 0 ? [`//          No day is over one point; the worst is ${one(b.worst)} on ${day(b.worstOn)}.`] : [`//          The ${b.over1} days over one point all fall in ${b.over1First.slice(0, 4)}–${b.over1Last.slice(0, 4)}, when HYG's price with payouts was`, `//          lower and a cent of rounding was more of it${rc ? ` (rounding to the cent alone makes ${rc.over1} such days,` : ";"}`, ...(rc ? [`//          all in ${rc.over1First.slice(0, 4)}–${rc.over1Last.slice(0, 4)}).`] : []), `//          The worst is ${one(b.worst)} on ${day(b.worstOn)}. In the last year the worst gap was ${one(yr.worst)}.`]),
-    ...(tw ? [`//        · scaling and chaining, run on the same closes and payouts, never put the reading more than ${one(tw.worst)}`, `//          apart (${day(tw.worstOn)}; ${one(tw.lastYearWorst)} in the last year), so which one TradingView uses matters little;`] : []),
-    `//        · one cent on one closing price moves the reading by up to ${s.centWorst.toFixed(2)} of a point on ${day(s.on)} (the cent`,
-    `//          that matters most is on HYG); across the last year the most a cent moved it was ${s.centWorstYear.toFixed(2)}.`];
-}
-function latePayoutLines(proof) { const o = proof && proof.observations && proof.observations.latePayout;
-  return [`//   3. HYG's payout day. On the first trading day of a month HYG trades without its payout (about ${o ? one(o.meanPayoutPct) : "0.5"}%).`,
-    `//      If TradingView were late adding that payout back, credit's own move would read too low that day`,
-    o ? `//      and the reading would be off by about ${Math.round(o.medianGap)} points (${Math.round(o.worstGap)} at worst, in either direction) until it caught` : `//      and the reading would be off by several points until it caught`,
-    `//      up. The tool keeps its own payout list and is not affected. Worth a look on the next payout day.`]; }
-
-export function buildPine(n = pineNumbers(), proof = fs.existsSync(PROOF) ? J(PROOF) : null) {
-  const L = [];
-  L.push(`//@version=6
+//@version=6
 // ═══════════════════════════════════════════════════════════════════════════════════════════════
 // SCINTILLA · DEPLOYMENT PANE  ·  7 Oct 2026
 // PLOTS 12/64  (the % invested line coloured by its daily direction = 2 · the held floor = 1 · the
@@ -72,9 +9,9 @@ export function buildPine(n = pineNumbers(), proof = fs.existsSync(PROOF) ? J(PR
 //
 // WHAT IT IS. The allocation tool's deployment system drawn in its own pane, with its history: how
 // much of the account the system has invested on every daily bar, on a scale from 0 to 100.
-//     % invested = the part held through pullbacks (${n.held}) + the tactical part (${n.tactical}) × the market reading ÷ 100
-// A market reading of 0 leaves all the tactical money in cash (${n.held}% invested); 100 puts all of it to
-// work (${Math.min(100, n.held + n.tactical)}% invested). The held part is the core ${n.core} + Micron's slot ${n.micron} + Nebius's slot ${n.nebius}.
+//     % invested = the part held through pullbacks (70) + the tactical part (30) × the market reading ÷ 100
+// A market reading of 0 leaves all the tactical money in cash (70% invested); 100 puts all of it to
+// work (100% invested). The held part is the core 45 + Micron's slot 20 + Nebius's slot 5.
 //
 // THE MARKET READING (0–100) is the allocation tool's own sum, from the two parts that earned a vote
 // when the tool was tested on years it had not seen:
@@ -82,10 +19,10 @@ export function buildPine(n = pineNumbers(), proof = fs.existsSync(PROOF) ? J(PR
 //   2. CREDIT'S OWN MOVE — HYG's move over ten sessions with its payouts counted, less half of the
 //      7–10 year Treasury fund's move over the same ten sessions, in %. HYG's bonds are about half as
 //      long as that fund's, so this takes the rates part out and leaves what credit did by itself.
-//   Each of the two is given its place among the ${n.days.toLocaleString("en-US")} days the rule was measured on (${day(n.from)} –
-//   ${day(n.to)}; 0 = the lowest seen, 100 = the highest), and that place is read off the part's own
+//   Each of the two is given its place among the 4,362 days the rule was measured on (10 Mar 2009 –
+//   13 Jul 2026; 0 = the lowest seen, 100 = the highest), and that place is read off the part's own
 //   measured curve as points.
-//   Market reading = ${one(n.typical)} (a typical day) + the two parts' points, held between 0 and 100.
+//   Market reading = 49.1 (a typical day) + the two parts' points, held between 0 and 100.
 // The VIX, breadth and the leaders' own state are shown in the allocation tool as lights and are not
 // counted there, so they are not counted here.
 //
@@ -104,13 +41,28 @@ export function buildPine(n = pineNumbers(), proof = fs.existsSync(PROOF) ? J(PR
 //   2. HYG's payouts. TradingView adds them back by scaling every earlier price; the tool chains them
 //      day by day, and its long history comes from a table rounded to the cent. The two agree closely,
 //      not exactly. (TradingView does not print its arithmetic; "scaling" below is the standard form.)
-${measuredLines(proof).join("\n")}
-${latePayoutLines(proof).join("\n")}
+//      Measured with a replay of this script's arithmetic against the allocation tool's own engine on
+//      the 4,894 days from 25 Apr 2007 to 6 Oct 2026:
+//        · fed the engine's own prices, the reading is the same on every one of those days;
+//        · fed HYG's payouts the way TradingView adds them back, it is within one point on 99.8% of
+//          days (median gap 0.1; 99 days in 100 within 0.6).
+//          The 8 days over one point all fall in 2007–2012, when HYG's price with payouts was
+//          lower and a cent of rounding was more of it (rounding to the cent alone makes 6 such days,
+//          all in 2007–2012).
+//          The worst is 2.2 on 28 Nov 2007. In the last year the worst gap was 0.6.
+//        · scaling and chaining, run on the same closes and payouts, never put the reading more than 0.8
+//          apart (13 Oct 2009; 0.1 in the last year), so which one TradingView uses matters little;
+//        · one cent on one closing price moves the reading by up to 0.45 of a point on 6 Oct 2026 (the cent
+//          that matters most is on HYG); across the last year the most a cent moved it was 0.72.
+//   3. HYG's payout day. On the first trading day of a month HYG trades without its payout (about 0.5%).
+//      If TradingView were late adding that payout back, credit's own move would read too low that day
+//      and the reading would be off by about 12 points (17 at worst, in either direction) until it caught
+//      up. The tool keeps its own payout list and is not affected. Worth a look on the next payout day.
 //   4. After the close. Until the day's close is settled the tool goes on counting prices traded after
 //      16:00 New York; this pane reads the regular session only, so for a while the two can differ.
 //   5. The tool lets you average the last few readings, and switch a light on so that it counts. This
 //      pane always shows the bar's own reading with the two voting parts only: the tool's baseline.
-//   6. The account's shape (${n.held} held, ${n.tactical} tactical) is the tool's baseline on 7 Oct 2026. If you change
+//   6. The account's shape (70 held, 30 tactical) is the tool's baseline on 7 Oct 2026. If you change
 //      it in the tool, change the two inputs here as well.
 //   7. Made for a daily chart. On a weekly chart each bar shows its last day. On an intraday chart a
 //      past day's reading appears on that day's last bar, and the live bar is live.
@@ -124,14 +76,39 @@ indicator("SCINTILLA · DEPLOYMENT PANE", shorttitle = "DEPLOYMENT", overlay = f
 const int    RSI_DAYS    = 14
 const int    CREDIT_DAYS = 10          // credit's own move is read over ten sessions
 const float  RATES_SHARE = 0.5         // HYG moves about half as far as the 7–10 year Treasury fund for the same move in rates
-const float  TYPICAL_DAY = ${n.typical}   // the market reading on a typical day, before the two parts add or take away
+const float  TYPICAL_DAY = 49.075087   // the market reading on a typical day, before the two parts add or take away
 
 // place tables: the value that sat at each whole place, 0 … 100, among the days the rule was measured on
-${wrapList("var array<float> RSI_PLACES = array.from(", n.rsiPlaces)}
-${wrapList("var array<float> CREDIT_PLACES = array.from(", n.creditPlaces)}
+var array<float> RSI_PLACES = array.from(18.06061, 29.50187, 32.009649, 33.776939, 35.349941, 36.459968,
+     37.422599, 38.29743, 39.202659, 39.980488, 40.648346, 41.25222, 42.003333, 42.488419, 42.967768,
+     43.395735, 43.940117, 44.488977, 44.96671, 45.614004, 45.974978, 46.433065, 46.846389, 47.332951,
+     47.808601, 48.28493, 48.665644, 49.14161, 49.530271, 49.888058, 50.269324, 50.679321, 51.06896, 51.572484,
+     52.030973, 52.465833, 52.904843, 53.313324, 53.626931, 54.000909, 54.235021, 54.569996, 54.802809,
+     55.119828, 55.436763, 55.73841, 56.021896, 56.39476, 56.690515, 56.883264, 57.14888, 57.434378, 57.72808,
+     58.079427, 58.320027, 58.625534, 58.919416, 59.203417, 59.46397, 59.752786, 60.014492, 60.305716,
+     60.59321, 60.895522, 61.131832, 61.465718, 61.771742, 62.063717, 62.377093, 62.669926, 62.914344,
+     63.221763, 63.513735, 63.874941, 64.125345, 64.420953, 64.748509, 65.02809, 65.323297, 65.78836,
+     66.092965, 66.335032, 66.754116, 67.040457, 67.2808, 67.603593, 67.952414, 68.24979, 68.661858, 68.996091,
+     69.436556, 69.895674, 70.315473, 70.840589, 71.487326, 72.102707, 72.807513, 73.873343, 75.440196,
+     77.559295, 84.249337)
+var array<float> CREDIT_PLACES = array.from(-17.471042, -4.693921, -3.765795, -3.005409, -2.684979, -2.300012,
+     -2.107127, -1.971754, -1.709398, -1.55512, -1.459024, -1.357945, -1.254016, -1.1592, -1.049067, -0.973536,
+     -0.889884, -0.825879, -0.768897, -0.701706, -0.63991, -0.591172, -0.529269, -0.481157, -0.437748,
+     -0.40779, -0.364628, -0.322246, -0.275532, -0.248024, -0.217029, -0.186038, -0.145157, -0.118056,
+     -0.092596, -0.066467, -0.029693, 0.001728, 0.022513, 0.046982, 0.0733, 0.10092, 0.117151, 0.143113,
+     0.168322, 0.194585, 0.226219, 0.248342, 0.272968, 0.297302, 0.320039, 0.344692, 0.363519, 0.382072,
+     0.403684, 0.432519, 0.452349, 0.480894, 0.505205, 0.530948, 0.55713, 0.588618, 0.613794, 0.643739,
+     0.675537, 0.699779, 0.732451, 0.760962, 0.785926, 0.809167, 0.832443, 0.864503, 0.896654, 0.940846,
+     0.975417, 1.018897, 1.051286, 1.090523, 1.129095, 1.184128, 1.242845, 1.291053, 1.350817, 1.412514,
+     1.462083, 1.529815, 1.591536, 1.66308, 1.757246, 1.863515, 1.997945, 2.14153, 2.312232, 2.489883,
+     2.697414, 2.948636, 3.283199, 3.695633, 4.602589, 5.596746, 11.145895)
 // points curves: the points each part adds to the reading at places 0, 5, 10 … 100
-${wrapList("var array<float> RSI_POINTS = array.from(", n.rsiPoints)}
-${wrapList("var array<float> CREDIT_POINTS = array.from(", n.creditPoints)}
+var array<float> RSI_POINTS = array.from(34.646613, 28.481048, 21.43638, 14.936992, 11.995729, 9.343638,
+     7.00514, 5.177347, 3.797543, 2.982205, 2.686532, 2.498377, 2.202705, 1.118573, -0.574822, -3.603223,
+     -8.044025, -18.131522, -29.663997, -43.246007, -55.634151)
+var array<float> CREDIT_POINTS = array.from(31.367016, 16.998677, 0.86942, -14.723155, -23.568958, -23.555414,
+     -19.275686, -12.266679, -7.493654, -5.214629, -3.643546, -0.870981, 0.944698, 0.962992, 0.364655,
+     0.513104, 3.203516, 9.363267, 16.57821, 27.205514, 36.64053)
 
 // colours — the Hub's up and down, two tones of one teal family for everything else, greys with no white
 // (green, red and the teal were measured apart from each other, for full colour vision and for red-green colour blindness)
@@ -145,9 +122,9 @@ const color C_PANEL  = #0D0D14
 
 // ── inputs ─────────────────────────────────────────────────────────────────────────────────────
 const string G_SHAPE = "The account's shape (the allocation tool's baseline, 7 Oct 2026)"
-float heldPct     = input.float(${n.held}.0, "Held through pullbacks, % of the account", minval = 0, maxval = 100, step = 1, group = G_SHAPE,
-     tooltip = "The part that stays invested whatever the market reading says: the core ${n.core} + Micron's slot ${n.micron} + Nebius's slot ${n.nebius}. If you change the shape in the allocation tool, change it here too.")
-float tacticalPct = input.float(${n.tactical}.0, "Tactical at full, % of the account", minval = 0, maxval = 100, step = 1, group = G_SHAPE,
+float heldPct     = input.float(70.0, "Held through pullbacks, % of the account", minval = 0, maxval = 100, step = 1, group = G_SHAPE,
+     tooltip = "The part that stays invested whatever the market reading says: the core 45 + Micron's slot 20 + Nebius's slot 5. If you change the shape in the allocation tool, change it here too.")
+float tacticalPct = input.float(30.0, "Tactical at full, % of the account", minval = 0, maxval = 100, step = 1, group = G_SHAPE,
      tooltip = "The part that moves with the market reading: a reading of 0 deploys none of it, a reading of 100 deploys all of it.")
 
 const string G_LOOK = "Look"
@@ -155,7 +132,7 @@ bool byDirection = input.bool(true,  "Colour the % invested line by its daily di
      tooltip = "On: green on a day the system has more invested than the day before, red on a day it has less. Off: one teal line, the same teal as the market reading, which it follows.")
 bool showReading = input.bool(false, "Show the market reading (0–100)", group = G_LOOK)
 bool showParts   = input.bool(false, "Show the reading's two voting parts", group = G_LOOK,
-     tooltip = "SPY and QQQ together (a thin line) and credit (dots). Each is drawn as 50 plus the points it adds to the market reading: green above the middle line, where it argues for more invested, red below it, where it argues for less. A typical day (${one(n.typical)}) plus the two parts' points is the market reading, held between 0 and 100.")
+     tooltip = "SPY and QQQ together (a thin line) and credit (dots). Each is drawn as 50 plus the points it adds to the market reading: green above the middle line, where it argues for more invested, red below it, where it argues for less. A typical day (49.1) plus the two parts' points is the market reading, held between 0 and 100.")
 bool showTag     = input.bool(true,  "Labels on the last bar", group = G_LOOK)
 float labelGap   = input.float(12.0, "Least space between two labels, in points of the scale", minval = 0, maxval = 40, step = 1, group = G_LOOK, display = display.none,
      tooltip = "When more than one label is shown they are stacked from the highest value down, each at its own line. Raise this if two labels touch on a short pane.")
@@ -314,10 +291,3 @@ if barstate.islast and showTag
                 y := math.min(y, above - labelGap)
             above := y
             array.push(tags, label.new(bar_index + 2, y, array.get(ts, j), style = label.style_label_left, color = C_PANEL, textcolor = array.get(cs, j), size = size.small))
-`);
-  return L.join("\n"); }
-
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const text = buildPine();
-  if (process.argv.includes("--check")) { const on = fs.existsSync(PINE) ? fs.readFileSync(PINE, "utf8") : null; if (on !== text) { console.error("study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine is not what scripts/pn1-build-pine.mjs writes — run it again"); process.exit(1); } console.log("the script on disk is what the build writes"); }
-  else { fs.mkdirSync(path.dirname(PINE), { recursive: true }); fs.writeFileSync(PINE, text); console.log(JSON.stringify({ wrote: path.relative(ROOT, PINE), bytes: text.length, lines: text.split("\n").length, typical: pineNumbers().typical, held: pineNumbers().held, tactical: pineNumbers().tactical })); } }

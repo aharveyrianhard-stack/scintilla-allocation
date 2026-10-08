@@ -1,16 +1,23 @@
-/* PN1 tests (7 Oct 2026) — the deployment pane for TradingView: the script on disk is what the build writes from the tool's model; its
+/* RE-PINNED BY DS2 (7 Oct 2026, evening), each for its stated reason:
+     · the script under test is VERSION 1, now study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine (byte for byte what PN1 proved and what is
+       installed today); version 2 has its own tests in tests/ds2.test.mjs;
+     · A is the tool's dials in the shape DS1's pie reads (live.mjs's ds1Shape). PN1 was cut from DS1; AL9 replaced DS1's three fixed
+       slots with a held part, and the two had never been run together — joined, four of these tests asked DS1's pie for a % invested
+       with dials it no longer has and got no number (they fail at the join itself, before any DS2 change);
+     · the live test hands view() the model without version 2's rule file, so it reads version 1, the script under test.
+   PN1 tests (7 Oct 2026) — the deployment pane for TradingView: the script on disk is what the build writes from the tool's model; its
    numbers are the engine's numbers; a replay of its arithmetic equals the engine on every day there is; the TradingView protocol
    (plot budget stated and counted, no white, version 6); plain words in everything a person reads on the chart; and the proof file
    says what the code says. Nothing here writes, and only the last test touches the network (a read of the chart API, skipped if it
    does not answer). */
 import test from "node:test"; import assert from "node:assert/strict"; import fs from "node:fs"; import path from "node:path"; import { fileURLToPath } from "node:url";
 import * as E from "../study/ds1/engine.mjs";
-import { view, fetchDaily, fetchLive, baseline, alignBars, withLive, sessionRanges, hygWithPayouts } from "../study/ds1/live.mjs";
+import { view, fetchDaily, fetchLive, baseline, alignBars, withLive, sessionRanges, hygWithPayouts, ds1Shape } from "../study/ds1/live.mjs";
 import { parsePine, replay, pointsAt, wilderRsi, moveOver, security, labelOf, labelsOf, adjustLikeTradingView, round1 } from "../study/pn1/pine-replay.mjs";
 import { buildPine, pineNumbers } from "../scripts/pn1-build-pine.mjs";
 import { engineOn, scriptOn, codeHash, codeOf } from "../scripts/pn1-prove.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), J = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), "utf8")), T = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
-const SRC = T("study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine"), K = parsePine(SRC), LV = J("study/ds1/data/ds1-live.json"), D = J("study/ds1/data/ds1.json"), M = LV.model, A = baseline(LV), F = J("tests/fixtures/pn1-closes-20261006.json"), P = J("study/pn1/data/pn1-proof.json");
+const SRC = T("study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine"), K = parsePine(SRC), LV = J("study/ds1/data/ds1-live.json"), D = J("study/ds1/data/ds1.json"), M = LV.model, A0 = baseline(LV), A = ds1Shape(A0), F = J("tests/fixtures/pn1-closes-20261006.json"), P = J("study/pn1/data/pn1-proof.json");
 const ix = Object.fromEntries(F.dates.map((d, i) => [d, i])), LAST = F.dates.length - 1, part = (k) => M.parts.find((p) => p.key === k), CODE = codeOf(SRC), near = (a, b, tol) => Math.abs(a - b) <= tol;
 /* every string a person can read on the chart or in the script's settings: the quoted text in the code part */
 const STRINGS = [...CODE.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((m) => m[1]);
@@ -72,7 +79,7 @@ test("6 · fed HYG's payouts the way TradingView adds them back, the script stay
 test("7 · the money: % invested is the held part plus the tactical part times the reading, never over 100, and the inputs move it", () => {
   const { same } = sides(); for (const r of same) if (r.reading != null) assert.ok(near(r.invested, 70 + 0.3 * r.reading, 1e-9) && r.invested >= 70 && r.invested <= 100);
   for (const r of same.slice(-300)) assert.ok(near(r.invested, E.pie(r.reading, A).invested, 0.0051), r.date + ": the tool's own pie");
-  const other = scriptOn(K, F, F.hygWithPayouts, { heldPct: 85, tacticalPct: 30 }); for (const r of other.slice(-300)) { assert.ok(r.invested <= 100); assert.ok(near(r.invested, Math.min(100, 85 + 0.3 * r.reading), 1e-9)); assert.ok(near(r.invested, E.pie(r.reading, { ...A, corePct: 60 }).invested, 0.0051), "the tool trims the tactical part the same way when the shape adds to more than 100"); }
+  const other = scriptOn(K, F, F.hygWithPayouts, { heldPct: 85, tacticalPct: 30 }); for (const r of other.slice(-300)) { assert.ok(r.invested <= 100); assert.ok(near(r.invested, Math.min(100, 85 + 0.3 * r.reading), 1e-9)); assert.ok(near(r.invested, E.pie(r.reading, ds1Shape({ ...A0, heldPct: 85 })).invested, 0.0051), "the tool trims the tactical part the same way when the shape adds to more than 100"); }
   /* the line's colour: green on a day it has more invested than the day before, red on a day it has less, unchanged on a flat day */
   const rows = same.filter((r) => r.reading != null); for (let i = 1; i < rows.length; i++) { const want = rows[i].invested > rows[i - 1].invested ? "green" : rows[i].invested < rows[i - 1].invested ? "red" : rows[i - 1].colour; assert.equal(rows[i].colour, want, rows[i].date); }
   assert.equal(scriptOn(K, F, F.hygWithPayouts, { byDirection: false }).at(-1).colour, "teal"); assert.equal(round1(21.949), 21.9); assert.equal(round1(null), null); });
@@ -116,7 +123,7 @@ test("10 · the proof file says what the code says: the named days, every day, a
 test("11 · live: the tool's own read of the chart API and the script on the very same prices agree to one point (skipped if the API does not answer)", async (t) => {
   const API = "https://scintilla-massive-chart-api.fly.dev", getApi = async (p) => { const r = await fetch(API + p, { headers: { Origin: "https://scintillahub.ai" }, signal: AbortSignal.timeout(60000) }); if (!r.ok) throw new Error(p.split("?")[0] + " " + r.status); return r.json(); };
   let candles, live; try { candles = await fetchDaily(getApi); live = await fetchLive(getApi); } catch (e) { t.skip("the chart API did not answer: " + e.message); return; }
-  const v = view({ base: LV, candles, ...live, A }), S = withLive(alignBars(candles), live.quotes, live.macro, sessionRanges(live.intraday, live.quotes?.SPY?.price_session_et)).S, G = { dates: S.dates, SPY: S.bars.SPY.c, QQQ: S.bars.QQQ.c, IEF: S.bars.IEF.c, HYG: S.bars.HYG.c };
+  const v = view({ base: LV, candles, ...live, A: A0 }), S = withLive(alignBars(candles), live.quotes, live.macro, sessionRanges(live.intraday, live.quotes?.SPY?.price_session_et)).S, G = { dates: S.dates, SPY: S.bars.SPY.c, QQQ: S.bars.QQQ.c, IEF: S.bars.IEF.c, HYG: S.bars.HYG.c };
   const a = scriptOn(K, G, hygWithPayouts(S.dates, G.HYG, LV.hygPayouts).tr).at(-1), b = scriptOn(K, G, adjustLikeTradingView(S.dates, G.HYG, LV.hygPayouts)).at(-1);
   assert.ok(Math.abs(v.reading.reading - a.reading) <= 0.1000001, "tool " + v.reading.reading + " script " + a.reading); assert.ok(Math.abs(v.reading.reading - b.reading) <= 1, "tool " + v.reading.reading + " script with TradingView's payouts " + b.reading); assert.ok(Math.abs(v.pie.invested - a.invested) <= 0.0300001); });
 

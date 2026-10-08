@@ -7,7 +7,7 @@
 import fs from "node:fs"; import path from "node:path"; import { fileURLToPath } from "node:url";
 import { parsePine, labelsOf, adjustLikeTradingView } from "../study/pn1/pine-replay.mjs"; import { scriptOn } from "./pn1-prove.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), J = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), "utf8")), T = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
-const SRC = T("study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine"), K = parsePine(SRC), F = J("tests/fixtures/pn1-closes-20261006.json"), P = J("study/pn1/data/pn1-proof.json"), DS = J("study/ds1/data/ds1.json");
+const SRC = T("study/pn1/SCINTILLA-DEPLOYMENT-PANE.v1.pine"), K = parsePine(SRC), F = J("tests/fixtures/pn1-closes-20261006.json"), P = J("study/pn1/data/pn1-proof.json"), DS = J("study/ds1/data/ds1.json");
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], day = (iso) => `${+iso.slice(8, 10)} ${MON[+iso.slice(5, 7) - 1]} ${iso.slice(0, 4)}`, dayS = (iso) => `${+iso.slice(8, 10)} ${MON[+iso.slice(5, 7) - 1]}`;
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"), n0 = (x) => x.toLocaleString("en-US"), f0 = (x) => x.toFixed(0), f1 = (x) => x.toFixed(1), f2 = (x) => x.toFixed(2), sg = (x, d = 1) => (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(x).toFixed(d);
 const hex = (name) => SRC.match(new RegExp("^const color " + name + "\\s*=\\s*(#[0-9A-Fa-f]{6})", "m"))[1];

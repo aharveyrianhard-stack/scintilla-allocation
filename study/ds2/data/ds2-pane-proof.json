@@ -1,0 +1,1368 @@
+{
+ "what": "DS2 — version 2 of the deployment pane's script against the allocation tool's version 2 sum",
+ "built": "2026-10-08T00:53:21.076Z",
+ "script": {
+  "file": "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine",
+  "codeHash": "278e725778096f7b",
+  "bytes": 26481,
+  "typicalDay": 49.075087,
+  "held": 70,
+  "tactical": 30,
+  "funds": {
+   "spy": {
+    "symbol": "AMEX:SPY",
+    "adjustment": "splits"
+   },
+   "qqq": {
+    "symbol": "NASDAQ:QQQ",
+    "adjustment": "splits"
+   },
+   "hyg": {
+    "symbol": "AMEX:HYG",
+    "adjustment": "dividends"
+   },
+   "ief": {
+    "symbol": "NASDAQ:IEF",
+    "adjustment": "splits"
+   }
+  },
+  "rules": {
+   "FADE_FROM": 45,
+   "FADE_TO": 35,
+   "HIGH_DAYS": 252,
+   "AVG_DAYS": 200,
+   "NEAR_PCT": 2,
+   "EXT_PCT": 11.21,
+   "RESET_RSI": 40,
+   "CASH_CUT": 0.5
+  }
+ },
+ "fixture": {
+  "file": "tests/fixtures/pn1-closes-20261006.json",
+  "sessions": 5804,
+  "from": "2003-09-11",
+  "to": "2026-10-06"
+ },
+ "tolerance": 1,
+ "rows": [
+  {
+   "date": "2025-03-13",
+   "kind": "a March 2025 low",
+   "engine": {
+    "reading": 82.6,
+    "invested": 94.78,
+    "cash": false,
+    "version1": {
+     "reading": 77.8,
+     "invested": 93.34
+    },
+    "rsi": 28.77,
+    "creditOwn": -1.274,
+    "creditCounted": 0,
+    "fade": 0
+   },
+   "script": {
+    "reading": 82.6,
+    "invested": 94.78,
+    "cash": false,
+    "version1": {
+     "reading": 77.8,
+     "invested": 93.34
+    },
+    "rsi": 28.77,
+    "creditOwn": -1.274,
+    "creditCounted": 0,
+    "label": "Invested 95% · market reading 83"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 82.6,
+    "invested": 94.78,
+    "cash": false,
+    "creditOwn": -1.284
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2025-03-28",
+   "kind": "the late-March 2025 low",
+   "engine": {
+    "reading": 71.4,
+    "invested": 91.42,
+    "cash": false,
+    "version1": {
+     "reading": 52.9,
+     "invested": 85.87
+    },
+    "rsi": 37.18,
+    "creditOwn": -0.42,
+    "creditCounted": -5.1,
+    "fade": 0.22
+   },
+   "script": {
+    "reading": 71.4,
+    "invested": 91.42,
+    "cash": false,
+    "version1": {
+     "reading": 52.9,
+     "invested": 85.87
+    },
+    "rsi": 37.18,
+    "creditOwn": -0.42,
+    "creditCounted": -5.1,
+    "label": "Invested 91% · market reading 71"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 71.4,
+    "invested": 91.42,
+    "cash": false,
+    "creditOwn": -0.424
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2025-04-02",
+   "kind": "the day before the April fall",
+   "engine": {
+    "reading": 43.8,
+    "invested": 83.14,
+    "cash": false,
+    "version1": {
+     "reading": 40.3,
+     "invested": 82.09
+    },
+    "rsi": 43.53,
+    "creditOwn": -0.447,
+    "creditCounted": -20.1,
+    "fade": 0.85
+   },
+   "script": {
+    "reading": 43.8,
+    "invested": 83.14,
+    "cash": false,
+    "version1": {
+     "reading": 40.3,
+     "invested": 82.09
+    },
+    "rsi": 43.53,
+    "creditOwn": -0.447,
+    "creditCounted": -20.1,
+    "label": "Invested 83% · market reading 44"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 43.8,
+    "invested": 83.14,
+    "cash": false,
+    "creditOwn": -0.456
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2025-04-08",
+   "kind": "the April 2025 low",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 22.27,
+    "creditOwn": -4.303,
+    "creditCounted": 27.3,
+    "fade": 1
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 22.27,
+    "creditOwn": -4.303,
+    "creditCounted": 27.3,
+    "label": "Invested 100% · market reading 100"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": -4.303
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2025-07-21",
+   "kind": "21 July 2025",
+   "engine": {
+    "reading": 4.7,
+    "invested": 71.41,
+    "cash": false,
+    "version1": {
+     "reading": 4.7,
+     "invested": 71.41
+    },
+    "rsi": 71.1,
+    "creditOwn": 0.179,
+    "creditCounted": -5.5,
+    "fade": 1
+   },
+   "script": {
+    "reading": 4.7,
+    "invested": 71.41,
+    "cash": false,
+    "version1": {
+     "reading": 4.7,
+     "invested": 71.41
+    },
+    "rsi": 71.1,
+    "creditOwn": 0.179,
+    "creditCounted": -5.5,
+    "label": "Invested 71% · market reading 5"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 4.8,
+    "invested": 71.44,
+    "cash": false,
+    "creditOwn": 0.182
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0.03,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2025-09-22",
+   "kind": "22 September 2025",
+   "engine": {
+    "reading": 0.2,
+    "invested": 70.06,
+    "cash": true,
+    "version1": {
+     "reading": 0.3,
+     "invested": 70.09
+    },
+    "rsi": 74.49,
+    "creditOwn": 0.881,
+    "creditCounted": 0.4,
+    "fade": 1
+   },
+   "script": {
+    "reading": 0.2,
+    "invested": 70.06,
+    "cash": true,
+    "version1": {
+     "reading": 0.3,
+     "invested": 70.09
+    },
+    "rsi": 74.49,
+    "creditOwn": 0.881,
+    "creditCounted": 0.4,
+    "label": "Invested 70% · market reading 0 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 0.2,
+    "invested": 70.06,
+    "cash": true,
+    "creditOwn": 0.871
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2025-10-29",
+   "kind": "the Nasdaq's high of autumn 2025",
+   "engine": {
+    "reading": 4.8,
+    "invested": 71.44,
+    "cash": true,
+    "version1": {
+     "reading": 9.6,
+     "invested": 72.88
+    },
+    "rsi": 70.31,
+    "creditOwn": 0.261,
+    "creditCounted": -4.4,
+    "fade": 1
+   },
+   "script": {
+    "reading": 4.8,
+    "invested": 71.44,
+    "cash": true,
+    "version1": {
+     "reading": 9.6,
+     "invested": 72.88
+    },
+    "rsi": 70.31,
+    "creditOwn": 0.261,
+    "creditCounted": -4.4,
+    "label": "Invested 71% · market reading 5 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 4.8,
+    "invested": 71.44,
+    "cash": true,
+    "creditOwn": 0.263
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2025-12-11",
+   "kind": "mid-December 2025",
+   "engine": {
+    "reading": 25.8,
+    "invested": 77.74,
+    "cash": true,
+    "version1": {
+     "reading": 51.6,
+     "invested": 85.48
+    },
+    "rsi": 60.32,
+    "creditOwn": 0.794,
+    "creditCounted": 0.6,
+    "fade": 1
+   },
+   "script": {
+    "reading": 25.8,
+    "invested": 77.74,
+    "cash": true,
+    "version1": {
+     "reading": 51.6,
+     "invested": 85.48
+    },
+    "rsi": 60.32,
+    "creditOwn": 0.794,
+    "creditCounted": 0.6,
+    "label": "Invested 78% · market reading 26 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 25.8,
+    "invested": 77.74,
+    "cash": true,
+    "creditOwn": 0.804
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2025-12-26",
+   "kind": "late December 2025",
+   "engine": {
+    "reading": 24.1,
+    "invested": 77.23,
+    "cash": true,
+    "version1": {
+     "reading": 48.2,
+     "invested": 84.46
+    },
+    "rsi": 58.58,
+    "creditOwn": 0.33,
+    "creditCounted": -3.4,
+    "fade": 1
+   },
+   "script": {
+    "reading": 24.1,
+    "invested": 77.23,
+    "cash": true,
+    "version1": {
+     "reading": 48.2,
+     "invested": 84.46
+    },
+    "rsi": 58.58,
+    "creditOwn": 0.33,
+    "creditCounted": -3.4,
+    "label": "Invested 77% · market reading 24 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 24.1,
+    "invested": 77.23,
+    "cash": true,
+    "creditOwn": 0.329
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2026-01-27",
+   "kind": "SPY's highest close before the fall",
+   "engine": {
+    "reading": 23.6,
+    "invested": 77.08,
+    "cash": true,
+    "version1": {
+     "reading": 47.2,
+     "invested": 84.16
+    },
+    "rsi": 59.12,
+    "creditOwn": 0.272,
+    "creditCounted": -4.3,
+    "fade": 1
+   },
+   "script": {
+    "reading": 23.6,
+    "invested": 77.08,
+    "cash": true,
+    "version1": {
+     "reading": 47.2,
+     "invested": 84.16
+    },
+    "rsi": 59.12,
+    "creditOwn": 0.272,
+    "creditCounted": -4.3,
+    "label": "Invested 77% · market reading 24 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 23.5,
+    "invested": 77.05,
+    "cash": true,
+    "creditOwn": 0.264
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0.03,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2026-02-23",
+   "kind": "23 February 2026",
+   "engine": {
+    "reading": 43.1,
+    "invested": 82.93,
+    "cash": false,
+    "version1": {
+     "reading": 40.3,
+     "invested": 82.09
+    },
+    "rsi": 43.78,
+    "creditOwn": -0.649,
+    "creditCounted": -20.5,
+    "fade": 0.88
+   },
+   "script": {
+    "reading": 43.1,
+    "invested": 82.93,
+    "cash": false,
+    "version1": {
+     "reading": 40.3,
+     "invested": 82.09
+    },
+    "rsi": 43.78,
+    "creditOwn": -0.649,
+    "creditCounted": -20.5,
+    "label": "Invested 83% · market reading 43"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 42.9,
+    "invested": 82.87,
+    "cash": false,
+    "creditOwn": -0.639
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.2,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0.06,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2026-03-13",
+   "kind": "13 March 2026",
+   "engine": {
+    "reading": 74.3,
+    "invested": 92.29,
+    "cash": false,
+    "version1": {
+     "reading": 59.6,
+     "invested": 87.88
+    },
+    "rsi": 36.67,
+    "creditOwn": -0.18,
+    "creditCounted": -3,
+    "fade": 0.17
+   },
+   "script": {
+    "reading": 74.3,
+    "invested": 92.29,
+    "cash": false,
+    "version1": {
+     "reading": 59.6,
+     "invested": 87.88
+    },
+    "rsi": 36.67,
+    "creditOwn": -0.18,
+    "creditCounted": -3,
+    "label": "Invested 92% · market reading 74"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 74.3,
+    "invested": 92.29,
+    "cash": false,
+    "creditOwn": -0.177
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2026-03-26",
+   "kind": "26 March 2026",
+   "engine": {
+    "reading": 80.3,
+    "invested": 94.09,
+    "cash": false,
+    "version1": {
+     "reading": 71,
+     "invested": 91.3
+    },
+    "rsi": 33.42,
+    "creditOwn": 0.027,
+    "creditCounted": 0,
+    "fade": 0
+   },
+   "script": {
+    "reading": 80.3,
+    "invested": 94.09,
+    "cash": false,
+    "version1": {
+     "reading": 71,
+     "invested": 91.3
+    },
+    "rsi": 33.42,
+    "creditOwn": 0.027,
+    "creditCounted": 0,
+    "label": "Invested 94% · market reading 80"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 80.3,
+    "invested": 94.09,
+    "cash": false,
+    "creditOwn": 0.033
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2026-03-30",
+   "kind": "the March 2026 low",
+   "engine": {
+    "reading": 82.7,
+    "invested": 94.81,
+    "cash": false,
+    "version1": {
+     "reading": 59.1,
+     "invested": 87.73
+    },
+    "rsi": 27.87,
+    "creditOwn": -0.417,
+    "creditCounted": 0,
+    "fade": 0
+   },
+   "script": {
+    "reading": 82.7,
+    "invested": 94.81,
+    "cash": false,
+    "version1": {
+     "reading": 59.1,
+     "invested": 87.73
+    },
+    "rsi": 27.87,
+    "creditOwn": -0.417,
+    "creditCounted": 0,
+    "label": "Invested 95% · market reading 83"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 82.7,
+    "invested": 94.81,
+    "cash": false,
+    "creditOwn": -0.415
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2026-10-06",
+   "kind": "the last day in the study",
+   "engine": {
+    "reading": 11,
+    "invested": 73.3,
+    "cash": true,
+    "version1": {
+     "reading": 21.9,
+     "invested": 76.57
+    },
+    "rsi": 65.97,
+    "creditOwn": -0.224,
+    "creditCounted": -19.5,
+    "fade": 1
+   },
+   "script": {
+    "reading": 11,
+    "invested": 73.3,
+    "cash": true,
+    "version1": {
+     "reading": 21.9,
+     "invested": 76.57
+    },
+    "rsi": 65.97,
+    "creditOwn": -0.224,
+    "creditCounted": -19.5,
+    "label": "Invested 73% · market reading 11 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 10.9,
+    "invested": 73.27,
+    "cash": true,
+    "creditOwn": -0.227
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0.03,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2007-10-09",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 8.1,
+    "invested": 72.43,
+    "cash": false,
+    "version1": {
+     "reading": 8.1,
+     "invested": 72.43
+    },
+    "rsi": 71.6,
+    "creditOwn": 0.498,
+    "creditCounted": 0.1,
+    "fade": 1
+   },
+   "script": {
+    "reading": 8.1,
+    "invested": 72.43,
+    "cash": false,
+    "version1": {
+     "reading": 8.1,
+     "invested": 72.43
+    },
+    "rsi": 71.6,
+    "creditOwn": 0.498,
+    "creditCounted": 0.1,
+    "label": "Invested 72% · market reading 8"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 7.9,
+    "invested": 72.37,
+    "cash": false,
+    "creditOwn": 0.484
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.2,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0.06,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2009-03-02",
+   "kind": "a low the deployment study lists",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 30.13,
+    "creditOwn": -10.679,
+    "creditCounted": 29.8,
+    "fade": 1
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 30.13,
+    "creditOwn": -10.679,
+    "creditCounted": 29.8,
+    "label": "Invested 100% · market reading 100"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": -10.698
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2018-01-26",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 0,
+    "invested": 70,
+    "cash": true,
+    "version1": {
+     "reading": 0,
+     "invested": 70
+    },
+    "rsi": 84.03,
+    "creditOwn": 0.452,
+    "creditCounted": -0.5,
+    "fade": 1
+   },
+   "script": {
+    "reading": 0,
+    "invested": 70,
+    "cash": true,
+    "version1": {
+     "reading": 0,
+     "invested": 70
+    },
+    "rsi": 84.03,
+    "creditOwn": 0.452,
+    "creditCounted": -0.5,
+    "label": "Invested 70% · market reading 0 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 0,
+    "invested": 70,
+    "cash": true,
+    "creditOwn": 0.45
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2018-12-21",
+   "kind": "a low the deployment study lists",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 25.24,
+    "creditOwn": -2.857,
+    "creditCounted": 21.4,
+    "fade": 1
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 25.24,
+    "creditOwn": -2.857,
+    "creditCounted": 21.4,
+    "label": "Invested 100% · market reading 100"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": -2.873
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2020-02-19",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 4.4,
+    "invested": 71.32,
+    "cash": true,
+    "version1": {
+     "reading": 8.8,
+     "invested": 72.64
+    },
+    "rsi": 71.54,
+    "creditOwn": 0.524,
+    "creditCounted": 0.5,
+    "fade": 1
+   },
+   "script": {
+    "reading": 4.4,
+    "invested": 71.32,
+    "cash": true,
+    "version1": {
+     "reading": 8.8,
+     "invested": 72.64
+    },
+    "rsi": 71.54,
+    "creditOwn": 0.524,
+    "creditCounted": 0.5,
+    "label": "Invested 71% · market reading 4 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 4.4,
+    "invested": 71.32,
+    "cash": true,
+    "creditOwn": 0.527
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2020-03-17",
+   "kind": "a low the deployment study lists",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 37.44,
+    "creditOwn": -10.742,
+    "creditCounted": 29.9,
+    "fade": 1
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 37.44,
+    "creditOwn": -10.742,
+    "creditCounted": 29.9,
+    "label": "Invested 100% · market reading 100"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": -10.738
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2022-01-03",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 31.2,
+    "invested": 79.36,
+    "cash": true,
+    "version1": {
+     "reading": 62.5,
+     "invested": 88.75
+    },
+    "rsi": 58.39,
+    "creditOwn": 1.596,
+    "creditCounted": 10.9,
+    "fade": 1
+   },
+   "script": {
+    "reading": 31.2,
+    "invested": 79.36,
+    "cash": true,
+    "version1": {
+     "reading": 62.5,
+     "invested": 88.75
+    },
+    "rsi": 58.39,
+    "creditOwn": 1.596,
+    "creditCounted": 10.9,
+    "label": "Invested 79% · market reading 31 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 31.2,
+    "invested": 79.36,
+    "cash": true,
+    "creditOwn": 1.591
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2022-10-17",
+   "kind": "a low the deployment study lists",
+   "engine": {
+    "reading": 78.8,
+    "invested": 93.64,
+    "cash": false,
+    "version1": {
+     "reading": 78.8,
+     "invested": 93.64
+    },
+    "rsi": 44.04,
+    "creditOwn": 1.9,
+    "creditCounted": 15.5,
+    "fade": 1
+   },
+   "script": {
+    "reading": 78.8,
+    "invested": 93.64,
+    "cash": false,
+    "version1": {
+     "reading": 78.8,
+     "invested": 93.64
+    },
+    "rsi": 44.04,
+    "creditOwn": 1.9,
+    "creditCounted": 15.5,
+    "label": "Invested 94% · market reading 79"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 78.9,
+    "invested": 93.67,
+    "cash": false,
+    "creditOwn": 1.904
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0.03,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2023-10-30",
+   "kind": "a low the deployment study lists",
+   "engine": {
+    "reading": 72.2,
+    "invested": 91.66,
+    "cash": false,
+    "version1": {
+     "reading": 65.4,
+     "invested": 89.62
+    },
+    "rsi": 38.05,
+    "creditOwn": 0.015,
+    "creditCounted": -3,
+    "fade": 0.3
+   },
+   "script": {
+    "reading": 72.2,
+    "invested": 91.66,
+    "cash": false,
+    "version1": {
+     "reading": 65.4,
+     "invested": 89.62
+    },
+    "rsi": 38.05,
+    "creditOwn": 0.015,
+    "creditCounted": -3,
+    "label": "Invested 92% · market reading 72"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 72.3,
+    "invested": 91.69,
+    "cash": false,
+    "creditOwn": 0.026
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0.03,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2024-07-16",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 6.5,
+    "invested": 71.95,
+    "cash": true,
+    "version1": {
+     "reading": 13,
+     "invested": 73.9
+    },
+    "rsi": 70.66,
+    "creditOwn": 0.742,
+    "creditCounted": 0.8,
+    "fade": 1
+   },
+   "script": {
+    "reading": 6.5,
+    "invested": 71.95,
+    "cash": true,
+    "version1": {
+     "reading": 13,
+     "invested": 73.9
+    },
+    "rsi": 70.66,
+    "creditOwn": 0.742,
+    "creditCounted": 0.8,
+    "label": "Invested 72% · market reading 7 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 6.5,
+    "invested": 71.95,
+    "cash": true,
+    "creditOwn": 0.751
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2025-02-19",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 23,
+    "invested": 76.9,
+    "cash": true,
+    "version1": {
+     "reading": 46,
+     "invested": 83.8
+    },
+    "rsi": 62.23,
+    "creditOwn": 0.332,
+    "creditCounted": -3.4,
+    "fade": 1
+   },
+   "script": {
+    "reading": 23,
+    "invested": 76.9,
+    "cash": true,
+    "version1": {
+     "reading": 46,
+     "invested": 83.8
+    },
+    "rsi": 62.23,
+    "creditOwn": 0.332,
+    "creditCounted": -3.4,
+    "label": "Invested 77% · market reading 23 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 22.9,
+    "invested": 76.87,
+    "cash": true,
+    "creditOwn": 0.329
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0.1,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0.03,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2025-04-04",
+   "kind": "a low the deployment study lists",
+   "engine": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 23.68,
+    "creditOwn": -3.442,
+    "creditCounted": 24.4,
+    "fade": 1
+   },
+   "script": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "version1": {
+     "reading": 100,
+     "invested": 100
+    },
+    "rsi": 23.68,
+    "creditOwn": -3.442,
+    "creditCounted": 24.4,
+    "label": "Invested 100% · market reading 100"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 100,
+    "invested": 100,
+    "cash": false,
+    "creditOwn": -3.444
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2026-06-02",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 0,
+    "invested": 70,
+    "cash": true,
+    "version1": {
+     "reading": 0,
+     "invested": 70
+    },
+    "rsi": 77.49,
+    "creditOwn": 0.554,
+    "creditCounted": 0.9,
+    "fade": 1
+   },
+   "script": {
+    "reading": 0,
+    "invested": 70,
+    "cash": true,
+    "version1": {
+     "reading": 0,
+     "invested": 70
+    },
+    "rsi": 77.49,
+    "creditOwn": 0.554,
+    "creditCounted": 0.9,
+    "label": "Invested 70% · market reading 0 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 0,
+    "invested": 70,
+    "cash": true,
+    "creditOwn": 0.555
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  },
+  {
+   "date": "2026-08-13",
+   "kind": "a high the deployment study lists",
+   "engine": {
+    "reading": 23.6,
+    "invested": 77.08,
+    "cash": true,
+    "version1": {
+     "reading": 47.3,
+     "invested": 84.19
+    },
+    "rsi": 63.74,
+    "creditOwn": 0.833,
+    "creditCounted": 0.4,
+    "fade": 1
+   },
+   "script": {
+    "reading": 23.6,
+    "invested": 77.08,
+    "cash": true,
+    "version1": {
+     "reading": 47.3,
+     "invested": 84.19
+    },
+    "rsi": 63.74,
+    "creditOwn": 0.833,
+    "creditCounted": 0.4,
+    "label": "Invested 77% · market reading 24 · cash raised"
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 23.6,
+    "invested": 77.08,
+    "cash": true,
+    "creditOwn": 0.842
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "gapInvested": 0,
+   "gapInvestedTradingViewPayouts": 0,
+   "sameRaiseCashState": true
+  }
+ ],
+ "today": null,
+ "namedDays": 29,
+ "worstNamed": {
+  "samePrices": 0,
+  "tradingViewPayouts": 0.2
+ },
+ "allWithinOnePoint": true,
+ "history": {
+  "from": "2007-04-25",
+  "to": "2026-10-06",
+  "samePrices": {
+   "days": 4894,
+   "oneSided": 0,
+   "raiseCashDaysThatDiffer": 0,
+   "worst": 0,
+   "worstOn": "2007-04-25",
+   "median": 0,
+   "p99": 0,
+   "shareWithin1": 100,
+   "over1": 0
+  },
+  "tradingViewPayouts": {
+   "days": 4894,
+   "oneSided": 0,
+   "raiseCashDaysThatDiffer": 0,
+   "worst": 2.2,
+   "worstOn": "2007-11-28",
+   "median": 0,
+   "p99": 0.6,
+   "shareWithin1": 99.88,
+   "over1": 6
+  },
+  "lastYear": {
+   "samePrices": {
+    "days": 252,
+    "oneSided": 0,
+    "raiseCashDaysThatDiffer": 0,
+    "worst": 0,
+    "worstOn": "2025-10-06",
+    "median": 0,
+    "p99": 0,
+    "shareWithin1": 100,
+    "over1": 0
+   },
+   "tradingViewPayouts": {
+    "days": 252,
+    "oneSided": 0,
+    "raiseCashDaysThatDiffer": 0,
+    "worst": 0.4,
+    "worstOn": "2026-02-11",
+    "median": 0,
+    "p99": 0.35,
+    "shareWithin1": 100,
+    "over1": 0
+   }
+  },
+  "firstScriptReading": "2007-04-25",
+  "raiseCashDays": {
+   "engine": 1318,
+   "script": 1318
+  },
+  "investedWorst": 0,
+  "fromTheScriptsOwnText": {
+   "days": 4894,
+   "oneSided": 0,
+   "raiseCashDaysThatDiffer": 0,
+   "worstAgainstTheHandWrittenReplay": 0,
+   "worstAgainstTheToolsSum": 0,
+   "worstVersion1Line": 0
+  },
+  "bothSwitchesOff": {
+   "days": 4894,
+   "worstAgainstVersion1": 0,
+   "worstOfTheThinLineAgainstVersion1": 0
+  },
+  "aHairOnAThreshold": {
+   "of": 4894,
+   "nudges": [
+    {
+     "what": "within 2% of the high",
+     "movedTo": 1.98,
+     "daysTheStateDiffers": 12,
+     "longestRun": 12,
+     "inTheLastYear": 0
+    },
+    {
+     "what": "within 2% of the high",
+     "movedTo": 2.02,
+     "daysTheStateDiffers": 2,
+     "longestRun": 2,
+     "inTheLastYear": 0
+    },
+    {
+     "what": "11.21% above the long average",
+     "movedTo": 11.19,
+     "daysTheStateDiffers": 1,
+     "longestRun": 1,
+     "inTheLastYear": 0
+    },
+    {
+     "what": "11.21% above the long average",
+     "movedTo": 11.23,
+     "daysTheStateDiffers": 0,
+     "longestRun": 0,
+     "inTheLastYear": 0
+    },
+    {
+     "what": "an RSI of 40",
+     "movedTo": 39.9,
+     "daysTheStateDiffers": 0,
+     "longestRun": 0,
+     "inTheLastYear": 0
+    },
+    {
+     "what": "an RSI of 40",
+     "movedTo": 40.1,
+     "daysTheStateDiffers": 0,
+     "longestRun": 0,
+     "inTheLastYear": 0
+    }
+   ],
+   "worst": {
+    "what": "within 2% of the high",
+    "movedTo": 1.98,
+    "daysTheStateDiffers": 12,
+    "longestRun": 12,
+    "inTheLastYear": 0
+   }
+  }
+ }
+}
