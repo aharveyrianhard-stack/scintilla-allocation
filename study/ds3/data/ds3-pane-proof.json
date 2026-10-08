@@ -1,6 +1,6 @@
 {
  "what": "DS3 — version 3 of the deployment pane's script against the study's version 3 sum",
- "built": "2026-10-08T13:49:03.750Z",
+ "built": "2026-10-08T14:01:35.751Z",
  "script": {
   "file": "study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine",
   "codeHash": "b2b846ec11cadcfd",
@@ -1545,9 +1545,62 @@
    "gap": 0,
    "gapTradingViewPayouts": 0,
    "sameRaiseCashState": true
+  },
+  {
+   "readAt": "2026-10-08 10:01:15 New York",
+   "phase": "open",
+   "session": "2026-10-08",
+   "prices": {
+    "SPY": 775.16,
+    "QQQ": 752.9363,
+    "HYG": 77.11,
+    "IEF": 89.125,
+    "VIX": 15.46,
+    "vixHigh": 16.02
+   },
+   "engine": {
+    "reading": 15.5,
+    "invested": 74.65,
+    "cash": true,
+    "version1": {
+     "reading": 30.9,
+     "invested": 79.27
+    },
+    "rsi": 60.39,
+    "creditOwn": -0.247,
+    "vixAdd": 0,
+    "treasuriesUpOverTenSessions": false,
+    "toolsWindowBars": 541
+   },
+   "script": {
+    "reading": 15.5,
+    "invested": 74.65,
+    "cash": true,
+    "version1": {
+     "reading": 30.9,
+     "invested": 79.27
+    },
+    "version2": {
+     "reading": 15.5,
+     "invested": 74.65
+    },
+    "rsi": 60.39,
+    "creditOwn": -0.247,
+    "vixAdd": 0,
+    "label": "Invested 75% · market reading 16 · cash raised",
+    "bars": 5806
+   },
+   "scriptTradingViewPayouts": {
+    "reading": 15.5,
+    "invested": 74.65,
+    "cash": true
+   },
+   "gap": 0,
+   "gapTradingViewPayouts": 0,
+   "sameRaiseCashState": true
   }
  ],
- "namedDays": 29,
+ "namedDays": 30,
  "worstNamed": {
   "samePrices": 0,
   "tradingViewPayouts": 0.3

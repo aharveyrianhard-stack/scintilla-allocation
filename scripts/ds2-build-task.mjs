@@ -7,6 +7,10 @@ export const DAYS = ["2026-10-06", "2026-03-30", "2026-01-27", "2025-12-11", "20
 const rows = DAYS.map((d) => { const r = P.rows.find((x) => x.date === d); if (!r) throw new Error(d + " is not one of the proved days"); return `| ${d} | ${r.scriptTradingViewPayouts.invested.toFixed(2)} | ${r.scriptTradingViewPayouts.reading.toFixed(1)} | ${r.script.rsi.toFixed(2)} | ${r.scriptTradingViewPayouts.creditOwn.toFixed(3)} | ${r.scriptTradingViewPayouts.cash ? 1 : 0} | ${r.script.version1.invested.toFixed(2)} |`; });
 const md = `# TASK — version 2 of "Scintilla Deployment Pane", on the layout "Scintilla — Deployment" (7 Oct 2026, evening)
 
+> **SUPERSEDED on 8 Oct 2026 — do not dispatch this task as it stands.** Version 3 has its own task,
+> \`study/pn1/TASK-KIMI-DEPLOYMENT-PANE-VERSION-3.md\`. The path \`study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine\` now holds
+> version 3; version 2's text, byte for byte, is \`study/pn1/SCINTILLA-DEPLOYMENT-PANE.v2.pine\` (the sha256 below is its).
+
 ## Owner's words
 Alan, 7 Oct ~20:05 New York, scrolling the pane back in time: "towards March 30th it tells us to drop right there … we would be
 selling into losses" · "right at the peak, no action" · "you raise cash towards the end of 2025 … deploy harder towards the end of
@@ -28,7 +32,7 @@ address, headless-quiet, and stop rather than improvise. One rule is tightened f
 ## The two files
 | file | what it is | sha256 |
 |---|---|---|
-| \`SCINTILLA-DEPLOYMENT-PANE.pine\` | version 2, the text to save | \`${sha(SRC)}\` |
+| \`SCINTILLA-DEPLOYMENT-PANE.v2.pine\` | version 2, the text to save | \`${sha(SRC)}\` |
 | \`SCINTILLA-DEPLOYMENT-PANE.v1.pine\` | version 1, as installed today — for the way back only | \`${sha(V1)}\` |
 
 ## Steps

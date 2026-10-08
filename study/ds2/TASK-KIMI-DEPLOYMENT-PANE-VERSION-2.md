@@ -1,5 +1,9 @@
 # TASK — version 2 of "Scintilla Deployment Pane", on the layout "Scintilla — Deployment" (7 Oct 2026, evening)
 
+> **SUPERSEDED on 8 Oct 2026 — do not dispatch this task as it stands.** Version 3 has its own task,
+> `study/pn1/TASK-KIMI-DEPLOYMENT-PANE-VERSION-3.md`. The path `study/pn1/SCINTILLA-DEPLOYMENT-PANE.pine` now holds
+> version 3; version 2's text, byte for byte, is `study/pn1/SCINTILLA-DEPLOYMENT-PANE.v2.pine` (the sha256 below is its).
+
 ## Owner's words
 Alan, 7 Oct ~20:05 New York, scrolling the pane back in time: "towards March 30th it tells us to drop right there … we would be
 selling into losses" · "right at the peak, no action" · "you raise cash towards the end of 2025 … deploy harder towards the end of
@@ -21,7 +25,7 @@ address, headless-quiet, and stop rather than improvise. One rule is tightened f
 ## The two files
 | file | what it is | sha256 |
 |---|---|---|
-| `SCINTILLA-DEPLOYMENT-PANE.pine` | version 2, the text to save | `7a54375f36fca2fc70da59215069936f6ef84b65af16bb4dbaaeccba759bc0c9` |
+| `SCINTILLA-DEPLOYMENT-PANE.v2.pine` | version 2, the text to save | `7a54375f36fca2fc70da59215069936f6ef84b65af16bb4dbaaeccba759bc0c9` |
 | `SCINTILLA-DEPLOYMENT-PANE.v1.pine` | version 1, as installed today — for the way back only | `1e291cfdd4da1200ee3ecb9f4d5d3b6f78a6eda067d2af9c8926c27c11d40daa` |
 
 ## Steps
