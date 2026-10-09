@@ -5,10 +5,14 @@ import { view, fetchDaily, fetchLive, baseline, nyParts, phaseOf } from "../stud
 import { useLocalAccount } from "./local-account.mjs"; const ACCOUNT_USED = useLocalAccount();   /* DS3: the account is not in the repository — the private file if it is on this machine, else the made-up example */
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), API = "https://scintilla-massive-chart-api.fly.dev";
 const getApi = async (p) => { const r = await fetch(API + p, { headers: { Origin: "https://scintillahub.ai" }, signal: AbortSignal.timeout(60000) }); if (!r.ok) throw new Error(p.split("?")[0] + " " + r.status); return r.json(); };
-const base = JSON.parse(fs.readFileSync(path.join(ROOT, "study/ds1/data/ds1-live.json"), "utf8")), A = baseline(base), now = nyParts();
+const base = JSON.parse(fs.readFileSync(path.join(ROOT, "study/ds1/data/ds1-live.json"), "utf8"));
+/* DB1 (9 Oct): the two rule files ride on the model exactly as the page loads them (study/ds1/live.mjs startDeploymentSystem), so this prints the
+   version the tool shows — version 3 (DS3's recommended version). --v1 leaves them out: version 1, today's rule as it was before 7 Oct. */
+if (!process.argv.includes("--v1")) { base.v2 = JSON.parse(fs.readFileSync(path.join(ROOT, "study/ds2/data/ds2-live.json"), "utf8")); base.v3 = JSON.parse(fs.readFileSync(path.join(ROOT, "study/ds3/data/ds3-live.json"), "utf8")); }
+const A = baseline(base), now = nyParts();
 const candles = await fetchDaily(getApi), live = await fetchLive(getApi), v = view({ base, candles, ...live, A });
 const f = (x, d = 1) => (x == null || !isFinite(x) ? null : +x.toFixed(d));
-const out = { readAt: now.date + " " + now.hms + " New York", phase: phaseOf(now), session: v.session, live: v.live, missing: v.missing, noRange: v.noRange, absent: v.absent,
+const out = { readAt: now.date + " " + now.hms + " New York", phase: phaseOf(now), session: v.session, live: v.live, missing: v.missing, noRange: v.noRange, absent: v.absent, version: v.v3 ? 3 : v.v2 ? 2 : 1, readingV1: v.reading.v1 ? v.reading.v1.reading : v.reading.reading, number: +(+A.heldPct + (+A.tacticalPct * v.reading.reading) / 100).toFixed(2),
   reading: v.reading.reading, deployed: f(v.deployed), prior: v.prior.slice(0, 3), base: v.reading.base,
   parts: v.reading.parts.map((p) => ({ key: p.key, value: f(p.value, 2), place: f(p.place), points: f(p.points) })), lights: v.reading.lights.map((p) => ({ key: p.key, value: f(p.value, 2), points: f(p.points) })),
   odds: v.odds, index: { spy: v.idx.spy, qqq: v.idx.qqq, spyLevels: Object.fromEntries(Object.entries(v.idx.spyLevels).map(([k, x]) => [k, f(x, 2)])), qqqLevels: Object.fromEntries(Object.entries(v.idx.qqqLevels).map(([k, x]) => [k, f(x, 2)])) },
@@ -19,7 +23,7 @@ const out = { readAt: now.date + " " + now.hms + " New York", phase: phaseOf(now
   stretchOn: Object.entries(v.stretch).filter(([, on]) => on).map(([k]) => k) };
 if (process.argv.includes("--json")) console.log(JSON.stringify(out)); else {
   console.log(`${out.readAt} · ${out.phase} · session ${out.session} · live ${out.live} · missing [${out.missing}] · no range [${out.noRange}]`);
-  console.log(`READING ${out.reading} (deploys ${out.deployed}% of tactical) · base ${out.base} · prior ${out.prior.map((p) => p.date.slice(5) + " " + p.reading).join(", ")}`);
+  console.log(`READING ${out.reading} · version ${out.version} (version 1 would read ${out.readingV1}) · the number ${out.number}% (deploys ${out.deployed}% of tactical) · base ${out.base} · prior ${out.prior.map((p) => p.date.slice(5) + " " + p.reading).join(", ")}`);
   console.log("votes:", out.parts.map((p) => `${p.key} ${p.value} (place ${p.place}) → ${p.points}`).join(" · ")); console.log("lights:", out.lights.map((p) => `${p.key} ${p.value} → ${p.points}`).join(" · "));
   console.log("odds band:", JSON.stringify(out.odds)); console.log("index:", JSON.stringify(out.index)); console.log("facts:", JSON.stringify(out.facts));
   console.log(`account $${out.account.nlv} · the shape ${out.pie.invested}% invested · held ${out.pie.held}% · tactical ${out.pie.tactical}%`); for (const s of out.pie.slices) console.log("  ", s.name.padEnd(36), String(s.pct).padStart(6) + "%", "$" + s.dollars, s.held != null ? "held " + s.held + "%" : "", s.toBuy ? "to buy $" + s.toBuy : "");

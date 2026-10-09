@@ -34,6 +34,8 @@ export const DIALS = {
   micronOfConv: 60,   // Micron's part of conviction, %; Nebius has the rest. DS2 (7 Oct, evening): the baseline is 60 / 40 (it was 80 / 20), and the dial sits in the open beside the pies
   creditRule: 1,      // DS2, version 2 of the market reading: 1 = credit does not subtract in a washed-out market (study/ds2/number.mjs); 0 = version 1
   cashRule: 1,        // DS2, version 2: 1 = cash is raised at an extended high and put back at the next washout; 0 = version 1
+  vixRule: 1,         // DB1 (9 Oct), version 3 of the market reading (DS3's recommended version): 1 = the VIX is counted by Alan's own rule — a close at 20 adds 10 points, at 23 adds 20, a touch counts half (study/ds3/number.mjs); 0 = version 2
+  fearRule: 1,        // DB1, version 3: 1 = a treasury rally can only raise the credit part, never lower it; 0 = version 2
   capMicron: 30,      // Micron is never more than this % of the account (the approved rule: "never more than 30% of the account")
   bandPts: 5,         // the breakout band, points of the account over the number — conviction names only, in their own proportions
   breakoutDays: 60,   // breaking out = the price is above its highest close of this many sessions

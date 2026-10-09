@@ -84,7 +84,12 @@
   details{margin-top:10px;}
   summary{color:var(--dim); font-size:10px; letter-spacing:.15em; cursor:pointer;}
   .updated{color:var(--dim); font-size:10px;}
-  #loading{position:fixed; inset:0; background:rgba(10,10,15,.92); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; z-index:9;}
+  #loading{display:flex; align-items:center; gap:10px; margin:8px 0 0; color:var(--dim); font-size:11px;}   /* DB1: a status line inside THE LONG VERSION — it no longer covers the first screen */
+  #loading .spin{width:14px; height:14px; border-width:2px;}
+  .longv{margin-top:26px; border-top:1px solid var(--line);}
+  .longv>summary{font-size:12px; letter-spacing:.24em; color:var(--cyan); padding:14px 0 6px; cursor:pointer; font-weight:600;}
+  .longv>summary::after{content:" · closed — open it for the panels, the levels, the room to play and every assumption"; color:var(--dim); letter-spacing:.06em; font-weight:400;}
+  .longv[open]>summary::after{content:" · open"; }
   .spin{width:34px; height:34px; border:3px solid #1c1c28; border-top-color:var(--cyan); border-radius:50%; animation:sp 1s linear infinite;}
   @keyframes sp{to{transform:rotate(360deg)}}
   /* PA4 — the fold (Alan: "it makes me scroll like crazy"): a sticky section bar, every section folded to one screen, the dials in a drawer */
@@ -495,11 +500,15 @@
 </style>
 </head>
 <body>
-<div id="loading"><div class="spin"></div><div id="loadmsg" class="status">pulling market feeds…</div></div>
 
 <span data-scnav-slot></span>
 <h1>SCINTILLA <span class="dot">·</span> ALLOCATION</h1>
+<!-- DB1 (9 Oct 2026) · THE FIRST SCREEN is the rebalancing dashboard, live on the tool's own reading (study/db1/dashboard.mjs). Nothing on it
+     reads the account: every dollar is a percentage × the size the viewer picks. Everything the tool showed before is below, in THE LONG VERSION. -->
+<div id="db1-dashboard"></div>
+<details id="longversion" class="longv"><summary>THE LONG VERSION — study</summary>
 <div class="sub" id="stamp">—</div>
+<div id="loading"><div class="spin"></div><div id="loadmsg" class="status">pulling market feeds…</div></div>
 <div id="dataspine" style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px"></div>
 <div id="secbar"></div>
 <div id="drawerShade"></div>
@@ -3927,15 +3936,21 @@ loadFeeds();
 <script type="module">
 import { startDeploymentSystem } from "./study/ds1/live.mjs";
 import { panel as a9Panel } from "./study/al9/panel.mjs";
+import { mountDashboard } from "./study/db1/dashboard.mjs";
+/* DB1: the first screen draws at once from what this browser remembers, then after every drawing of the live module */
+const db1 = mountDashboard(document.getElementById("db1-dashboard"));
+/* THE LONG VERSION is closed to start, so nothing inside it had a width when it was first drawn: the first time it opens, the old page and the live module draw again */
+{ const lv = document.getElementById("longversion"); let drawn = false; if (lv) lv.addEventListener("toggle", () => { if (!lv.open || drawn) return; drawn = true; try { if (typeof render === "function") render(); } catch (e) {} try { if (typeof renderSpine === "function") renderSpine(); } catch (e) {} try { if (window.DS1_LIVE && window.DS1_LIVE.redraw) window.DS1_LIVE.redraw(); } catch (e) {} }); }
 const ds1El = document.getElementById("ds1live"), ds1Money = document.getElementById("ds1money-host");
 const a9Note = (st) => { const X = st.explain; if (!X) return; let old = null; try { old = investedNow() * 100; } catch (e) { old = null; } const n = X.sm.number.toFixed(0), same = old != null && Math.abs(old - X.sm.number) < 0.5;
   for (const id of ["a9-note-brief", "a9-note-step2"]) { const el = document.getElementById(id); if (!el) continue; el.hidden = same; el.dataset.number = n; el.dataset.table = old == null ? "" : old.toFixed(0);
     el.textContent = "The tool's answer to how much is the number at the top of the page: " + n + "% invested. " + (id === "a9-note-brief" ? "The sentence and the bars below still come" : "The table below still comes") + " from the earlier five-step table" + (old == null ? "" : " (" + old.toFixed(0) + "% today)") + ", and the sector steps are sized from it until they are joined to the number."; } };
 const ds1Spine = (st) => { try { a9Note(st); } catch (e) { /* a note, never in the way of a reading */ } try { spineSet("deployment_scenarios", new Date().toISOString(), "LIVE", "the number on live prices — " + (st.explain ? st.explain.sm.number.toFixed(0) + "% invested, " : "") + "the market reading " + st.view.reading.reading.toFixed(0) + " of 100, the session of " + st.view.session + " (study/al9/panel.mjs on study/ds1/live.mjs)"); } catch (e) { /* the sources line is a courtesy: a failure here never touches the reading */ } };
-if (ds1El) startDeploymentSystem({ el: ds1El, moneyEl: ds1Money, getApi: (p) => apiGet(p), onRead: ds1Spine, moneyPanel: a9Panel })
+if (ds1El) startDeploymentSystem({ el: ds1El, moneyEl: ds1Money, getApi: (p) => apiGet(p), onRead: ds1Spine, moneyPanel: a9Panel, onDraw: (st) => db1.update(st) })
   .catch((e) => { ds1El.textContent = "THE MARKET READING, LIVE — no reading: " + ((e && e.message) || e); window.DS1_LIVE_READY = true; });
 </script>
 <details class="sc-pagespecs"><summary>PAGE SPECS</summary>
+<p><b>What changed on 9 Oct — the first screen is the rebalancing dashboard (DB1).</b> Alan, 9 Oct, 09:50: "ok agree on dashboard but it needs to be wired to the live prices of whatever determines it — SPY, QQQ, VIX and HYG … I need to see it move throughout the day … pies would be a better look, and the total money invested should be the big item … a bit of a summary of how it recommends 78.4% — small, simple and executive … remove the you hold and such." The first screen is the dashboard, live on the tool's own reading: version 3 of the market reading (DS3's recommended version — the VIX counted by Alan's own rule, a close at 20 adds 10 points and at 23 adds 20, a touch counts half; and a treasury rally may only raise the credit part — on top of version 2's two changes), read every minute while New York trades and every five minutes outside it, the age beside the number. The big item is the total money invested at the size the viewer picks ($300K to $1.5M in $50K steps, $500K to start, kept in this browser and nowhere else); nothing on the first screen reads the account — no holdings, no room, no tickers, no levels, no orders. Two pies, whole slices: the whole account at the number (conviction · core · kept in cash) and fully invested (conviction · core), every slice with its share and its dollars at the size. The balance slider splits what is invested between conviction and core (25 : 75 to start, "1 in 4"); Reset puts the size back to $500K and the balance to 25. The summary says how the number is made — the held part plus the tactical part times the market reading, then one line per counted part in plain words. The what-if chips are the tool's own dip engine, SPY and QQQ moving together with credit selling (or rallying) as it usually does with such a move; a chip shows the number and the pies at that move. Everything the tool showed before is in THE LONG VERSION under the dashboard, closed to start; nothing was removed. Version 3's two switches sit under ASSUMPTIONS beside version 2's; with both off the number is version 2's, with all four off version 1's. The number here is this minute's own; the money panel in the long version also shows the average of the last hour, which can differ by a few tenths.</p>
 <p><b>What changed on 7 Oct, later — one forward P/E, and the core candidates' comps.</b> Alan: "Why is there inconsistencies everywhere on the forward P/E … if that's the right one, it should be everywhere", "I need to see Google, Amazon and Broadcom — what the comps would look like … I need it reflected in portfolio allocation … I need to go through the workflow", "debt should matter." The decision cards this page reads were re-priced on the Hub dashboard's own forward P/E: the price over the next four quarters of expected earnings. The cards had used a blend of two fiscal years (21.2 times for Alphabet) and the comps the fiscal year in progress (16.9); the dashboard said 24. With a fresh live price the page divides that price by the card's earnings, so the number here moves with the dashboard's; without one it stands on the card's close and says so. Growth beside it is the four quarters after those, over those four, and P/E ÷ growth uses both.</p>
 <p><b>Where it shows.</b> One line under the brief names the ten core candidates with their forward P/E and how far the price is from the centre of their comps range. Step 5b lists them: price, forward P/E, growth, P/E ÷ growth, the comps range, the peers that set the price, net debt over EBITDA and the Geiger's place in its own year; each opens to its peers' own rows. The knockout's pick cards carry a VALUE line. Each pick in step 6 has two more readings, the forward P/E and the debt, and the peers that price it. The core candidates are a list kept with the page, not a rule. The peers that set a price are the ones that do the same business: for Alphabet, Amazon, Broadcom, Nvidia, TSMC, Vistra and Micron they are named from the 7 October brief; Micron's now include SK hynix, Samsung and Kioxia, whose figures come from a dated file and who are on no other screen.</p>
 <p><b>The blend first; growth two ways; the checks (the 11:20 steering).</b> Step 5b and each pick lead with the comps range from every yardstick together, and open to each yardstick's own row: the company's multiple, its peers' median, the price that median implies and its weight. Forward P/E is one of six. Earnings growth is shown two ways because one number misled on Micron: the last twelve months as reported → the next four quarters (+135%), and the next four → the four after (+22%). The growth credit is said whether it applies or not. Every set is checked automatically — how many of the kept peers share the business, and how far the pricing peers are from the company's size — and a flag is printed with the card's other warnings. Micron and its line are read three ways: US-listed peers only, with SK hynix, and with Samsung and Kioxia too. Amazon is priced with Alibaba, JD and PDD in, their yuan converted. Where the reviewed lines carry all three rails of a long-term channel (Micron, Amazon, Western Digital) the pick says where the price in use sits in it.</p>
@@ -3966,6 +3981,7 @@ if (ds1El) startDeploymentSystem({ el: ds1El, moneyEl: ds1Money, getApi: (p) => 
 <p><b>What goes on the Hub.</b> A pick, a name on his favourites, or a KEEP decision is tagged NEEDS THE LIVE HUB; a comps peer without those is FUNDAMENTALS ONLY — OFF-HUB IS ENOUGH. The list is written as control/ALLOCATION-HUB-GUIDANCE.json (ticker · tag · reason · date) for the served-set decision.</p>
 <p><b>The fold.</b> Every section is folded to one screen (1680 × 1050: about 840 px of body, scrolling inside) with a sticky section bar; THE MONEY and THE BRIEF are open on the first screen; INPUTS opens as a drawer over the page. Nothing was removed; the fold state is remembered on this device.</p>
 </details>
+</details><!-- /longversion (DB1) -->
 <!-- scnav · the Hub's way back and way out, on the allocation page (PA6, 6 Oct 2026). Source: the Hub repo's
      scripts/scnav-snippet.html (placed there by scripts/inject-scnav.py); the same CSS, inline on purpose. This tool
      lives on its own domain (allocation.scintillahub.ai), so BACK is spelled HUB and both buttons lead to the Hub:

@@ -21,6 +21,7 @@ import * as E from "../ds1/engine.mjs";
 import * as C from "./chain.mjs";
 import { hygWithPayouts, phaseOf, nextReadWords, day, dayY, accountIsExample } from "../ds1/live.mjs";
 import * as N from "../ds2/number.mjs";   // DS2: version 2 of the market reading, the same file the live read uses
+import * as V3 from "../ds3/number.mjs";   // DB1 (9 Oct): the day path reads version 3 when the tool does
 
 export const TITLE = "THE MONEY — the number, how it splits, how much room is left";   // the section bar calls this panel THE MONEY, so its title starts with the same words
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x)), esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -38,7 +39,11 @@ export function makeReadAt(v, base) { const S = v.S, k = v.k, model = base.model
     if (hyg && ief && p.HYG != null && p.IEF != null) { hyg[k] = p.HYG; ief[k] = p.IEF; const tr = hygWithPayouts(S.dates, hyg, payouts).tr; if (tr[k] != null && tr[k - W] != null && ief[k - W] != null) own = ((tr[k] / tr[k - W] - 1) - E.RATES_SHARE * (ief[k] / ief[k - W] - 1)) * 100; }
     const r = E.readSystem({ rsi: (rs + rq) / 2, creditOwn: own }, model); if (!v.v2 || r.missing) return clamp(r.raw + lights, 0, 100);
     /* DS2: at these prices the raise-cash rule is asked again from where it stood at the close before, and credit's subtraction fades with the RSI of that moment */
-    const V = v.v2.rules, cash = N.cashStep(v.v2.cashBefore, (rs + rq) / 2, N.topAt(spy, qqq, k, V), V); return N.applyV2({ ...r, lightsCounted: lights }, { rsi: (rs + rq) / 2, cash, base: v.v2.typical }, V).readingExact; }; }
+    const V = v.v2.rules, cash = N.cashStep(v.v2.cashBefore, (rs + rq) / 2, N.topAt(spy, qqq, k, V), V), ctx = { rsi: (rs + rq) / 2, cash, base: v.v2.typical };
+    /* DB1: version 3 at these prices — HYG's and the treasury fund's ten-session moves at them, the VIX as it last read (the five-minute bars carry no VIX) */
+    if (v.v3 && V.vixRule != null && hyg && ief && p.HYG != null && p.IEF != null) { const tr = hygWithPayouts(S.dates, hyg, payouts).tr, vx = (v.facts && v.facts.vix) || {};
+      const r3 = V3.applyV3({ ...r, lightsCounted: lights }, model, { ...ctx, hyg10: tr[k] != null && tr[k - W] != null ? (tr[k] / tr[k - W] - 1) * 100 : null, ief10: ief[k - W] != null ? (ief[k] / ief[k - W] - 1) * 100 : null, vixClose: vx.price ?? null, vixHigh: vx.high ?? null }, V); if (r3) return r3.readingExact; }
+    return N.applyV2({ ...r, lightsCounted: lights }, ctx, V).readingExact; }; }
 
 /* ---------- everything the panel shows, from the live state (pure: the tests call it with a recorded state) ---------- */
 export function explain(st, nowMs = Date.now()) {
