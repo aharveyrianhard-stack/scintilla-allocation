@@ -1,0 +1,7 @@
+{
+ "example": true,
+ "note": "EXAMPLE — made up, not a real account. Copy this file to study/private/account.json (a folder .gitignore keeps out of every commit), remove the \"example\" line, and put your own cash and share counts in. The tool reads that file only when it is opened from this machine; on the public site the account is whatever is typed under ASSUMPTIONS, kept in the browser.",
+ "cash": 100000,
+ "shares": { "MU": 0, "NBIS": 0 },
+ "asOf": "EXAMPLE ACCOUNT — made up"
+}

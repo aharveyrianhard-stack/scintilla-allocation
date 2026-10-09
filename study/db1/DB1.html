@@ -1,0 +1,82 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DB1 — the dashboard goes live</title>
+<style>
+:root{--bg:#0a0a0f;--panel:#101018;--line:#1c1c28;--txt:#e8e8f0;--dim:#8a8aa0;--cyan:#00d4ff;--gold:#ffd166;--green:#38e07b;--red:#ff5470}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:13px/1.6 "SF Mono",ui-monospace,Menlo,monospace;padding:26px 30px 60px}
+h1{font-size:19px;letter-spacing:.24em;font-weight:600;margin:0 0 4px}h1 span{color:var(--cyan)}.sub{color:var(--dim);font-size:11px;letter-spacing:.08em;margin:0 0 20px}
+section.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:0 0 16px;max-width:1500px}
+h2{font-size:11px;letter-spacing:.22em;color:var(--cyan);margin:0 0 10px;font-weight:600}p{margin:6px 0;max-width:1100px}b{font-weight:600}
+ul,ol{margin:6px 0;padding-left:22px;max-width:1100px}li{margin:3px 0}
+.tiles{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0 4px}.tile{background:#0d0d15;border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:170px}.tile b{display:block;font-size:30px;line-height:1;font-weight:700;color:var(--gold)}.tile span{color:var(--dim);font-size:11px;letter-spacing:.06em}
+figure{margin:12px 0}figure img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:6px;display:block}figcaption{color:var(--dim);font-size:11.5px;margin-top:6px}
+.two{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px;align-items:start}@media(max-width:900px){.two{grid-template-columns:minmax(0,1fr)}}
+.wrap{overflow-x:auto}table{border-collapse:collapse;font-size:12px}th,td{padding:5px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dim);font-weight:600;letter-spacing:.08em;font-size:11px}td.n{text-align:right;font-variant-numeric:tabular-nums}
+details.sc-pagespecs{margin:30px 0 0;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:11px;max-width:1500px}details.sc-pagespecs summary{cursor:pointer;letter-spacing:.2em;font-size:10px;color:var(--dim)}
+</style></head><body>
+<h1>SCINTILLA <span>·</span> ALLOCATION — DB1, the dashboard goes live</h1>
+<p class="sub">9 OCT 2026 · THE FIRST SCREEN OF THE ALLOCATION TOOL IS NOW THE REBALANCING DASHBOARD, WIRED TO THE LIVE PRICES THAT SET THE NUMBER · BRANCH db1-live-dashboard-20261009 · NOT YET LIVE — THE COORDINATOR MERGES AND DEPLOYS</p>
+
+<section class="panel" id="p-answer"><h2>WHAT YOU ASKED FOR, AND WHAT IS THERE</h2>
+<div class="tiles" id="tiles">
+  <div class="tile"><b>75.6%</b><span>the number at 10:17 New York, 9 Oct · version 3, live</span></div>
+  <div class="tile"><b>$378K</b><span>total money invested at $500K — the big item</span></div>
+  <div class="tile"><b>every minute</b><span>it re-reads SPY, QQQ, the VIX, HYG and treasuries while New York trades</span></div>
+  <div class="tile"><b>72 ms</b><span>the first screen's frame on a cold cache (worst of 3) · the live number in 0.7–1.3 s</span></div>
+  <div class="tile"><b>= the engine</b><span>the page's number and the engine's, on the same prices, to the digit</span></div>
+</div>
+<ul>
+  <li><b>"Wired to the live prices of whatever determines it."</b> Yes. The dashboard reads the same live view the tool has read since 7 October: SPY and QQQ (their RSI), HYG with treasuries (credit's own move over ten sessions), the VIX (its close and its high, by your 20 / 23 rule), every minute during the session, every five minutes outside it. The age is printed beside the number and ticks every second. You will see it move.</li>
+  <li><b>"Pies would be a better look."</b> Two cakes, whole slices, in the tool's own neon: conviction in gold, core in cyan, cash dark. The big one is the whole account at the number (conviction · core · kept in cash); the small one is fully invested (conviction · core). Every slice carries its share and its dollars at the size.</li>
+  <li><b>"The total money invested should be the big item."</b> It is the one large figure on the screen, at the size you pick: $300K to $1.5M in $50K steps, $500K to start. Under it, the percentage and what is kept in cash.</li>
+  <li><b>"A bit of a summary of how it recommends 78.4% — small, simple and executive."</b> Four or five lines: the sum, then one line per part in plain words — "SPY and QQQ's RSI 59: middling, +2 · credit −0.1% over ten sessions, −14 · the VIX at 15.1: under your 20, adds nothing · cash freed since 13 Aug near the highs: the swing is halved (38 → 19)".</li>
+  <li><b>"Remove the you hold and such."</b> Gone from the first screen: you hold, room, free, used, every account figure, every ticker, level and order. Nothing on the first screen reads the account. Everything the tool showed before is one click down, in THE LONG VERSION, closed to start — nothing was deleted.</li>
+  <li><b>The number is version 3</b> — DS3's recommended version from yesterday (the VIX counted by your rule; a treasury rally may only raise the credit part), with both of its switches on and version 2's two on. Today neither new rule changed anything: the VIX is 15, and treasuries are down over the ten sessions. Under the rule as it was before 7 October the same minute read 81%; the difference is the cash raised since 13 August, which halves the swing.</li>
+</ul></section>
+
+<section class="panel" id="p-pictures"><h2>THE FIRST SCREEN — AS PICTURED, HEADLESS, 10:17 NEW YORK</h2>
+<figure><img src="pictures/db1-1-first-screen-1680.png" alt="The first screen at 1680 wide"><figcaption>1680 wide. The size stepper top right; the big item with the age under it; the two pies; the balance slider; the summary; the what-if chips; the fold to THE LONG VERSION at the foot.</figcaption></figure>
+<div class="two">
+<figure><img src="pictures/db1-2-what-if-minus-3-1680.png" alt="The −3% chip picked"><figcaption>The −3% chip picked: the big item, the pies and the title move to that market; the summary stays on now and says what the reading would be at the move.</figcaption></figure>
+<figure><img src="pictures/db1-1-first-screen-390.png" alt="The first screen on a phone"><figcaption>390 wide (a phone): one column, the pies stacked, nothing under 11px, no sideways scroll.</figcaption></figure>
+</div>
+<figure><img src="pictures/db1-3-balance-50-50-1680.png" alt="The balance at 50 : 50"><figcaption>The balance moved to 50 : 50: the conviction and core dollars and both pies follow at once; the size and the balance are kept in this browser.</figcaption></figure>
+<figure><img src="pictures/db1-5-the-long-version-opened-1680.png" alt="The long version opened"><figcaption>THE LONG VERSION opened: the money panel, the section bar and every old panel are there, drawn at full width. Its "76%" is the average of the last hour; the dashboard shows this minute's own 75.6%.</figcaption></figure>
+</section>
+
+<section class="panel" id="p-check"><h2>THE CHECK — THE PAGE'S NUMBER AGAINST THE ENGINE, THE SAME MINUTE</h2>
+<p><code>node scripts/db1-live-check.mjs</code> opens the tool headless, takes the number off the first screen, hands the page's own prices to the same engine in node, and in the same minute runs the engine's own live read (<code>scripts/ds1-live-check.mjs</code>, which now loads the two rule files the page loads, so it prints version 3).</p>
+<div class="wrap"><table><tr><th>10:17 New York, 9 Oct</th><th class="n">market reading</th><th class="n">the number</th></tr>
+<tr><td>the page (read 10:17:44)</td><td class="n">18.9</td><td class="n">75.67%</td></tr>
+<tr><td>the engine on the page's own prices</td><td class="n">18.9</td><td class="n">75.67% — the same, to the digit</td></tr>
+<tr><td>the engine's own live read, 13 s later (10:17:57)</td><td class="n">18.7</td><td class="n">75.61% — the quotes moved in 13 seconds</td></tr></table></div>
+<p>On one set of prices the two agree exactly. Two separate live reads a few seconds apart differ by a few tenths of a point of market reading, because HYG and the indices tick between them — that is the number moving, which is what you asked to see.</p></section>
+
+<section class="panel" id="p-wrong"><h2>WHAT COULD BE WRONG — AT THE OPEN AND AFTER THE CLOSE</h2>
+<ul id="wrong">
+  <li><b>The first minutes after 09:30.</b> The chart API's quotes for the new session can arrive a minute or two after the bell, and HYG prints thinly at first; until SPY's quote carries today's session the page shows the last close with "at the close of … New York is not trading". A pre-market HYG quote can sit a quarter of a percent under the close and move the number a point before the open, as it did on 8 October.</li>
+  <li><b>Today's own high and low.</b> The VIX's intraday high comes from the macro board; a touch of 20 counts half a step, so a high the board missed is 1.5 points of the account at most.</li>
+  <li><b>After 16:00.</b> The page keeps reading every five minutes until 20:00 and once more from 16:10 for the settled daily bars; the number can step by a few tenths at 16:10 when the day's bar settles. Over the weekend it says so and reads again on Monday.</li>
+  <li><b>If a rule file fails to load</b> (a bad deploy, a blocked file) the page still reads and says which version it is showing: version 2 without DS3's file, version 1 without DS2's.</li>
+  <li><b>The hour average in the long version</b> and this minute's number on the first screen can differ by a few tenths; both say which they are.</li>
+  <li><b>A quote that fails</b> never blanks the screen: the last reading stays with its age and the cause, as everywhere in this tool.</li>
+  <li><b>A new browser</b> starts at $500K and 25 : 75 and shows "reading live prices…" for about a second; a browser that has been here before shows its last number, dimmed, until the first live read lands.</li>
+</ul></section>
+
+<section class="panel" id="p-notdone"><h2>WHAT WAS NOT DONE</h2>
+<ul id="notdone">
+  <li>Not pushed, not deployed: the coordinator merges to main (push main deploys). The branch and SHA are in the return.</li>
+  <li>The five-minute path in the long version's chart reads the VIX as it last read, not minute by minute (the five-minute bars carry no VIX); a day the VIX crosses 20 will show the step in the live point before the path.</li>
+  <li>The stored history behind the long version's chart is still version 2's; DS3's history for version 3 was not rebuilt here.</li>
+  <li>The pictures were taken against the live chart API through the local stand-in for Vercel; the deployed page was not measured, so the load time is this machine's (the HTML and the two modules are small; the live number needs the chart API's first answer).</li>
+</ul></section>
+
+<section class="panel" id="p-decisions"><h2>DECISIONS FOR ALAN</h2>
+<ol id="dec">
+  <li><b>Go live with the dashboard as the first screen?</b> Recommended: yes — it is what you approved this morning with your three changes, and the old tool is one click down.</li>
+  <li><b>Version 3 as the tool's number everywhere?</b> The first screen is version 3 as the brief said; the long version now shows the same number, with the two new switches under ASSUMPTIONS. Recommended: keep it one number.</li>
+</ol></section>
+
+<details class="sc-pagespecs"><summary>PAGE SPECS</summary>
+<p>Built 9 Oct 2026 on the allocation repo, branch db1-live-dashboard-20261009 off DS3's 9aeecc1. The dashboard is study/db1/dashboard.mjs, mounted by index.html before the live module and told after every drawing of it (startDeploymentSystem's onDraw). Version 3 is wired into study/ds1/live.mjs: view() reads study/ds3/number.mjs (applyV3) with the VIX's close and high and HYG's and the treasury fund's ten-session moves from extraReadings; the two switches are vixRule and fearRule in study/al9/chain.mjs. The what-if moves are view().moves, the dip engine at ±1.5, ±3, ±5 and −8% with credit selling as usual. Tests: tests/db1.test.mjs. Pictures: scripts/db1-shots.mjs. The check: scripts/db1-live-check.mjs. Load time: scripts/db1-load-time.mjs. <span id="tests-line">Tests, 9 Oct, 10:30–11:40 New York: the new tests/db1.test.mjs 10 of 10; the whole suite one file at a time (the two row-writing tests skipped by name and seen not to run): 234 run, 230 pass, 4 fail — the same four by name on DS3's untouched worktree the same hour, all from live data (the Hub serving its own cards file, the chart's readout landing on a named day, the cards' close multiples, the sector-rankings feed stale). DS3's baseline was 224 run, 5 fail. Three older tests built their own browser and read the closed fold as empty text; they now open it. Two expectations were re-pinned with their reason in the file (the money panel's first row of pies inside the long version's first screen; the split dial 'in the open' under no fold but THE LONG VERSION).</span></p>
+</details>
+<script>window.DB1_PAGE_READY = true;</script>
+</body></html>

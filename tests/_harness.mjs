@@ -16,6 +16,7 @@ export async function startServer() {
   const server = http.createServer(async (req, res) => {
     const u = new URL(req.url, "http://x"); const rw = rewrites.find((x) => x.source === u.pathname);
     if (rw) { try { const r = await fetch(rw.destination + u.search); res.writeHead(r.status, { "content-type": r.headers.get("content-type") || "application/json" }); return res.end(Buffer.from(await r.arrayBuffer())); } catch (e) { res.writeHead(502); return res.end(String(e)); } }   /* PA6: the upstream's own type — the C5 method is a JavaScript module */
+    if (u.pathname.startsWith("/study/private/")) { res.writeHead(404); return res.end(); }   /* DS3 (8 Oct): the private account file is never served to a test or a picture run — they run on the made-up example, on any machine */
     const f = path.join(ROOT, u.pathname === "/" ? "index.html" : u.pathname);
     if (!fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); return res.end(); }
     res.writeHead(200, { "content-type": f.endsWith(".json") ? "application/json" : /\.m?js$/.test(f) ? "text/javascript" : f.endsWith(".png") ? "image/png" : "text/html" }); res.end(fs.readFileSync(f));   /* DM1: a module script and a picture are served as what they are */
@@ -23,12 +24,18 @@ export async function startServer() {
   await new Promise((ok) => server.listen(0, ok));
   return { server, port: server.address().port, url: `http://127.0.0.1:${server.address().port}/` };
 }
+/* DB1: open THE LONG VERSION as the page loads, for a browser context a test builds itself */
+export const openLongVersion = (context) => context.addInitScript(() => { const open = () => { const d = document.getElementById("longversion"); if (d && !d.open) d.open = true; }; if (document.readyState !== "loading") open(); else document.addEventListener("DOMContentLoaded", open); });
 /* opts.allowPost: a predicate(url) for the one write path a test lets through (it is still counted in nonGet.allowed) */
-export async function openPage({ width = 1680, height = 1050, allowPost = null, storage = null, path: pagePath = "" } = {}) {   /* DM1: a study page under study/ can be opened by path */
+export async function openPage({ width = 1680, height = 1050, allowPost = null, storage = null, path: pagePath = "", longVersion = "open" } = {}) {   /* DM1: a study page under study/ can be opened by path */
   const srv = await startServer();
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width, height } });
   if (storage) await context.addInitScript((st) => { for (const [k, v] of Object.entries(st)) localStorage.setItem(k, v); }, storage);
+  /* DB1 (9 Oct): the tool's first screen is the dashboard and everything the tests of earlier rounds read sits under THE LONG VERSION, a
+     details closed to start (a closed details has no innerText). Those tests see it open, as Alan does once he clicks; a test of the first
+     screen itself asks for longVersion: "closed" and gets the page as it loads. */
+  if (longVersion === "open") await openLongVersion(context);
   const page = await context.newPage();
   const errors = [], nonGet = { blocked: 0, allowed: 0, urls: [] };
   await page.route("**/*", (r) => { const m = r.request().method(); if (m !== "GET") { nonGet.urls.push(m + " " + r.request().url()); if (allowPost && allowPost(r.request().url())) { nonGet.allowed++; return r.continue(); } nonGet.blocked++; return r.abort(); } r.continue(); });

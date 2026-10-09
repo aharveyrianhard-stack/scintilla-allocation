@@ -1,0 +1,238 @@
+{
+ "stamp": "pictures taken 9 Oct 2026, 10:17 New York",
+ "takenAt": "2026-10-09T14:17:40.264Z",
+ "report": [
+  {
+   "width": 1680,
+   "errors": [],
+   "nonGet": 0,
+   "now": {
+    "number": "75.58",
+    "reading": "18.6",
+    "move": "0",
+    "size": "500000",
+    "bal": "25",
+    "live": "1",
+    "version": "3",
+    "big": "$377.9K",
+    "under": "75.6% of $500K · 24.4% kept in cash, $122.1K",
+    "lines": [
+     "70% always in + 30% × the market reading (19 of 100) = 75.6%",
+     "SPY and QQQ's RSI 59: middling, +2",
+     "credit −0.1% over ten sessions, −14",
+     "the VIX at 15.1: under your 20, adds nothing",
+     "cash freed since 13 Aug near the highs: the swing is halved (37 → 19)"
+    ],
+    "scrollW": 1680,
+    "firstScreenHeight": 950.921875,
+    "longOpen": false
+   },
+   "dip": {
+    "number": "77.65",
+    "reading": "25.5",
+    "move": "-3",
+    "size": "500000",
+    "bal": "25",
+    "live": "1",
+    "version": "3",
+    "big": "$388.3K",
+    "under": "77.7% of $500K · 22.3% kept in cash, $111.8K",
+    "lines": [
+     "70% always in + 30% × the market reading (19 of 100) = 75.6%",
+     "SPY and QQQ's RSI 59: middling, +2",
+     "credit −0.1% over ten sessions, −14",
+     "the VIX at 15.1: under your 20, adds nothing",
+     "cash freed since 13 Aug near the highs: the swing is halved (37 → 19)"
+    ],
+    "scrollW": 1680,
+    "firstScreenHeight": 950.921875,
+    "longOpen": false
+   },
+   "half": {
+    "number": "75.58",
+    "reading": "18.6",
+    "move": "0",
+    "size": "500000",
+    "bal": "50",
+    "live": "1",
+    "version": "3",
+    "big": "$377.9K",
+    "under": "75.6% of $500K · 24.4% kept in cash, $122.1K",
+    "lines": [
+     "70% always in + 30% × the market reading (19 of 100) = 75.6%",
+     "SPY and QQQ's RSI 59: middling, +2",
+     "credit −0.1% over ten sessions, −14",
+     "the VIX at 15.1: under your 20, adds nothing",
+     "cash freed since 13 Aug near the highs: the swing is halved (37 → 19)"
+    ],
+    "scrollW": 1680,
+    "firstScreenHeight": 950.921875,
+    "longOpen": false
+   },
+   "bigger": {
+    "number": "75.58",
+    "reading": "18.6",
+    "move": "0",
+    "size": "600000",
+    "bal": "50",
+    "live": "1",
+    "version": "3",
+    "big": "$453.5K",
+    "under": "75.6% of $600K · 24.4% kept in cash, $146.5K",
+    "lines": [
+     "70% always in + 30% × the market reading (19 of 100) = 75.6%",
+     "SPY and QQQ's RSI 59: middling, +2",
+     "credit −0.1% over ten sessions, −14",
+     "the VIX at 15.1: under your 20, adds nothing",
+     "cash freed since 13 Aug near the highs: the swing is halved (37 → 19)"
+    ],
+    "scrollW": 1680,
+    "firstScreenHeight": 950.921875,
+    "longOpen": false
+   },
+   "reset": {
+    "number": "75.58",
+    "reading": "18.6",
+    "move": "0",
+    "size": "500000",
+    "bal": "25",
+    "live": "1",
+    "version": "3",
+    "big": "$377.9K",
+    "under": "75.6% of $500K · 24.4% kept in cash, $122.1K",
+    "lines": [
+     "70% always in + 30% × the market reading (19 of 100) = 75.6%",
+     "SPY and QQQ's RSI 59: middling, +2",
+     "credit −0.1% over ten sessions, −14",
+     "the VIX at 15.1: under your 20, adds nothing",
+     "cash freed since 13 Aug near the highs: the swing is halved (37 → 19)"
+    ],
+    "scrollW": 1680,
+    "firstScreenHeight": 950.921875,
+    "longOpen": false
+   },
+   "long": {
+    "open": true,
+    "money": true,
+    "panels": 17,
+    "specs": true
+   }
+  },
+  {
+   "width": 390,
+   "errors": [],
+   "nonGet": 0,
+   "now": {
+    "number": "75.61",
+    "reading": "18.7",
+    "move": "0",
+    "size": "500000",
+    "bal": "25",
+    "live": "1",
+    "version": "3",
+    "big": "$378.1K",
+    "under": "75.6% of $500K · 24.4% kept in cash, $122K",
+    "lines": [
+     "70% always in + 30% × the market reading (19 of 100) = 75.6%",
+     "SPY and QQQ's RSI 59: middling, +2",
+     "credit −0.1% over ten sessions, −14",
+     "the VIX at 15.1: under your 20, adds nothing",
+     "cash freed since 13 Aug near the highs: the swing is halved (38 → 19)"
+    ],
+    "scrollW": 390,
+    "firstScreenHeight": 1620.6875,
+    "longOpen": false
+   },
+   "dip": {
+    "number": "77.62",
+    "reading": "25.4",
+    "move": "-3",
+    "size": "500000",
+    "bal": "25",
+    "live": "1",
+    "version": "3",
+    "big": "$388.1K",
+    "under": "77.6% of $500K · 22.4% kept in cash, $111.9K",
+    "lines": [
+     "70% always in + 30% × the market reading (19 of 100) = 75.6%",
+     "SPY and QQQ's RSI 59: middling, +2",
+     "credit −0.1% over ten sessions, −14",
+     "the VIX at 15.1: under your 20, adds nothing",
+     "cash freed since 13 Aug near the highs: the swing is halved (38 → 19)"
+    ],
+    "scrollW": 390,
+    "firstScreenHeight": 768.5,
+    "longOpen": false
+   },
+   "half": {
+    "number": "75.61",
+    "reading": "18.7",
+    "move": "0",
+    "size": "500000",
+    "bal": "50",
+    "live": "1",
+    "version": "3",
+    "big": "$378.1K",
+    "under": "75.6% of $500K · 24.4% kept in cash, $122K",
+    "lines": [
+     "70% always in + 30% × the market reading (19 of 100) = 75.6%",
+     "SPY and QQQ's RSI 59: middling, +2",
+     "credit −0.1% over ten sessions, −14",
+     "the VIX at 15.1: under your 20, adds nothing",
+     "cash freed since 13 Aug near the highs: the swing is halved (38 → 19)"
+    ],
+    "scrollW": 390,
+    "firstScreenHeight": 1220.6875,
+    "longOpen": false
+   },
+   "bigger": {
+    "number": "75.61",
+    "reading": "18.7",
+    "move": "0",
+    "size": "600000",
+    "bal": "50",
+    "live": "1",
+    "version": "3",
+    "big": "$453.7K",
+    "under": "75.6% of $600K · 24.4% kept in cash, $146.3K",
+    "lines": [
+     "70% always in + 30% × the market reading (19 of 100) = 75.6%",
+     "SPY and QQQ's RSI 59: middling, +2",
+     "credit −0.1% over ten sessions, −14",
+     "the VIX at 15.1: under your 20, adds nothing",
+     "cash freed since 13 Aug near the highs: the swing is halved (38 → 19)"
+    ],
+    "scrollW": 390,
+    "firstScreenHeight": 1620.6875,
+    "longOpen": false
+   },
+   "reset": {
+    "number": "75.61",
+    "reading": "18.7",
+    "move": "0",
+    "size": "500000",
+    "bal": "25",
+    "live": "1",
+    "version": "3",
+    "big": "$378.1K",
+    "under": "75.6% of $500K · 24.4% kept in cash, $122K",
+    "lines": [
+     "70% always in + 30% × the market reading (19 of 100) = 75.6%",
+     "SPY and QQQ's RSI 59: middling, +2",
+     "credit −0.1% over ten sessions, −14",
+     "the VIX at 15.1: under your 20, adds nothing",
+     "cash freed since 13 Aug near the highs: the swing is halved (38 → 19)"
+    ],
+    "scrollW": 390,
+    "firstScreenHeight": 720.6875,
+    "longOpen": false
+   },
+   "long": {
+    "open": true,
+    "money": true,
+    "panels": 17,
+    "specs": true
+   }
+  }
+ ]
+}

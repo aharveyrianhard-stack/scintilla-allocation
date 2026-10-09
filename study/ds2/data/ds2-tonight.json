@@ -1,0 +1,341 @@
+{
+ "what": "DS2 — the tool read from this machine the way the page reads it (scripts/al9-live-check.mjs), twice on the same prices: version 2, and version 1 with the two switches off",
+ "after": {
+  "readAt": "2026-10-07 21:06:59 New York",
+  "phase": "closed",
+  "session": "2026-10-07",
+  "live": false,
+  "number": 74.3,
+  "thisMinute": 74.6,
+  "marketReading": 14.4,
+  "readingThisMinute": 15.2,
+  "yesterday": {
+   "date": "2026-10-06",
+   "number": 73.3,
+   "reading": 10.9
+  },
+  "dips": [
+   {
+    "dip": 1.5,
+    "number": 75.5,
+    "reading": 18.5
+   },
+   {
+    "dip": 3,
+    "number": 76.6,
+    "reading": 22.1
+   },
+   {
+    "dip": 5,
+    "number": 89.8,
+    "reading": 66
+   }
+  ],
+  "chainNow": {
+   "number": 74.33,
+   "held": 70,
+   "tactical": 4.33,
+   "cash": 25.67,
+   "conviction": 19.12,
+   "convOfInvested": 25.72,
+   "core": 55.21,
+   "names": {
+    "MU": 19.36,
+    "NBIS": 7.65,
+    "NVDA": 11.83,
+    "AVGO": 11.83,
+    "TSM": 11.83,
+    "AMZN": 7.89,
+    "GOOGL": 3.94
+   }
+  },
+  "ceilings": {
+   "MU": 28,
+   "NBIS": 12,
+   "NVDA": 15,
+   "AVGO": 15,
+   "TSM": 15,
+   "AMZN": 10,
+   "GOOGL": 5
+  },
+  "room": {
+   "nlv": 523051,
+   "target": 74.33,
+   "held": 13.57,
+   "room": 60.76,
+   "usd": 317780,
+   "rows": [
+    {
+     "sym": "MU",
+     "target": 19.36,
+     "held": 10.4,
+     "room": 8.96,
+     "usd": 46855,
+     "ceiling": 28,
+     "band": 3,
+     "open": false,
+     "high": 1097.39
+    },
+    {
+     "sym": "NBIS",
+     "target": 7.65,
+     "held": 3.17,
+     "room": 4.47,
+     "usd": 23400,
+     "ceiling": 12,
+     "band": 2,
+     "open": false,
+     "high": 277.68
+    },
+    {
+     "sym": "NVDA",
+     "target": 11.83,
+     "held": 0,
+     "room": 11.83,
+     "usd": 61881,
+     "ceiling": 15,
+     "band": 0,
+     "open": false
+    },
+    {
+     "sym": "AVGO",
+     "target": 11.83,
+     "held": 0,
+     "room": 11.83,
+     "usd": 61881,
+     "ceiling": 15,
+     "band": 0,
+     "open": false
+    },
+    {
+     "sym": "TSM",
+     "target": 11.83,
+     "held": 0,
+     "room": 11.83,
+     "usd": 61881,
+     "ceiling": 15,
+     "band": 0,
+     "open": false
+    },
+    {
+     "sym": "ORCL",
+     "target": 0,
+     "held": 0,
+     "room": 0,
+     "usd": 0,
+     "ceiling": 0,
+     "band": 0,
+     "open": false
+    },
+    {
+     "sym": "AMZN",
+     "target": 7.89,
+     "held": 0,
+     "room": 7.89,
+     "usd": 41254,
+     "ceiling": 10,
+     "band": 0,
+     "open": false
+    },
+    {
+     "sym": "GOOGL",
+     "target": 3.94,
+     "held": 0,
+     "room": 3.94,
+     "usd": 20627,
+     "ceiling": 5,
+     "band": 0,
+     "open": false
+    }
+   ]
+  },
+  "version2": {
+   "cashRaised": true,
+   "since": "2026-08-13",
+   "creditFitted": -16.2,
+   "creditCounted": -16.2,
+   "fade": 1,
+   "readingBeforeTheCashRule": 30.4,
+   "version1": {
+    "reading": 30.4,
+    "number": 79.1
+   },
+   "rsi": 63.9,
+   "offHigh": [
+    -0.24,
+    -0.25
+   ],
+   "aboveThe200Day": 10.3,
+   "windowSeededTo": "2025-08-13"
+  }
+ },
+ "before": {
+  "readAt": "2026-10-07 21:07:01 New York",
+  "phase": "closed",
+  "session": "2026-10-07",
+  "live": false,
+  "number": 78.7,
+  "thisMinute": 79.1,
+  "marketReading": 28.9,
+  "readingThisMinute": 30.4,
+  "yesterday": {
+   "date": "2026-10-06",
+   "number": 76.5,
+   "reading": 21.8
+  },
+  "dips": [
+   {
+    "dip": 1.5,
+    "number": 81.1,
+    "reading": 37.1
+   },
+   {
+    "dip": 3,
+    "number": 83.3,
+    "reading": 44.3
+   },
+   {
+    "dip": 5,
+    "number": 87,
+    "reading": 56.8
+   }
+  ],
+  "chainNow": {
+   "number": 78.66,
+   "held": 70,
+   "tactical": 8.66,
+   "cash": 21.34,
+   "conviction": 20.8,
+   "convOfInvested": 26.44,
+   "core": 57.86,
+   "names": {
+    "MU": 20.75,
+    "NBIS": 8.32,
+    "NVDA": 12.4,
+    "AVGO": 12.4,
+    "TSM": 12.4,
+    "AMZN": 8.27,
+    "GOOGL": 4.13
+   }
+  },
+  "ceilings": {
+   "MU": 28,
+   "NBIS": 12,
+   "NVDA": 15,
+   "AVGO": 15,
+   "TSM": 15,
+   "AMZN": 10,
+   "GOOGL": 5
+  },
+  "room": {
+   "nlv": 523051,
+   "target": 78.66,
+   "held": 13.57,
+   "room": 65.08,
+   "usd": 340426,
+   "rows": [
+    {
+     "sym": "MU",
+     "target": 20.75,
+     "held": 10.4,
+     "room": 10.35,
+     "usd": 54110,
+     "ceiling": 28,
+     "band": 3,
+     "open": false,
+     "high": 1097.39
+    },
+    {
+     "sym": "NBIS",
+     "target": 8.32,
+     "held": 3.17,
+     "room": 5.15,
+     "usd": 26917,
+     "ceiling": 12,
+     "band": 2,
+     "open": false,
+     "high": 277.68
+    },
+    {
+     "sym": "NVDA",
+     "target": 12.4,
+     "held": 0,
+     "room": 12.4,
+     "usd": 64850,
+     "ceiling": 15,
+     "band": 0,
+     "open": false
+    },
+    {
+     "sym": "AVGO",
+     "target": 12.4,
+     "held": 0,
+     "room": 12.4,
+     "usd": 64850,
+     "ceiling": 15,
+     "band": 0,
+     "open": false
+    },
+    {
+     "sym": "TSM",
+     "target": 12.4,
+     "held": 0,
+     "room": 12.4,
+     "usd": 64850,
+     "ceiling": 15,
+     "band": 0,
+     "open": false
+    },
+    {
+     "sym": "ORCL",
+     "target": 0,
+     "held": 0,
+     "room": 0,
+     "usd": 0,
+     "ceiling": 0,
+     "band": 0,
+     "open": false
+    },
+    {
+     "sym": "AMZN",
+     "target": 8.27,
+     "held": 0,
+     "room": 8.27,
+     "usd": 43233,
+     "ceiling": 10,
+     "band": 0,
+     "open": false
+    },
+    {
+     "sym": "GOOGL",
+     "target": 4.13,
+     "held": 0,
+     "room": 4.13,
+     "usd": 21617,
+     "ceiling": 5,
+     "band": 0,
+     "open": false
+    }
+   ]
+  },
+  "version2": {
+   "cashRaised": false,
+   "since": null,
+   "creditFitted": -16.2,
+   "creditCounted": -16.2,
+   "fade": 1,
+   "readingBeforeTheCashRule": 30.4,
+   "version1": {
+    "reading": 30.4,
+    "number": 79.1
+   },
+   "rsi": 63.9,
+   "offHigh": [
+    -0.24,
+    -0.25
+   ],
+   "aboveThe200Day": 10.3,
+   "windowSeededTo": "2025-08-13"
+  }
+ }
+}

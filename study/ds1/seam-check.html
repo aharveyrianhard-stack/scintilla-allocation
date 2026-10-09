@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DS1 seam check</title>
+<style>:root{--bg:#0a0a0f;--panel:#101018;--line:#1c1c28;--txt:#e8e8f0;--dim:#8a8aa0;--green:#38e07b;--red:#ff5470;--gold:#ffd166;--core:#2196b8;--conv:#b38d3c;--cashc:#26263a}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:13px;padding:16px;overflow-x:hidden}.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-top:14px;min-width:0}
+.panel h2{font-size:12px;letter-spacing:.2em;color:#00d4ff;margin:0 0 10px;font-weight:600}p{color:var(--dim);font-size:12px;line-height:1.6;max-width:900px}</style></head><body>
+<p>DS1 seam check — a stand-in for the page once the money panel (AL8) and the matrix's slot (DM2) are on one branch. The first panel carries AL8's own id (<b>scenbars</b>); the deployment system takes it over without a line of AL8's code being edited: it renames the element, so AL8's renderer finds nothing to draw into, and draws the pie there. The reading stays in step 2.</p>
+<div class="panel full"><h2>THE MONEY — how much goes to work in five markets <button class="pfold">FOLD</button></h2><div id="scenbars">AL8's five bars would be drawn here</div></div>
+<div class="panel full"><h2>2 · HOW MUCH TO INVEST — the ladder</h2><div id="policy">THE LADDER (stand-in)</div><div id="ds1live"></div></div>
+<script type="module">
+import { startDeploymentSystem } from "./live.mjs";
+const apiGet = async (p) => { const r = await fetch(p, { cache: "no-store" }); if (!r.ok) throw new Error(p.split("?")[0] + " " + r.status); return r.json(); };
+/* AL8's renderer, as it is on its branch: it looks its element up by id every time it draws */
+window.renderScen = () => { const el = document.getElementById("scenbars"); if (!el) return false; el.innerHTML = "AL8's five bars"; return true; };
+startDeploymentSystem({ el: document.getElementById("ds1live"), moneyEl: document.getElementById("scenbars"), getApi: apiGet, baseUrl: "data/ds1-live.json" }).then(() => { window.SEAM_AL8_DREW = window.renderScen(); });
+</script></body></html>

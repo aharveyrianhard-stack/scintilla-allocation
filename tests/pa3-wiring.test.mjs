@@ -3,6 +3,7 @@
    node --test tests/ */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { openLongVersion } from "./_harness.mjs";   /* DB1 (9 Oct): the panels this test reads sit under THE LONG VERSION, closed to start */
 import { createRequire } from "node:module";
 import http from "node:http"; import fs from "node:fs"; import path from "node:path"; import { fileURLToPath } from "node:url";
 const require = createRequire("/Users/alanharvey/SCINTILLA 0.5/visual-supervisor/package.json");
@@ -27,7 +28,7 @@ await new Promise((ok) => server.listen(0, ok)); const PORT = server.address().p
 let page, browser, state, nonGet = 0;
 test("the page loads headless with no errors and no non-GET request", async () => {
   browser = await chromium.launch({ headless: true });
-  page = await (await browser.newContext({ viewport: { width: 1680, height: 1050 } })).newPage();
+  { const context = await browser.newContext({ viewport: { width: 1680, height: 1050 } }); await openLongVersion(context); page = await context.newPage(); }   /* DB1: the panels this test reads sit under THE LONG VERSION, closed to start */
   const errors = [];
   await page.route("**/*", (r) => { if (r.request().method() !== "GET") { nonGet++; return r.abort(); } r.continue(); });
   page.on("pageerror", (e) => errors.push(String(e)));
