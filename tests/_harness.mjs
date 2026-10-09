@@ -25,11 +25,15 @@ export async function startServer() {
   return { server, port: server.address().port, url: `http://127.0.0.1:${server.address().port}/` };
 }
 /* opts.allowPost: a predicate(url) for the one write path a test lets through (it is still counted in nonGet.allowed) */
-export async function openPage({ width = 1680, height = 1050, allowPost = null, storage = null, path: pagePath = "" } = {}) {   /* DM1: a study page under study/ can be opened by path */
+export async function openPage({ width = 1680, height = 1050, allowPost = null, storage = null, path: pagePath = "", longVersion = "open" } = {}) {   /* DM1: a study page under study/ can be opened by path */
   const srv = await startServer();
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width, height } });
   if (storage) await context.addInitScript((st) => { for (const [k, v] of Object.entries(st)) localStorage.setItem(k, v); }, storage);
+  /* DB1 (9 Oct): the tool's first screen is the dashboard and everything the tests of earlier rounds read sits under THE LONG VERSION, a
+     details closed to start (a closed details has no innerText). Those tests see it open, as Alan does once he clicks; a test of the first
+     screen itself asks for longVersion: "closed" and gets the page as it loads. */
+  if (longVersion === "open") await context.addInitScript(() => { const open = () => { const d = document.getElementById("longversion"); if (d && !d.open) d.open = true; }; if (document.readyState !== "loading") open(); else document.addEventListener("DOMContentLoaded", open); });
   const page = await context.newPage();
   const errors = [], nonGet = { blocked: 0, allowed: 0, urls: [] };
   await page.route("**/*", (r) => { const m = r.request().method(); if (m !== "GET") { nonGet.urls.push(m + " " + r.request().url()); if (allowPost && allowPost(r.request().url())) { nonGet.allowed++; return r.continue(); } nonGet.blocked++; return r.abort(); } r.continue(); });

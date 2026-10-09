@@ -4,7 +4,7 @@
    they agree. Read-only.   node scripts/db1-live-check.mjs [--json] */
 import { execFileSync } from "node:child_process"; import path from "node:path"; import { fileURLToPath } from "node:url";
 import fs from "node:fs"; import { openPage, ROOT } from "../tests/_harness.mjs"; import { numberAt } from "../study/al9/chain.mjs"; import { nyParts, view } from "../study/ds1/live.mjs";
-const P = await openPage({ width: 1680, height: 1050 }); let page = null, engine = null, samePrices = null, err = null;
+const P = await openPage({ width: 1680, height: 1050, longVersion: "closed" }); let page = null, engine = null, samePrices = null, err = null;
 try { await P.page.waitForFunction(() => window.DS1_LIVE_READY === true && window.DS1_LIVE.view && document.querySelector("#db1-root[data-version]"), null, { timeout: 150000 }); await P.page.waitForTimeout(500);
   /* the engine from node, started the moment the page has its number — the two reads are seconds apart */
   const t = nyParts(); const out = execFileSync(process.execPath, [path.join(ROOT, "scripts/ds1-live-check.mjs"), "--json"], { cwd: ROOT, encoding: "utf8", maxBuffer: 64e6, timeout: 180000 }); engine = JSON.parse(out.trim().split("\n").pop()); engine.startedAt = t.hms;
