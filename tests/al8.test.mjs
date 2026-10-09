@@ -11,7 +11,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs"; import path from "node:path";
-import { openPage, startServer, chromium, ROOT } from "./_harness.mjs";
+import { openPage, startServer, chromium, ROOT, openLongVersion } from "./_harness.mjs";
 
 let P, s;
 const near = (a, b, eps = 1e-9) => Math.abs(a - b) <= eps;
@@ -23,7 +23,9 @@ function placesJS(vals) { const have = vals.map((v, i) => [v, i]).filter(([v]) =
   for (let i = 0; i < n;) { let j = i; while (j < n && have[j][0] === have[i][0]) j++; const mid = (i + j - 1) / 2, p = n > 1 ? 1 - mid / (n - 1) : 1; for (let k = i; k < j; k++) out[have[k][1]] = p; i = j; } return out; }
 /* a page with one extra rule about what the two scenario files answer (the harness's own page has none): every non-GET is still blocked */
 async function openWith(routes, { width = 1680, height = 1050 } = {}) {
-  const srv = await startServer(); const browser = await chromium.launch({ headless: true }); const context = await browser.newContext({ viewport: { width, height } }); const page = await context.newPage();
+  const srv = await startServer(); const browser = await chromium.launch({ headless: true }); const context = await browser.newContext({ viewport: { width, height } });
+  await openLongVersion(context);   /* DB1: the panels this test reads sit under THE LONG VERSION, closed to start (a closed details has no innerText) */
+  const page = await context.newPage();
   const errors = [], nonGet = { blocked: 0 }; page.on("pageerror", (e) => errors.push(String(e)));
   await page.route("**/*", (r) => { if (r.request().method() !== "GET") { nonGet.blocked++; return r.abort(); } for (const [re, answer] of routes) if (re.test(r.request().url())) return answer === 404 ? r.fulfill({ status: 404, body: "" }) : r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(answer) }); r.continue(); });
   await page.goto(srv.url, { waitUntil: "networkidle", timeout: 180000 }); await page.waitForTimeout(2500);
@@ -182,11 +184,12 @@ test("1 · step 9 prints the table: one row per input with the one thing it move
 test("2 · the money picture is the deployment system's pie: the first panel, open on the first screen, above THE BRIEF — and the five-market bars are no longer drawn", async () => {
   const r = await P.page.evaluate(() => { const host = document.getElementById("ds1money-host"), p = document.getElementById("p-scen");
     return { scenbars: !!document.getElementById("scenbars"), bars: document.querySelectorAll(".a8-scen").length, inPanel: !!host && host.closest(".panel") === p, pie: host ? host.querySelectorAll(".a9-pie svg").length : 0, slices: host ? [...host.querySelectorAll('.a9-row[data-chain="now"] .a9-pie')].map((t) => t.getAttribute("data-pie")) : [], dips: host ? host.querySelectorAll("[data-dipn]").length : 0, h2: p.querySelector("h2").innerText, firstRow: (() => { const e = host && host.querySelector('.a9-row[data-chain="now"]'); return e ? e.getBoundingClientRect().bottom : null; })(),
-      folded: p.classList.contains("folded"), top: p.getBoundingClientRect().top, briefTop: document.getElementById("p-brief").getBoundingClientRect().top, h: p.getBoundingClientRect().height, scen: scenRows(), drew: (() => { try { renderScen(); } catch (e) { return String(e); } return document.querySelectorAll(".a8-scen").length; })() }; });
+      folded: p.classList.contains("folded"), top: p.getBoundingClientRect().top, briefTop: document.getElementById("p-brief").getBoundingClientRect().top, foldTop: document.getElementById("longversion").getBoundingClientRect().top, h: p.getBoundingClientRect().height, scen: scenRows(), drew: (() => { try { renderScen(); } catch (e) { return String(e); } return document.querySelectorAll(".a8-scen").length; })() }; });
   assert.equal(r.scenbars, false, "the bars' host is gone"); assert.equal(r.bars, 0); assert.deepEqual(r.scen, [], "and they have no rows"); assert.equal(r.drew, 0, "the old renderer, asked to draw, draws nothing");
   assert.ok(r.inPanel && r.pie === 10, "the pies stand in the money panel: five now, five fully invested"); assert.deepEqual(r.slices, ["account", "invested", "who", "conviction", "core"], "the chain, link by link: the account, what is invested, who gets it, inside conviction, inside the core");
   assert.equal(r.dips, 3, "the number on the three dips"); assert.match(r.h2, /^THE MONEY — the number, how it splits, how much room is left/);
-  assert.equal(r.folded, false, "open on the first screen"); assert.ok(r.top < r.briefTop && r.firstRow != null && r.firstRow < 1050, "above THE BRIEF, with the number, its history and the first row of pies inside the first screen: " + r.firstRow);
+  assert.equal(r.folded, false, "open on the first screen"); /* DB1 (9 Oct): the first screen is the dashboard; this panel is the first thing inside THE LONG VERSION, so "the first screen" here is the fold's own first 1050 px */
+  assert.ok(r.top < r.briefTop && r.firstRow != null && r.firstRow - r.foldTop < 1050, "above THE BRIEF, with the number, its history and the first row of pies inside the long version's first screen: " + (r.firstRow - r.foldTop));
 });
 
 test("2 · the next round is here: the panel no longer says 'next round in progress', the sources line names the deployment system — and nothing below the panel uses its reading", async () => {

@@ -24,6 +24,8 @@ export async function startServer() {
   await new Promise((ok) => server.listen(0, ok));
   return { server, port: server.address().port, url: `http://127.0.0.1:${server.address().port}/` };
 }
+/* DB1: open THE LONG VERSION as the page loads, for a browser context a test builds itself */
+export const openLongVersion = (context) => context.addInitScript(() => { const open = () => { const d = document.getElementById("longversion"); if (d && !d.open) d.open = true; }; if (document.readyState !== "loading") open(); else document.addEventListener("DOMContentLoaded", open); });
 /* opts.allowPost: a predicate(url) for the one write path a test lets through (it is still counted in nonGet.allowed) */
 export async function openPage({ width = 1680, height = 1050, allowPost = null, storage = null, path: pagePath = "", longVersion = "open" } = {}) {   /* DM1: a study page under study/ can be opened by path */
   const srv = await startServer();
@@ -33,7 +35,7 @@ export async function openPage({ width = 1680, height = 1050, allowPost = null, 
   /* DB1 (9 Oct): the tool's first screen is the dashboard and everything the tests of earlier rounds read sits under THE LONG VERSION, a
      details closed to start (a closed details has no innerText). Those tests see it open, as Alan does once he clicks; a test of the first
      screen itself asks for longVersion: "closed" and gets the page as it loads. */
-  if (longVersion === "open") await context.addInitScript(() => { const open = () => { const d = document.getElementById("longversion"); if (d && !d.open) d.open = true; }; if (document.readyState !== "loading") open(); else document.addEventListener("DOMContentLoaded", open); });
+  if (longVersion === "open") await openLongVersion(context);
   const page = await context.newPage();
   const errors = [], nonGet = { blocked: 0, allowed: 0, urls: [] };
   await page.route("**/*", (r) => { const m = r.request().method(); if (m !== "GET") { nonGet.urls.push(m + " " + r.request().url()); if (allowPost && allowPost(r.request().url())) { nonGet.allowed++; return r.continue(); } nonGet.blocked++; return r.abort(); } r.continue(); });

@@ -10,14 +10,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs"; import path from "node:path";
-import { startServer, chromium, ROOT } from "./_harness.mjs";
+import { startServer, chromium, ROOT, openLongVersion } from "./_harness.mjs";
 
 const J = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, "data", f), "utf8"));
 const CARDS = J("decision-cards-20261007.json"), TABLE = J("one-basis-30-20261007.json"), CORE = J("core-candidates-20261007.json");
 const near = (a, b, eps = 1e-9) => Math.abs(a - b) <= eps;
 /* a page whose prices the test decides: quotes(symbols) → the chart API's answer, or "down"; stored: the live_quotes rows */
 async function openWith({ quotes, stored, width = 1680, height = 1050 }) {
-  const srv = await startServer(), browser = await chromium.launch({ headless: true }), context = await browser.newContext({ viewport: { width, height } }), page = await context.newPage();
+  const srv = await startServer(), browser = await chromium.launch({ headless: true }), context = await browser.newContext({ viewport: { width, height } }); await openLongVersion(context); const page = await context.newPage();   /* DB1: the panels this test reads sit under THE LONG VERSION, closed to start */
   const errors = [], nonGet = { blocked: 0 }; page.on("pageerror", (e) => errors.push(String(e)));
   await page.route("**/*", (r) => { const q = r.request(), u = q.url();
     if (q.method() !== "GET") { nonGet.blocked++; return r.abort(); }
