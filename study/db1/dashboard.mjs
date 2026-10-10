@@ -111,7 +111,8 @@ export function dashboardHtml(st, S, pick = 0, width = 1400) {
   const marks = []; if (st && st.error) marks.push(`last try failed — showing the reading before it`); if (v && v.missing && v.missing.length) marks.push(`no live price for ${esc(v.missing.join(", "))}: the close of ${esc(day(v.lastBar))} is used`);
   if (v && !v.v3) marks.push(v.v2 ? "version 3's rule file did not load — this is version 2's number" : "the rule files did not load — this is version 1's number");
   const when = !v ? (old ? `last read ${esc(S.last.readAt || "")}${S.last.date ? " on " + esc(dayY(S.last.date)) : ""} · reading live prices…` : "reading live prices…") : v.live ? `${ph === "open" ? "live" : esc(ph || "")} · the session of ${esc(dayY(v.session))}` : `at the close of ${esc(dayY(v.session))} · New York is not trading`;
-  /* DB2: the fourth card follows the chip — its lines and its picture are that move's own (moves carry their reading); a state without it keeps the lines of now */
+  /* DB2: the fourth card follows the chip — its lines and its picture are that move's own (moves carry their reading); a state without it keeps the lines of now.
+     The formula line stays as text above the picture; the other lines are the picture's captions. Should the rows ever not be drawable (no typical day in the state), every line stays as text under the formula, so no word is lost. */
   const chipHas = !!(atMove && mv.r), how = v ? (chipHas ? { r: mv.r, number } : { r: v.reading, number: numberOf(readingNow, A) }) : null;
   const typical = v && v.v2 && v.v2.typical != null ? v.v2.typical : st && st.base && st.base.model && st.base.model.scale ? 50 - st.base.model.scale.gain * st.base.model.scale.centre : null;
   const lines = v ? summaryLines(v, A, chipHas ? mv : null) : [], H = how ? howSteps({ ...how, A, typical, lines }) : null, chips = v ? v.moves.map((m) => `<button type="button" class="chip" data-move="${m.movePct}" aria-pressed="${Math.abs(m.movePct - pick) < 1e-9}" title="SPY ${f1(m.spy)} · QQQ ${f1(m.qqq)} · the VIX ${f1(m.vix)} · market reading ${f0(m.reading)}"><span class="m ${m.movePct < 0 ? "dn" : m.movePct > 0 ? "up" : ""}">${m.movePct === 0 ? "now" : sgm(m.movePct)}</span><span class="n">${pc(numberOf(m.reading, A))}</span></button>`).join("") : `<span class="lab">waiting for the first read</span>`;
@@ -136,7 +137,7 @@ export function dashboardHtml(st, S, pick = 0, width = 1400) {
   </section>
   <section class="card" aria-label="How it gets to the number">
     <div class="lab">How it gets to ${chipHas ? `${pc(number)} · if SPY &amp; QQQ move ${sgm(mv.movePct)}` : `${readingNow != null ? pc(numberOf(readingNow, A)) : "the number"}${atMove ? ` now · at ${sgm(mv.movePct)} the market reading is ${f0(mv.reading)}, so ${pc(numberOf(mv.reading, A))}` : ""}`}</div>
-    ${lines.length ? `<ul class="sum"><li data-line="sum">${esc(lines[0].text)}</li></ul>${howHtml(H, { narrow })}` : `<div class="under">the first read of the market is on its way</div>`}
+    ${lines.length ? `<ul class="sum">${(H && H.steps ? lines.slice(0, 1) : lines).map((l) => `<li data-line="${l.key}">${esc(l.text)}</li>`).join("")}</ul>${howHtml(H, { narrow })}` : `<div class="under">the first read of the market is on its way</div>`}
   </section>
   <section class="card" aria-label="What if SPY and QQQ move"><div class="lab">If SPY &amp; QQQ move together · today's engine, credit selling as it usually does</div><div class="chips">${chips}</div></section>
   <div class="foot"><span>No prices, levels or orders here — the long version below has them.</span><button type="button" class="reset" data-reset>Reset</button></div>

@@ -1,0 +1,109 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DB2 — how it gets to the number, as a picture</title>
+<style>
+:root{--bg:#0a0a0f;--panel:#101018;--line:#1c1c28;--txt:#e8e8f0;--dim:#8a8aa0;--cyan:#00d4ff;--gold:#ffd166;--green:#38e07b;--red:#ff5470}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:13px/1.6 "SF Mono",ui-monospace,Menlo,monospace;padding:26px 30px 60px}
+h1{font-size:19px;letter-spacing:.24em;font-weight:600;margin:0 0 4px}h1 span{color:var(--cyan)}.sub{color:var(--dim);font-size:11px;letter-spacing:.08em;margin:0 0 20px}
+section.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:0 0 16px;max-width:1500px}
+h2{font-size:11px;letter-spacing:.22em;color:var(--cyan);margin:0 0 10px;font-weight:600}p{margin:6px 0;max-width:1100px}b{font-weight:600}
+ul,ol{margin:6px 0;padding-left:22px;max-width:1100px}li{margin:3px 0}
+.tiles{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0 4px}.tile{background:#0d0d15;border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:170px;max-width:290px}.tile b{display:block;font-size:30px;line-height:1;font-weight:700;color:var(--gold)}.tile span{color:var(--dim);font-size:11px;letter-spacing:.06em}
+figure{margin:12px 0}figure img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:6px;display:block}figcaption{color:var(--dim);font-size:11.5px;margin-top:6px;max-width:1100px}
+figure.card img{width:1180px}figure.phone img{width:330px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}.wide{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:16px;align-items:start}@media(max-width:900px){.two,.wide{grid-template-columns:minmax(0,1fr)}}
+.wrap{overflow-x:auto}table{border-collapse:collapse;font-size:12px}th,td{padding:5px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dim);font-weight:600;letter-spacing:.08em;font-size:11px}td.n{text-align:right;font-variant-numeric:tabular-nums}
+.up{color:var(--green)}.dn{color:var(--red)}
+details.sc-pagespecs{margin:30px 0 0;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);font-size:11px;max-width:1500px}details.sc-pagespecs summary{cursor:pointer;letter-spacing:.2em;font-size:10px;color:var(--dim)}
+</style></head><body>
+<h1>SCINTILLA <span>·</span> ALLOCATION — DB2, how it gets to the number, as a picture</h1>
+<p class="sub">9 OCT 2026 · THE FIRST SCREEN'S "HOW IT GETS TO 75.9%" IS ONE PICTURE INSTEAD OF FOUR LINES · BRANCH db2-visual-summary-20261009 · NOT YET LIVE — THE COORDINATOR MERGES AND DEPLOYS</p>
+
+<section class="panel" id="p-picture"><h2>THE PICTURE — AT THE CLOSE OF 9 OCT, READ 22:06 NEW YORK</h2>
+<figure class="card"><img src="pictures/db2-2-card-now-1680.png" alt="The card: the formula line, the account bar filled to 75.9%, and six rows that make the market reading of 20"><figcaption>The card as it is on the first screen at 1680 wide. Nothing here is a mock: it is the tool, headless, on live prices.</figcaption></figure>
+<p>You said: <b>"This dashboard tool — how it gets to 75.9 — I don't know, man. Can we do something a little bit more visual on this kind of thing?"</b> The one formula line stays on top. Under it, read the picture top to bottom:</p>
+<ul>
+  <li><b>The long bar is the account, 0 to 100%.</b> The solid grey block is the 70% that is always in. The darker track after it is the 30% that swings with the market. The white part of that track is how much of the swing is at work, and the bright mark with <b>75.9%</b> is where it ends.</li>
+  <li><b>The wedge under the track</b> opens onto the scale below. It says: that track, from one end to the other, is the market reading from 0 to 100. A market reading of 20 fills a fifth of it.</li>
+  <li><b>The six rows are how the market reading gets to 20</b>, all on that one scale. It starts at a typical day, 49. SPY and QQQ's RSI adds 2 (<span class="up">green</span>, from 49 to 51). Credit takes away 11 (<span class="dn">red</span>, from 51 back to 40). The VIX at 14.8 adds nothing — it is still drawn, as a thin white mark at 40. Cash has been freed since 13 Aug, so the 40 is halved: the bracket spans the 40, its mark sits at 20, and the half that is freed is in outline. The last row is the market reading, 20 of 100, in the same white as the fill above.</li>
+  <li><b>The words are the ones that were there.</b> Every caption is one of the four lines, to the letter, sitting beside its bar. The dark bar to the left of each coloured one is the level so far.</li>
+</ul>
+</section>
+
+<section class="panel" id="p-screen"><h2>ON THE FIRST SCREEN — BEFORE AND AFTER, AND ON A PHONE</h2>
+<div class="two">
+  <figure><img src="../db1/pictures/db1-1-first-screen-1680.png" alt="The first screen as it is live today: four lines of text"><figcaption><b>Before</b> — the first screen as it went live this morning (DB1's picture, 10:17 New York, when the number was 75.6%). The third card is four lines of text.</figcaption></figure>
+  <figure><img src="pictures/db2-1-first-screen-1680.png" alt="The first screen with the picture in the third card"><figcaption><b>After</b> — the same screen at 1680 × 1050, read 22:06 New York at the close of 9 Oct (75.9%). The card is about 95 px taller; the what-if chips and the Reset line are still on the first screen, and the fold of the long version starts just under it.</figcaption></figure>
+</div>
+<div class="wide">
+  <figure><img src="pictures/db2-4-first-screen-at-minus-5-1680.png" alt="The first screen with the minus 5 percent chip picked"><figcaption><b>With a what-if chip picked (−5%)</b> the whole card follows it: the heading, the formula line, the bar and the rows are that move's own. Here the market is washed out, so the RSI adds 29, credit's 13 is softened to 2, the VIX at 20.6 is over your 20 and adds 10, and the cash is put back — no bracket. 86 of 100, so 95.8%.</figcaption></figure>
+  <figure class="phone"><img src="pictures/db2-2-card-now-390.png" alt="The card on a phone: each caption above its bar"><figcaption><b>On a phone (390 wide)</b> the bars stack and each caption sits above its bar and wraps. Nothing spills sideways.</figcaption></figure>
+</div>
+</section>
+
+<section class="panel" id="p-ends"><h2>AT THE TWO ENDS OF THE SCALE</h2>
+<div class="two">
+  <figure><img src="pictures/db2-3-card-at-minus-8-1680.png" alt="The card at minus 8 percent: the parts add to 108 and the reading stops at 100"><figcaption><b>−8%.</b> The VIX at 24.1 is over your 23 — both hands, +20. The parts add to 108, past the end of the scale: the VIX's bar is cut at 100 and pointed, and a row says <b>the market reading stops at 100</b>. Fully invested.</figcaption></figure>
+  <figure><img src="pictures/db2-3-card-at-plus-5-1680.png" alt="The card at plus 5 percent: the reading stops at 0"><figcaption><b>+5%.</b> The RSI at 75 takes away 51, more than the 49 it started with: its bar is cut at 0 and pointed, and a row says <b>the market reading stops at 0</b>. Only the 70% that is always in.</figcaption></figure>
+</div>
+</section>
+
+<section class="panel" id="p-checks"><h2>THE CHECKS</h2>
+<div class="tiles">
+  <div class="tile"><b>75.94</b><span>where the fill ends, measured in pixels on the screen · the number is 75.94%</span></div>
+  <div class="tile"><b>0</b><span>left over when a typical day and the bars are added up against the engine's own reading — now and at all seven chips</span></div>
+  <div class="tile"><b>8 of 8</b><span>the new tests (tests/db2.test.mjs)</span></div>
+  <div class="tile"><b id="suite-n">—</b><span id="suite-w">the whole suite, one file at a time</span></div>
+</div>
+<ul>
+  <li><b>The bar's fill equals the number.</b> Measured on the live page at 1680 and at 390: the fill ends at 75.94 and 75.93, the bright mark stands at 75.94; the number is 75.94%.</li>
+  <li><b>The rows add from a typical day to the market reading.</b> 49.08 + 1.92 − 11.45 + 0 = 39.54, halved = 19.77 — the engine's own reading, to nine decimals. The same holds at every chip (−8, −5, −3, −1.5, +1.5, +3, +5), on a recorded read, on a made-up market run through the tool's own arithmetic (48 cases: cash raised and not, the VIX adding 5, 10 and 20, both ends of the scale), and measured in pixels on the live page.</li>
+  <li><b>It is drawn again</b> with every read (a new read replaces the drawing — tested) and with every chip (seven of seven).</li>
+  <li><b>The tests were made to fail on purpose</b> three times — the fill drawn one point short, a bar started from the wrong place, the old double line put back — and each time they caught it.</li>
+  <li id="suite-line">The whole suite: —</li>
+</ul>
+</section>
+
+<section class="panel" id="p-found"><h2>TWO THINGS FOUND IN THOSE LINES, AND PUT RIGHT</h2>
+<ul>
+  <li><b>The VIX would have been said twice.</b> The day the VIX closes at 20 or more (or touches it), the live first screen would have shown its line — "the VIX at 21.3: over your 20, +10" — and then a second, false one: "+10 from the parts you switched on". The number itself was right; the words counted the VIX twice. It has not shown yet because the VIX has stayed under 20 since the dashboard went live. Fixed, and tested on a market where the VIX adds.</li>
+  <li><b>"−0.0%".</b> At tonight's close the credit line read "credit −0.0% over ten sessions". A move that rounds to nothing now carries no sign: "credit 0.0% over ten sessions, −11".</li>
+</ul>
+</section>
+
+<section class="panel" id="p-wrong"><h2>WHAT COULD BE WRONG</h2>
+<ul>
+  <li><b>The whole numbers can be one off.</b> Each caption rounds its own figure, so on some days the three you can add up read one more or one less than the total beside them. At midday the lines said +2, −12 and "40 → 20"; with the typical day's 49 now on the screen, that would have read 49 + 2 − 12 = 39 beside a 40. The bars are drawn at the exact values, and resting the pointer on a row shows its sum to one decimal, but on the Apple TV there is no pointer. Tonight they happen to add (49 + 2 − 11 = 40).</li>
+  <li><b>A green bar captioned "a little stretched".</b> The word comes from the RSI's level (60 and over), the colour from what the part does — and the RSI part still adds a little until about 62.5. In four lines of text that passed unnoticed; beside a green bar it looks like a contradiction. It is the first decision below.</li>
+  <li><b>Small parts are small.</b> On a phone the scale is 292 px for 100 points, so a +2 is 6 px wide. It is never thinner than 2 px and a part that adds nothing is a white mark, but it is not a big bar.</li>
+  <li><b>The rows run across, not side by side.</b> The brief said a waterfall "left to right"; I drew the scale left to right with one row per step, because in a picture this small a +2 would be about 1 px tall as a column. If you meant columns, say so.</li>
+  <li><b>At +5% the bracket row reads "the swing is halved (0 → 0)".</b> True — cash is still raised there and half of nothing is nothing — but it is a line that says little. It is DB1's wording and I left it.</li>
+  <li><b>The card is taller.</b> About 95 px more at 1680 (about 115 with seven rows). At 1680 × 1050 everything down to the Reset line is still on the first screen; on a shorter screen the chips move down by that much.</li>
+  <li><b>The pictures were taken with New York closed</b> (22:06 on a Friday). The live path — a read every minute — was tested by asking the page for a new read, not by watching a session.</li>
+  <li><b>If the engine ever counts a part the lines do not name</b>, the picture draws the difference as a row called "other parts" rather than leaving it out. That row has only been seen in a test.</li>
+</ul>
+</section>
+
+<section class="panel" id="p-not"><h2>WHAT WAS NOT DONE</h2>
+<ul>
+  <li>Not pushed, not deployed. The coordinator merges to main.</li>
+  <li>The long version's own panels are untouched: its parts table still shows the same points its own way.</li>
+  <li>No word of DB1's four lines was changed, apart from the two things put right above. The two wordings flagged under WHAT COULD BE WRONG are as DB1 wrote them.</li>
+  <li>The deployed page was not pictured — these pictures are the branch served locally the way Vercel serves it, on the live chart API.</li>
+</ul>
+</section>
+
+<section class="panel" id="p-decisions"><h2>DECISIONS FOR ALAN</h2>
+<ol>
+  <li><b>"A little stretched" on a bar that adds.</b> Recommendation: start that word where the RSI part turns from adding to taking away (about 62.5), so a green bar is never captioned "stretched". One threshold, one line of code.</li>
+  <li><b>Whole numbers or one decimal in the captions.</b> Recommendation: keep whole numbers — they are what the long version says and what you would say out loud — and accept that some days they are one off against the total. If that bothers you the first time you see it, one decimal is a one-line change.</li>
+  <li><b>Rows or columns.</b> Recommendation: keep the rows. They read at phone width without a second design, and the small parts stay visible.</li>
+</ol>
+</section>
+
+<details class="sc-pagespecs"><summary>PAGE SPECS</summary>
+<p><b>Where it lives.</b> study/db2/how.mjs draws the picture (howSteps: the sum; howHtml: the drawing; HOW_CSS: its look). study/db1/dashboard.mjs calls it in the fourth card and makes the lines (summaryLines) — now also for a what-if move. study/ds1/live.mjs hands each what-if move its own reading whole (r) and the day its raise-cash state began (since); nothing new is fetched. No library; the colours are the dashboard's own (the tool's green and red for up and down, its text white, its dim grey).</p>
+<p><b>The sum.</b> A typical day (the model's own, 49.08) + the RSI part + the credit part as counted (after version 2's softening and version 3's treasury rule) + the VIX's add by your 20 / 23 rule + any part you switched on = the level before cash; kept inside 0–100; halved while cash is raised = the market reading. The number = 70 + 30 × the market reading ÷ 100, on the dials under ASSUMPTIONS. The picture does this sum itself and compares it with the engine's reading; the difference is 0 to six decimals on every case tested.</p>
+<p><b>Why the VIX was said twice.</b> Version 3 passes the VIX's add to version 2 through the same slot as the parts the viewer switches on. DB1's line read that slot whole. Now only what is left after the VIX's own add is called "the parts you switched on".</p>
+<p><b>Why every class starts with hw-.</b> The first drawing gave one bar the plain class "under"; the dashboard's sheet has a rule of that name (the line under the big number) and the bar came out 2 px tall. It was caught by looking at the picture. A test now holds that no class in the picture is a plain name.</p>
+<p><b>Pictures.</b> scripts/db2-shots.mjs, headless, one page at a time, every request that is not a read blocked (none was attempted), drawn at twice the pixels so the thin marks can be examined: 18 pictures in study/db2/pictures, with what was on the screen for each in study/db2/data/db2-shots.json.</p>
+</details>
+</body></html>

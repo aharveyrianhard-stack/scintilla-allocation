@@ -95,7 +95,7 @@ export const HOW_CSS = `
 .db1 .hw-gap{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--panel,#101018)}
 .db1 .hw-tk{position:absolute;top:-3px;bottom:-3px;width:1px;margin-left:-1px;background:#3a3a4a}
 .db1 .hw-fan{height:16px;margin-bottom:2px;font-size:11px;line-height:14px;color:var(--dimc)}
-.db1 .hw-fan svg{position:absolute;left:0;top:0;width:100%;height:100%;display:block}.db1 .hw-fan polygon{fill:rgba(138,138,160,.1)}.db1 .hw-fan path{fill:none;stroke:#2a2a3a;stroke-width:1;vector-effect:non-scaling-stroke}
+.db1 .hw-fan svg{position:absolute;left:0;top:0;width:100%;height:100%;display:block}.db1 .hw-fan polygon{fill:rgba(138,138,160,.14)}.db1 .hw-fan path{fill:none;stroke:#3a3a4a;stroke-width:1;vector-effect:non-scaling-stroke}
 .db1 .hw-fan span{position:absolute;top:1px;white-space:nowrap}
 .db1 .hw-cap{grid-column:1;min-width:0;padding-right:14px;color:var(--txt,#e8e8f0)}
 .db1 .hw-stack .hw-cap{padding-right:0;margin-top:5px}
