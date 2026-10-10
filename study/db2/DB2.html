@@ -51,14 +51,14 @@ details.sc-pagespecs{margin:30px 0 0;border-top:1px solid var(--line);padding-to
   <div class="tile"><b>75.94</b><span>where the fill ends, measured in pixels on the screen · the number is 75.94%</span></div>
   <div class="tile"><b>0</b><span>left over when a typical day and the bars are added up against the engine's own reading — now and at all seven chips</span></div>
   <div class="tile"><b>8 of 8</b><span>the new tests (tests/db2.test.mjs)</span></div>
-  <div class="tile"><b id="suite-n">—</b><span id="suite-w">the whole suite, one file at a time</span></div>
+  <div class="tile"><b>238 of 242</b><span>the whole suite, one file at a time · the 4 that fail also fail on untouched main, the same hour</span></div>
 </div>
 <ul>
   <li><b>The bar's fill equals the number.</b> Measured on the live page at 1680 and at 390: the fill ends at 75.94 and 75.93, the bright mark stands at 75.94; the number is 75.94%.</li>
   <li><b>The rows add from a typical day to the market reading.</b> 49.08 + 1.92 − 11.45 + 0 = 39.54, halved = 19.77 — the engine's own reading, to nine decimals. The same holds at every chip (−8, −5, −3, −1.5, +1.5, +3, +5), on a recorded read, on a made-up market run through the tool's own arithmetic (48 cases: cash raised and not, the VIX adding 5, 10 and 20, both ends of the scale), and measured in pixels on the live page.</li>
   <li><b>It is drawn again</b> with every read (a new read replaces the drawing — tested) and with every chip (seven of seven).</li>
   <li><b>The tests were made to fail on purpose</b> three times — the fill drawn one point short, a bar started from the wrong place, the old double line put back — and each time they caught it.</li>
-  <li id="suite-line">The whole suite: —</li>
+  <li><b>The whole suite</b>, one file at a time, the two tests that write a row skipped by name: 242 run, 238 pass, 4 fail. This morning, before this work, it was 234 run, 230 pass, 4 fail — the 8 more are the new ones. The four that fail were run again on an untouched copy of main in the same hour and fail there the same way. All four read live data in the long version and none touches the picture: the cards file the Hub serves (two tests), the chart's readout landing on a day you named, and — tonight's, in place of this morning's stale-feed one — the order of the sector bow tie.</li>
 </ul>
 </section>
 
