@@ -1,4 +1,4 @@
-/* DB2 tests (9 Oct 2026) — how it gets to the number, as a picture (the first screen's fourth card).
+/* DB2 tests (9 Oct 2026) — how it gets to the number, as a picture (the first screen's third card).
    What they hold: the account bar's fill ends at the number; the steps under it add from a typical day to the market reading — at the
    reading now and at every what-if chip, on a recorded read, on a made-up market run through the tool's own view(), and on the live page;
    every caption is the line DB1 wrote, to the letter; a part that adds nothing is drawn as a bar of no width and never hidden; a sum past

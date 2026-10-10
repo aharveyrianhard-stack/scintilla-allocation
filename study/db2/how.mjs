@@ -1,4 +1,4 @@
-/* DB2 (9 Oct 2026) — HOW IT GETS TO THE NUMBER, AS A PICTURE (the first screen's fourth card).
+/* DB2 (9 Oct 2026) — HOW IT GETS TO THE NUMBER, AS A PICTURE (the first screen's third card).
    Alan, 9 Oct, 12:20: "This dashboard tool — how it gets to 75.9 — I don't know, man. Can we do something a little bit more visual on
    this kind of thing?" DB1's card was four lines of text. The words stay — every caption here is one of those lines, to the letter — and
    each now sits beside the bar it describes.

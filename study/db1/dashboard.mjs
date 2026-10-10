@@ -111,7 +111,7 @@ export function dashboardHtml(st, S, pick = 0, width = 1400) {
   const marks = []; if (st && st.error) marks.push(`last try failed — showing the reading before it`); if (v && v.missing && v.missing.length) marks.push(`no live price for ${esc(v.missing.join(", "))}: the close of ${esc(day(v.lastBar))} is used`);
   if (v && !v.v3) marks.push(v.v2 ? "version 3's rule file did not load — this is version 2's number" : "the rule files did not load — this is version 1's number");
   const when = !v ? (old ? `last read ${esc(S.last.readAt || "")}${S.last.date ? " on " + esc(dayY(S.last.date)) : ""} · reading live prices…` : "reading live prices…") : v.live ? `${ph === "open" ? "live" : esc(ph || "")} · the session of ${esc(dayY(v.session))}` : `at the close of ${esc(dayY(v.session))} · New York is not trading`;
-  /* DB2: the fourth card follows the chip — its lines and its picture are that move's own (moves carry their reading); a state without it keeps the lines of now.
+  /* DB2: the third card (how it gets to the number) follows the chip — its lines and its picture are that move's own (moves carry their reading); a state without it keeps the lines of now.
      The formula line stays as text above the picture; the other lines are the picture's captions. Should the rows ever not be drawable (no typical day in the state), every line stays as text under the formula, so no word is lost. */
   const chipHas = !!(atMove && mv.r), how = v ? (chipHas ? { r: mv.r, number } : { r: v.reading, number: numberOf(readingNow, A) }) : null;
   const typical = v && v.v2 && v.v2.typical != null ? v.v2.typical : st && st.base && st.base.model && st.base.model.scale ? 50 - st.base.model.scale.gain * st.base.model.scale.centre : null;
