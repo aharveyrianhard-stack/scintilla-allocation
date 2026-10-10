@@ -143,10 +143,13 @@ export function view({ base, candles, quotes, macro, intraday, geiger, A }) {   
     return { dipPct: +x, reading: main.r.reading, readingCalm: calm.r.reading, readingCreditSells: usual.r.reading, deployed: dep, pie: p, spy: idx.spy * (1 - x / 100), qqq: idx.qqq * (1 - x / 100), vix: main.vix, reached, families: main.r.families }; });
   /* DB1: the first screen's what-if chips — SPY and QQQ up or down together by each of MOVES, credit selling (or rallying) as it usually
      has with such a move, everything else by its usual beta; the same dip engine as the dips above, read at the same version. 0 is now. */
-  const moves = MOVES.map((x) => { if (x === 0) return { movePct: 0, reading: now.reading, readingCalm: now.reading, spy: idx.spy, qqq: idx.qqq, vix: L.prices.VIX };
+  /* DB2 (9 Oct, later): each move also carries its own reading whole (r — the parts, and what versions 2 and 3 did at that move) and the day
+     its raise-cash state began (since), so the first screen's picture of how the number is made can be drawn at a chip as it is drawn now */
+  const sinceAt = (on) => (!on || !top ? null : top.cash[k - 1] ? N.cashSince(S.dates, top.cash, k - 1) : S.dates[k]);
+  const moves = MOVES.map((x) => { if (x === 0) return { movePct: 0, reading: now.reading, readingCalm: now.reading, spy: idx.spy, qqq: idx.qqq, vix: L.prices.VIX, r: now, since: top ? N.cashSince(S.dates, top.cash, k) : null };
     const rdOn = (holds) => { const d = E.dipSeries(S, hyg.tr, x, scn, A.beta, holds), R = E.allReadings(d.S, d.hygTR), cashK = V ? N.cashStep(top.cash[k - 1], R.X.rsi[k], N.topAt(d.S.bars.SPY.c, d.S.bars.QQQ.c, k, V), V) : false;
-      return { r: readWith(E.inputsAt(R.X, k), model, A.count, v2At(k, R.X, cashK, V ? V3.extraReadings(d.S, d.hygTR, R.X) : null)), vix: d.S.bars.VIX ? d.S.bars.VIX.c[k] : null }; };
-    const usual = rdOn(false), calm = rdOn(true); return { movePct: -x, reading: usual.r.reading, readingCalm: calm.r.reading, spy: idx.spy * (1 - x / 100), qqq: idx.qqq * (1 - x / 100), vix: usual.vix }; });
+      return { r: readWith(E.inputsAt(R.X, k), model, A.count, v2At(k, R.X, cashK, V ? V3.extraReadings(d.S, d.hygTR, R.X) : null)), vix: d.S.bars.VIX ? d.S.bars.VIX.c[k] : null, since: sinceAt(cashK) }; };
+    const usual = rdOn(false), calm = rdOn(true); return { movePct: -x, reading: usual.r.reading, readingCalm: calm.r.reading, spy: idx.spy * (1 - x / 100), qqq: idx.qqq * (1 - x / 100), vix: usual.vix, r: usual.r, since: usual.since }; });
   /* the plain facts beside each part */
   const vixYear = S.bars.VIX ? S.bars.VIX.c.slice(Math.max(0, k - 251), k + 1).filter((v) => v != null).sort((a, b) => a - b) : [], q = (p) => (vixYear.length ? vixYear[Math.min(vixYear.length - 1, Math.round(((vixYear.length - 1) * p) / 100))] : null);
   const cnt = (list, a) => { let n = 0, up = 0; for (const s of list) { const o = RD.ind[s]; if (!o || o.c[k] == null || o[a][k] == null) continue; n++; if (o.c[k] > o[a][k]) up++; } return { n, up }; };

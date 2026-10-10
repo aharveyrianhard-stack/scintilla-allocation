@@ -15,6 +15,7 @@
 import * as C from "../al9/chain.mjs";
 import { pieSvg } from "../al9/panel.mjs";
 import { ageWords, nextReadWords, phaseOf, day, dayY } from "../ds1/live.mjs";
+import { howSteps, howHtml, HOW_CSS } from "../db2/how.mjs";   // DB2 (9 Oct, later): how it gets to the number, as a picture — the lines below are its captions
 
 export const SIZE = { min: 300e3, max: 1.5e6, step: 50e3, def: 500e3 };
 export const START = { size: SIZE.def, bal: 25 };
@@ -26,7 +27,7 @@ const trim = (s) => (s.includes(".") ? s.replace(/\.?0+$/, "") : s);
 export const money = (x) => { if (x == null || !isFinite(x)) return "—"; const a = Math.abs(x), s = x < 0 ? "−" : "", kk = Math.round(a / 100 + 1e-6) / 10; return kk === 0 ? "$0" : kk >= 1000 ? s + "$" + trim((kk / 1000).toFixed(2)) + "M" : s + "$" + trim(kk.toFixed(1)) + "K"; };
 export const pc = (x, d = 1) => (x == null || !isFinite(x) ? "—" : x.toFixed(d) + "%");
 const f0 = (x) => (x == null || !isFinite(x) ? "—" : x.toFixed(0)), f1 = (x) => (x == null || !isFinite(x) ? "—" : x.toFixed(1));
-const sg = (x, d = 0) => (x == null || !isFinite(x) ? "—" : (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(x).toFixed(d));
+const sg = (x, d = 0) => { if (x == null || !isFinite(x)) return "—"; const s = Math.abs(x).toFixed(d); return (+s === 0 ? "" : x > 0 ? "+" : "−") + s; };   // DB2: a move that rounds to nothing carries no sign — at the close of 9 Oct the credit line read "−0.0%"
 const sgm = (m) => (m > 0 ? "+" : "−") + Math.abs(m) + "%";
 export const okSize = (v) => typeof v === "number" && v >= SIZE.min && v <= SIZE.max && Math.abs(v / SIZE.step - Math.round(v / SIZE.step)) < 1e-9;
 
@@ -43,16 +44,21 @@ export const numberOf = (reading, A) => (reading == null ? null : C.numberAt(rea
 
 /* ---------- the executive summary: how it gets to the number, in a few plain lines ---------- */
 const rsiWord = (r) => (r >= 70 ? "stretched" : r >= 60 ? "a little stretched" : r >= 45 ? "middling" : r >= 35 ? "cooling off" : "washed out");
-export function summaryLines(v, A) { if (!v || !v.reading) return []; const R = v.reading, n = numberOf(R.reading, A), lines = [];
+/* DB2: at = a what-if move that carries its own reading (view().moves[i], its r and since) — the same lines, made from that move's
+   reading; without it, the lines of the reading now, exactly as DB1 wrote them. */
+export function summaryLines(v, A, at = null) { if (!v || !v.reading) return []; const mv = at && at.r && at.movePct !== 0 ? at : null, R = mv ? mv.r : v.reading, n = numberOf(R.reading, A), lines = [];
   lines.push({ key: "sum", text: `${f0(+A.heldPct)}% always in + ${f0(+A.tacticalPct)}% × the market reading (${f0(R.reading)} of 100) = ${pc(n)}` });
-  const rsi = R.parts.find((p) => p.key === "rsi"), cr = R.parts.find((p) => p.key === "creditOwn"), w2 = v.v2, w3 = v.v3;
+  const rsi = R.parts.find((p) => p.key === "rsi"), cr = R.parts.find((p) => p.key === "creditOwn");
+  const w2 = mv ? (R.v2 ? { cash: R.v2.cash, since: mv.since, fade: R.v2.fade, beforeCash: R.v2.beforeCash } : null) : v.v2, w3 = mv ? (v.v3 && R.v3 ? { on: v.v3.on, rules: v.v3.rules, ...R.v3 } : null) : v.v3;
   if (rsi && !rsi.missing) lines.push({ key: "rsi", text: `SPY and QQQ's RSI ${f0(rsi.value)}: ${rsiWord(rsi.value)}, ${sg(rsi.points)}`, points: rsi.points });
-  if (cr && !cr.missing) { const own = v.facts && v.facts.credit ? v.facts.credit.own : cr.value; let t = `credit ${sg(own, 1)}% over ten sessions, ${sg(cr.points)}`;
+  if (cr && !cr.missing) { const own = !mv && v.facts && v.facts.credit ? v.facts.credit.own : cr.value; let t = `credit ${sg(own, 1)}% over ten sessions, ${sg(cr.points)}`;
     if (w3 && w3.raisedByTheRally) t += ` · treasuries rallied, so it is read on HYG alone`; else if (w2 && w2.fade < 0.995 && cr.fitted != null && cr.fitted < 0) t += ` · softened from ${sg(cr.fitted)}: the market is washed out`;
     lines.push({ key: "credit", text: t, points: cr.points }); }
-  if (w3) { const vx = v.facts && v.facts.vix ? v.facts.vix.price : w3.vixClose, add = w3.vixAdd || 0, lo = w3.rules.lo, hi = w3.rules.hi;
+  if (w3) { const vx = !mv && v.facts && v.facts.vix ? v.facts.vix.price : w3.vixClose, add = w3.vixAdd || 0, lo = w3.rules.lo, hi = w3.rules.hi;
     lines.push({ key: "vix", points: add, text: !w3.on.vix ? `the VIX at ${f1(vx)}: not counted (switched off)` : add <= 0 ? `the VIX at ${f1(vx)}: under your ${lo}, adds nothing` : w3.vixClose >= hi ? `the VIX at ${f1(vx)}: over your ${hi}, both hands, ${sg(add)}` : w3.vixClose >= lo ? `the VIX at ${f1(vx)}: over your ${lo}, ${sg(add)}` : `the VIX touched ${w3.vixHigh >= hi ? hi : lo} today (${f1(w3.vixHigh)}): ${sg(add)}` }); }
-  if (R.lightsCounted) lines.push({ key: "lights", text: `${sg(R.lightsCounted)} from the parts you switched on`, points: R.lightsCounted });
+  /* DB2: version 3 hands the VIX's add to version 2 through the same slot as the parts the viewer switched on (study/ds3/number.mjs
+     applyV3), so R.lightsCounted holds both. The VIX has its own line above: only what is left over is "the parts you switched on". */
+  { const own = (R.lightsCounted || 0) - (R.v3 && R.v3.vixAdd ? R.v3.vixAdd : 0); if (Math.abs(own) >= 0.05) lines.push({ key: "lights", text: `${sg(own)} from the parts you switched on`, points: own }); }
   if (w2 && w2.cash) lines.push({ key: "cash", text: `cash freed since ${day(w2.since)} near the highs: the swing is halved (${f0(w2.beforeCash)} → ${f0(R.reading)})` });
   return lines; }
 
@@ -92,7 +98,7 @@ const CSS = `.db1{--conv:var(--gold,#ffd166);--core:var(--cyan,#00d4ff);--cashc:
 .db1 .foot{color:var(--dimc);font-size:12px;display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}.db1 .reset{color:var(--dimc);font-size:11px;letter-spacing:.08em;padding:5px 9px}
 @media (max-width:820px){.db1 .hero,.db1 .bal{grid-template-columns:minmax(0,1fr)}.db1 .big{font-size:48px}.db1 .ratio{font-size:28px}}
 @media (max-width:480px){.db1 .big{font-size:42px}.db1 .size b{font-size:18px;min-width:80px}}`;
-function ensureCss() { if (typeof document === "undefined" || document.getElementById("db1-css")) return; const s = document.createElement("style"); s.id = "db1-css"; s.textContent = CSS; document.head.appendChild(s); }
+function ensureCss() { if (typeof document === "undefined" || document.getElementById("db1-css")) return; const s = document.createElement("style"); s.id = "db1-css"; s.textContent = CSS + HOW_CSS; document.head.appendChild(s); }
 
 /* ---------- the whole screen as HTML (pure: the tests call it with a recorded state) ----------
    st = the live state (null before the first read) · S = { size, bal, last } · pick = the chip picked (a move, % — 0 is now) · width = px */
@@ -105,7 +111,11 @@ export function dashboardHtml(st, S, pick = 0, width = 1400) {
   const marks = []; if (st && st.error) marks.push(`last try failed — showing the reading before it`); if (v && v.missing && v.missing.length) marks.push(`no live price for ${esc(v.missing.join(", "))}: the close of ${esc(day(v.lastBar))} is used`);
   if (v && !v.v3) marks.push(v.v2 ? "version 3's rule file did not load — this is version 2's number" : "the rule files did not load — this is version 1's number");
   const when = !v ? (old ? `last read ${esc(S.last.readAt || "")}${S.last.date ? " on " + esc(dayY(S.last.date)) : ""} · reading live prices…` : "reading live prices…") : v.live ? `${ph === "open" ? "live" : esc(ph || "")} · the session of ${esc(dayY(v.session))}` : `at the close of ${esc(dayY(v.session))} · New York is not trading`;
-  const lines = v ? summaryLines(v, A) : [], chips = v ? v.moves.map((m) => `<button type="button" class="chip" data-move="${m.movePct}" aria-pressed="${Math.abs(m.movePct - pick) < 1e-9}" title="SPY ${f1(m.spy)} · QQQ ${f1(m.qqq)} · the VIX ${f1(m.vix)} · market reading ${f0(m.reading)}"><span class="m ${m.movePct < 0 ? "dn" : m.movePct > 0 ? "up" : ""}">${m.movePct === 0 ? "now" : sgm(m.movePct)}</span><span class="n">${pc(numberOf(m.reading, A))}</span></button>`).join("") : `<span class="lab">waiting for the first read</span>`;
+  /* DB2: the third card (how it gets to the number) follows the chip — its lines and its picture are that move's own (moves carry their reading); a state without it keeps the lines of now.
+     The formula line stays as text above the picture; the other lines are the picture's captions. Should the rows ever not be drawable (no typical day in the state), every line stays as text under the formula, so no word is lost. */
+  const chipHas = !!(atMove && mv.r), how = v ? (chipHas ? { r: mv.r, number } : { r: v.reading, number: numberOf(readingNow, A) }) : null;
+  const typical = v && v.v2 && v.v2.typical != null ? v.v2.typical : st && st.base && st.base.model && st.base.model.scale ? 50 - st.base.model.scale.gain * st.base.model.scale.centre : null;
+  const lines = v ? summaryLines(v, A, chipHas ? mv : null) : [], H = how ? howSteps({ ...how, A, typical, lines }) : null, chips = v ? v.moves.map((m) => `<button type="button" class="chip" data-move="${m.movePct}" aria-pressed="${Math.abs(m.movePct - pick) < 1e-9}" title="SPY ${f1(m.spy)} · QQQ ${f1(m.qqq)} · the VIX ${f1(m.vix)} · market reading ${f0(m.reading)}"><span class="m ${m.movePct < 0 ? "dn" : m.movePct > 0 ? "up" : ""}">${m.movePct === 0 ? "now" : sgm(m.movePct)}</span><span class="n">${pc(numberOf(m.reading, A))}</span></button>`).join("") : `<span class="lab">waiting for the first read</span>`;
   return `<div class="db1" id="db1-root"${number != null ? ` data-number="${number.toFixed(2)}"` : ""}${reading != null ? ` data-reading="${reading}"` : ""} data-move="${pick}" data-size="${S.size}" data-bal="${S.bal}" data-live="${liveNow ? 1 : 0}"${v ? ` data-version="${v.v3 ? 3 : v.v2 ? 2 : 1}"` : ""}>
   <div class="top"><span class="lab">The rebalancing dashboard · live on SPY, QQQ, the VIX, HYG and treasuries</span>
     <span class="size" role="group" aria-label="Size of the account the dollars are shown at"><span class="lab">Size</span><button type="button" class="step" data-size="-1" aria-label="Size down by $50K"${S.size <= SIZE.min ? " disabled" : ""}>−</button><b data-size-val>${money(S.size)}</b><button type="button" class="step" data-size="1" aria-label="Size up by $50K"${S.size >= SIZE.max ? " disabled" : ""}>+</button></span></div>
@@ -126,8 +136,8 @@ export function dashboardHtml(st, S, pick = 0, width = 1400) {
     <div class="split"><span class="lab">Conviction</span><span class="lab">Core</span><b class="c1">${M ? money(M.conv) : "—"}</b><b class="c2">${M ? money(M.core) : "—"}</b><span>fully invested ${M ? money(M.convFull) : "—"}</span><span>fully invested ${M ? money(M.coreFull) : "—"}</span></div>
   </section>
   <section class="card" aria-label="How it gets to the number">
-    <div class="lab">How it gets to ${readingNow != null ? pc(numberOf(readingNow, A)) : "the number"}${atMove ? ` now · at ${sgm(mv.movePct)} the market reading is ${f0(mv.reading)}, so ${pc(numberOf(mv.reading, A))}` : ""}</div>
-    ${lines.length ? `<ul class="sum">${lines.map((l) => `<li data-line="${l.key}">${esc(l.text)}</li>`).join("")}</ul>` : `<div class="under">the first read of the market is on its way</div>`}
+    <div class="lab">How it gets to ${chipHas ? `${pc(number)} · if SPY &amp; QQQ move ${sgm(mv.movePct)}` : `${readingNow != null ? pc(numberOf(readingNow, A)) : "the number"}${atMove ? ` now · at ${sgm(mv.movePct)} the market reading is ${f0(mv.reading)}, so ${pc(numberOf(mv.reading, A))}` : ""}`}</div>
+    ${lines.length ? `<ul class="sum">${(H && H.steps ? lines.slice(0, 1) : lines).map((l) => `<li data-line="${l.key}">${esc(l.text)}</li>`).join("")}</ul>${howHtml(H, { narrow })}` : `<div class="under">the first read of the market is on its way</div>`}
   </section>
   <section class="card" aria-label="What if SPY and QQQ move"><div class="lab">If SPY &amp; QQQ move together · today's engine, credit selling as it usually does</div><div class="chips">${chips}</div></section>
   <div class="foot"><span>No prices, levels or orders here — the long version below has them.</span><button type="button" class="reset" data-reset>Reset</button></div>
