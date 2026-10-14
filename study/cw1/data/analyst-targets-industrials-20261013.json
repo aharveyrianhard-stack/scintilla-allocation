@@ -1,0 +1,1666 @@
+{
+ "what": "CW1 · analyst targets as the allocation tool reads them (analyst_target_news: kind TARGET, quality ok, last 90 days, one per firm, the median)",
+ "read_utc": "2026-10-14T01:15:06.400Z",
+ "since": "2026-07-16",
+ "rows": 302,
+ "names": {
+  "ADP": {
+   "median": 286,
+   "n": 5,
+   "low": 225,
+   "high": 310,
+   "firms": [
+    {
+     "firm": "Jefferies",
+     "target": 225,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "UBS",
+     "target": 270,
+     "published": "2026-07-22"
+    },
+    {
+     "firm": "Morgan Stanley",
+     "target": 286,
+     "published": "2026-07-30"
+    },
+    {
+     "firm": "Guggenheim",
+     "target": 300,
+     "published": "2026-07-30"
+    },
+    {
+     "firm": "Cantor Fitzgerald",
+     "target": 310,
+     "published": "2026-08-03"
+    }
+   ]
+  },
+  "AME": {
+   "median": 290.5,
+   "n": 6,
+   "low": 255,
+   "high": 316,
+   "firms": [
+    {
+     "firm": "Vertical Research",
+     "target": 255,
+     "published": "2026-09-08"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 275,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "Seaport Global",
+     "target": 290,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 291,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "KeyBanc",
+     "target": 295,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "Truist Financial",
+     "target": 316,
+     "published": "2026-08-06"
+    }
+   ]
+  },
+  "BA": {
+   "median": 265,
+   "n": 5,
+   "low": 265,
+   "high": 305,
+   "firms": [
+    {
+     "firm": "Jefferies",
+     "target": 265,
+     "published": "2026-09-21"
+    },
+    {
+     "firm": "Argus Research",
+     "target": 265,
+     "published": "2026-08-11"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 265,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 300,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "Tigress Financial",
+     "target": 305,
+     "published": "2026-08-06"
+    }
+   ]
+  },
+  "CAT": {
+   "median": 947.5,
+   "n": 8,
+   "low": 882,
+   "high": 1225,
+   "firms": [
+    {
+     "firm": "D.A. Davidson",
+     "target": 882,
+     "published": "2026-08-06"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 897,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "Barclays",
+     "target": 900,
+     "published": "2026-08-06"
+    },
+    {
+     "firm": "UBS",
+     "target": 925,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 970,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 1002,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "Oppenheimer",
+     "target": 1118,
+     "published": "2026-08-04"
+    },
+    {
+     "firm": "Truist Financial",
+     "target": 1225,
+     "published": "2026-08-05"
+    }
+   ]
+  },
+  "CMI": {
+   "median": 741,
+   "n": 3,
+   "low": 700,
+   "high": 894,
+   "firms": [
+    {
+     "firm": "Bernstein",
+     "target": 700,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "UBS",
+     "target": 741,
+     "published": "2026-09-30"
+    },
+    {
+     "firm": "Truist Financial",
+     "target": 894,
+     "published": "2026-08-05"
+    }
+   ]
+  },
+  "CSX": {
+   "median": 54.5,
+   "n": 6,
+   "low": 51,
+   "high": 60,
+   "firms": [
+    {
+     "firm": "Evercore ISI",
+     "target": 51,
+     "published": "2026-07-23"
+    },
+    {
+     "firm": "BMO Capital",
+     "target": 52,
+     "published": "2026-07-23"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 53,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Argus Research",
+     "target": 56,
+     "published": "2026-07-31"
+    },
+    {
+     "firm": "Deutsche Bank",
+     "target": 59,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "Barclays",
+     "target": 60,
+     "published": "2026-07-23"
+    }
+   ]
+  },
+  "CTAS": {
+   "median": 235,
+   "n": 4,
+   "low": 222,
+   "high": 250,
+   "firms": [
+    {
+     "firm": "Robert W. Baird",
+     "target": 222,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "UBS",
+     "target": 230,
+     "published": "2026-07-16"
+    },
+    {
+     "firm": "Argus Research",
+     "target": 240,
+     "published": "2026-09-29"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 250,
+     "published": "2026-07-16"
+    }
+   ]
+  },
+  "DAL": {
+   "median": 100,
+   "n": 5,
+   "low": 95,
+   "high": 105,
+   "firms": [
+    {
+     "firm": "Barclays",
+     "target": 95,
+     "published": "2026-09-11"
+    },
+    {
+     "firm": "Raymond James",
+     "target": 98,
+     "published": "2026-08-24"
+    },
+    {
+     "firm": "BMO Capital",
+     "target": 100,
+     "published": "2026-09-28"
+    },
+    {
+     "firm": "UBS",
+     "target": 105,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Redburn Partners",
+     "target": 105,
+     "published": "2026-09-18"
+    }
+   ]
+  },
+  "DE": {
+   "median": 760,
+   "n": 7,
+   "low": 675,
+   "high": 813,
+   "firms": [
+    {
+     "firm": "Barclays",
+     "target": 675,
+     "published": "2026-08-24"
+    },
+    {
+     "firm": "UBS",
+     "target": 728,
+     "published": "2026-08-21"
+    },
+    {
+     "firm": "Raymond James",
+     "target": 730,
+     "published": "2026-08-31"
+    },
+    {
+     "firm": "D.A. Davidson",
+     "target": 760,
+     "published": "2026-08-24"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 800,
+     "published": "2026-08-31"
+    },
+    {
+     "firm": "Truist Financial",
+     "target": 804,
+     "published": "2026-08-24"
+    },
+    {
+     "firm": "Evercore ISI",
+     "target": 813,
+     "published": "2026-09-02"
+    }
+   ]
+  },
+  "EH": {
+   "median": 5.3,
+   "n": 1,
+   "low": 5.3,
+   "high": 5.3,
+   "firms": [
+    {
+     "firm": "Morgan Stanley",
+     "target": 5.3,
+     "published": "2026-09-15"
+    }
+   ]
+  },
+  "EMR": {
+   "median": 175,
+   "n": 7,
+   "low": 135,
+   "high": 186,
+   "firms": [
+    {
+     "firm": "Morgan Stanley",
+     "target": 135,
+     "published": "2026-08-28"
+    },
+    {
+     "firm": "D.A. Davidson",
+     "target": 155,
+     "published": "2026-08-24"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 171,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "BMO Capital",
+     "target": 175,
+     "published": "2026-08-07"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 177,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 179,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 186,
+     "published": "2026-08-14"
+    }
+   ]
+  },
+  "ETN": {
+   "median": 503,
+   "n": 7,
+   "low": 487,
+   "high": 520,
+   "firms": [
+    {
+     "firm": "BMO Capital",
+     "target": 487,
+     "published": "2026-08-03"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 500,
+     "published": "2026-08-20"
+    },
+    {
+     "firm": "Evercore ISI",
+     "target": 502,
+     "published": "2026-08-03"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 503,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 512,
+     "published": "2026-08-03"
+    },
+    {
+     "firm": "UBS",
+     "target": 515,
+     "published": "2026-09-07"
+    },
+    {
+     "firm": "Morgan Stanley",
+     "target": 520,
+     "published": "2026-08-28"
+    }
+   ]
+  },
+  "EVTL": {
+   "n": 0
+  },
+  "FAST": {
+   "median": 53,
+   "n": 2,
+   "low": 52,
+   "high": 54,
+   "firms": [
+    {
+     "firm": "Morgan Stanley",
+     "target": 52,
+     "published": "2026-07-16"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 54,
+     "published": "2026-08-07"
+    }
+   ]
+  },
+  "FDX": {
+   "median": 340,
+   "n": 2,
+   "low": 330,
+   "high": 350,
+   "firms": [
+    {
+     "firm": "Raymond James",
+     "target": 330,
+     "published": "2026-08-28"
+    },
+    {
+     "firm": "Evercore ISI",
+     "target": 350,
+     "published": "2026-09-09"
+    }
+   ]
+  },
+  "FIX": {
+   "median": 2110,
+   "n": 3,
+   "low": 1910,
+   "high": 2225,
+   "firms": [
+    {
+     "firm": "Stifel Nicolaus",
+     "target": 1910,
+     "published": "2026-07-27"
+    },
+    {
+     "firm": "KeyBanc",
+     "target": 2110,
+     "published": "2026-07-27"
+    },
+    {
+     "firm": "UBS",
+     "target": 2225,
+     "published": "2026-07-27"
+    }
+   ]
+  },
+  "GD": {
+   "median": 409,
+   "n": 6,
+   "low": 384,
+   "high": 465,
+   "firms": [
+    {
+     "firm": "Deutsche Bank",
+     "target": 384,
+     "published": "2026-07-30"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 407,
+     "published": "2026-09-23"
+    },
+    {
+     "firm": "UBS",
+     "target": 408,
+     "published": "2026-09-08"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 410,
+     "published": "2026-07-30"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 430,
+     "published": "2026-07-30"
+    },
+    {
+     "firm": "Morgan Stanley",
+     "target": 465,
+     "published": "2026-07-30"
+    }
+   ]
+  },
+  "GE": {
+   "median": 421,
+   "n": 7,
+   "low": 350,
+   "high": 450,
+   "firms": [
+    {
+     "firm": "Melius Research",
+     "target": 350,
+     "published": "2026-09-14"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 390,
+     "published": "2026-07-20"
+    },
+    {
+     "firm": "Goldman Sachs",
+     "target": 410,
+     "published": "2026-07-20"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 421,
+     "published": "2026-07-23"
+    },
+    {
+     "firm": "Jefferies",
+     "target": 435,
+     "published": "2026-09-23"
+    },
+    {
+     "firm": "UBS",
+     "target": 435,
+     "published": "2026-07-17"
+    },
+    {
+     "firm": "Deutsche Bank",
+     "target": 450,
+     "published": "2026-07-27"
+    }
+   ]
+  },
+  "GWW": {
+   "median": 1387.5,
+   "n": 6,
+   "low": 1172,
+   "high": 1428,
+   "firms": [
+    {
+     "firm": "Barclays",
+     "target": 1172,
+     "published": "2026-09-25"
+    },
+    {
+     "firm": "D.A. Davidson",
+     "target": 1260,
+     "published": "2026-08-06"
+    },
+    {
+     "firm": "Oppenheimer",
+     "target": 1375,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "Morgan Stanley",
+     "target": 1400,
+     "published": "2026-08-24"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 1400,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 1428,
+     "published": "2026-08-05"
+    }
+   ]
+  },
+  "HON": {
+   "median": 255,
+   "n": 5,
+   "low": 231,
+   "high": 293,
+   "firms": [
+    {
+     "firm": "Wells Fargo",
+     "target": 231,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Morgan Stanley",
+     "target": 250,
+     "published": "2026-08-31"
+    },
+    {
+     "firm": "Jefferies",
+     "target": 255,
+     "published": "2026-08-17"
+    },
+    {
+     "firm": "BMO Capital",
+     "target": 276,
+     "published": "2026-07-27"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 293,
+     "published": "2026-08-18"
+    }
+   ]
+  },
+  "HWM": {
+   "median": 343,
+   "n": 7,
+   "low": 315,
+   "high": 370,
+   "firms": [
+    {
+     "firm": "Wells Fargo",
+     "target": 315,
+     "published": "2026-08-10"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 328,
+     "published": "2026-08-24"
+    },
+    {
+     "firm": "Morgan Stanley",
+     "target": 335,
+     "published": "2026-08-10"
+    },
+    {
+     "firm": "Deutsche Bank",
+     "target": 343,
+     "published": "2026-09-02"
+    },
+    {
+     "firm": "Guggenheim",
+     "target": 350,
+     "published": "2026-09-14"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 350,
+     "published": "2026-08-07"
+    },
+    {
+     "firm": "Jefferies",
+     "target": 370,
+     "published": "2026-08-09"
+    }
+   ]
+  },
+  "ITW": {
+   "median": 298.5,
+   "n": 2,
+   "low": 297,
+   "high": 300,
+   "firms": [
+    {
+     "firm": "Robert W. Baird",
+     "target": 297,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "UBS",
+     "target": 300,
+     "published": "2026-07-29"
+    }
+   ]
+  },
+  "JCI": {
+   "median": 183,
+   "n": 4,
+   "low": 175,
+   "high": 190,
+   "firms": [
+    {
+     "firm": "Argus Research",
+     "target": 175,
+     "published": "2026-08-07"
+    },
+    {
+     "firm": "Morgan Stanley",
+     "target": 180,
+     "published": "2026-09-02"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 186,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 190,
+     "published": "2026-08-14"
+    }
+   ]
+  },
+  "JOBY": {
+   "median": 15,
+   "n": 1,
+   "low": 15,
+   "high": 15,
+   "firms": [
+    {
+     "firm": "Needham",
+     "target": 15,
+     "published": "2026-08-06"
+    }
+   ]
+  },
+  "LHX": {
+   "median": 340,
+   "n": 2,
+   "low": 315,
+   "high": 365,
+   "firms": [
+    {
+     "firm": "Jefferies",
+     "target": 315,
+     "published": "2026-08-26"
+    },
+    {
+     "firm": "Guggenheim",
+     "target": 365,
+     "published": "2026-09-14"
+    }
+   ]
+  },
+  "LMT": {
+   "median": 682,
+   "n": 4,
+   "low": 600,
+   "high": 700,
+   "firms": [
+    {
+     "firm": "Wells Fargo",
+     "target": 600,
+     "published": "2026-07-27"
+    },
+    {
+     "firm": "UBS",
+     "target": 674,
+     "published": "2026-09-08"
+    },
+    {
+     "firm": "Morgan Stanley",
+     "target": 690,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 700,
+     "published": "2026-07-24"
+    }
+   ]
+  },
+  "MMM": {
+   "median": 192,
+   "n": 5,
+   "low": 171,
+   "high": 218,
+   "firms": [
+    {
+     "firm": "Bernstein",
+     "target": 171,
+     "published": "2026-09-25"
+    },
+    {
+     "firm": "Mizuho Securities",
+     "target": 180,
+     "published": "2026-07-23"
+    },
+    {
+     "firm": "Deutsche Bank",
+     "target": 192,
+     "published": "2026-07-22"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 195,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "UBS",
+     "target": 218,
+     "published": "2026-07-22"
+    }
+   ]
+  },
+  "NOC": {
+   "median": 615,
+   "n": 7,
+   "low": 500,
+   "high": 704,
+   "firms": [
+    {
+     "firm": "Robert W. Baird",
+     "target": 500,
+     "published": "2026-07-22"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 525,
+     "published": "2026-10-02"
+    },
+    {
+     "firm": "Guggenheim",
+     "target": 612,
+     "published": "2026-09-14"
+    },
+    {
+     "firm": "Deutsche Bank",
+     "target": 615,
+     "published": "2026-07-22"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 620,
+     "published": "2026-09-23"
+    },
+    {
+     "firm": "Susquehanna",
+     "target": 655,
+     "published": "2026-07-22"
+    },
+    {
+     "firm": "UBS",
+     "target": 704,
+     "published": "2026-09-08"
+    }
+   ]
+  },
+  "NSC": {
+   "median": 358,
+   "n": 7,
+   "low": 330,
+   "high": 400,
+   "firms": [
+    {
+     "firm": "RBC Capital",
+     "target": 330,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Susquehanna",
+     "target": 350,
+     "published": "2026-10-02"
+    },
+    {
+     "firm": "BMO Capital",
+     "target": 355,
+     "published": "2026-07-27"
+    },
+    {
+     "firm": "Evercore ISI",
+     "target": 358,
+     "published": "2026-07-23"
+    },
+    {
+     "firm": "UBS",
+     "target": 363,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 377,
+     "published": "2026-07-27"
+    },
+    {
+     "firm": "Barclays",
+     "target": 400,
+     "published": "2026-07-24"
+    }
+   ]
+  },
+  "P": {
+   "median": 138.5,
+   "n": 14,
+   "low": 80,
+   "high": 167,
+   "firms": [
+    {
+     "firm": "UBS",
+     "target": 80,
+     "published": "2026-08-27"
+    },
+    {
+     "firm": "Raymond James",
+     "target": 122,
+     "published": "2026-08-27"
+    },
+    {
+     "firm": "Wedbush",
+     "target": 127,
+     "published": "2026-08-21"
+    },
+    {
+     "firm": "Lake Street",
+     "target": 130,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Barclays",
+     "target": 132,
+     "published": "2026-09-25"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 135,
+     "published": "2026-08-27"
+    },
+    {
+     "firm": "Morgan Stanley",
+     "target": 137,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Oppenheimer",
+     "target": 140,
+     "published": "2026-08-20"
+    },
+    {
+     "firm": "Evercore ISI",
+     "target": 145,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Susquehanna",
+     "target": 145,
+     "published": "2026-08-27"
+    },
+    {
+     "firm": "Needham",
+     "target": 150,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Guggenheim",
+     "target": 150,
+     "published": "2026-08-13"
+    },
+    {
+     "firm": "Piper Sandler",
+     "target": 162,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Northland Securities",
+     "target": 167,
+     "published": "2026-09-24"
+    }
+   ]
+  },
+  "PCAR": {
+   "median": 148,
+   "n": 3,
+   "low": 125,
+   "high": 150,
+   "firms": [
+    {
+     "firm": "Morgan Stanley",
+     "target": 125,
+     "published": "2026-09-04"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 148,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 150,
+     "published": "2026-09-10"
+    }
+   ]
+  },
+  "PH": {
+   "median": 1214,
+   "n": 7,
+   "low": 1050,
+   "high": 1358,
+   "firms": [
+    {
+     "firm": "Wells Fargo",
+     "target": 1050,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Stifel Nicolaus",
+     "target": 1075,
+     "published": "2026-08-07"
+    },
+    {
+     "firm": "KeyBanc",
+     "target": 1210,
+     "published": "2026-08-07"
+    },
+    {
+     "firm": "BMO Capital",
+     "target": 1214,
+     "published": "2026-08-07"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 1218,
+     "published": "2026-08-14"
+    },
+    {
+     "firm": "UBS",
+     "target": 1250,
+     "published": "2026-08-07"
+    },
+    {
+     "firm": "Truist Financial",
+     "target": 1358,
+     "published": "2026-08-07"
+    }
+   ]
+  },
+  "PWR": {
+   "median": 787.5,
+   "n": 8,
+   "low": 714,
+   "high": 833,
+   "firms": [
+    {
+     "firm": "Piper Sandler",
+     "target": 714,
+     "published": "2026-09-28"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 728,
+     "published": "2026-07-31"
+    },
+    {
+     "firm": "Mizuho Securities",
+     "target": 741,
+     "published": "2026-08-03"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 775,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Argus Research",
+     "target": 800,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "Guggenheim",
+     "target": 800,
+     "published": "2026-07-31"
+    },
+    {
+     "firm": "KeyBanc",
+     "target": 807,
+     "published": "2026-08-07"
+    },
+    {
+     "firm": "Jefferies",
+     "target": 833,
+     "published": "2026-08-13"
+    }
+   ]
+  },
+  "RKLB": {
+   "median": 107,
+   "n": 5,
+   "low": 80,
+   "high": 122,
+   "firms": [
+    {
+     "firm": "Raymond James",
+     "target": 80,
+     "published": "2026-09-11"
+    },
+    {
+     "firm": "Berenberg Bank",
+     "target": 83,
+     "published": "2026-09-02"
+    },
+    {
+     "firm": "KGI Securities",
+     "target": 107,
+     "published": "2026-07-27"
+    },
+    {
+     "firm": "Roth Capital",
+     "target": 110,
+     "published": "2026-08-11"
+    },
+    {
+     "firm": "Cantor Fitzgerald",
+     "target": 122,
+     "published": "2026-08-11"
+    }
+   ]
+  },
+  "RTX": {
+   "median": 240,
+   "n": 10,
+   "low": 215,
+   "high": 250,
+   "firms": [
+    {
+     "firm": "UBS",
+     "target": 215,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 223,
+     "published": "2026-09-23"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 230,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "Deutsche Bank",
+     "target": 238,
+     "published": "2026-07-27"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 240,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "Morgan Stanley",
+     "target": 240,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "Argus Research",
+     "target": 245,
+     "published": "2026-07-30"
+    },
+    {
+     "firm": "Susquehanna",
+     "target": 245,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "Jefferies",
+     "target": 250,
+     "published": "2026-07-26"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 250,
+     "published": "2026-07-24"
+    }
+   ]
+  },
+  "SPCX": {
+   "median": 193.5,
+   "n": 12,
+   "low": 75,
+   "high": 450,
+   "firms": [
+    {
+     "firm": "Phillip Securities",
+     "target": 75,
+     "published": "2026-08-17"
+    },
+    {
+     "firm": "HSBC",
+     "target": 115,
+     "published": "2026-07-23"
+    },
+    {
+     "firm": "Piper Sandler",
+     "target": 140,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "MoffettNathanson",
+     "target": 142,
+     "published": "2026-09-14"
+    },
+    {
+     "firm": "Argus Research",
+     "target": 160,
+     "published": "2026-08-07"
+    },
+    {
+     "firm": "Wolfe Research",
+     "target": 175,
+     "published": "2026-08-26"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 212,
+     "published": "2026-09-08"
+    },
+    {
+     "firm": "Pivotal Research",
+     "target": 220,
+     "published": "2026-09-08"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 248,
+     "published": "2026-08-06"
+    },
+    {
+     "firm": "CLSA",
+     "target": 250,
+     "published": "2026-09-28"
+    },
+    {
+     "firm": "Oppenheimer",
+     "target": 280,
+     "published": "2026-09-02"
+    },
+    {
+     "firm": "Arete Research",
+     "target": 450,
+     "published": "2026-08-11"
+    }
+   ]
+  },
+  "TDG": {
+   "median": 1405,
+   "n": 7,
+   "low": 1331,
+   "high": 1695,
+   "firms": [
+    {
+     "firm": "Melius Research",
+     "target": 1331,
+     "published": "2026-09-14"
+    },
+    {
+     "firm": "BMO Capital",
+     "target": 1400,
+     "published": "2026-09-28"
+    },
+    {
+     "firm": "Morgan Stanley",
+     "target": 1400,
+     "published": "2026-08-06"
+    },
+    {
+     "firm": "Stifel Nicolaus",
+     "target": 1405,
+     "published": "2026-08-05"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 1450,
+     "published": "2026-08-10"
+    },
+    {
+     "firm": "Jefferies",
+     "target": 1625,
+     "published": "2026-08-09"
+    },
+    {
+     "firm": "UBS",
+     "target": 1695,
+     "published": "2026-08-05"
+    }
+   ]
+  },
+  "TT": {
+   "median": 536,
+   "n": 1,
+   "low": 536,
+   "high": 536,
+   "firms": [
+    {
+     "firm": "Wells Fargo",
+     "target": 536,
+     "published": "2026-09-24"
+    }
+   ]
+  },
+  "UBER": {
+   "median": 100,
+   "n": 11,
+   "low": 74,
+   "high": 150,
+   "firms": [
+    {
+     "firm": "Arete Research",
+     "target": 74,
+     "published": "2026-09-10"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 89,
+     "published": "2026-08-06"
+    },
+    {
+     "firm": "Susquehanna",
+     "target": 90,
+     "published": "2026-08-06"
+    },
+    {
+     "firm": "Scotiabank",
+     "target": 100,
+     "published": "2026-09-09"
+    },
+    {
+     "firm": "BTIG",
+     "target": 100,
+     "published": "2026-09-04"
+    },
+    {
+     "firm": "Roth Capital",
+     "target": 100,
+     "published": "2026-08-10"
+    },
+    {
+     "firm": "D.A. Davidson",
+     "target": 100,
+     "published": "2026-08-06"
+    },
+    {
+     "firm": "Jefferies",
+     "target": 110,
+     "published": "2026-08-10"
+    },
+    {
+     "firm": "Mizuho Securities",
+     "target": 112,
+     "published": "2026-08-06"
+    },
+    {
+     "firm": "BMO Capital",
+     "target": 119,
+     "published": "2026-09-03"
+    },
+    {
+     "firm": "Evercore ISI",
+     "target": 150,
+     "published": "2026-08-05"
+    }
+   ]
+  },
+  "UNP": {
+   "median": 335,
+   "n": 7,
+   "low": 317,
+   "high": 350,
+   "firms": [
+    {
+     "firm": "Goldman Sachs",
+     "target": 317,
+     "published": "2026-07-23"
+    },
+    {
+     "firm": "BMO Capital",
+     "target": 320,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 326,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 335,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "UBS",
+     "target": 339,
+     "published": "2026-09-16"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 344,
+     "published": "2026-07-27"
+    },
+    {
+     "firm": "Barclays",
+     "target": 350,
+     "published": "2026-07-24"
+    }
+   ]
+  },
+  "UPS": {
+   "median": 122,
+   "n": 10,
+   "low": 115,
+   "high": 132,
+   "firms": [
+    {
+     "firm": "BMO Capital",
+     "target": 115,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "Stifel Nicolaus",
+     "target": 115,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "Oppenheimer",
+     "target": 117,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "Evercore ISI",
+     "target": 118,
+     "published": "2026-07-28"
+    },
+    {
+     "firm": "Susquehanna",
+     "target": 120,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "UBS",
+     "target": 124,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "Stephens",
+     "target": 130,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 131,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "Raymond James",
+     "target": 131,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "Goldman Sachs",
+     "target": 132,
+     "published": "2026-07-28"
+    }
+   ]
+  },
+  "URI": {
+   "median": 1335,
+   "n": 7,
+   "low": 950,
+   "high": 1355,
+   "firms": [
+    {
+     "firm": "Barclays",
+     "target": 950,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "Argus Research",
+     "target": 1250,
+     "published": "2026-08-04"
+    },
+    {
+     "firm": "Robert W. Baird",
+     "target": 1300,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "Morgan Stanley",
+     "target": 1335,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "KeyBanc",
+     "target": 1350,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "UBS",
+     "target": 1350,
+     "published": "2026-07-23"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 1355,
+     "published": "2026-07-24"
+    }
+   ]
+  },
+  "VRT": {
+   "median": 360,
+   "n": 9,
+   "low": 320,
+   "high": 381,
+   "firms": [
+    {
+     "firm": "Robert W. Baird",
+     "target": 320,
+     "published": "2026-07-30"
+    },
+    {
+     "firm": "Oppenheimer",
+     "target": 325,
+     "published": "2026-07-30"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 337,
+     "published": "2026-07-30"
+    },
+    {
+     "firm": "Wells Fargo",
+     "target": 340,
+     "published": "2026-09-24"
+    },
+    {
+     "firm": "KeyBanc",
+     "target": 360,
+     "published": "2026-07-23"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 368,
+     "published": "2026-07-31"
+    },
+    {
+     "firm": "UBS",
+     "target": 370,
+     "published": "2026-07-30"
+    },
+    {
+     "firm": "Evercore ISI",
+     "target": 375,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "GLJ Research",
+     "target": 381,
+     "published": "2026-08-07"
+    }
+   ]
+  },
+  "WM": {
+   "n": 0
+  },
+  "BE": {
+   "median": 273,
+   "n": 8,
+   "low": 176,
+   "high": 351,
+   "firms": [
+    {
+     "firm": "Wells Fargo",
+     "target": 176,
+     "published": "2026-07-30"
+    },
+    {
+     "firm": "Truist Financial",
+     "target": 218,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "BMO Capital",
+     "target": 227,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "Jefferies",
+     "target": 264,
+     "published": "2026-09-29"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 282,
+     "published": "2026-07-29"
+    },
+    {
+     "firm": "Barclays",
+     "target": 308,
+     "published": "2026-10-01"
+    },
+    {
+     "firm": "UBS",
+     "target": 325,
+     "published": "2026-09-07"
+    },
+    {
+     "firm": "Mizuho Securities",
+     "target": 351,
+     "published": "2026-09-14"
+    }
+   ]
+  },
+  "GEV": {
+   "median": 1298,
+   "n": 7,
+   "low": 949,
+   "high": 1450,
+   "firms": [
+    {
+     "firm": "Mizuho Securities",
+     "target": 949,
+     "published": "2026-07-24"
+    },
+    {
+     "firm": "Jefferies",
+     "target": 1185,
+     "published": "2026-09-11"
+    },
+    {
+     "firm": "RBC Capital",
+     "target": 1225,
+     "published": "2026-07-23"
+    },
+    {
+     "firm": "Bernstein",
+     "target": 1298,
+     "published": "2026-07-23"
+    },
+    {
+     "firm": "Oppenheimer",
+     "target": 1338,
+     "published": "2026-07-23"
+    },
+    {
+     "firm": "Evercore ISI",
+     "target": 1350,
+     "published": "2026-10-01"
+    },
+    {
+     "firm": "Guggenheim",
+     "target": 1450,
+     "published": "2026-07-23"
+    }
+   ]
+  }
+ }
+}

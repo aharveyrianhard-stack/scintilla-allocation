@@ -1,0 +1,1372 @@
+{
+ "what": "CS3 \u00b7 the names per favoured sector: the Hub cohorts the board tags with the sector + the tree cohorts the tool parks under its fund (from bowtie-20261009.json)",
+ "favoured": [
+  "STAPLES",
+  "UTILITIES",
+  "FINANCIALS",
+  "DISCRET",
+  "REAL_ESTATE",
+  "COMMS"
+ ],
+ "sectors": {
+  "STAPLES": {
+   "hubCohorts": [
+    {
+     "key": "STAPLES",
+     "n": 7,
+     "names": [
+      "BYND",
+      "COST",
+      "KO",
+      "PEP",
+      "PG",
+      "TGT",
+      "WMT"
+     ]
+    }
+   ],
+   "treeCohorts": [
+    {
+     "id": "STAPLES",
+     "label": "CONSUMER STAPLES",
+     "funds": [
+      "VDC",
+      "XLP"
+     ],
+     "parent": "CONSUMER",
+     "members": [
+      "ADM",
+      "BYND",
+      "CL",
+      "KDP",
+      "KMB",
+      "KO",
+      "KR",
+      "KVUE",
+      "MDLZ",
+      "MNST",
+      "MO",
+      "PEP",
+      "PG",
+      "PM",
+      "SYY",
+      "USFD"
+     ]
+    }
+   ],
+   "names": [
+    "BYND",
+    "COST",
+    "KO",
+    "PEP",
+    "PG",
+    "TGT",
+    "WMT",
+    "ADM",
+    "CL",
+    "KDP",
+    "KMB",
+    "KR",
+    "KVUE",
+    "MDLZ",
+    "MNST",
+    "MO",
+    "PM",
+    "SYY",
+    "USFD"
+   ],
+   "source": {
+    "BYND": [
+     "Hub cohort STAPLES",
+     "tree STAPLES"
+    ],
+    "COST": [
+     "Hub cohort STAPLES"
+    ],
+    "KO": [
+     "Hub cohort STAPLES",
+     "tree STAPLES"
+    ],
+    "PEP": [
+     "Hub cohort STAPLES",
+     "tree STAPLES"
+    ],
+    "PG": [
+     "Hub cohort STAPLES",
+     "tree STAPLES"
+    ],
+    "TGT": [
+     "Hub cohort STAPLES"
+    ],
+    "WMT": [
+     "Hub cohort STAPLES"
+    ],
+    "ADM": [
+     "tree STAPLES"
+    ],
+    "CL": [
+     "tree STAPLES"
+    ],
+    "KDP": [
+     "tree STAPLES"
+    ],
+    "KMB": [
+     "tree STAPLES"
+    ],
+    "KR": [
+     "tree STAPLES"
+    ],
+    "KVUE": [
+     "tree STAPLES"
+    ],
+    "MDLZ": [
+     "tree STAPLES"
+    ],
+    "MNST": [
+     "tree STAPLES"
+    ],
+    "MO": [
+     "tree STAPLES"
+    ],
+    "PM": [
+     "tree STAPLES"
+    ],
+    "SYY": [
+     "tree STAPLES"
+    ],
+    "USFD": [
+     "tree STAPLES"
+    ]
+   }
+  },
+  "UTILITIES": {
+   "hubCohorts": [
+    {
+     "key": "AI_POWERTRAIN",
+     "n": 6,
+     "names": [
+      "OKLO",
+      "BE",
+      "CEG",
+      "GEV",
+      "VST",
+      "SMR"
+     ]
+    },
+    {
+     "key": "UTILITIES",
+     "n": 5,
+     "names": [
+      "OKLO",
+      "CEG",
+      "VST",
+      "SMR",
+      "NEE"
+     ]
+    }
+   ],
+   "treeCohorts": [
+    {
+     "id": "AI_POWERTRAIN",
+     "label": "AI POWERTRAIN",
+     "funds": [
+      "URA",
+      "VPU",
+      "XLU"
+     ],
+     "parent": "AI",
+     "members": [
+      "BE",
+      "CCJ",
+      "CEG",
+      "EOSE",
+      "GEV",
+      "LEU",
+      "NRG",
+      "OKLO",
+      "SMR",
+      "TLN",
+      "UUUU",
+      "VST"
+     ]
+    },
+    {
+     "id": "REGULATED_UTILITIES",
+     "label": "REGULATED UTILITIES",
+     "funds": [
+      "IDU",
+      "VPU",
+      "XLU"
+     ],
+     "parent": "ENERGY_POWER",
+     "members": [
+      "AEE",
+      "AEP",
+      "ATO",
+      "CNP",
+      "D",
+      "DTE",
+      "DUK",
+      "ED",
+      "ES",
+      "ETR",
+      "EVRG",
+      "EXC",
+      "FE",
+      "LNT",
+      "NEE",
+      "NI",
+      "PCG",
+      "PEG",
+      "PNW",
+      "PPL",
+      "SO",
+      "SRE",
+      "WEC",
+      "XEL"
+     ]
+    },
+    {
+     "id": "POWER_GENERATORS",
+     "label": "INDEPENDENT POWER",
+     "funds": [
+      "XLU"
+     ],
+     "parent": "ENERGY_POWER",
+     "members": [
+      "CEG",
+      "NRG",
+      "TLN",
+      "VST"
+     ]
+    },
+    {
+     "id": "NUCLEAR_URANIUM",
+     "label": "NUCLEAR & URANIUM",
+     "funds": [
+      "URA"
+     ],
+     "parent": "ENERGY_POWER",
+     "members": [
+      "CCJ",
+      "LEU",
+      "OKLO",
+      "SMR",
+      "UUUU"
+     ]
+    }
+   ],
+   "names": [
+    "OKLO",
+    "BE",
+    "CEG",
+    "GEV",
+    "VST",
+    "SMR",
+    "NEE",
+    "CCJ",
+    "EOSE",
+    "LEU",
+    "NRG",
+    "TLN",
+    "UUUU",
+    "AEE",
+    "AEP",
+    "ATO",
+    "CNP",
+    "D",
+    "DTE",
+    "DUK",
+    "ED",
+    "ES",
+    "ETR",
+    "EVRG",
+    "EXC",
+    "FE",
+    "LNT",
+    "NI",
+    "PCG",
+    "PEG",
+    "PNW",
+    "PPL",
+    "SO",
+    "SRE",
+    "WEC",
+    "XEL"
+   ],
+   "source": {
+    "OKLO": [
+     "Hub cohort AI_POWERTRAIN",
+     "Hub cohort UTILITIES",
+     "tree AI_POWERTRAIN",
+     "tree NUCLEAR_URANIUM"
+    ],
+    "BE": [
+     "Hub cohort AI_POWERTRAIN",
+     "tree AI_POWERTRAIN"
+    ],
+    "CEG": [
+     "Hub cohort AI_POWERTRAIN",
+     "Hub cohort UTILITIES",
+     "tree AI_POWERTRAIN",
+     "tree POWER_GENERATORS"
+    ],
+    "GEV": [
+     "Hub cohort AI_POWERTRAIN",
+     "tree AI_POWERTRAIN"
+    ],
+    "VST": [
+     "Hub cohort AI_POWERTRAIN",
+     "Hub cohort UTILITIES",
+     "tree AI_POWERTRAIN",
+     "tree POWER_GENERATORS"
+    ],
+    "SMR": [
+     "Hub cohort AI_POWERTRAIN",
+     "Hub cohort UTILITIES",
+     "tree AI_POWERTRAIN",
+     "tree NUCLEAR_URANIUM"
+    ],
+    "NEE": [
+     "Hub cohort UTILITIES",
+     "tree REGULATED_UTILITIES"
+    ],
+    "CCJ": [
+     "tree AI_POWERTRAIN",
+     "tree NUCLEAR_URANIUM"
+    ],
+    "EOSE": [
+     "tree AI_POWERTRAIN"
+    ],
+    "LEU": [
+     "tree AI_POWERTRAIN",
+     "tree NUCLEAR_URANIUM"
+    ],
+    "NRG": [
+     "tree AI_POWERTRAIN",
+     "tree POWER_GENERATORS"
+    ],
+    "TLN": [
+     "tree AI_POWERTRAIN",
+     "tree POWER_GENERATORS"
+    ],
+    "UUUU": [
+     "tree AI_POWERTRAIN",
+     "tree NUCLEAR_URANIUM"
+    ],
+    "AEE": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "AEP": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "ATO": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "CNP": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "D": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "DTE": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "DUK": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "ED": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "ES": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "ETR": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "EVRG": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "EXC": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "FE": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "LNT": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "NI": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "PCG": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "PEG": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "PNW": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "PPL": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "SO": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "SRE": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "WEC": [
+     "tree REGULATED_UTILITIES"
+    ],
+    "XEL": [
+     "tree REGULATED_UTILITIES"
+    ]
+   }
+  },
+  "FINANCIALS": {
+   "hubCohorts": [
+    {
+     "key": "FINANCIALS",
+     "n": 32,
+     "names": [
+      "AFRM",
+      "AON",
+      "AXP",
+      "BAC",
+      "BLK",
+      "BNY",
+      "BRK-B",
+      "BX",
+      "C",
+      "CB",
+      "CIFR",
+      "CME",
+      "COF",
+      "COIN",
+      "GS",
+      "HOOD",
+      "ICE",
+      "JPM",
+      "KKR",
+      "MA",
+      "MCO",
+      "MRSH",
+      "MS",
+      "PGR",
+      "PNC",
+      "SCHW",
+      "SOFI",
+      "SPGI",
+      "TRV",
+      "USB",
+      "V",
+      "WFC"
+     ]
+    }
+   ],
+   "treeCohorts": [
+    {
+     "id": "ASSET_MANAGERS",
+     "label": "ASSET MANAGERS & ALTS",
+     "funds": [
+      "XLF"
+     ],
+     "parent": "FINANCE",
+     "members": [
+      "BLK",
+      "BNY",
+      "BX",
+      "KKR"
+     ]
+    },
+    {
+     "id": "BIG_BANKS_BROKERS",
+     "label": "BIG BANKS & BROKERS",
+     "funds": [
+      "IYG",
+      "KBE",
+      "XLF"
+     ],
+     "parent": "FINANCE",
+     "members": [
+      "BAC",
+      "C",
+      "GS",
+      "JPM",
+      "MS",
+      "PNC",
+      "SCHW",
+      "USB",
+      "WFC"
+     ]
+    },
+    {
+     "id": "EXCHANGES_DATA",
+     "label": "EXCHANGES & MARKET DATA",
+     "funds": [
+      "IAI"
+     ],
+     "parent": "FINANCE",
+     "members": [
+      "CME",
+      "ICE",
+      "MCO",
+      "SPGI"
+     ]
+    },
+    {
+     "id": "INSURANCE",
+     "label": "INSURANCE",
+     "funds": [
+      "IAK",
+      "KIE"
+     ],
+     "parent": "FINANCE",
+     "members": [
+      "AON",
+      "BRK-B",
+      "CB",
+      "MRSH",
+      "PGR",
+      "TRV"
+     ]
+    },
+    {
+     "id": "PAYMENTS_FINTECH",
+     "label": "PAYMENTS & FINTECH",
+     "funds": [
+      "FINX",
+      "IPAY"
+     ],
+     "parent": "FINANCE",
+     "members": [
+      "AFRM",
+      "AXP",
+      "COF",
+      "FIS",
+      "GPN",
+      "HOOD",
+      "MA",
+      "NU",
+      "PAYC",
+      "PYPL",
+      "SOFI",
+      "SYF",
+      "TOST",
+      "V",
+      "XYZ"
+     ]
+    },
+    {
+     "id": "REGIONAL_BANKS",
+     "label": "REGIONAL BANKS",
+     "funds": [
+      "IAT",
+      "KRE"
+     ],
+     "parent": "FINANCE",
+     "members": [
+      "CATY",
+      "CVBF",
+      "FULT",
+      "HWC",
+      "SFNC",
+      "TRMK",
+      "UMBF"
+     ]
+    }
+   ],
+   "names": [
+    "AFRM",
+    "AON",
+    "AXP",
+    "BAC",
+    "BLK",
+    "BNY",
+    "BRK-B",
+    "BX",
+    "C",
+    "CB",
+    "CIFR",
+    "CME",
+    "COF",
+    "COIN",
+    "GS",
+    "HOOD",
+    "ICE",
+    "JPM",
+    "KKR",
+    "MA",
+    "MCO",
+    "MRSH",
+    "MS",
+    "PGR",
+    "PNC",
+    "SCHW",
+    "SOFI",
+    "SPGI",
+    "TRV",
+    "USB",
+    "V",
+    "WFC",
+    "FIS",
+    "GPN",
+    "NU",
+    "PAYC",
+    "PYPL",
+    "SYF",
+    "TOST",
+    "XYZ",
+    "CATY",
+    "CVBF",
+    "FULT",
+    "HWC",
+    "SFNC",
+    "TRMK",
+    "UMBF"
+   ],
+   "source": {
+    "AFRM": [
+     "Hub cohort FINANCIALS",
+     "tree PAYMENTS_FINTECH"
+    ],
+    "AON": [
+     "Hub cohort FINANCIALS",
+     "tree INSURANCE"
+    ],
+    "AXP": [
+     "Hub cohort FINANCIALS",
+     "tree PAYMENTS_FINTECH"
+    ],
+    "BAC": [
+     "Hub cohort FINANCIALS",
+     "tree BIG_BANKS_BROKERS"
+    ],
+    "BLK": [
+     "Hub cohort FINANCIALS",
+     "tree ASSET_MANAGERS"
+    ],
+    "BNY": [
+     "Hub cohort FINANCIALS",
+     "tree ASSET_MANAGERS"
+    ],
+    "BRK-B": [
+     "Hub cohort FINANCIALS",
+     "tree INSURANCE"
+    ],
+    "BX": [
+     "Hub cohort FINANCIALS",
+     "tree ASSET_MANAGERS"
+    ],
+    "C": [
+     "Hub cohort FINANCIALS",
+     "tree BIG_BANKS_BROKERS"
+    ],
+    "CB": [
+     "Hub cohort FINANCIALS",
+     "tree INSURANCE"
+    ],
+    "CIFR": [
+     "Hub cohort FINANCIALS"
+    ],
+    "CME": [
+     "Hub cohort FINANCIALS",
+     "tree EXCHANGES_DATA"
+    ],
+    "COF": [
+     "Hub cohort FINANCIALS",
+     "tree PAYMENTS_FINTECH"
+    ],
+    "COIN": [
+     "Hub cohort FINANCIALS"
+    ],
+    "GS": [
+     "Hub cohort FINANCIALS",
+     "tree BIG_BANKS_BROKERS"
+    ],
+    "HOOD": [
+     "Hub cohort FINANCIALS",
+     "tree PAYMENTS_FINTECH"
+    ],
+    "ICE": [
+     "Hub cohort FINANCIALS",
+     "tree EXCHANGES_DATA"
+    ],
+    "JPM": [
+     "Hub cohort FINANCIALS",
+     "tree BIG_BANKS_BROKERS"
+    ],
+    "KKR": [
+     "Hub cohort FINANCIALS",
+     "tree ASSET_MANAGERS"
+    ],
+    "MA": [
+     "Hub cohort FINANCIALS",
+     "tree PAYMENTS_FINTECH"
+    ],
+    "MCO": [
+     "Hub cohort FINANCIALS",
+     "tree EXCHANGES_DATA"
+    ],
+    "MRSH": [
+     "Hub cohort FINANCIALS",
+     "tree INSURANCE"
+    ],
+    "MS": [
+     "Hub cohort FINANCIALS",
+     "tree BIG_BANKS_BROKERS"
+    ],
+    "PGR": [
+     "Hub cohort FINANCIALS",
+     "tree INSURANCE"
+    ],
+    "PNC": [
+     "Hub cohort FINANCIALS",
+     "tree BIG_BANKS_BROKERS"
+    ],
+    "SCHW": [
+     "Hub cohort FINANCIALS",
+     "tree BIG_BANKS_BROKERS"
+    ],
+    "SOFI": [
+     "Hub cohort FINANCIALS",
+     "tree PAYMENTS_FINTECH"
+    ],
+    "SPGI": [
+     "Hub cohort FINANCIALS",
+     "tree EXCHANGES_DATA"
+    ],
+    "TRV": [
+     "Hub cohort FINANCIALS",
+     "tree INSURANCE"
+    ],
+    "USB": [
+     "Hub cohort FINANCIALS",
+     "tree BIG_BANKS_BROKERS"
+    ],
+    "V": [
+     "Hub cohort FINANCIALS",
+     "tree PAYMENTS_FINTECH"
+    ],
+    "WFC": [
+     "Hub cohort FINANCIALS",
+     "tree BIG_BANKS_BROKERS"
+    ],
+    "FIS": [
+     "tree PAYMENTS_FINTECH"
+    ],
+    "GPN": [
+     "tree PAYMENTS_FINTECH"
+    ],
+    "NU": [
+     "tree PAYMENTS_FINTECH"
+    ],
+    "PAYC": [
+     "tree PAYMENTS_FINTECH"
+    ],
+    "PYPL": [
+     "tree PAYMENTS_FINTECH"
+    ],
+    "SYF": [
+     "tree PAYMENTS_FINTECH"
+    ],
+    "TOST": [
+     "tree PAYMENTS_FINTECH"
+    ],
+    "XYZ": [
+     "tree PAYMENTS_FINTECH"
+    ],
+    "CATY": [
+     "tree REGIONAL_BANKS"
+    ],
+    "CVBF": [
+     "tree REGIONAL_BANKS"
+    ],
+    "FULT": [
+     "tree REGIONAL_BANKS"
+    ],
+    "HWC": [
+     "tree REGIONAL_BANKS"
+    ],
+    "SFNC": [
+     "tree REGIONAL_BANKS"
+    ],
+    "TRMK": [
+     "tree REGIONAL_BANKS"
+    ],
+    "UMBF": [
+     "tree REGIONAL_BANKS"
+    ]
+   }
+  },
+  "DISCRET": {
+   "hubCohorts": [
+    {
+     "key": "INTL",
+     "n": 3,
+     "names": [
+      "BABA",
+      "JD",
+      "PDD"
+     ]
+    },
+    {
+     "key": "DISCRET",
+     "n": 27,
+     "names": [
+      "ABNB",
+      "AMZN",
+      "BABA",
+      "BKNG",
+      "DASH",
+      "DKNG",
+      "DPZ",
+      "F",
+      "GM",
+      "HD",
+      "HLT",
+      "JD",
+      "LCID",
+      "LI",
+      "LOW",
+      "MAR",
+      "MCD",
+      "MELI",
+      "NIO",
+      "NKE",
+      "ORLY",
+      "QS",
+      "RCL",
+      "ROST",
+      "SBUX",
+      "TJX",
+      "TSLA"
+     ]
+    }
+   ],
+   "treeCohorts": [
+    {
+     "id": "AUTOS_EV",
+     "label": "AUTOS & EV",
+     "funds": [
+      "VCR",
+      "XLY"
+     ],
+     "parent": "CONSUMER",
+     "members": [
+      "F",
+      "GM",
+      "LCID",
+      "LI",
+      "NIO",
+      "QS",
+      "RIVN",
+      "TSLA",
+      "XPEV"
+     ]
+    },
+    {
+     "id": "RESTAURANTS",
+     "label": "RESTAURANTS",
+     "funds": [
+      "XLY"
+     ],
+     "parent": "CONSUMER",
+     "members": [
+      "DPZ",
+      "EAT",
+      "MCD",
+      "SBUX"
+     ]
+    },
+    {
+     "id": "RETAIL",
+     "label": "RETAIL & E-COMMERCE (US)",
+     "funds": [
+      "XLY",
+      "XRT"
+     ],
+     "parent": "CONSUMER",
+     "members": [
+      "AMZN",
+      "COST",
+      "KR",
+      "NKE",
+      "ORLY",
+      "ROST",
+      "TGT",
+      "TJX",
+      "WMT"
+     ]
+    },
+    {
+     "id": "TRAVEL_LEISURE",
+     "label": "TRAVEL & LEISURE",
+     "funds": [
+      "PEJ"
+     ],
+     "parent": "CONSUMER",
+     "members": [
+      "ABNB",
+      "BKNG",
+      "DIS",
+      "DKNG",
+      "HLT",
+      "LYV",
+      "MAR",
+      "RCL"
+     ]
+    },
+    {
+     "id": "HOUSING",
+     "label": "HOUSING & HOME IMPROVEMENT",
+     "funds": [
+      "ITB",
+      "XHB"
+     ],
+     "parent": "INDUSTRIAL",
+     "members": [
+      "DHI",
+      "HD",
+      "LOW"
+     ]
+    }
+   ],
+   "names": [
+    "BABA",
+    "JD",
+    "PDD",
+    "ABNB",
+    "AMZN",
+    "BKNG",
+    "DASH",
+    "DKNG",
+    "DPZ",
+    "F",
+    "GM",
+    "HD",
+    "HLT",
+    "LCID",
+    "LI",
+    "LOW",
+    "MAR",
+    "MCD",
+    "MELI",
+    "NIO",
+    "NKE",
+    "ORLY",
+    "QS",
+    "RCL",
+    "ROST",
+    "SBUX",
+    "TJX",
+    "TSLA",
+    "RIVN",
+    "XPEV",
+    "EAT",
+    "COST",
+    "KR",
+    "TGT",
+    "WMT",
+    "DIS",
+    "LYV",
+    "DHI"
+   ],
+   "source": {
+    "BABA": [
+     "Hub cohort INTL",
+     "Hub cohort DISCRET"
+    ],
+    "JD": [
+     "Hub cohort INTL",
+     "Hub cohort DISCRET"
+    ],
+    "PDD": [
+     "Hub cohort INTL"
+    ],
+    "ABNB": [
+     "Hub cohort DISCRET",
+     "tree TRAVEL_LEISURE"
+    ],
+    "AMZN": [
+     "Hub cohort DISCRET",
+     "tree RETAIL"
+    ],
+    "BKNG": [
+     "Hub cohort DISCRET",
+     "tree TRAVEL_LEISURE"
+    ],
+    "DASH": [
+     "Hub cohort DISCRET"
+    ],
+    "DKNG": [
+     "Hub cohort DISCRET",
+     "tree TRAVEL_LEISURE"
+    ],
+    "DPZ": [
+     "Hub cohort DISCRET",
+     "tree RESTAURANTS"
+    ],
+    "F": [
+     "Hub cohort DISCRET",
+     "tree AUTOS_EV"
+    ],
+    "GM": [
+     "Hub cohort DISCRET",
+     "tree AUTOS_EV"
+    ],
+    "HD": [
+     "Hub cohort DISCRET",
+     "tree HOUSING"
+    ],
+    "HLT": [
+     "Hub cohort DISCRET",
+     "tree TRAVEL_LEISURE"
+    ],
+    "LCID": [
+     "Hub cohort DISCRET",
+     "tree AUTOS_EV"
+    ],
+    "LI": [
+     "Hub cohort DISCRET",
+     "tree AUTOS_EV"
+    ],
+    "LOW": [
+     "Hub cohort DISCRET",
+     "tree HOUSING"
+    ],
+    "MAR": [
+     "Hub cohort DISCRET",
+     "tree TRAVEL_LEISURE"
+    ],
+    "MCD": [
+     "Hub cohort DISCRET",
+     "tree RESTAURANTS"
+    ],
+    "MELI": [
+     "Hub cohort DISCRET"
+    ],
+    "NIO": [
+     "Hub cohort DISCRET",
+     "tree AUTOS_EV"
+    ],
+    "NKE": [
+     "Hub cohort DISCRET",
+     "tree RETAIL"
+    ],
+    "ORLY": [
+     "Hub cohort DISCRET",
+     "tree RETAIL"
+    ],
+    "QS": [
+     "Hub cohort DISCRET",
+     "tree AUTOS_EV"
+    ],
+    "RCL": [
+     "Hub cohort DISCRET",
+     "tree TRAVEL_LEISURE"
+    ],
+    "ROST": [
+     "Hub cohort DISCRET",
+     "tree RETAIL"
+    ],
+    "SBUX": [
+     "Hub cohort DISCRET",
+     "tree RESTAURANTS"
+    ],
+    "TJX": [
+     "Hub cohort DISCRET",
+     "tree RETAIL"
+    ],
+    "TSLA": [
+     "Hub cohort DISCRET",
+     "tree AUTOS_EV"
+    ],
+    "RIVN": [
+     "tree AUTOS_EV"
+    ],
+    "XPEV": [
+     "tree AUTOS_EV"
+    ],
+    "EAT": [
+     "tree RESTAURANTS"
+    ],
+    "COST": [
+     "tree RETAIL"
+    ],
+    "KR": [
+     "tree RETAIL"
+    ],
+    "TGT": [
+     "tree RETAIL"
+    ],
+    "WMT": [
+     "tree RETAIL"
+    ],
+    "DIS": [
+     "tree TRAVEL_LEISURE"
+    ],
+    "LYV": [
+     "tree TRAVEL_LEISURE"
+    ],
+    "DHI": [
+     "tree HOUSING"
+    ]
+   }
+  },
+  "REAL_ESTATE": {
+   "hubCohorts": [
+    {
+     "key": "REAL_ESTATE",
+     "n": 2,
+     "names": [
+      "DLR",
+      "EQIX"
+     ]
+    }
+   ],
+   "treeCohorts": [
+    {
+     "id": "DC_PROPERTY",
+     "label": "DATACENTER PROPERTY",
+     "funds": [
+      "VNQ",
+      "XLRE"
+     ],
+     "parent": "AI",
+     "members": [
+      "DLR",
+      "EQIX",
+      "GDS",
+      "IRM"
+     ]
+    },
+    {
+     "id": "REITS",
+     "label": "REITs (property)",
+     "funds": [
+      "REZ",
+      "VNQ",
+      "XLRE"
+     ],
+     "parent": "REAL_ESTATE",
+     "members": [
+      "CBRE",
+      "EXR",
+      "O",
+      "PLD",
+      "PSA",
+      "RHP",
+      "SPG",
+      "VICI",
+      "VTR",
+      "WELL"
+     ]
+    },
+    {
+     "id": "TOWERS",
+     "label": "TELECOM TOWERS",
+     "funds": [
+      "XLRE"
+     ],
+     "parent": "REAL_ESTATE",
+     "members": [
+      "AMT",
+      "CCI",
+      "SBAC"
+     ]
+    }
+   ],
+   "names": [
+    "DLR",
+    "EQIX",
+    "GDS",
+    "IRM",
+    "CBRE",
+    "EXR",
+    "O",
+    "PLD",
+    "PSA",
+    "RHP",
+    "SPG",
+    "VICI",
+    "VTR",
+    "WELL",
+    "AMT",
+    "CCI",
+    "SBAC"
+   ],
+   "source": {
+    "DLR": [
+     "Hub cohort REAL_ESTATE",
+     "tree DC_PROPERTY"
+    ],
+    "EQIX": [
+     "Hub cohort REAL_ESTATE",
+     "tree DC_PROPERTY"
+    ],
+    "GDS": [
+     "tree DC_PROPERTY"
+    ],
+    "IRM": [
+     "tree DC_PROPERTY"
+    ],
+    "CBRE": [
+     "tree REITS"
+    ],
+    "EXR": [
+     "tree REITS"
+    ],
+    "O": [
+     "tree REITS"
+    ],
+    "PLD": [
+     "tree REITS"
+    ],
+    "PSA": [
+     "tree REITS"
+    ],
+    "RHP": [
+     "tree REITS"
+    ],
+    "SPG": [
+     "tree REITS"
+    ],
+    "VICI": [
+     "tree REITS"
+    ],
+    "VTR": [
+     "tree REITS"
+    ],
+    "WELL": [
+     "tree REITS"
+    ],
+    "AMT": [
+     "tree TOWERS"
+    ],
+    "CCI": [
+     "tree TOWERS"
+    ],
+    "SBAC": [
+     "tree TOWERS"
+    ]
+   }
+  },
+  "COMMS": {
+   "hubCohorts": [
+    {
+     "key": "COMMS",
+     "n": 9,
+     "names": [
+      "APP",
+      "ASTS",
+      "BIDU",
+      "DIS",
+      "GOOG",
+      "GOOGL",
+      "META",
+      "NFLX",
+      "SPOT"
+     ]
+    }
+   ],
+   "treeCohorts": [
+    {
+     "id": "MEDIA_TELECOM",
+     "label": "MEDIA & TELECOM",
+     "funds": [
+      "VOX",
+      "XLC"
+     ],
+     "parent": "CONSUMER",
+     "members": [
+      "CHTR",
+      "CMCSA",
+      "DIS",
+      "FOXA",
+      "OMC",
+      "T",
+      "TMUS",
+      "VZ",
+      "WBD"
+     ]
+    }
+   ],
+   "names": [
+    "APP",
+    "ASTS",
+    "BIDU",
+    "DIS",
+    "GOOG",
+    "GOOGL",
+    "META",
+    "NFLX",
+    "SPOT",
+    "CHTR",
+    "CMCSA",
+    "FOXA",
+    "OMC",
+    "T",
+    "TMUS",
+    "VZ",
+    "WBD"
+   ],
+   "source": {
+    "APP": [
+     "Hub cohort COMMS"
+    ],
+    "ASTS": [
+     "Hub cohort COMMS"
+    ],
+    "BIDU": [
+     "Hub cohort COMMS"
+    ],
+    "DIS": [
+     "Hub cohort COMMS",
+     "tree MEDIA_TELECOM"
+    ],
+    "GOOG": [
+     "Hub cohort COMMS"
+    ],
+    "GOOGL": [
+     "Hub cohort COMMS"
+    ],
+    "META": [
+     "Hub cohort COMMS"
+    ],
+    "NFLX": [
+     "Hub cohort COMMS"
+    ],
+    "SPOT": [
+     "Hub cohort COMMS"
+    ],
+    "CHTR": [
+     "tree MEDIA_TELECOM"
+    ],
+    "CMCSA": [
+     "tree MEDIA_TELECOM"
+    ],
+    "FOXA": [
+     "tree MEDIA_TELECOM"
+    ],
+    "OMC": [
+     "tree MEDIA_TELECOM"
+    ],
+    "T": [
+     "tree MEDIA_TELECOM"
+    ],
+    "TMUS": [
+     "tree MEDIA_TELECOM"
+    ],
+    "VZ": [
+     "tree MEDIA_TELECOM"
+    ],
+    "WBD": [
+     "tree MEDIA_TELECOM"
+    ]
+   }
+  }
+ }
+}

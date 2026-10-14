@@ -1,0 +1,52 @@
+{
+ "stamp": "pictures taken 13 Oct 2026, 21:30 New York",
+ "takenAt": "2026-10-14T01:30:21.965Z",
+ "report": [
+  {
+   "width": 1680,
+   "errors": [],
+   "nonGet": 0,
+   "scrollW": 1680,
+   "innerW": 1680,
+   "pageH": 19691,
+   "minFont": 10,
+   "tags": {
+    "measured": 41,
+    "estimate": 12,
+    "stale": 2
+   },
+   "tables": 17,
+   "widestTable": 1570,
+   "fields": 6,
+   "worked": 6,
+   "laneCodes": 0,
+   "geigerWords": 2,
+   "h1": "COMPS, WALKED THROUGH\nfrom the sector down to the short list, on real names and ",
+   "title": "Comps, walked through",
+   "bg": "rgb(10, 10, 15)"
+  },
+  {
+   "width": 390,
+   "errors": [],
+   "nonGet": 0,
+   "scrollW": 390,
+   "innerW": 390,
+   "pageH": 48708,
+   "minFont": 10,
+   "tags": {
+    "measured": 41,
+    "estimate": 12,
+    "stale": 2
+   },
+   "tables": 17,
+   "widestTable": 1052,
+   "fields": 6,
+   "worked": 6,
+   "laneCodes": 0,
+   "geigerWords": 2,
+   "h1": "COMPS, WALKED THROUGH\nfrom the sector down to the short list, on real names and ",
+   "title": "Comps, walked through",
+   "bg": "rgb(10, 10, 15)"
+  }
+ ]
+}

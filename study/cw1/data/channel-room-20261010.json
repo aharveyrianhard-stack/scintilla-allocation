@@ -1,0 +1,1291 @@
+{
+ "asof": "10 Oct 2026 10:24",
+ "rows": [
+  {
+   "sym": "EQIX",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:42:14.371Z",
+    "close": 1026.06,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 1026.06,
+   "low": 855.6037,
+   "high": 1145.5672,
+   "pos": 58.7854333390237,
+   "down": -16.612702960840487,
+   "up": 11.647194121201498,
+   "rails": {
+    "B2": 1145.5672,
+    "B6": 855.6037
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "JPM",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:42:18.990Z",
+    "close": 332.99,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 332.99,
+   "low": 268.5886,
+   "high": 371.4615,
+   "pos": 62.60288180852296,
+   "down": -19.340340550767298,
+   "up": 11.553349950448965,
+   "rails": {
+    "B2": 371.4615,
+    "B6": 268.5886
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "MU",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:42:23.595Z",
+    "close": 1029,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 1029,
+   "low": 869.6354,
+   "high": 1399.8779,
+   "pos": 30.0550408539489,
+   "down": -15.487327502429537,
+   "up": 36.04255587949466,
+   "rails": {
+    "B2": 1399.8779,
+    "B6": 869.6354
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "NQ1!",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "broad",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:48:05.215Z",
+    "close": 31108.75,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 31108.75,
+   "low": 21019.9291,
+   "high": 31616.5,
+   "pos": 95.20835556340211,
+   "down": -32.43081416000321,
+   "up": 1.6321774420380075,
+   "rails": {
+    "B2": 31616.5,
+    "B6": 21019.9291
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "SNOW",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:42:58.314Z",
+    "close": 368.89,
+    "labelled": [
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3",
+     "D1",
+     "D2 (M)",
+     "D3"
+    ]
+   },
+   "price": 368.89,
+   "low": 227.6703,
+   "high": 388.9433,
+   "pos": 87.56561854743198,
+   "down": -38.28233348694733,
+   "up": 5.436119168315767,
+   "rails": {
+    "B2": 388.9433,
+    "B6": 227.6703
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "TEL",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:43:02.890Z",
+    "close": 218.29,
+    "labelled": [
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "D1",
+     "D2 (M)",
+     "D3"
+    ]
+   },
+   "price": 218.29,
+   "low": 137.3011,
+   "high": 230.5345,
+   "pos": 86.86683098546227,
+   "down": -37.10151633148564,
+   "up": 5.60928123138944,
+   "rails": {
+    "B2": 230.5345,
+    "B6": 137.3011
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "CSCO",
+   "set": "B",
+   "components": [
+    "B1",
+    "B6"
+   ],
+   "note": "B1 + B6",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:43:07.496Z",
+    "close": 118.39,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 118.39,
+   "low": 101.2481,
+   "high": 143.3699,
+   "pos": 40.696029134557406,
+   "down": -14.479178984711549,
+   "up": 21.0996705802855,
+   "rails": {
+    "B1": 143.3699,
+    "B6": 101.2481
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "ASML",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:43:12.083Z",
+    "close": 1780.34,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 1780.34,
+   "low": 1170.4061,
+   "high": 1899.0129,
+   "pos": 83.7123534943676,
+   "down": -34.25940550681331,
+   "up": 6.665743622004783,
+   "rails": {
+    "B2": 1899.0129,
+    "B6": 1170.4061
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "NVDA",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:43:16.674Z",
+    "close": 229.28,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "D1",
+     "D2 (M)",
+     "D3"
+    ]
+   },
+   "price": 229.28,
+   "low": 181.8214,
+   "high": 243.37,
+   "pos": 77.10752153582696,
+   "down": -20.69897069085833,
+   "up": 6.145324494068394,
+   "rails": {
+    "B2": 243.37,
+    "B6": 181.8214
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "QQQ",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "broad",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:43:21.263Z",
+    "close": 751.27,
+    "labelled": [
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7"
+    ]
+   },
+   "price": 751.27,
+   "low": 512.0458,
+   "high": 762.86,
+   "pos": 95.37904951155078,
+   "down": -31.84263979661107,
+   "up": 1.542720992452784,
+   "rails": {
+    "B2": 762.86,
+    "B6": 512.0458
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "TSLA",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:43:25.868Z",
+    "close": 382.7,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "D1",
+     "D2 (M)",
+     "D3"
+    ]
+   },
+   "price": 382.7,
+   "low": 163.1938,
+   "high": 506.4523,
+   "pos": 63.94778279343411,
+   "down": -57.35725111053044,
+   "up": 32.33663443950876,
+   "rails": {
+    "B2": 506.4523,
+    "B6": 163.1938
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "MSFT",
+   "set": "A",
+   "components": [
+    "A2",
+    "A?"
+   ],
+   "note": "A set: A2 and whatever its pair is",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:43:30.468Z",
+    "close": 535.07,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 535.07,
+   "low": 427.6503,
+   "high": 619.0563,
+   "pos": 56.12138595446332,
+   "down": -20.075821855084385,
+   "up": 15.696320107649452,
+   "rails": {
+    "A2": 619.0563,
+    "A6": 427.6503
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "SPY",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "broad",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:43:35.053Z",
+    "close": 778.57,
+    "labelled": [
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "D1",
+     "D2 (M)",
+     "D3"
+    ]
+   },
+   "price": 778.57,
+   "low": 578.0801,
+   "high": 781.62,
+   "pos": 98.50152230594593,
+   "down": -25.751043579896482,
+   "up": 0.39174383806208635,
+   "rails": {
+    "B2": 781.62,
+    "B6": 578.0801
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "BE",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:43:39.643Z",
+    "close": 280.5,
+    "labelled": [
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "D1",
+     "D2 (M)",
+     "D3"
+    ]
+   },
+   "price": 280.5,
+   "low": 158.3186,
+   "high": 366.4879,
+   "pos": 58.69328474467657,
+   "down": -43.55843137254902,
+   "up": 30.655222816399295,
+   "rails": {
+    "B2": 366.4879,
+    "B6": 158.3186
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "BTCUSD",
+   "set": "A",
+   "components": [
+    "A2",
+    "A?"
+   ],
+   "note": "A set: A2 and whatever its pair is",
+   "group": "broad",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:43:45.228Z",
+    "close": 82485.98,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 82485.98,
+   "low": 72150.6586,
+   "high": 140818.7257,
+   "pos": 15.051131969316781,
+   "down": -12.529791608222396,
+   "up": 70.71837626224482,
+   "rails": {
+    "A2": 140818.7257,
+    "A6": 72150.6586
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "AMD",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:43:49.822Z",
+    "close": 608.1,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 608.1,
+   "low": 323.7974,
+   "high": 658.52,
+   "pos": 84.93678048628925,
+   "down": -46.7526064791975,
+   "up": 8.29139944088142,
+   "rails": {
+    "B2": 658.52,
+    "B6": 323.7974
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "US10Y",
+   "set": "B+A2",
+   "components": [
+    "B2",
+    "B6",
+    "A2"
+   ],
+   "note": "B set and A2",
+   "group": "broad",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:43:54.437Z",
+    "close": 5.242,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 5.242,
+   "low": 4.2662,
+   "high": 5.365,
+   "pos": 88.80597014925371,
+   "down": -18.615032430370082,
+   "up": 2.346432659290354,
+   "rails": {
+    "B2": 5.365,
+    "B6": 4.2662,
+    "A2": 4.5109
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "KO",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:48:09.818Z",
+    "close": 88.05,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 88.05,
+   "low": 77.4724,
+   "high": 93.0877,
+   "pos": 67.7386921801054,
+   "down": -12.013174332765475,
+   "up": 5.721408290743901,
+   "rails": {
+    "B2": 93.0877,
+    "B6": 77.4724
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "TSM",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:44:29.167Z",
+    "close": 453.31,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "D1",
+     "D2 (M)",
+     "D3"
+    ]
+   },
+   "price": 453.31,
+   "low": 348.0933,
+   "high": 487.47,
+   "pos": 75.49088190493819,
+   "down": -23.210760847984822,
+   "up": 7.535681983631526,
+   "rails": {
+    "B2": 487.47,
+    "B6": 348.0933
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "CRWD",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:44:33.753Z",
+    "close": 275.04,
+    "labelled": [
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3",
+     "D1",
+     "D2 (M)",
+     "D3"
+    ]
+   },
+   "price": 275.04,
+   "low": 185.6582,
+   "high": 286.9899,
+   "pos": 88.20714544412068,
+   "down": -32.49774578243165,
+   "up": 4.344786212914475,
+   "rails": {
+    "B2": 286.9899,
+    "B6": 185.6582
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "DLR",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": "A",
+   "read": {
+    "at": "2026-10-10T03:44:38.341Z",
+    "close": 178.76,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 178.76,
+   "low": 141.4692,
+   "high": 208.2228,
+   "pos": 55.86335418614126,
+   "down": -20.86081897516222,
+   "up": 16.48176325799957,
+   "rails": {
+    "A2": 208.2228,
+    "A6": 141.4692
+   },
+   "source": "the B set is not drawn on this chart; showing the A set instead"
+  },
+  {
+   "sym": "MELI",
+   "set": "A",
+   "components": [
+    "A2",
+    "A?"
+   ],
+   "note": "A set: A2 and whatever its pair is",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:48:15.409Z",
+    "close": 1889.85,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 1889.85,
+   "low": 1209.7355,
+   "high": 2823.0843,
+   "pos": 42.155453303092294,
+   "down": -35.98775035055692,
+   "up": 49.38139534883721,
+   "rails": {
+    "A2": 2823.0843,
+    "A6": 1209.7355
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "QCOM",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:48:20.015Z",
+    "close": 175.5,
+    "labelled": [
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "D1",
+     "D2 (M)",
+     "D3"
+    ]
+   },
+   "price": 175.5,
+   "low": 144.7056,
+   "high": 262.4933,
+   "pos": 26.143986171731008,
+   "down": -17.546666666666667,
+   "up": 49.5688319088319,
+   "rails": {
+    "B2": 262.4933,
+    "B6": 144.7056
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "CAT",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:45:43.196Z",
+    "close": 800.47,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 800.47,
+   "low": 510.8523,
+   "high": 1116.0154,
+   "pos": 47.85779238687884,
+   "down": -36.18095618823941,
+   "up": 39.42001574075231,
+   "rails": {
+    "B2": 1116.0154,
+    "B6": 510.8523
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "AAPL",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": "A",
+   "read": {
+    "at": "2026-10-10T03:48:24.629Z",
+    "close": 336.64,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "D1",
+     "D2 (M)",
+     "D3"
+    ]
+   },
+   "price": 336.64,
+   "low": 254.7667,
+   "high": 346.6948,
+   "pos": 89.06232153171881,
+   "down": -24.320728374524712,
+   "up": 2.9868108365018964,
+   "rails": {
+    "A2": 346.6948,
+    "A6": 254.7667
+   },
+   "source": "the B set is not drawn on this chart; showing the A set instead"
+  },
+  {
+   "sym": "STX",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "stock",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:46:17.926Z",
+    "close": 783,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3",
+     "D1",
+     "D2 (M)",
+     "D3"
+    ]
+   },
+   "price": 783,
+   "low": 412.1048,
+   "high": 1215.0243,
+   "pos": 46.19332324099739,
+   "down": -47.36848020434227,
+   "up": 55.175517241379325,
+   "rails": {
+    "B2": 1215.0243,
+    "B6": 412.1048
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "FDN",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "broad",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:48:29.214Z",
+    "close": 301.32,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3"
+    ]
+   },
+   "price": 301.32,
+   "low": 152.5131,
+   "high": 301.48,
+   "pos": 99.89259358958263,
+   "down": -49.38500597371564,
+   "up": 0.05309969467677256,
+   "rails": {
+    "B2": 301.48,
+    "B6": 152.5131
+   },
+   "source": "read from the capture chart"
+  },
+  {
+   "sym": "ES1!",
+   "set": "B",
+   "components": [
+    "B2",
+    "B6"
+   ],
+   "note": "",
+   "group": "broad",
+   "fallback": null,
+   "read": {
+    "at": "2026-10-10T03:48:33.821Z",
+    "close": 7859.75,
+    "labelled": [
+     "A1",
+     "A2",
+     "A3",
+     "A4 (M)",
+     "A5",
+     "A6",
+     "A7",
+     "B1",
+     "B2",
+     "B3",
+     "B4 (M)",
+     "B5",
+     "B6",
+     "B7",
+     "C1",
+     "C2 (M)",
+     "C3",
+     "D1",
+     "D2 (M)",
+     "D3"
+    ]
+   },
+   "price": 7859.75,
+   "low": 5803.619,
+   "high": 7897.5,
+   "pos": 98.19712772597869,
+   "down": -26.16025955024015,
+   "up": 0.4802951747829187,
+   "rails": {
+    "B2": 7897.5,
+    "B6": 5803.619
+   },
+   "source": "read from the capture chart"
+  }
+ ],
+ "missing_broad": [
+  "SLV",
+  "AGIX",
+  "CIBR",
+  "XAUUSD",
+  "XAGUSD",
+  "USOIL",
+  "VIX",
+  "PCC",
+  "HYG",
+  "ADD"
+ ],
+ "missing_stock": [
+  "NBIS",
+  "AXTI",
+  "SPCX",
+  "SNDK",
+  "GOOGL",
+  "CRWV",
+  "AMZN",
+  "IREN",
+  "AVGO",
+  "AAOI",
+  "ASTS",
+  "CBRS",
+  "MRVL",
+  "LRCX",
+  "NVTS",
+  "VST",
+  "LITE",
+  "CRDO",
+  "COHR",
+  "AMAT",
+  "RDW",
+  "CEG",
+  "APLD",
+  "ANET",
+  "INTC",
+  "META",
+  "MSTR",
+  "NOW",
+  "OKLO",
+  "SOFI",
+  "WDC",
+  "WMT",
+  "WULF",
+  "ORCL",
+  "ZETA",
+  "FTNT",
+  "NFLX",
+  "SNPS",
+  "ONDS",
+  "ON",
+  "NU",
+  "SHOP",
+  "STM",
+  "TXN",
+  "ADI",
+  "NET",
+  "OKTA",
+  "AFRM",
+  "ZS",
+  "PLTR",
+  "DELL"
+ ],
+ "not_on_roster": [
+  "XLK",
+  "XLE",
+  "XLY",
+  "XLI",
+  "XLB",
+  "XLC",
+  "XLP",
+  "IWM",
+  "DIA",
+  "RSP",
+  "TLT"
+ ]
+}

@@ -1,0 +1,3091 @@
+{
+ "built": "2026-10-10T01:57:39.994Z",
+ "bowTakenAt": "2026-10-10T01:39:20.217Z",
+ "liveReadAt": [
+  "2026-10-10T01:42:34.057Z",
+  "2026-10-10T01:52:36.789Z"
+ ],
+ "standings": [
+  {
+   "key": "COMMS",
+   "blend": -0.246,
+   "standing": "washed out",
+   "doing": "breaking down",
+   "label": "BREAKDOWN",
+   "cap": -0.19793294968030675,
+   "eq": -0.22683518769409936,
+   "bow": -0.028902238013792603,
+   "legs": {
+    "SPDR": {
+     "score": -0.419,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "HUBCMP": {
+     "score": -0.516,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "MKTBOW": {
+     "score": -0.07,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "TREE": {
+     "score": -0.098,
+     "asof": "the 2026-10-06 close (published 6 Oct, 20:21 ET)"
+    },
+    "RANK": {
+     "score": -0.127,
+     "asof": "for 2026-10-09 (published 9 Oct, 17:15 ET)"
+    }
+   },
+   "words": "washed out (−0.25), the most washed out of the eleven; every leg below zero; breaking down — a breakdown; the fund and the average stock read alike; ranking #7 of 13."
+  },
+  {
+   "key": "REAL_ESTATE",
+   "blend": -0.226,
+   "standing": "washed out",
+   "doing": "improving",
+   "label": "BOUNCE IN DOWNTREND",
+   "cap": -0.09651775177785393,
+   "eq": -0.2875534480846774,
+   "bow": -0.1910356963068235,
+   "legs": {
+    "SPDR": {
+     "score": -0.048,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "HUBCMP": {
+     "score": -0.116,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "MKTBOW": {
+     "score": -0.173,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "TREE": {
+     "score": -0.415,
+     "asof": "the 2026-10-06 close (published 6 Oct, 20:21 ET)"
+    },
+    "RANK": {
+     "score": -0.378,
+     "asof": "for 2026-10-09 (published 9 Oct, 17:15 ET)"
+    }
+   },
+   "words": "washed out (−0.23), second most washed out of the eleven; every leg below zero; improving — a bounce in a downtrend; the big names carry it; the average stock is weaker; ranking #13 of 13."
+  },
+  {
+   "key": "MATERIALS",
+   "blend": -0.184,
+   "standing": "middling",
+   "doing": "breaking down",
+   "label": "BREAKDOWN",
+   "cap": -0.028839107916510193,
+   "eq": -0.22162649801587303,
+   "bow": -0.19278739009936283,
+   "legs": {
+    "SPDR": {
+     "score": -0.102,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "HUBCMP": {
+     "score": -0.169,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "MKTBOW": {
+     "score": -0.15,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "TREE": {
+     "score": -0.165,
+     "asof": "the 2026-10-06 close (published 6 Oct, 20:21 ET)"
+    },
+    "RANK": {
+     "score": -0.335,
+     "asof": "for 2026-10-09 (published 9 Oct, 17:15 ET)"
+    }
+   },
+   "words": "middling (−0.18), third most washed out of the eleven; every leg below zero; breaking down — a breakdown; the big names carry it; the average stock is weaker; ranking #11 of 13."
+  },
+  {
+   "key": "INDUSTRIAL",
+   "blend": -0.18,
+   "standing": "middling",
+   "doing": "breaking down",
+   "label": "BREAKDOWN",
+   "cap": -0.19111683521566408,
+   "eq": -0.12065330063918514,
+   "bow": 0.07046353457647894,
+   "legs": {
+    "SPDR": {
+     "score": -0.33,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "HUBCMP": {
+     "score": -0.243,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "MKTBOW": {
+     "score": -0.145,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "TREE": {
+     "score": -0.03,
+     "asof": "the 2026-10-06 close (published 6 Oct, 20:21 ET)"
+    },
+    "RANK": {
+     "score": -0.152,
+     "asof": "for 2026-10-09 (published 9 Oct, 17:15 ET)"
+    }
+   },
+   "words": "middling (−0.18), 4 of eleven from the cold end; every leg below zero; breaking down — a breakdown; the fund and the average stock read alike; ranking #10 of 13."
+  },
+  {
+   "key": "DISCRET",
+   "blend": -0.011,
+   "standing": "middling",
+   "doing": "improving",
+   "label": "BOUNCE IN DOWNTREND",
+   "cap": 0.279798760628803,
+   "eq": -0.10981244826061323,
+   "bow": -0.38961120888941625,
+   "legs": {
+    "SPDR": {
+     "score": 0.23,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "HUBCMP": {
+     "score": 0.076,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "MKTBOW": {
+     "score": -0.055,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "TREE": {
+     "score": -0.16,
+     "asof": "the 2026-10-06 close (published 6 Oct, 20:21 ET)"
+    },
+    "RANK": {
+     "score": -0.146,
+     "asof": "for 2026-10-09 (published 9 Oct, 17:15 ET)"
+    }
+   },
+   "words": "middling (−0.01), 5 of eleven from the cold end; the fund legs above zero, the equal-weight legs below; improving — a bounce in a downtrend; the big names carry it; the average stock is weaker; ranking #9 of 13."
+  },
+  {
+   "key": "FINANCIALS",
+   "blend": -0.011,
+   "standing": "middling",
+   "doing": "improving",
+   "label": "BOUNCE IN DOWNTREND",
+   "cap": 0.20711968200966105,
+   "eq": -0.08773573820970695,
+   "bow": -0.294855420219368,
+   "legs": {
+    "SPDR": {
+     "score": 0.212,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "HUBCMP": {
+     "score": 0.128,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "MKTBOW": {
+     "score": -0.06,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "TREE": {
+     "score": -0.205,
+     "asof": "the 2026-10-06 close (published 6 Oct, 20:21 ET)"
+    },
+    "RANK": {
+     "score": -0.13,
+     "asof": "for 2026-10-09 (published 9 Oct, 17:15 ET)"
+    }
+   },
+   "words": "middling (−0.01), 6 of eleven from the cold end; the fund legs above zero, the equal-weight legs below; improving — a bounce in a downtrend; the big names carry it; the average stock is weaker; ranking #8 of 13."
+  },
+  {
+   "key": "UTILITIES",
+   "blend": 0.098,
+   "standing": "middling",
+   "doing": "improving",
+   "label": "BOUNCE IN DOWNTREND",
+   "cap": 0.19192816514793068,
+   "eq": 0.058681659068627455,
+   "bow": -0.13324650607930322,
+   "legs": {
+    "SPDR": {
+     "score": 0.221,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "HUBCMP": {
+     "score": 0.187,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "MKTBOW": {
+     "score": 0.106,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "TREE": {
+     "score": 0.009,
+     "asof": "the 2026-10-06 close (published 6 Oct, 20:21 ET)"
+    },
+    "RANK": {
+     "score": -0.033,
+     "asof": "for 2026-10-09 (published 9 Oct, 17:15 ET)"
+    }
+   },
+   "words": "middling (+0.10), 7 of eleven from the cold end; the fund legs above zero, the equal-weight legs above; improving — a bounce in a downtrend; the fund and the average stock read alike; ranking #4 of 13."
+  },
+  {
+   "key": "STAPLES",
+   "blend": 0.124,
+   "standing": "middling",
+   "doing": "improving",
+   "label": "BOUNCE IN DOWNTREND",
+   "cap": 0.3291868625760717,
+   "eq": 0.0510635310150376,
+   "bow": -0.27812333156103414,
+   "legs": {
+    "SPDR": {
+     "score": 0.288,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "HUBCMP": {
+     "score": 0.163,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "MKTBOW": {
+     "score": 0.185,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "TREE": {
+     "score": -0.193,
+     "asof": "the 2026-10-06 close (published 6 Oct, 20:21 ET)"
+    },
+    "RANK": {
+     "score": 0.175,
+     "asof": "for 2026-10-09 (published 9 Oct, 17:15 ET)"
+    }
+   },
+   "words": "middling (+0.12), 8 of eleven from the cold end; the fund legs above zero, the equal-weight legs above; improving — a bounce in a downtrend; the big names carry it; the average stock is weaker; ranking #2 of 13."
+  },
+  {
+   "key": "HEALTH",
+   "blend": 0.269,
+   "standing": "stretched",
+   "doing": "leading",
+   "label": "UPTREND, CONFIRMED",
+   "cap": 0.4675965288485771,
+   "eq": 0.22074918576388888,
+   "bow": -0.24684734308468823,
+   "legs": {
+    "SPDR": {
+     "score": 0.568,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "HUBCMP": {
+     "score": 0.673,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "MKTBOW": {
+     "score": 0.183,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "TREE": {
+     "score": 0.004,
+     "asof": "the 2026-10-06 close (published 6 Oct, 20:21 ET)"
+    },
+    "RANK": {
+     "score": -0.083,
+     "asof": "for 2026-10-09 (published 9 Oct, 17:15 ET)"
+    }
+   },
+   "words": "stretched (+0.27), third most stretched of the eleven; the fund legs above zero, the equal-weight legs above; leading — an uptrend, confirmed; the big names carry it; the average stock is weaker; ranking #5 of 13."
+  },
+  {
+   "key": "TECH",
+   "blend": 0.283,
+   "standing": "stretched",
+   "doing": "leading",
+   "label": "UPTREND, CONFIRMED",
+   "cap": 0.3911319190074754,
+   "eq": 0.27775744100274724,
+   "bow": -0.11337447800472816,
+   "legs": {
+    "SPDR": {
+     "score": 0.435,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "HUBCMP": {
+     "score": 0.565,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "MKTBOW": {
+     "score": 0.103,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "TREE": {
+     "score": 0.293,
+     "asof": "the 2026-10-06 close (published 6 Oct, 20:21 ET)"
+    },
+    "RANK": {
+     "score": 0.02,
+     "asof": "for 2026-10-09 (published 9 Oct, 17:15 ET)"
+    }
+   },
+   "words": "stretched (+0.28), second most stretched of the eleven; every leg above zero; leading — an uptrend, confirmed; the fund and the average stock read alike; ranking #3 of 13."
+  },
+  {
+   "key": "ENERGY",
+   "blend": 0.44,
+   "standing": "stretched",
+   "doing": "leading",
+   "label": "UPTREND, CONFIRMED",
+   "cap": 0.6764148293828688,
+   "eq": 0.3626124458333333,
+   "bow": -0.3138023835495355,
+   "legs": {
+    "SPDR": {
+     "score": 0.721,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "HUBCMP": {
+     "score": 0.692,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "MKTBOW": {
+     "score": 0.179,
+     "asof": "9 Oct, 21:37 ET"
+    },
+    "TREE": {
+     "score": 0.189,
+     "asof": "the 2026-10-06 close (published 6 Oct, 20:21 ET)"
+    },
+    "RANK": {
+     "score": 0.418,
+     "asof": "for 2026-10-09 (published 9 Oct, 17:15 ET)"
+    }
+   },
+   "words": "stretched (+0.44), the most stretched of the eleven; every leg above zero; leading — an uptrend, confirmed; the big names carry it; the average stock is weaker; ranking #1 of 13."
+  }
+ ],
+ "balance": [
+  {
+   "key": "REAL_ESTATE",
+   "rung": "OVERWEIGHT",
+   "mult": 1.5,
+   "market": 1.72,
+   "now": 3.16,
+   "reason": "washed out and improving: the cheap sector that has started to turn",
+   "toolSays": "the tool's own split funds it (sleeve 5 of 6, 4.8% of equity, parked in XLRE · RSPR beside it)"
+  },
+  {
+   "key": "COMMS",
+   "rung": "OVERWEIGHT, LIGHTER",
+   "mult": 1.25,
+   "market": 10.08,
+   "now": 15.44,
+   "reason": "washed out but breaking down: cheap, not yet turned — the parent fund first",
+   "toolSays": "the tool's own split leaves it out: breaking down"
+  },
+  {
+   "key": "DISCRET",
+   "rung": "OVERWEIGHT, LIGHTER",
+   "mult": 1.25,
+   "market": 8.66,
+   "now": 13.27,
+   "reason": "middling but improving: not cheap yet, turning up",
+   "toolSays": "the tool's own split leaves it out: growth +9% — low among the candidates"
+  },
+  {
+   "key": "FINANCIALS",
+   "rung": "OVERWEIGHT, LIGHTER",
+   "mult": 1.25,
+   "market": 11.57,
+   "now": 17.73,
+   "reason": "middling but improving: not cheap yet, turning up",
+   "toolSays": "the tool's own split leaves it out: growth +6% — low among the candidates"
+  },
+  {
+   "key": "UTILITIES",
+   "rung": "OVERWEIGHT, LIGHTER",
+   "mult": 1.25,
+   "market": 1.86,
+   "now": 2.85,
+   "reason": "middling but improving: not cheap yet, turning up",
+   "toolSays": "the tool's own split leaves it out: growth +5% — low among the candidates"
+  },
+  {
+   "key": "STAPLES",
+   "rung": "OVERWEIGHT, LIGHTER",
+   "mult": 1.25,
+   "market": 4.39,
+   "now": 6.73,
+   "reason": "middling but improving: not cheap yet, turning up",
+   "toolSays": "the tool's own split leaves it out: growth +3% — low among the candidates"
+  },
+  {
+   "key": "MATERIALS",
+   "rung": "UNDERWEIGHT, LIGHTER",
+   "mult": 0.75,
+   "market": 1.72,
+   "now": 1.58,
+   "reason": "middling and breaking down: not cheap enough to buy a breakdown",
+   "toolSays": "the tool's own split leaves it out: breaking down"
+  },
+  {
+   "key": "INDUSTRIAL",
+   "rung": "UNDERWEIGHT, LIGHTER",
+   "mult": 0.75,
+   "market": 8.09,
+   "now": 7.44,
+   "reason": "middling and breaking down: not cheap enough to buy a breakdown",
+   "toolSays": "the tool's own split leaves it out: breaking down"
+  },
+  {
+   "key": "HEALTH",
+   "rung": "UNDERWEIGHT",
+   "mult": 0.5,
+   "market": 9.28,
+   "now": 5.69,
+   "reason": "stretched and leading: the dear end of the eleven",
+   "toolSays": "the tool's own split leaves it out: not washed out: +0.27"
+  },
+  {
+   "key": "TECH",
+   "rung": "UNDERWEIGHT",
+   "mult": 0.5,
+   "market": 39.2,
+   "now": 24.02,
+   "reason": "stretched and leading: the dear end of the eleven",
+   "toolSays": "the tool's own split leaves it out: not washed out: +0.28"
+  },
+  {
+   "key": "ENERGY",
+   "rung": "UNDERWEIGHT",
+   "mult": 0.5,
+   "market": 3.43,
+   "now": 2.1,
+   "reason": "stretched and leading: the dear end of the eleven",
+   "toolSays": "the tool's own split leaves it out: growth +1% — low among the candidates"
+  }
+ ],
+ "rankingStale": true,
+ "times": {
+  "fundGeigers": "2026-10-10T01:37:48.876Z",
+  "servedSetBowTie": "2026-10-10T01:37:48.876Z",
+  "treeCloseTier": "2026-10-07T00:21:01.759Z",
+  "treeAsOf": "2026-10-06",
+  "sectorRanking": "2026-10-09T21:15:00.84032+00:00",
+  "sectorRankingDate": "2026-10-09"
+ },
+ "readout": [
+  {
+   "sector": "REAL_ESTATE",
+   "name": "Real estate",
+   "rung": "OVERWEIGHT",
+   "now": 3.16,
+   "market": 1.72,
+   "parent": "XLRE",
+   "twin": "RSPR",
+   "subFunds": [
+    "DC_PROPERTY:VNQ/XLRE",
+    "REITS:REZ/VNQ/XLRE",
+    "TOWERS:XLRE"
+   ],
+   "ranked": [
+    {
+     "rank": 1,
+     "T": "SPG",
+     "price": 199.65,
+     "tight": {
+      "centre": 342.59,
+      "up": 71.6
+     },
+     "broad": {
+      "centre": 342.59,
+      "up": 71.6,
+      "same": true
+     },
+     "growth": 5.5,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 2,
+     "T": "VICI",
+     "price": 22.95,
+     "tight": {
+      "centre": 37.54,
+      "up": 63.6
+     },
+     "broad": {
+      "centre": 37.54,
+      "up": 63.6,
+      "same": true
+     },
+     "growth": 3,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 3,
+     "T": "IRM",
+     "price": 115,
+     "tight": {
+      "centre": 149.97,
+      "up": 30.4
+     },
+     "broad": {
+      "centre": 85.29,
+      "up": -25.8,
+      "same": false
+     },
+     "growth": -2.2,
+     "fragile": false,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 4,
+     "T": "SBAC",
+     "price": 182.65,
+     "tight": {
+      "centre": 216.82,
+      "up": 18.7
+     },
+     "broad": {
+      "centre": 216.82,
+      "up": 18.7,
+      "same": true
+     },
+     "growth": -1.1,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 5,
+     "T": "CBRE",
+     "price": 130.8,
+     "tight": {
+      "centre": 155.19,
+      "up": 18.6
+     },
+     "broad": {
+      "centre": 155.19,
+      "up": 18.6,
+      "same": true
+     },
+     "growth": 20.2,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 6,
+     "T": "EXR",
+     "price": 134.65,
+     "tight": {
+      "centre": 154.76,
+      "up": 14.9
+     },
+     "broad": {
+      "centre": 154.76,
+      "up": 14.9,
+      "same": true
+     },
+     "growth": 10.5,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 7,
+     "T": "DLR",
+     "price": 179.47,
+     "tight": {
+      "centre": 205.25,
+      "up": 14.4
+     },
+     "broad": {
+      "centre": 134.35,
+      "up": -25.1,
+      "same": false
+     },
+     "growth": 25.8,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 8,
+     "T": "AMT",
+     "price": 182.24,
+     "tight": {
+      "centre": 203.45,
+      "up": 11.6
+     },
+     "broad": {
+      "centre": 203.45,
+      "up": 11.6,
+      "same": true
+     },
+     "growth": 5,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 9,
+     "T": "O",
+     "price": 54.255,
+     "tight": {
+      "centre": 60.12,
+      "up": 10.8
+     },
+     "broad": {
+      "centre": 60.12,
+      "up": 10.8,
+      "same": true
+     },
+     "growth": -6.3,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 10,
+     "T": "PLD",
+     "price": 129.49,
+     "tight": {
+      "centre": 121.82,
+      "up": -5.9
+     },
+     "broad": {
+      "centre": 121.82,
+      "up": -5.9,
+      "same": true
+     },
+     "growth": 26.7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 11,
+     "T": "PSA",
+     "price": 289.57,
+     "tight": {
+      "centre": 239.74,
+      "up": -17.2
+     },
+     "broad": {
+      "centre": 239.74,
+      "up": -17.2,
+      "same": true
+     },
+     "growth": 17.7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 12,
+     "T": "EQIX",
+     "price": 1026.06,
+     "tight": {
+      "centre": 824.59,
+      "up": -19.6
+     },
+     "broad": {
+      "centre": 721.14,
+      "up": -29.7,
+      "same": false
+     },
+     "growth": 13.5,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 13,
+     "T": "CCI",
+     "price": 79.7108,
+     "tight": {
+      "centre": 61.57,
+      "up": -22.8
+     },
+     "broad": {
+      "centre": 61.57,
+      "up": -22.8,
+      "same": true
+     },
+     "growth": -4.6,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 14,
+     "T": "VTR",
+     "price": 82.04,
+     "tight": {
+      "centre": 59.04,
+      "up": -28
+     },
+     "broad": {
+      "centre": 59.04,
+      "up": -28,
+      "same": true
+     },
+     "growth": 57.1,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 15,
+     "T": "WELL",
+     "price": 225.47,
+     "tight": {
+      "centre": 75.09,
+      "up": -66.7
+     },
+     "broad": {
+      "centre": 75.09,
+      "up": -66.7,
+      "same": true
+     },
+     "growth": 32.3,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    }
+   ],
+   "unranked": [],
+   "outside": [
+    "GDS",
+    "RHP"
+   ]
+  },
+  {
+   "sector": "COMMS",
+   "name": "Communications",
+   "rung": "OVERWEIGHT, LIGHTER",
+   "now": 15.44,
+   "market": 10.08,
+   "parent": "XLC",
+   "twin": "RSPC",
+   "subFunds": [
+    "MEDIA_TELECOM:VOX/XLC"
+   ],
+   "ranked": [
+    {
+     "rank": 1,
+     "T": "CHTR",
+     "price": 103.79,
+     "tight": {
+      "centre": 368.26,
+      "up": 254.8
+     },
+     "broad": {
+      "centre": 368.26,
+      "up": 254.8,
+      "same": true
+     },
+     "growth": null,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 2,
+     "T": "APP",
+     "price": 276.61,
+     "tight": {
+      "centre": 570.26,
+      "up": 106.2
+     },
+     "broad": {
+      "centre": 570.26,
+      "up": 106.2,
+      "same": true
+     },
+     "growth": 35.9,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 3,
+     "T": "CMCSA",
+     "price": 20.63,
+     "tight": {
+      "centre": 39.59,
+      "up": 91.9
+     },
+     "broad": {
+      "centre": 39.59,
+      "up": 91.9,
+      "same": true
+     },
+     "growth": 17.2,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 4,
+     "T": "OMC",
+     "price": 76.48,
+     "tight": {
+      "centre": 142.89,
+      "up": 86.8
+     },
+     "broad": {
+      "centre": 164.54,
+      "up": 115.1,
+      "same": false
+     },
+     "growth": 8,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 5,
+     "T": "BIDU",
+     "price": 85.3611,
+     "tight": {
+      "centre": 141.56,
+      "up": 65.8
+     },
+     "broad": {
+      "centre": 135.29,
+      "up": 58.5,
+      "same": false
+     },
+     "growth": 23.7,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 6,
+     "T": "FOXA",
+     "price": 62.41,
+     "tight": {
+      "centre": 84.99,
+      "up": 36.2
+     },
+     "broad": {
+      "centre": 84.99,
+      "up": 36.2,
+      "same": true
+     },
+     "growth": 6.8,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 7,
+     "T": "DIS",
+     "price": 108.2,
+     "tight": {
+      "centre": 144.42,
+      "up": 33.5
+     },
+     "broad": {
+      "centre": 144.42,
+      "up": 33.5,
+      "same": true
+     },
+     "growth": 12.6,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 8,
+     "T": "NFLX",
+     "price": 70.316,
+     "tight": {
+      "centre": 87.52,
+      "up": 24.5
+     },
+     "broad": {
+      "centre": 87.52,
+      "up": 24.5,
+      "same": true
+     },
+     "growth": 19.7,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 9,
+     "T": "T",
+     "price": 22.2387,
+     "tight": {
+      "centre": 25.62,
+      "up": 15.2
+     },
+     "broad": {
+      "centre": 25.62,
+      "up": 15.2,
+      "same": true
+     },
+     "growth": 11.7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 10,
+     "T": "GOOG",
+     "price": 347.9,
+     "tight": {
+      "centre": 351.6,
+      "up": 1.1
+     },
+     "broad": {
+      "centre": 348.35,
+      "up": 0.1,
+      "same": false
+     },
+     "growth": 15.3,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 11,
+     "T": "META",
+     "price": 717.8,
+     "tight": {
+      "centre": 693.39,
+      "up": -3.4
+     },
+     "broad": {
+      "centre": 614.98,
+      "up": -14.3,
+      "same": false
+     },
+     "growth": 11.4,
+     "fragile": false,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 12,
+     "T": "GOOGL",
+     "price": 351.61,
+     "tight": {
+      "centre": 334.02,
+      "up": -5
+     },
+     "broad": {
+      "centre": 344.08,
+      "up": -2.1,
+      "same": false
+     },
+     "growth": 15.3,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 13,
+     "T": "SPOT",
+     "price": 529,
+     "tight": {
+      "centre": 452.47,
+      "up": -14.5
+     },
+     "broad": {
+      "centre": 452.47,
+      "up": -14.5,
+      "same": true
+     },
+     "growth": 31.1,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 14,
+     "T": "WBD",
+     "price": 30.975,
+     "tight": {
+      "centre": 26.13,
+      "up": -15.7
+     },
+     "broad": {
+      "centre": 54.84,
+      "up": 77.1,
+      "same": false
+     },
+     "growth": null,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 15,
+     "T": "VZ",
+     "price": 41.8299,
+     "tight": {
+      "centre": 25.76,
+      "up": -38.4
+     },
+     "broad": {
+      "centre": 25.76,
+      "up": -38.4,
+      "same": true
+     },
+     "growth": 0.1,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 16,
+     "T": "TMUS",
+     "price": 148.7454,
+     "tight": {
+      "centre": 77.88,
+      "up": -47.6
+     },
+     "broad": {
+      "centre": 77.88,
+      "up": -47.6,
+      "same": true
+     },
+     "growth": 16.2,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    }
+   ],
+   "unranked": [
+    {
+     "T": "ASTS",
+     "why": "withheld",
+     "preProfit": {
+      "score": 0.493,
+      "rank": 26
+     }
+    }
+   ],
+   "outside": []
+  },
+  {
+   "sector": "DISCRET",
+   "name": "Consumer discretionary",
+   "rung": "OVERWEIGHT, LIGHTER",
+   "now": 13.27,
+   "market": 8.66,
+   "parent": "XLY",
+   "twin": "RSPD",
+   "subFunds": [
+    "AUTOS_EV:VCR/XLY",
+    "RESTAURANTS:XLY",
+    "RETAIL:XLY/XRT",
+    "TRAVEL_LEISURE:PEJ",
+    "HOUSING:ITB/XHB"
+   ],
+   "ranked": [
+    {
+     "rank": 1,
+     "T": "GM",
+     "price": 82.79,
+     "tight": {
+      "centre": 316.41,
+      "up": 282.2
+     },
+     "broad": {
+      "centre": 312.07,
+      "up": 276.9,
+      "same": false
+     },
+     "growth": 15.7,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 2,
+     "T": "PDD",
+     "price": 81.24,
+     "tight": {
+      "centre": 256.99,
+      "up": 216.3
+     },
+     "broad": {
+      "centre": 233.19,
+      "up": 187,
+      "same": false
+     },
+     "growth": 15,
+     "fragile": false,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 3,
+     "T": "NIO",
+     "price": 3.5891,
+     "tight": {
+      "centre": 7.37,
+      "up": 105.3
+     },
+     "broad": {
+      "centre": 7.38,
+      "up": 105.5,
+      "same": false
+     },
+     "growth": null,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 4,
+     "T": "F",
+     "price": 12.17,
+     "tight": {
+      "centre": 23.8,
+      "up": 95.6
+     },
+     "broad": {
+      "centre": 24.15,
+      "up": 98.4,
+      "same": false
+     },
+     "growth": 5.8,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 5,
+     "T": "DKNG",
+     "price": 19.5944,
+     "tight": {
+      "centre": 37.35,
+      "up": 90.6
+     },
+     "broad": {
+      "centre": 37.35,
+      "up": 90.6,
+      "same": true
+     },
+     "growth": 78.6,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 6,
+     "T": "TGT",
+     "price": 154.25,
+     "tight": {
+      "centre": 232.14,
+      "up": 50.5
+     },
+     "broad": {
+      "centre": 232.14,
+      "up": 50.5,
+      "same": true
+     },
+     "growth": 7.8,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 7,
+     "T": "LOW",
+     "price": 186.17,
+     "tight": {
+      "centre": 280.09,
+      "up": 50.4
+     },
+     "broad": {
+      "centre": 280.09,
+      "up": 50.4,
+      "same": true
+     },
+     "growth": 8.9,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 8,
+     "T": "RCL",
+     "price": 282.3,
+     "tight": {
+      "centre": 420.27,
+      "up": 48.9
+     },
+     "broad": {
+      "centre": 420.27,
+      "up": 48.9,
+      "same": true
+     },
+     "growth": 23.1,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 9,
+     "T": "BKNG",
+     "price": 160.73,
+     "tight": {
+      "centre": 227.39,
+      "up": 41.5
+     },
+     "broad": {
+      "centre": 227.39,
+      "up": 41.5,
+      "same": true
+     },
+     "growth": 18.1,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 10,
+     "T": "KR",
+     "price": 61.34,
+     "tight": {
+      "centre": 86.57,
+      "up": 41.1
+     },
+     "broad": {
+      "centre": 86.57,
+      "up": 41.1,
+      "same": true
+     },
+     "growth": 7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 11,
+     "T": "LI",
+     "price": 11.556,
+     "tight": {
+      "centre": 16.21,
+      "up": 40.3
+     },
+     "broad": {
+      "centre": 16.24,
+      "up": 40.5,
+      "same": false
+     },
+     "growth": 39.9,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 12,
+     "T": "DIS",
+     "price": 108.2,
+     "tight": {
+      "centre": 144.42,
+      "up": 33.5
+     },
+     "broad": {
+      "centre": 144.42,
+      "up": 33.5,
+      "same": true
+     },
+     "growth": 12.6,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 13,
+     "T": "AMZN",
+     "price": 262.5285,
+     "tight": {
+      "centre": 325.86,
+      "up": 24.1
+     },
+     "broad": {
+      "centre": 324.38,
+      "up": 23.6,
+      "same": false
+     },
+     "growth": 32.8,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 14,
+     "T": "DPZ",
+     "price": 309,
+     "tight": {
+      "centre": 360.62,
+      "up": 16.7
+     },
+     "broad": {
+      "centre": 360.62,
+      "up": 16.7,
+      "same": true
+     },
+     "growth": 7.4,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 15,
+     "T": "LCID",
+     "price": 3.8092,
+     "tight": {
+      "centre": 4.43,
+      "up": 16.3
+     },
+     "broad": {
+      "centre": 4.49,
+      "up": 17.8,
+      "same": false
+     },
+     "growth": null,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": {
+      "score": 0.445,
+      "rank": 32
+     }
+    },
+    {
+     "rank": 16,
+     "T": "NKE",
+     "price": 34.92,
+     "tight": {
+      "centre": 37.44,
+      "up": 7.2
+     },
+     "broad": {
+      "centre": 37.44,
+      "up": 7.2,
+      "same": true
+     },
+     "growth": 27.1,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 17,
+     "T": "HD",
+     "price": 291.0462,
+     "tight": {
+      "centre": 294.22,
+      "up": 1.1
+     },
+     "broad": {
+      "centre": 294.22,
+      "up": 1.1,
+      "same": true
+     },
+     "growth": 9,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 18,
+     "T": "MCD",
+     "price": 235.8808,
+     "tight": {
+      "centre": 210.14,
+      "up": -10.9
+     },
+     "broad": {
+      "centre": 210.14,
+      "up": -10.9,
+      "same": true
+     },
+     "growth": 6,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 19,
+     "T": "ORLY",
+     "price": 85.55,
+     "tight": {
+      "centre": 73.84,
+      "up": -13.7
+     },
+     "broad": {
+      "centre": 73.84,
+      "up": -13.7,
+      "same": true
+     },
+     "growth": 10.9,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 20,
+     "T": "BABA",
+     "price": 111.1779,
+     "tight": {
+      "centre": 92.98,
+      "up": -16.4
+     },
+     "broad": {
+      "centre": 202.64,
+      "up": 82.3,
+      "same": false
+     },
+     "growth": 19.5,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 21,
+     "T": "TJX",
+     "price": 139.09,
+     "tight": {
+      "centre": 107.13,
+      "up": -23
+     },
+     "broad": {
+      "centre": 107.13,
+      "up": -23,
+      "same": true
+     },
+     "growth": 12,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 22,
+     "T": "ROST",
+     "price": 223.09,
+     "tight": {
+      "centre": 165.69,
+      "up": -25.7
+     },
+     "broad": {
+      "centre": 165.69,
+      "up": -25.7,
+      "same": true
+     },
+     "growth": 9.3,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 23,
+     "T": "WMT",
+     "price": 111.33,
+     "tight": {
+      "centre": 71.46,
+      "up": -35.8
+     },
+     "broad": {
+      "centre": 71.46,
+      "up": -35.8,
+      "same": true
+     },
+     "growth": 14.1,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 24,
+     "T": "SBUX",
+     "price": 91.05,
+     "tight": {
+      "centre": 55.61,
+      "up": -38.9
+     },
+     "broad": {
+      "centre": 55.61,
+      "up": -38.9,
+      "same": true
+     },
+     "growth": 19.4,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 25,
+     "T": "ABNB",
+     "price": 166.2,
+     "tight": {
+      "centre": 94.25,
+      "up": -43.3
+     },
+     "broad": {
+      "centre": 94.25,
+      "up": -43.3,
+      "same": true
+     },
+     "growth": 14,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 26,
+     "T": "MAR",
+     "price": 366.26,
+     "tight": {
+      "centre": 205.67,
+      "up": -43.8
+     },
+     "broad": {
+      "centre": 205.67,
+      "up": -43.8,
+      "same": true
+     },
+     "growth": 12.4,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 27,
+     "T": "LYV",
+     "price": 170,
+     "tight": {
+      "centre": 78.75,
+      "up": -53.7
+     },
+     "broad": {
+      "centre": 99.85,
+      "up": -41.3,
+      "same": false
+     },
+     "growth": 78.7,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 28,
+     "T": "COST",
+     "price": 945.68,
+     "tight": {
+      "centre": 437.01,
+      "up": -53.8
+     },
+     "broad": {
+      "centre": 437.01,
+      "up": -53.8,
+      "same": true
+     },
+     "growth": 9,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 29,
+     "T": "HLT",
+     "price": 326.7,
+     "tight": {
+      "centre": 148.42,
+      "up": -54.6
+     },
+     "broad": {
+      "centre": 148.42,
+      "up": -54.6,
+      "same": true
+     },
+     "growth": 15.1,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 30,
+     "T": "DASH",
+     "price": 196.06,
+     "tight": {
+      "centre": 88.44,
+      "up": -54.9
+     },
+     "broad": {
+      "centre": 88.44,
+      "up": -54.9,
+      "same": true
+     },
+     "growth": 42.2,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 31,
+     "T": "MELI",
+     "price": 1897.86,
+     "tight": {
+      "centre": 814.98,
+      "up": -57.1
+     },
+     "broad": {
+      "centre": 1137.79,
+      "up": -40,
+      "same": false
+     },
+     "growth": 33.2,
+     "fragile": false,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 32,
+     "T": "TSLA",
+     "price": 382.73,
+     "tight": {
+      "centre": 67.17,
+      "up": -82.4
+     },
+     "broad": {
+      "centre": 68.68,
+      "up": -82.1,
+      "same": false
+     },
+     "growth": 52.6,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": null
+    }
+   ],
+   "unranked": [
+    {
+     "T": "JD",
+     "why": "withheld",
+     "preProfit": null
+    },
+    {
+     "T": "QS",
+     "why": "no sound yardstick",
+     "preProfit": {
+      "score": 0.617,
+      "rank": null
+     }
+    }
+   ],
+   "outside": [
+    "RIVN",
+    "XPEV",
+    "EAT",
+    "DHI"
+   ]
+  },
+  {
+   "sector": "FINANCIALS",
+   "name": "Financials",
+   "rung": "OVERWEIGHT, LIGHTER",
+   "now": 17.73,
+   "market": 11.57,
+   "parent": "XLF",
+   "twin": "RSPF",
+   "subFunds": [
+    "ASSET_MANAGERS:XLF",
+    "BIG_BANKS_BROKERS:IYG/KBE/XLF",
+    "EXCHANGES_DATA:IAI",
+    "INSURANCE:IAK/KIE",
+    "PAYMENTS_FINTECH:FINX/IPAY",
+    "REGIONAL_BANKS:IAT/KRE"
+   ],
+   "ranked": [
+    {
+     "rank": 1,
+     "T": "COF",
+     "price": 199.26,
+     "tight": {
+      "centre": 338.36,
+      "up": 69.8
+     },
+     "broad": {
+      "centre": 338.36,
+      "up": 69.8,
+      "same": true
+     },
+     "growth": 17,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 2,
+     "T": "C",
+     "price": 129.75,
+     "tight": {
+      "centre": 172.18,
+      "up": 32.7
+     },
+     "broad": {
+      "centre": 172.18,
+      "up": 32.7,
+      "same": true
+     },
+     "growth": 16.8,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 3,
+     "T": "TRV",
+     "price": 368.75,
+     "tight": {
+      "centre": 477.13,
+      "up": 29.4
+     },
+     "broad": {
+      "centre": 477.13,
+      "up": 29.4,
+      "same": true
+     },
+     "growth": 2.6,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 4,
+     "T": "CB",
+     "price": 341.21,
+     "tight": {
+      "centre": 405.21,
+      "up": 18.8
+     },
+     "broad": {
+      "centre": 405.21,
+      "up": 18.8,
+      "same": true
+     },
+     "growth": 7.7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 5,
+     "T": "WFC",
+     "price": 83.7066,
+     "tight": {
+      "centre": 97.25,
+      "up": 16.2
+     },
+     "broad": {
+      "centre": 97.25,
+      "up": 16.2,
+      "same": true
+     },
+     "growth": 16.7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 6,
+     "T": "AON",
+     "price": 276.678,
+     "tight": {
+      "centre": 312.86,
+      "up": 13.1
+     },
+     "broad": {
+      "centre": 312.86,
+      "up": 13.1,
+      "same": true
+     },
+     "growth": 16.5,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 7,
+     "T": "USB",
+     "price": 57.13,
+     "tight": {
+      "centre": 62.03,
+      "up": 8.6
+     },
+     "broad": {
+      "centre": 62.03,
+      "up": 8.6,
+      "same": true
+     },
+     "growth": 8.1,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 8,
+     "T": "BAC",
+     "price": 54.43,
+     "tight": {
+      "centre": 57.13,
+      "up": 5
+     },
+     "broad": {
+      "centre": 54.17,
+      "up": -0.5,
+      "same": false
+     },
+     "growth": 12.8,
+     "fragile": false,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 9,
+     "T": "PNC",
+     "price": 219.9,
+     "tight": {
+      "centre": 223.19,
+      "up": 1.5
+     },
+     "broad": {
+      "centre": 227.47,
+      "up": 3.4,
+      "same": false
+     },
+     "growth": 9.8,
+     "fragile": false,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 10,
+     "T": "ICE",
+     "price": 156.19,
+     "tight": {
+      "centre": 149.57,
+      "up": -4.2
+     },
+     "broad": {
+      "centre": 149.57,
+      "up": -4.2,
+      "same": true
+     },
+     "growth": 13.3,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 11,
+     "T": "BNY",
+     "price": 143.45,
+     "tight": {
+      "centre": 130.59,
+      "up": -9
+     },
+     "broad": {
+      "centre": 130.59,
+      "up": -9,
+      "same": true
+     },
+     "growth": 11.1,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 12,
+     "T": "GS",
+     "price": 897.02,
+     "tight": {
+      "centre": 788.08,
+      "up": -12.1
+     },
+     "broad": {
+      "centre": 777.33,
+      "up": -13.3,
+      "same": false
+     },
+     "growth": 10.6,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 13,
+     "T": "KKR",
+     "price": 90.5077,
+     "tight": {
+      "centre": 78.7,
+      "up": -13
+     },
+     "broad": {
+      "centre": 78.28,
+      "up": -13.5,
+      "same": false
+     },
+     "growth": 17.4,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 14,
+     "T": "SCHW",
+     "price": 96.85,
+     "tight": {
+      "centre": 83.09,
+      "up": -14.2
+     },
+     "broad": {
+      "centre": 83.23,
+      "up": -14.1,
+      "same": false
+     },
+     "growth": 17,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 15,
+     "T": "JPM",
+     "price": 333.6,
+     "tight": {
+      "centre": 265.06,
+      "up": -20.5
+     },
+     "broad": {
+      "centre": 266.25,
+      "up": -20.2,
+      "same": false
+     },
+     "growth": 5.9,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 16,
+     "T": "BX",
+     "price": 114.4155,
+     "tight": {
+      "centre": 90.55,
+      "up": -20.9
+     },
+     "broad": {
+      "centre": 90.55,
+      "up": -20.9,
+      "same": true
+     },
+     "growth": 19.6,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 17,
+     "T": "SPGI",
+     "price": 407.5,
+     "tight": {
+      "centre": 312.8,
+      "up": -23.2
+     },
+     "broad": {
+      "centre": 312.8,
+      "up": -23.2,
+      "same": true
+     },
+     "growth": 12.5,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 18,
+     "T": "MS",
+     "price": 190.6896,
+     "tight": {
+      "centre": 144.99,
+      "up": -24
+     },
+     "broad": {
+      "centre": 143.92,
+      "up": -24.5,
+      "same": false
+     },
+     "growth": 5,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 19,
+     "T": "MRSH",
+     "price": 175.76,
+     "tight": {
+      "centre": 131.73,
+      "up": -25.1
+     },
+     "broad": {
+      "centre": 131.73,
+      "up": -25.1,
+      "same": true
+     },
+     "growth": 10.2,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 20,
+     "T": "CME",
+     "price": 280.57,
+     "tight": {
+      "centre": 204.61,
+      "up": -27.1
+     },
+     "broad": {
+      "centre": 204.61,
+      "up": -27.1,
+      "same": true
+     },
+     "growth": 9.6,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 21,
+     "T": "BLK",
+     "price": 1084.45,
+     "tight": {
+      "centre": 785.86,
+      "up": -27.5
+     },
+     "broad": {
+      "centre": 785.86,
+      "up": -27.5,
+      "same": true
+     },
+     "growth": 11.9,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 22,
+     "T": "AFRM",
+     "price": 80.88,
+     "tight": {
+      "centre": 57.8,
+      "up": -28.5
+     },
+     "broad": {
+      "centre": 85.91,
+      "up": 6.2,
+      "same": false
+     },
+     "growth": 39.7,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": null
+    },
+    {
+     "rank": 23,
+     "T": "BRK-B",
+     "price": 515.36,
+     "tight": {
+      "centre": 354.83,
+      "up": -31.1
+     },
+     "broad": {
+      "centre": 354.83,
+      "up": -31.1,
+      "same": true
+     },
+     "growth": 3.7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 24,
+     "T": "AXP",
+     "price": 308.4835,
+     "tight": {
+      "centre": 207.84,
+      "up": -32.6
+     },
+     "broad": {
+      "centre": 207.84,
+      "up": -32.6,
+      "same": true
+     },
+     "growth": 14.9,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 25,
+     "T": "MCO",
+     "price": 463.17,
+     "tight": {
+      "centre": 293.52,
+      "up": -36.6
+     },
+     "broad": {
+      "centre": 293.52,
+      "up": -36.6,
+      "same": true
+     },
+     "growth": 11.8,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 26,
+     "T": "MA",
+     "price": 589.73,
+     "tight": {
+      "centre": 333.54,
+      "up": -43.4
+     },
+     "broad": {
+      "centre": 403.99,
+      "up": -31.5,
+      "same": false
+     },
+     "growth": 16,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 27,
+     "T": "SOFI",
+     "price": 15.7401,
+     "tight": {
+      "centre": 8.36,
+      "up": -46.9
+     },
+     "broad": {
+      "centre": 9.92,
+      "up": -37,
+      "same": false
+     },
+     "growth": 24.7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 28,
+     "T": "V",
+     "price": 385.41,
+     "tight": {
+      "centre": 178.92,
+      "up": -53.6
+     },
+     "broad": {
+      "centre": 257.69,
+      "up": -33.1,
+      "same": false
+     },
+     "growth": 12.7,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 29,
+     "T": "HOOD",
+     "price": 109.08,
+     "tight": {
+      "centre": 39.44,
+      "up": -63.8
+     },
+     "broad": {
+      "centre": 39.44,
+      "up": -63.8,
+      "same": true
+     },
+     "growth": 19,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 30,
+     "T": "CIFR",
+     "price": 13.5254,
+     "tight": {
+      "centre": 3.89,
+      "up": -71.2
+     },
+     "broad": {
+      "centre": 3.89,
+      "up": -71.2,
+      "same": true
+     },
+     "growth": null,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": {
+      "score": 0.479,
+      "rank": 29
+     }
+    }
+   ],
+   "unranked": [
+    {
+     "T": "COIN",
+     "why": "not read",
+     "preProfit": null
+    },
+    {
+     "T": "PGR",
+     "why": "withheld",
+     "preProfit": null
+    }
+   ],
+   "outside": [
+    "FIS",
+    "GPN",
+    "NU",
+    "PAYC",
+    "PYPL",
+    "SYF",
+    "TOST",
+    "XYZ",
+    "CATY",
+    "CVBF",
+    "FULT",
+    "HWC",
+    "SFNC",
+    "TRMK",
+    "UMBF"
+   ]
+  },
+  {
+   "sector": "UTILITIES",
+   "name": "Utilities",
+   "rung": "OVERWEIGHT, LIGHTER",
+   "now": 2.85,
+   "market": 1.86,
+   "parent": "XLU",
+   "twin": "RSPU",
+   "subFunds": [
+    "AI_POWERTRAIN:URA/VPU/XLU",
+    "REGULATED_UTILITIES:IDU/VPU/XLU",
+    "POWER_GENERATORS:XLU",
+    "NUCLEAR_URANIUM:URA"
+   ],
+   "ranked": [
+    {
+     "rank": 1,
+     "T": "PCG",
+     "price": 13.0246,
+     "tight": {
+      "centre": 27.52,
+      "up": 111.3
+     },
+     "broad": {
+      "centre": 27.52,
+      "up": 111.3,
+      "same": true
+     },
+     "growth": 9.5,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 2,
+     "T": "EXC",
+     "price": 41.3,
+     "tight": {
+      "centre": 57.54,
+      "up": 39.3
+     },
+     "broad": {
+      "centre": 57.54,
+      "up": 39.3,
+      "same": true
+     },
+     "growth": 6,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 3,
+     "T": "ES",
+     "price": 66.71,
+     "tight": {
+      "centre": 88.29,
+      "up": 32.3
+     },
+     "broad": {
+      "centre": 88.29,
+      "up": 32.3,
+      "same": true
+     },
+     "growth": 8.1,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 4,
+     "T": "DTE",
+     "price": 127.99,
+     "tight": {
+      "centre": 149.13,
+      "up": 16.5
+     },
+     "broad": {
+      "centre": 149.13,
+      "up": 16.5,
+      "same": true
+     },
+     "growth": 11.3,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 5,
+     "T": "VST",
+     "price": 161,
+     "tight": {
+      "centre": 186.13,
+      "up": 15.6
+     },
+     "broad": {
+      "centre": 187.12,
+      "up": 16.2,
+      "same": false
+     },
+     "growth": 19.9,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 6,
+     "T": "ED",
+     "price": 106,
+     "tight": {
+      "centre": 122.33,
+      "up": 15.4
+     },
+     "broad": {
+      "centre": 122.33,
+      "up": 15.4,
+      "same": true
+     },
+     "growth": 7.7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 7,
+     "T": "DUK",
+     "price": 116.98,
+     "tight": {
+      "centre": 130.86,
+      "up": 11.9
+     },
+     "broad": {
+      "centre": 130.86,
+      "up": 11.9,
+      "same": true
+     },
+     "growth": 6.7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 8,
+     "T": "XEL",
+     "price": 73.775,
+     "tight": {
+      "centre": 78.28,
+      "up": 6.1
+     },
+     "broad": {
+      "centre": 78.28,
+      "up": 6.1,
+      "same": true
+     },
+     "growth": 15.6,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 9,
+     "T": "SO",
+     "price": 86.154,
+     "tight": {
+      "centre": 86.41,
+      "up": 0.3
+     },
+     "broad": {
+      "centre": 86.41,
+      "up": 0.3,
+      "same": true
+     },
+     "growth": 11.9,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 10,
+     "T": "AEE",
+     "price": 102.4,
+     "tight": {
+      "centre": 101.59,
+      "up": -0.8
+     },
+     "broad": {
+      "centre": 101.59,
+      "up": -0.8,
+      "same": true
+     },
+     "growth": 10.3,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 11,
+     "T": "AEP",
+     "price": 123,
+     "tight": {
+      "centre": 121.7,
+      "up": -1.1
+     },
+     "broad": {
+      "centre": 121.7,
+      "up": -1.1,
+      "same": true
+     },
+     "growth": 10.9,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 12,
+     "T": "D",
+     "price": 61.69,
+     "tight": {
+      "centre": 59.54,
+      "up": -3.5
+     },
+     "broad": {
+      "centre": 59.54,
+      "up": -3.5,
+      "same": true
+     },
+     "growth": -2.2,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 13,
+     "T": "PEG",
+     "price": 72.38,
+     "tight": {
+      "centre": 69.37,
+      "up": -4.2
+     },
+     "broad": {
+      "centre": 69.37,
+      "up": -4.2,
+      "same": true
+     },
+     "growth": 5.6,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 14,
+     "T": "WEC",
+     "price": 103.74,
+     "tight": {
+      "centre": 99.32,
+      "up": -4.3
+     },
+     "broad": {
+      "centre": 99.32,
+      "up": -4.3,
+      "same": true
+     },
+     "growth": 20.1,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 15,
+     "T": "SRE",
+     "price": 81.36,
+     "tight": {
+      "centre": 75.78,
+      "up": -6.9
+     },
+     "broad": {
+      "centre": 75.78,
+      "up": -6.9,
+      "same": true
+     },
+     "growth": 10.5,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 16,
+     "T": "ATO",
+     "price": 161.66,
+     "tight": {
+      "centre": 140.62,
+      "up": -13
+     },
+     "broad": {
+      "centre": 140.62,
+      "up": -13,
+      "same": true
+     },
+     "growth": 7.6,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 17,
+     "T": "NEE",
+     "price": 77.41,
+     "tight": {
+      "centre": 65.58,
+      "up": -15.3
+     },
+     "broad": {
+      "centre": 65.58,
+      "up": -15.3,
+      "same": true
+     },
+     "growth": 13.6,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 18,
+     "T": "CEG",
+     "price": 298.2113,
+     "tight": {
+      "centre": 246.92,
+      "up": -17.2
+     },
+     "broad": {
+      "centre": 291.25,
+      "up": -2.3,
+      "same": false
+     },
+     "growth": 26.7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 19,
+     "T": "ETR",
+     "price": 102.4,
+     "tight": {
+      "centre": 83.45,
+      "up": -18.5
+     },
+     "broad": {
+      "centre": 83.45,
+      "up": -18.5,
+      "same": true
+     },
+     "growth": 18.1,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 20,
+     "T": "EOSE",
+     "price": 2.5299,
+     "tight": {
+      "centre": 1.8,
+      "up": -28.8
+     },
+     "broad": {
+      "centre": 1.97,
+      "up": -22.2,
+      "same": false
+     },
+     "growth": null,
+     "fragile": true,
+     "wfragile": true,
+     "preProfit": {
+      "score": 0.489,
+      "rank": 28
+     }
+    },
+    {
+     "rank": 21,
+     "T": "GEV",
+     "price": 1003.09,
+     "tight": {
+      "centre": 670.25,
+      "up": -33.2
+     },
+     "broad": {
+      "centre": 756.76,
+      "up": -24.6,
+      "same": false
+     },
+     "growth": 30.8,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 22,
+     "T": "OKLO",
+     "price": 34.68,
+     "tight": {
+      "centre": 6.23,
+      "up": -82
+     },
+     "broad": null,
+     "growth": null,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": {
+      "score": 0.537,
+      "rank": 14
+     }
+    }
+   ],
+   "unranked": [
+    {
+     "T": "BE",
+     "why": "withheld",
+     "preProfit": {
+      "score": 0.524,
+      "rank": null
+     }
+    },
+    {
+     "T": "SMR",
+     "why": "withheld",
+     "preProfit": {
+      "score": 0.511,
+      "rank": 23
+     }
+    },
+    {
+     "T": "CCJ",
+     "why": "withheld",
+     "preProfit": null
+    }
+   ],
+   "outside": [
+    "LEU",
+    "NRG",
+    "TLN",
+    "UUUU",
+    "CNP",
+    "EVRG",
+    "FE",
+    "LNT",
+    "NI",
+    "PNW",
+    "PPL"
+   ]
+  },
+  {
+   "sector": "STAPLES",
+   "name": "Consumer staples",
+   "rung": "OVERWEIGHT, LIGHTER",
+   "now": 6.73,
+   "market": 4.39,
+   "parent": "XLP",
+   "twin": "RSPS",
+   "subFunds": [
+    "STAPLES:VDC/XLP"
+   ],
+   "ranked": [
+    {
+     "rank": 1,
+     "T": "BYND",
+     "price": 7.6,
+     "tight": {
+      "centre": 12.49,
+      "up": 64.4
+     },
+     "broad": {
+      "centre": 12.49,
+      "up": 64.4,
+      "same": true
+     },
+     "growth": null,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 2,
+     "T": "TGT",
+     "price": 154.25,
+     "tight": {
+      "centre": 232.14,
+      "up": 50.5
+     },
+     "broad": {
+      "centre": 232.14,
+      "up": 50.5,
+      "same": true
+     },
+     "growth": 7.8,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 3,
+     "T": "MO",
+     "price": 71.7902,
+     "tight": {
+      "centre": 104.38,
+      "up": 45.4
+     },
+     "broad": {
+      "centre": 104.38,
+      "up": 45.4,
+      "same": true
+     },
+     "growth": 3.8,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 4,
+     "T": "KR",
+     "price": 61.34,
+     "tight": {
+      "centre": 86.57,
+      "up": 41.1
+     },
+     "broad": {
+      "centre": 86.57,
+      "up": 41.1,
+      "same": true
+     },
+     "growth": 7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 5,
+     "T": "KMB",
+     "price": 97.98,
+     "tight": {
+      "centre": 136.97,
+      "up": 39.8
+     },
+     "broad": {
+      "centre": 136.97,
+      "up": 39.8,
+      "same": true
+     },
+     "growth": 8.4,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 6,
+     "T": "ADM",
+     "price": 80.35,
+     "tight": {
+      "centre": 105.81,
+      "up": 31.7
+     },
+     "broad": {
+      "centre": 105.81,
+      "up": 31.7,
+      "same": true
+     },
+     "growth": 0.7,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 7,
+     "T": "KVUE",
+     "price": 17.71,
+     "tight": {
+      "centre": 20.65,
+      "up": 16.6
+     },
+     "broad": {
+      "centre": 20.65,
+      "up": 16.6,
+      "same": true
+     },
+     "growth": 5.3,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 8,
+     "T": "PEP",
+     "price": 126.1462,
+     "tight": {
+      "centre": 140.97,
+      "up": 11.8
+     },
+     "broad": {
+      "centre": 140.97,
+      "up": 11.8,
+      "same": true
+     },
+     "growth": 3.3,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 9,
+     "T": "KDP",
+     "price": 31.79,
+     "tight": {
+      "centre": 35.13,
+      "up": 10.5
+     },
+     "broad": {
+      "centre": 35.13,
+      "up": 10.5,
+      "same": true
+     },
+     "growth": 9.2,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 10,
+     "T": "SYY",
+     "price": 78.8,
+     "tight": {
+      "centre": 81.26,
+      "up": 3.1
+     },
+     "broad": {
+      "centre": 81.26,
+      "up": 3.1,
+      "same": true
+     },
+     "growth": 3.7,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 11,
+     "T": "MDLZ",
+     "price": 60.3,
+     "tight": {
+      "centre": 60,
+      "up": -0.5
+     },
+     "broad": {
+      "centre": 60,
+      "up": -0.5,
+      "same": true
+     },
+     "growth": 5.9,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 12,
+     "T": "PM",
+     "price": 201.38,
+     "tight": {
+      "centre": 195.62,
+      "up": -2.9
+     },
+     "broad": {
+      "centre": 195.62,
+      "up": -2.9,
+      "same": true
+     },
+     "growth": 9,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 13,
+     "T": "KO",
+     "price": 88.18,
+     "tight": {
+      "centre": 73.55,
+      "up": -16.6
+     },
+     "broad": {
+      "centre": 73.55,
+      "up": -16.6,
+      "same": true
+     },
+     "growth": 8.6,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 14,
+     "T": "PG",
+     "price": 151.11,
+     "tight": {
+      "centre": 120.59,
+      "up": -20.2
+     },
+     "broad": {
+      "centre": 120.59,
+      "up": -20.2,
+      "same": true
+     },
+     "growth": 5.1,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 15,
+     "T": "CL",
+     "price": 88.38,
+     "tight": {
+      "centre": 64.45,
+      "up": -27.1
+     },
+     "broad": {
+      "centre": 64.45,
+      "up": -27.1,
+      "same": true
+     },
+     "growth": 7.5,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 16,
+     "T": "WMT",
+     "price": 111.33,
+     "tight": {
+      "centre": 71.46,
+      "up": -35.8
+     },
+     "broad": {
+      "centre": 71.46,
+      "up": -35.8,
+      "same": true
+     },
+     "growth": 14.1,
+     "fragile": false,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 17,
+     "T": "MNST",
+     "price": 43.72,
+     "tight": {
+      "centre": 23.17,
+      "up": -47
+     },
+     "broad": {
+      "centre": 23.17,
+      "up": -47,
+      "same": true
+     },
+     "growth": 10.2,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    },
+    {
+     "rank": 18,
+     "T": "COST",
+     "price": 945.68,
+     "tight": {
+      "centre": 437.01,
+      "up": -53.8
+     },
+     "broad": {
+      "centre": 437.01,
+      "up": -53.8,
+      "same": true
+     },
+     "growth": 9,
+     "fragile": true,
+     "wfragile": false,
+     "preProfit": null
+    }
+   ],
+   "unranked": [],
+   "outside": [
+    "USFD"
+   ]
+  }
+ ]
+}

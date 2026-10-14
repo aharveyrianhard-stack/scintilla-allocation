@@ -1,0 +1,2456 @@
+{
+ "what": "the Hub universe: distinct tickers in ticker_cohorts (a paged read through the public REST, the anon key from index.html; nothing written)",
+ "read_utc": "2026-10-10T01:42:23.497Z",
+ "n": 388,
+ "rows": 1282,
+ "tickers": [
+  "AAPL",
+  "ABBV",
+  "ABNB",
+  "ABT",
+  "ADAUSD",
+  "ADBE",
+  "ADI",
+  "ADM",
+  "ADP",
+  "AEE",
+  "AEM",
+  "AEP",
+  "AFRM",
+  "AGIX",
+  "ALAB",
+  "AMAT",
+  "AMCR",
+  "AMD",
+  "AME",
+  "AMGN",
+  "AMT",
+  "AMZN",
+  "ANET",
+  "AON",
+  "APD",
+  "APH",
+  "APLD",
+  "APP",
+  "ARM",
+  "ASHR",
+  "ASML",
+  "ASTS",
+  "ATO",
+  "AU",
+  "AUR",
+  "AVAXUSD",
+  "AVGO",
+  "AXP",
+  "AXTI",
+  "BA",
+  "BABA",
+  "BAC",
+  "BE",
+  "BIDU",
+  "BKNG",
+  "BKR",
+  "BLK",
+  "BMY",
+  "BNY",
+  "BRK-B",
+  "BSX",
+  "BTCUSD",
+  "BX",
+  "BYND",
+  "C",
+  "CAT",
+  "CB",
+  "CBRE",
+  "CBRS",
+  "CCI",
+  "CCJ",
+  "CDE",
+  "CDNS",
+  "CEG",
+  "CHTR",
+  "CIFR",
+  "CL",
+  "CLUSD",
+  "CMCSA",
+  "CME",
+  "CMI",
+  "COF",
+  "COIN",
+  "COP",
+  "COPX",
+  "CORZ",
+  "COST",
+  "CRDO",
+  "CRH",
+  "CRM",
+  "CRWD",
+  "CRWV",
+  "CSCO",
+  "CSX",
+  "CTAS",
+  "CTVA",
+  "CVS",
+  "CVX",
+  "D",
+  "DAL",
+  "DASH",
+  "DDOG",
+  "DE",
+  "DELL",
+  "DHR",
+  "DIA",
+  "DIS",
+  "DKNG",
+  "DLR",
+  "DOGEUSD",
+  "DOW",
+  "DPZ",
+  "DRAM",
+  "DTE",
+  "DUK",
+  "DVN",
+  "DXUSD",
+  "ECL",
+  "ED",
+  "EEM",
+  "EFA",
+  "EH",
+  "ELV",
+  "EMR",
+  "EOG",
+  "EOSE",
+  "EQIX",
+  "ES",
+  "ESUSD",
+  "ETHUSD",
+  "ETN",
+  "ETR",
+  "EVTL",
+  "EWG",
+  "EWJ",
+  "EWU",
+  "EWY",
+  "EXC",
+  "EXR",
+  "EZU",
+  "F",
+  "FAST",
+  "FCX",
+  "FDX",
+  "FIX",
+  "FNV",
+  "FOXA",
+  "FSLR",
+  "FXI",
+  "GCUSD",
+  "GD",
+  "GDX",
+  "GDXJ",
+  "GE",
+  "GEV",
+  "GILD",
+  "GLD",
+  "GM",
+  "GOOG",
+  "GOOGL",
+  "GS",
+  "GWW",
+  "HD",
+  "HIMS",
+  "HL",
+  "HLT",
+  "HON",
+  "HOOD",
+  "HWM",
+  "HYG",
+  "IBM",
+  "ICE",
+  "IEF",
+  "INTC",
+  "INTU",
+  "IONQ",
+  "IREN",
+  "IRM",
+  "ISRG",
+  "ITW",
+  "IWM",
+  "JCI",
+  "JD",
+  "JNJ",
+  "JOBY",
+  "JPM",
+  "KDP",
+  "KGC",
+  "KKR",
+  "KLAC",
+  "KMB",
+  "KMI",
+  "KO",
+  "KR",
+  "KVUE",
+  "LAC",
+  "LCID",
+  "LHX",
+  "LI",
+  "LIN",
+  "LINKUSD",
+  "LITE",
+  "LLY",
+  "LMT",
+  "LOW",
+  "LQD",
+  "LRCX",
+  "LTCUSD",
+  "LYFT",
+  "LYV",
+  "MA",
+  "MAGS",
+  "MAR",
+  "MCD",
+  "MCHI",
+  "MCK",
+  "MCO",
+  "MDB",
+  "MDLZ",
+  "MDT",
+  "MDY",
+  "MELI",
+  "META",
+  "MLM",
+  "MMM",
+  "MNST",
+  "MO",
+  "MP",
+  "MPC",
+  "MRK",
+  "MRSH",
+  "MRVL",
+  "MS",
+  "MSFT",
+  "MSTR",
+  "MU",
+  "NBIS",
+  "NEE",
+  "NEM",
+  "NFLX",
+  "NIO",
+  "NKE",
+  "NOC",
+  "NOW",
+  "NQUSD",
+  "NSC",
+  "NTAP",
+  "NUE",
+  "NVDA",
+  "O",
+  "OKE",
+  "OKLO",
+  "OMC",
+  "ONDS",
+  "ORCL",
+  "ORLY",
+  "OXY",
+  "P",
+  "PAAS",
+  "PANW",
+  "PATH",
+  "PCAR",
+  "PCG",
+  "PDD",
+  "PEG",
+  "PEP",
+  "PFE",
+  "PG",
+  "PGR",
+  "PH",
+  "PKG",
+  "PLD",
+  "PLTR",
+  "PM",
+  "PNC",
+  "PPG",
+  "PSA",
+  "PSX",
+  "PWR",
+  "QBTS",
+  "QCOM",
+  "QQQ",
+  "QQQE",
+  "QS",
+  "QUBT",
+  "RBLX",
+  "RCL",
+  "REGN",
+  "RGLD",
+  "RGTI",
+  "RKLB",
+  "RMBS",
+  "ROST",
+  "RSP",
+  "RTX",
+  "SBAC",
+  "SBUX",
+  "SCCO",
+  "SCHW",
+  "SHAZ",
+  "SHOP",
+  "SHW",
+  "SHY",
+  "SIL",
+  "SILJ",
+  "SIMO",
+  "SIUSD",
+  "SLB",
+  "SLV",
+  "SMCI",
+  "SMH",
+  "SMR",
+  "SNDK",
+  "SNOW",
+  "SNPS",
+  "SO",
+  "SOFI",
+  "SOLUSD",
+  "SOXX",
+  "SPCX",
+  "SPG",
+  "SPGI",
+  "SPOT",
+  "SPY",
+  "SRE",
+  "STLD",
+  "STX",
+  "SW",
+  "SYK",
+  "SYY",
+  "T",
+  "TDG",
+  "TEL",
+  "TGT",
+  "TJX",
+  "TLT",
+  "TMO",
+  "TMUS",
+  "TRGP",
+  "TRV",
+  "TSLA",
+  "TSM",
+  "TT",
+  "TTWO",
+  "TXN",
+  "UBER",
+  "UNH",
+  "UNP",
+  "UPS",
+  "URI",
+  "US10Y",
+  "US2S10S",
+  "US2Y",
+  "US30Y",
+  "US3M",
+  "US5Y",
+  "USAR",
+  "USB",
+  "USO",
+  "UUP",
+  "V",
+  "VICI",
+  "VIX",
+  "VLO",
+  "VMC",
+  "VRT",
+  "VRTX",
+  "VST",
+  "VTI",
+  "VTR",
+  "VXX",
+  "VZ",
+  "WBD",
+  "WDC",
+  "WEC",
+  "WELL",
+  "WFC",
+  "WM",
+  "WMB",
+  "WMT",
+  "WPM",
+  "WULF",
+  "XEL",
+  "XLB",
+  "XLC",
+  "XLE",
+  "XLF",
+  "XLI",
+  "XLK",
+  "XLP",
+  "XLRE",
+  "XLU",
+  "XLV",
+  "XLY",
+  "XOM",
+  "XRPUSD",
+  "ZETA",
+  "ZS"
+ ],
+ "cohorts": {
+  "AAPL": [
+   "CONSUMER_ELECTRONICS",
+   "MEGA_CAP",
+   "MEGACAP",
+   "TECH"
+  ],
+  "ABBV": [
+   "BLUE_CHIP",
+   "DRUG_MANUFACTURERS___GENERAL",
+   "HEALTH",
+   "MEGA_CAP"
+  ],
+  "ABNB": [
+   "DISCRET",
+   "GROWTH",
+   "LARGE_CAP",
+   "TRAVEL_SERVICES"
+  ],
+  "ABT": [
+   "BLUE_CHIP",
+   "HEALTH",
+   "LARGE_CAP",
+   "MEDICAL___DEVICES"
+  ],
+  "ADAUSD": [
+   "CRYPTO"
+  ],
+  "ADBE": [
+   "GROWTH",
+   "LARGE_CAP",
+   "SOFTWARE___APPLICATION",
+   "TECH"
+  ],
+  "ADI": [
+   "AI_HARDWARE",
+   "LARGE_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "ADM": [
+   "AGRICULTURAL_FARM_PRODUCTS",
+   "LARGE_CAP",
+   "STAPLES"
+  ],
+  "ADP": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP",
+   "SOFTWARE___APPLICATION"
+  ],
+  "AEE": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "AEM": [
+   "GOLD",
+   "LARGE_CAP",
+   "MATERIALS",
+   "METALS"
+  ],
+  "AEP": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "AFRM": [
+   "FINANCIAL___CREDIT_SERVICES",
+   "FINANCIALS",
+   "GROWTH",
+   "LARGE_CAP"
+  ],
+  "AGIX": [
+   "AI_HARDWARE"
+  ],
+  "ALAB": [
+   "AI_HARDWARE",
+   "LARGE_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "AMAT": [
+   "AI_HARDWARE",
+   "MEGA_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "AMCR": [
+   "LARGE_CAP",
+   "MATERIALS",
+   "PACKAGING_&_CONTAINERS"
+  ],
+  "AMD": [
+   "AI_HARDWARE",
+   "MEGA_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "AME": [
+   "BLUE_CHIP",
+   "ELECTRICAL_EQUIPMENT_&_PARTS",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "AMGN": [
+   "BLUE_CHIP",
+   "DRUG_MANUFACTURERS___GENERAL",
+   "HEALTH",
+   "MEGA_CAP"
+  ],
+  "AMT": [
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___SPECIALTY"
+  ],
+  "AMZN": [
+   "DISCRET",
+   "MEGA_CAP",
+   "MEGACAP",
+   "SPECIALTY_RETAIL"
+  ],
+  "ANET": [
+   "AI_HARDWARE",
+   "COMPUTER_HARDWARE",
+   "MEGA_CAP",
+   "TECH"
+  ],
+  "AON": [
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "INSURANCE___BROKERS",
+   "LARGE_CAP"
+  ],
+  "APD": [
+   "CHEMICALS___SPECIALTY",
+   "LARGE_CAP",
+   "MATERIALS"
+  ],
+  "APH": [
+   "BLUE_CHIP",
+   "HARDWARE,_EQUIPMENT_&_PARTS",
+   "MEGA_CAP",
+   "TECH"
+  ],
+  "APLD": [
+   "AI_HARDWARE",
+   "INFORMATION_TECHNOLOGY_SERVICES",
+   "MID_CAP",
+   "TECH"
+  ],
+  "APP": [
+   "AI_SOFTWARE",
+   "COMMS",
+   "LARGE_CAP",
+   "SOFTWARE___APPLICATION"
+  ],
+  "ARM": [
+   "AI_HARDWARE",
+   "MEGA_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "ASHR": [
+   "INTL"
+  ],
+  "ASML": [
+   "AI_HARDWARE",
+   "MEGA_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "ASTS": [
+   "COMMS",
+   "LARGE_CAP",
+   "TELECOMMUNICATIONS_SERVICES",
+   "THEMATIC"
+  ],
+  "ATO": [
+   "LARGE_CAP",
+   "REGULATED_GAS",
+   "UTILITIES"
+  ],
+  "AU": [
+   "GOLD",
+   "LARGE_CAP",
+   "MATERIALS",
+   "METALS"
+  ],
+  "AUR": [
+   "INFORMATION_TECHNOLOGY_SERVICES",
+   "LARGE_CAP",
+   "TECH",
+   "THEMATIC"
+  ],
+  "AVAXUSD": [
+   "CRYPTO"
+  ],
+  "AVGO": [
+   "AI_HARDWARE",
+   "MEGA_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "AXP": [
+   "BLUE_CHIP",
+   "FINANCIAL___CREDIT_SERVICES",
+   "FINANCIALS",
+   "MEGA_CAP"
+  ],
+  "AXTI": [
+   "AI_HARDWARE",
+   "MID_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "BA": [
+   "AEROSPACE_&_DEFENSE",
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP",
+   "MEGACAP"
+  ],
+  "BABA": [
+   "DISCRET",
+   "INTL",
+   "MEGA_CAP",
+   "SPECIALTY_RETAIL"
+  ],
+  "BAC": [
+   "BANKS___DIVERSIFIED",
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "MEGA_CAP"
+  ],
+  "BE": [
+   "AI_POWERTRAIN",
+   "ELECTRICAL_EQUIPMENT_&_PARTS",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "BIDU": [
+   "COMMS",
+   "INTERNET_CONTENT_&_INFORMATION",
+   "LARGE_CAP",
+   "THEMATIC"
+  ],
+  "BKNG": [
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP",
+   "TRAVEL_SERVICES"
+  ],
+  "BKR": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_EQUIPMENT_&_SERVICES"
+  ],
+  "BLK": [
+   "ASSET_MANAGEMENT",
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "LARGE_CAP"
+  ],
+  "BMY": [
+   "BLUE_CHIP",
+   "DRUG_MANUFACTURERS___GENERAL",
+   "HEALTH",
+   "LARGE_CAP"
+  ],
+  "BNY": [
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "INVESTMENT___BANKING_&_INVESTMENT_SERVICES",
+   "LARGE_CAP"
+  ],
+  "BRK-B": [
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "INSURANCE___DIVERSIFIED",
+   "MEGA_CAP"
+  ],
+  "BSX": [
+   "BLUE_CHIP",
+   "HEALTH",
+   "LARGE_CAP",
+   "MEDICAL___DEVICES"
+  ],
+  "BTCUSD": [
+   "CRYPTO"
+  ],
+  "BX": [
+   "ASSET_MANAGEMENT",
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "LARGE_CAP"
+  ],
+  "BYND": [
+   "PACKAGED_FOODS",
+   "SMALL_CAP",
+   "STAPLES",
+   "THEMATIC"
+  ],
+  "C": [
+   "BANKS___DIVERSIFIED",
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "MEGA_CAP"
+  ],
+  "CAT": [
+   "AGRICULTURAL___MACHINERY",
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "MEGA_CAP"
+  ],
+  "CB": [
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "INSURANCE___PROPERTY_&_CASUALTY",
+   "LARGE_CAP"
+  ],
+  "CBRE": [
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REAL_ESTATE___SERVICES"
+  ],
+  "CBRS": [
+   "GROWTH",
+   "LARGE_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "CCI": [
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___SPECIALTY"
+  ],
+  "CCJ": [
+   "AI_POWERTRAIN",
+   "ENERGY",
+   "LARGE_CAP",
+   "URANIUM"
+  ],
+  "CDE": [
+   "GOLD",
+   "LARGE_CAP",
+   "MATERIALS",
+   "METALS"
+  ],
+  "CDNS": [
+   "AI_SOFTWARE",
+   "LARGE_CAP",
+   "SOFTWARE___APPLICATION",
+   "TECH"
+  ],
+  "CEG": [
+   "AI_POWERTRAIN",
+   "INDEPENDENT_POWER_PRODUCERS",
+   "LARGE_CAP",
+   "UTILITIES"
+  ],
+  "CHTR": [
+   "COMMS",
+   "LARGE_CAP",
+   "TELECOMMUNICATIONS_SERVICES"
+  ],
+  "CIFR": [
+   "AI_HARDWARE",
+   "FINANCIAL___CAPITAL_MARKETS",
+   "FINANCIALS",
+   "MID_CAP"
+  ],
+  "CL": [
+   "HOUSEHOLD_&_PERSONAL_PRODUCTS",
+   "LARGE_CAP",
+   "STAPLES"
+  ],
+  "CLUSD": [
+   "MACRO"
+  ],
+  "CMCSA": [
+   "COMMS",
+   "LARGE_CAP",
+   "TELECOMMUNICATIONS_SERVICES"
+  ],
+  "CME": [
+   "BLUE_CHIP",
+   "FINANCIAL___DATA_&_STOCK_EXCHANGES",
+   "FINANCIALS",
+   "LARGE_CAP"
+  ],
+  "CMI": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "INDUSTRIAL___MACHINERY",
+   "LARGE_CAP"
+  ],
+  "COF": [
+   "BLUE_CHIP",
+   "FINANCIAL___CREDIT_SERVICES",
+   "FINANCIALS",
+   "LARGE_CAP"
+  ],
+  "COIN": [
+   "CRYPTO",
+   "FINANCIAL___DATA_&_STOCK_EXCHANGES",
+   "FINANCIALS",
+   "LARGE_CAP"
+  ],
+  "COP": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_EXPLORATION_&_PRODUCTION"
+  ],
+  "COPX": [
+   "METALS"
+  ],
+  "CORZ": [
+   "AI_HARDWARE",
+   "MID_CAP",
+   "SOFTWARE___INFRASTRUCTURE",
+   "TECH"
+  ],
+  "COST": [
+   "BLUE_CHIP",
+   "DISCOUNT_STORES",
+   "MEGA_CAP",
+   "STAPLES"
+  ],
+  "CRDO": [
+   "AI_HARDWARE",
+   "LARGE_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "CRH": [
+   "CONSTRUCTION_MATERIALS",
+   "LARGE_CAP",
+   "MATERIALS"
+  ],
+  "CRM": [
+   "AI_SOFTWARE",
+   "GROWTH",
+   "LARGE_CAP",
+   "SOFTWARE___APPLICATION",
+   "TECH"
+  ],
+  "CRWD": [
+   "AI_HARDWARE",
+   "MEGA_CAP",
+   "SOFTWARE___INFRASTRUCTURE",
+   "TECH"
+  ],
+  "CRWV": [
+   "AI_HARDWARE",
+   "LARGE_CAP",
+   "SOFTWARE___INFRASTRUCTURE",
+   "TECH"
+  ],
+  "CSCO": [
+   "BLUE_CHIP",
+   "COMMUNICATION_EQUIPMENT",
+   "MEGA_CAP",
+   "TECH"
+  ],
+  "CSX": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP",
+   "RAILROADS"
+  ],
+  "CTAS": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP",
+   "SPECIALTY_BUSINESS_SERVICES"
+  ],
+  "CTVA": [
+   "AGRICULTURAL_INPUTS",
+   "LARGE_CAP",
+   "MATERIALS"
+  ],
+  "CVS": [
+   "BLUE_CHIP",
+   "HEALTH",
+   "LARGE_CAP",
+   "MEDICAL___HEALTHCARE_PLANS"
+  ],
+  "CVX": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "MEGA_CAP",
+   "OIL_&_GAS_INTEGRATED"
+  ],
+  "D": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "DAL": [
+   "AIRLINES,_AIRPORTS_&_AIR_SERVICES",
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "DASH": [
+   "DISCRET",
+   "GROWTH",
+   "INTERNET_CONTENT_&_INFORMATION",
+   "LARGE_CAP"
+  ],
+  "DDOG": [
+   "GROWTH",
+   "LARGE_CAP",
+   "SOFTWARE___APPLICATION",
+   "TECH"
+  ],
+  "DE": [
+   "AGRICULTURAL___MACHINERY",
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "DELL": [
+   "BLUE_CHIP",
+   "COMPUTER_HARDWARE",
+   "MEGA_CAP",
+   "TECH"
+  ],
+  "DHR": [
+   "BLUE_CHIP",
+   "HEALTH",
+   "LARGE_CAP",
+   "MEDICAL___DIAGNOSTICS_&_RESEARCH"
+  ],
+  "DIA": [
+   "INDEXES"
+  ],
+  "DIS": [
+   "BLUE_CHIP",
+   "COMMS",
+   "ENTERTAINMENT",
+   "LARGE_CAP"
+  ],
+  "DKNG": [
+   "DISCRET",
+   "GAMBLING,_RESORTS_&_CASINOS",
+   "GROWTH",
+   "LARGE_CAP"
+  ],
+  "DLR": [
+   "AI_HARDWARE",
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___SPECIALTY"
+  ],
+  "DOGEUSD": [
+   "CRYPTO"
+  ],
+  "DOW": [
+   "CHEMICALS",
+   "LARGE_CAP",
+   "MATERIALS"
+  ],
+  "DPZ": [
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP",
+   "RESTAURANTS"
+  ],
+  "DRAM": [
+   "AI_HARDWARE"
+  ],
+  "DTE": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "DUK": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "DVN": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_EXPLORATION_&_PRODUCTION"
+  ],
+  "DXUSD": [
+   "MACRO"
+  ],
+  "ECL": [
+   "CHEMICALS___SPECIALTY",
+   "LARGE_CAP",
+   "MATERIALS"
+  ],
+  "ED": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "EEM": [
+   "INTL"
+  ],
+  "EFA": [
+   "INTL"
+  ],
+  "EH": [
+   "AEROSPACE_&_DEFENSE",
+   "INDUSTRIAL",
+   "SMALL_CAP",
+   "THEMATIC"
+  ],
+  "ELV": [
+   "BLUE_CHIP",
+   "HEALTH",
+   "LARGE_CAP",
+   "MEDICAL___HEALTHCARE_PLANS"
+  ],
+  "EMR": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "INDUSTRIAL___MACHINERY",
+   "LARGE_CAP"
+  ],
+  "EOG": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_EXPLORATION_&_PRODUCTION"
+  ],
+  "EOSE": [
+   "AI_POWERTRAIN",
+   "ELECTRICAL_EQUIPMENT_&_PARTS",
+   "INDUSTRIAL",
+   "SMALL_CAP"
+  ],
+  "EQIX": [
+   "AI_HARDWARE",
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___SPECIALTY"
+  ],
+  "ES": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "ESUSD": [
+   "INDEXES"
+  ],
+  "ETHUSD": [
+   "CRYPTO"
+  ],
+  "ETN": [
+   "AI_HARDWARE",
+   "ELECTRICAL_EQUIPMENT_&_PARTS",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "ETR": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "EVTL": [
+   "AEROSPACE_&_DEFENSE",
+   "INDUSTRIAL",
+   "SMALL_CAP",
+   "THEMATIC"
+  ],
+  "EWG": [
+   "INTL"
+  ],
+  "EWJ": [
+   "INTL"
+  ],
+  "EWU": [
+   "INTL"
+  ],
+  "EWY": [
+   "INTL"
+  ],
+  "EXC": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "EXR": [
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___INDUSTRIAL"
+  ],
+  "EZU": [
+   "INTL"
+  ],
+  "F": [
+   "AUTO___MANUFACTURERS",
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP"
+  ],
+  "FAST": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "INDUSTRIAL___DISTRIBUTION",
+   "LARGE_CAP"
+  ],
+  "FCX": [
+   "COPPER",
+   "LARGE_CAP",
+   "MATERIALS"
+  ],
+  "FDX": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "INTEGRATED_FREIGHT_&_LOGISTICS",
+   "LARGE_CAP"
+  ],
+  "FIX": [
+   "BLUE_CHIP",
+   "ENGINEERING_&_CONSTRUCTION",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "FNV": [
+   "GOLD",
+   "LARGE_CAP",
+   "MATERIALS",
+   "METALS"
+  ],
+  "FOXA": [
+   "COMMS",
+   "ENTERTAINMENT",
+   "LARGE_CAP"
+  ],
+  "FSLR": [
+   "LARGE_CAP",
+   "SOLAR",
+   "TECH",
+   "THEMATIC"
+  ],
+  "FXI": [
+   "INTL"
+  ],
+  "GCUSD": [
+   "MACRO",
+   "METALS"
+  ],
+  "GD": [
+   "AEROSPACE_&_DEFENSE",
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "GDX": [
+   "METALS"
+  ],
+  "GDXJ": [
+   "METALS"
+  ],
+  "GE": [
+   "AEROSPACE_&_DEFENSE",
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "MEGA_CAP"
+  ],
+  "GEV": [
+   "AI_POWERTRAIN",
+   "INDUSTRIAL",
+   "MEGA_CAP",
+   "RENEWABLE_UTILITIES"
+  ],
+  "GILD": [
+   "BLUE_CHIP",
+   "DRUG_MANUFACTURERS___GENERAL",
+   "HEALTH",
+   "LARGE_CAP"
+  ],
+  "GLD": [
+   "MACRO",
+   "METALS"
+  ],
+  "GM": [
+   "AUTO___MANUFACTURERS",
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP"
+  ],
+  "GOOG": [
+   "COMMS",
+   "INTERNET_CONTENT_&_INFORMATION",
+   "MEGA_CAP",
+   "MEGACAP"
+  ],
+  "GOOGL": [
+   "COMMS",
+   "INTERNET_CONTENT_&_INFORMATION",
+   "MEGA_CAP",
+   "MEGACAP"
+  ],
+  "GS": [
+   "BLUE_CHIP",
+   "FINANCIAL___CAPITAL_MARKETS",
+   "FINANCIALS",
+   "MEGA_CAP"
+  ],
+  "GWW": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "INDUSTRIAL___DISTRIBUTION",
+   "LARGE_CAP"
+  ],
+  "HD": [
+   "BLUE_CHIP",
+   "DISCRET",
+   "HOME_IMPROVEMENT",
+   "MEGA_CAP"
+  ],
+  "HIMS": [
+   "GROWTH",
+   "HEALTH",
+   "MEDICAL___EQUIPMENT_&_SERVICES",
+   "MID_CAP"
+  ],
+  "HL": [
+   "LARGE_CAP",
+   "MATERIALS",
+   "METALS",
+   "OTHER_PRECIOUS_METALS"
+  ],
+  "HLT": [
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP",
+   "TRAVEL_LODGING"
+  ],
+  "HON": [
+   "BLUE_CHIP",
+   "CONGLOMERATES",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "HOOD": [
+   "FINANCIAL___CAPITAL_MARKETS",
+   "FINANCIALS",
+   "GROWTH",
+   "LARGE_CAP"
+  ],
+  "HWM": [
+   "AEROSPACE_&_DEFENSE",
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "HYG": [
+   "MACRO"
+  ],
+  "IBM": [
+   "BLUE_CHIP",
+   "INFORMATION_TECHNOLOGY_SERVICES",
+   "MEGA_CAP",
+   "TECH"
+  ],
+  "ICE": [
+   "BLUE_CHIP",
+   "FINANCIAL___DATA_&_STOCK_EXCHANGES",
+   "FINANCIALS",
+   "LARGE_CAP"
+  ],
+  "IEF": [
+   "MACRO"
+  ],
+  "INTC": [
+   "AI_HARDWARE",
+   "MEGA_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "INTU": [
+   "GROWTH",
+   "LARGE_CAP",
+   "SOFTWARE___APPLICATION",
+   "TECH"
+  ],
+  "IONQ": [
+   "COMPUTER_HARDWARE",
+   "LARGE_CAP",
+   "TECH",
+   "THEMATIC"
+  ],
+  "IREN": [
+   "AI_HARDWARE",
+   "INFORMATION_TECHNOLOGY_SERVICES",
+   "LARGE_CAP",
+   "TECH"
+  ],
+  "IRM": [
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___SPECIALTY"
+  ],
+  "ISRG": [
+   "BLUE_CHIP",
+   "HEALTH",
+   "LARGE_CAP",
+   "MEDICAL___INSTRUMENTS_&_SUPPLIES"
+  ],
+  "ITW": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "INDUSTRIAL___MACHINERY",
+   "LARGE_CAP"
+  ],
+  "IWM": [
+   "INDEXES"
+  ],
+  "JCI": [
+   "BLUE_CHIP",
+   "CONSTRUCTION_MATERIALS",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "JD": [
+   "DISCRET",
+   "INTL",
+   "LARGE_CAP",
+   "SPECIALTY_RETAIL"
+  ],
+  "JNJ": [
+   "BLUE_CHIP",
+   "DRUG_MANUFACTURERS___GENERAL",
+   "HEALTH",
+   "MEGA_CAP"
+  ],
+  "JOBY": [
+   "AIRLINES,_AIRPORTS_&_AIR_SERVICES",
+   "INDUSTRIAL",
+   "MID_CAP",
+   "THEMATIC"
+  ],
+  "JPM": [
+   "BANKS___DIVERSIFIED",
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "MEGA_CAP"
+  ],
+  "KDP": [
+   "BEVERAGES___NON_ALCOHOLIC",
+   "LARGE_CAP",
+   "STAPLES"
+  ],
+  "KGC": [
+   "GOLD",
+   "LARGE_CAP",
+   "MATERIALS",
+   "METALS"
+  ],
+  "KKR": [
+   "ASSET_MANAGEMENT",
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "LARGE_CAP"
+  ],
+  "KLAC": [
+   "AI_HARDWARE",
+   "MEGA_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "KMB": [
+   "HOUSEHOLD_&_PERSONAL_PRODUCTS",
+   "LARGE_CAP",
+   "STAPLES"
+  ],
+  "KMI": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_MIDSTREAM"
+  ],
+  "KO": [
+   "BEVERAGES___NON_ALCOHOLIC",
+   "BLUE_CHIP",
+   "MEGA_CAP",
+   "STAPLES"
+  ],
+  "KR": [
+   "GROCERY_STORES",
+   "LARGE_CAP",
+   "STAPLES"
+  ],
+  "KVUE": [
+   "HOUSEHOLD_&_PERSONAL_PRODUCTS",
+   "LARGE_CAP",
+   "STAPLES"
+  ],
+  "LAC": [
+   "INDUSTRIAL_MATERIALS",
+   "MATERIALS",
+   "SMALL_CAP",
+   "THEMATIC"
+  ],
+  "LCID": [
+   "AUTO___MANUFACTURERS",
+   "DISCRET",
+   "MID_CAP",
+   "THEMATIC"
+  ],
+  "LHX": [
+   "AEROSPACE_&_DEFENSE",
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "LI": [
+   "AUTO___MANUFACTURERS",
+   "DISCRET",
+   "LARGE_CAP",
+   "THEMATIC"
+  ],
+  "LIN": [
+   "CHEMICALS___SPECIALTY",
+   "MATERIALS",
+   "MEGA_CAP"
+  ],
+  "LINKUSD": [
+   "CRYPTO"
+  ],
+  "LITE": [
+   "AI_HARDWARE",
+   "COMMUNICATION_EQUIPMENT",
+   "LARGE_CAP",
+   "TECH"
+  ],
+  "LLY": [
+   "BLUE_CHIP",
+   "DRUG_MANUFACTURERS___GENERAL",
+   "HEALTH",
+   "MEGA_CAP"
+  ],
+  "LMT": [
+   "AEROSPACE_&_DEFENSE",
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "LOW": [
+   "BLUE_CHIP",
+   "DISCRET",
+   "HOME_IMPROVEMENT",
+   "LARGE_CAP"
+  ],
+  "LQD": [
+   "MACRO"
+  ],
+  "LRCX": [
+   "AI_HARDWARE",
+   "MEGA_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "LTCUSD": [
+   "CRYPTO"
+  ],
+  "LYFT": [
+   "AI_SOFTWARE",
+   "GROWTH",
+   "MID_CAP",
+   "SOFTWARE___APPLICATION",
+   "TECH"
+  ],
+  "LYV": [
+   "COMMS",
+   "ENTERTAINMENT",
+   "LARGE_CAP"
+  ],
+  "MA": [
+   "BLUE_CHIP",
+   "FINANCIAL___CREDIT_SERVICES",
+   "FINANCIALS",
+   "MEGA_CAP"
+  ],
+  "MAGS": [
+   "INDEXES"
+  ],
+  "MAR": [
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP",
+   "TRAVEL_LODGING"
+  ],
+  "MCD": [
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP",
+   "RESTAURANTS"
+  ],
+  "MCHI": [
+   "INTL"
+  ],
+  "MCK": [
+   "BLUE_CHIP",
+   "HEALTH",
+   "LARGE_CAP",
+   "MEDICAL___DISTRIBUTION"
+  ],
+  "MCO": [
+   "BLUE_CHIP",
+   "FINANCIAL___DATA_&_STOCK_EXCHANGES",
+   "FINANCIALS",
+   "LARGE_CAP"
+  ],
+  "MDB": [
+   "AI_SOFTWARE",
+   "GROWTH",
+   "LARGE_CAP",
+   "SOFTWARE___INFRASTRUCTURE",
+   "TECH"
+  ],
+  "MDLZ": [
+   "FOOD_CONFECTIONERS",
+   "LARGE_CAP",
+   "STAPLES"
+  ],
+  "MDT": [
+   "BLUE_CHIP",
+   "HEALTH",
+   "LARGE_CAP",
+   "MEDICAL___DEVICES"
+  ],
+  "MDY": [
+   "INDEXES"
+  ],
+  "MELI": [
+   "DISCRET",
+   "LARGE_CAP",
+   "SPECIALTY_RETAIL",
+   "THEMATIC"
+  ],
+  "META": [
+   "COMMS",
+   "INTERNET_CONTENT_&_INFORMATION",
+   "MEGA_CAP",
+   "MEGACAP"
+  ],
+  "MLM": [
+   "CONSTRUCTION_MATERIALS",
+   "LARGE_CAP",
+   "MATERIALS"
+  ],
+  "MMM": [
+   "BLUE_CHIP",
+   "CONGLOMERATES",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "MNST": [
+   "BEVERAGES___NON_ALCOHOLIC",
+   "LARGE_CAP",
+   "STAPLES"
+  ],
+  "MO": [
+   "LARGE_CAP",
+   "STAPLES",
+   "TOBACCO"
+  ],
+  "MP": [
+   "INDUSTRIAL_MATERIALS",
+   "MATERIALS",
+   "MID_CAP",
+   "THEMATIC"
+  ],
+  "MPC": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_REFINING_&_MARKETING"
+  ],
+  "MRK": [
+   "BLUE_CHIP",
+   "DRUG_MANUFACTURERS___GENERAL",
+   "HEALTH",
+   "MEGA_CAP"
+  ],
+  "MRSH": [
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "INSURANCE___BROKERS",
+   "LARGE_CAP"
+  ],
+  "MRVL": [
+   "AI_HARDWARE",
+   "LARGE_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "MS": [
+   "BLUE_CHIP",
+   "FINANCIAL___CAPITAL_MARKETS",
+   "FINANCIALS",
+   "MEGA_CAP"
+  ],
+  "MSFT": [
+   "MEGA_CAP",
+   "MEGACAP",
+   "SOFTWARE___INFRASTRUCTURE",
+   "TECH"
+  ],
+  "MSTR": [
+   "CRYPTO",
+   "LARGE_CAP",
+   "SOFTWARE___APPLICATION",
+   "TECH"
+  ],
+  "MU": [
+   "AI_HARDWARE",
+   "MEGA_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "NBIS": [
+   "AI_HARDWARE",
+   "AI_SOFTWARE",
+   "LARGE_CAP",
+   "SOFTWARE___INFRASTRUCTURE",
+   "TECH"
+  ],
+  "NEE": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "NEM": [
+   "GOLD",
+   "LARGE_CAP",
+   "MATERIALS",
+   "METALS"
+  ],
+  "NFLX": [
+   "AI_SOFTWARE",
+   "COMMS",
+   "ENTERTAINMENT",
+   "GROWTH",
+   "MEGA_CAP"
+  ],
+  "NIO": [
+   "AUTO___MANUFACTURERS",
+   "DISCRET",
+   "LARGE_CAP",
+   "THEMATIC"
+  ],
+  "NKE": [
+   "APPAREL___FOOTWEAR_&_ACCESSORIES",
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP"
+  ],
+  "NOC": [
+   "AEROSPACE_&_DEFENSE",
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "NOW": [
+   "GROWTH",
+   "LARGE_CAP",
+   "SOFTWARE___APPLICATION",
+   "TECH"
+  ],
+  "NQUSD": [
+   "INDEXES"
+  ],
+  "NSC": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP",
+   "RAILROADS"
+  ],
+  "NTAP": [
+   "COMPUTER_HARDWARE",
+   "GROWTH",
+   "LARGE_CAP",
+   "TECH"
+  ],
+  "NUE": [
+   "LARGE_CAP",
+   "MATERIALS",
+   "STEEL"
+  ],
+  "NVDA": [
+   "AI_HARDWARE",
+   "MEGA_CAP",
+   "MEGACAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "O": [
+   "REAL_ESTATE"
+  ],
+  "OKE": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_MIDSTREAM"
+  ],
+  "OKLO": [
+   "AI_POWERTRAIN",
+   "INDEPENDENT_POWER_PRODUCERS",
+   "MID_CAP",
+   "UTILITIES"
+  ],
+  "OMC": [
+   "ADVERTISING_AGENCIES",
+   "COMMS",
+   "LARGE_CAP"
+  ],
+  "ONDS": [
+   "COMMUNICATION_EQUIPMENT",
+   "MID_CAP",
+   "TECH",
+   "THEMATIC"
+  ],
+  "ORCL": [
+   "MEGA_CAP",
+   "MEGACAP",
+   "SOFTWARE___INFRASTRUCTURE",
+   "TECH"
+  ],
+  "ORLY": [
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP",
+   "SPECIALTY_RETAIL"
+  ],
+  "OXY": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_EXPLORATION_&_PRODUCTION"
+  ],
+  "P": [
+   "AI_HARDWARE",
+   "INDUSTRIAL",
+   "INDUSTRIAL___MACHINERY",
+   "LARGE_CAP"
+  ],
+  "PAAS": [
+   "LARGE_CAP",
+   "MATERIALS",
+   "METALS",
+   "SILVER"
+  ],
+  "PANW": [
+   "BLUE_CHIP",
+   "MEGA_CAP",
+   "SOFTWARE___INFRASTRUCTURE",
+   "TECH"
+  ],
+  "PATH": [
+   "MID_CAP",
+   "SOFTWARE___INFRASTRUCTURE",
+   "TECH",
+   "THEMATIC"
+  ],
+  "PCAR": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "INDUSTRIAL___MACHINERY",
+   "LARGE_CAP"
+  ],
+  "PCG": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "PDD": [
+   "INTL"
+  ],
+  "PEG": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "PEP": [
+   "BEVERAGES___NON_ALCOHOLIC",
+   "BLUE_CHIP",
+   "LARGE_CAP",
+   "STAPLES"
+  ],
+  "PFE": [
+   "BLUE_CHIP",
+   "DRUG_MANUFACTURERS___GENERAL",
+   "HEALTH",
+   "LARGE_CAP"
+  ],
+  "PG": [
+   "BLUE_CHIP",
+   "HOUSEHOLD_&_PERSONAL_PRODUCTS",
+   "MEGA_CAP",
+   "STAPLES"
+  ],
+  "PGR": [
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "INSURANCE___PROPERTY_&_CASUALTY",
+   "LARGE_CAP"
+  ],
+  "PH": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "INDUSTRIAL___MACHINERY",
+   "LARGE_CAP"
+  ],
+  "PKG": [
+   "LARGE_CAP",
+   "MATERIALS",
+   "PACKAGING_&_CONTAINERS"
+  ],
+  "PLD": [
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___INDUSTRIAL"
+  ],
+  "PLTR": [
+   "AI_SOFTWARE",
+   "MEGA_CAP",
+   "SOFTWARE___INFRASTRUCTURE",
+   "TECH"
+  ],
+  "PM": [
+   "MEGA_CAP",
+   "STAPLES",
+   "TOBACCO"
+  ],
+  "PNC": [
+   "BANKS___REGIONAL",
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "LARGE_CAP"
+  ],
+  "PPG": [
+   "CHEMICALS___SPECIALTY",
+   "LARGE_CAP",
+   "MATERIALS"
+  ],
+  "PSA": [
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___INDUSTRIAL"
+  ],
+  "PSX": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_REFINING_&_MARKETING"
+  ],
+  "PWR": [
+   "BLUE_CHIP",
+   "ENGINEERING_&_CONSTRUCTION",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "QBTS": [
+   "COMPUTER_HARDWARE",
+   "MID_CAP",
+   "TECH",
+   "THEMATIC"
+  ],
+  "QCOM": [
+   "AI_HARDWARE",
+   "LARGE_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "QQQ": [
+   "INDEXES"
+  ],
+  "QQQE": [
+   "INDEXES"
+  ],
+  "QS": [
+   "AUTO___PARTS",
+   "DISCRET",
+   "MID_CAP",
+   "THEMATIC"
+  ],
+  "QUBT": [
+   "COMPUTER_HARDWARE",
+   "MID_CAP",
+   "TECH",
+   "THEMATIC"
+  ],
+  "RBLX": [
+   "ELECTRONIC_GAMING_&_MULTIMEDIA",
+   "GROWTH",
+   "LARGE_CAP",
+   "TECH"
+  ],
+  "RCL": [
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP",
+   "TRAVEL_SERVICES"
+  ],
+  "REGN": [
+   "BIOTECHNOLOGY",
+   "BLUE_CHIP",
+   "HEALTH",
+   "LARGE_CAP"
+  ],
+  "RGLD": [
+   "GOLD",
+   "LARGE_CAP",
+   "MATERIALS",
+   "METALS"
+  ],
+  "RGTI": [
+   "COMPUTER_HARDWARE",
+   "MID_CAP",
+   "TECH",
+   "THEMATIC"
+  ],
+  "RKLB": [
+   "AEROSPACE_&_DEFENSE",
+   "INDUSTRIAL",
+   "LARGE_CAP",
+   "THEMATIC"
+  ],
+  "RMBS": [
+   "AI_HARDWARE",
+   "LARGE_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "ROST": [
+   "APPAREL___RETAIL",
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP"
+  ],
+  "RSP": [
+   "INDEXES"
+  ],
+  "RTX": [
+   "AEROSPACE_&_DEFENSE",
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "MEGA_CAP"
+  ],
+  "SBAC": [
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___SPECIALTY"
+  ],
+  "SBUX": [
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP",
+   "RESTAURANTS"
+  ],
+  "SCCO": [
+   "COPPER",
+   "LARGE_CAP",
+   "MATERIALS"
+  ],
+  "SCHW": [
+   "BLUE_CHIP",
+   "FINANCIAL___CAPITAL_MARKETS",
+   "FINANCIALS",
+   "LARGE_CAP"
+  ],
+  "SHAZ": [
+   "GROWTH",
+   "INFORMATION_TECHNOLOGY_SERVICES",
+   "SMALL_CAP",
+   "TECH"
+  ],
+  "SHOP": [
+   "AI_SOFTWARE",
+   "GROWTH",
+   "MEGA_CAP",
+   "SOFTWARE___APPLICATION",
+   "TECH"
+  ],
+  "SHW": [
+   "BLUE_CHIP",
+   "CHEMICALS___SPECIALTY",
+   "LARGE_CAP",
+   "MATERIALS"
+  ],
+  "SHY": [
+   "MACRO"
+  ],
+  "SIL": [
+   "METALS"
+  ],
+  "SILJ": [
+   "METALS"
+  ],
+  "SIMO": [
+   "AI_HARDWARE",
+   "MID_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "SIUSD": [
+   "MACRO",
+   "METALS"
+  ],
+  "SLB": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_EQUIPMENT_&_SERVICES"
+  ],
+  "SLV": [
+   "MACRO",
+   "METALS"
+  ],
+  "SMCI": [
+   "AI_HARDWARE",
+   "COMPUTER_HARDWARE",
+   "LARGE_CAP",
+   "TECH"
+  ],
+  "SMH": [
+   "AI_HARDWARE"
+  ],
+  "SMR": [
+   "AI_POWERTRAIN",
+   "MID_CAP",
+   "RENEWABLE_UTILITIES",
+   "UTILITIES"
+  ],
+  "SNDK": [
+   "AI_HARDWARE",
+   "COMPUTER_HARDWARE",
+   "LARGE_CAP",
+   "TECH"
+  ],
+  "SNOW": [
+   "AI_SOFTWARE",
+   "GROWTH",
+   "LARGE_CAP",
+   "SOFTWARE___APPLICATION",
+   "TECH"
+  ],
+  "SNPS": [
+   "AI_SOFTWARE",
+   "LARGE_CAP",
+   "SOFTWARE___INFRASTRUCTURE",
+   "TECH"
+  ],
+  "SO": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "SOFI": [
+   "FINANCIAL___CREDIT_SERVICES",
+   "FINANCIALS",
+   "GROWTH",
+   "LARGE_CAP"
+  ],
+  "SOLUSD": [
+   "CRYPTO"
+  ],
+  "SOXX": [
+   "AI_HARDWARE"
+  ],
+  "SPCX": [
+   "AEROSPACE_&_DEFENSE",
+   "INDUSTRIAL",
+   "MEGA_CAP",
+   "MEGACAP"
+  ],
+  "SPG": [
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___RETAIL"
+  ],
+  "SPGI": [
+   "BLUE_CHIP",
+   "FINANCIAL___DATA_&_STOCK_EXCHANGES",
+   "FINANCIALS",
+   "LARGE_CAP"
+  ],
+  "SPOT": [
+   "COMMS",
+   "GROWTH",
+   "INTERNET_CONTENT_&_INFORMATION",
+   "LARGE_CAP"
+  ],
+  "SPY": [
+   "INDEXES"
+  ],
+  "SRE": [
+   "DIVERSIFIED_UTILITIES",
+   "LARGE_CAP",
+   "UTILITIES"
+  ],
+  "STLD": [
+   "BLUE_CHIP",
+   "LARGE_CAP",
+   "MATERIALS",
+   "STEEL"
+  ],
+  "STX": [
+   "AI_HARDWARE",
+   "COMPUTER_HARDWARE",
+   "LARGE_CAP",
+   "TECH"
+  ],
+  "SW": [
+   "LARGE_CAP",
+   "MATERIALS",
+   "PACKAGING_&_CONTAINERS"
+  ],
+  "SYK": [
+   "BLUE_CHIP",
+   "HEALTH",
+   "LARGE_CAP",
+   "MEDICAL___DEVICES"
+  ],
+  "SYY": [
+   "FOOD_DISTRIBUTION",
+   "LARGE_CAP",
+   "STAPLES"
+  ],
+  "T": [
+   "COMMS",
+   "LARGE_CAP",
+   "TELECOMMUNICATIONS_SERVICES"
+  ],
+  "TDG": [
+   "AEROSPACE_&_DEFENSE",
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "TEL": [
+   "AI_HARDWARE",
+   "LARGE_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "TGT": [
+   "BLUE_CHIP",
+   "DISCOUNT_STORES",
+   "LARGE_CAP",
+   "STAPLES"
+  ],
+  "TJX": [
+   "APPAREL___RETAIL",
+   "BLUE_CHIP",
+   "DISCRET",
+   "LARGE_CAP"
+  ],
+  "TLT": [
+   "MACRO"
+  ],
+  "TMO": [
+   "BLUE_CHIP",
+   "HEALTH",
+   "MEDICAL___DIAGNOSTICS_&_RESEARCH",
+   "MEGA_CAP"
+  ],
+  "TMUS": [
+   "COMMS",
+   "LARGE_CAP",
+   "TELECOMMUNICATIONS_SERVICES"
+  ],
+  "TRGP": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_MIDSTREAM"
+  ],
+  "TRV": [
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "INSURANCE___PROPERTY_&_CASUALTY",
+   "LARGE_CAP"
+  ],
+  "TSLA": [
+   "AUTO___MANUFACTURERS",
+   "DISCRET",
+   "MEGA_CAP",
+   "MEGACAP"
+  ],
+  "TSM": [
+   "AI_HARDWARE",
+   "MEGA_CAP",
+   "MEGACAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "TT": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "INDUSTRIAL___MACHINERY",
+   "LARGE_CAP"
+  ],
+  "TTWO": [
+   "COMMS",
+   "ELECTRONIC_GAMING_&_MULTIMEDIA",
+   "LARGE_CAP"
+  ],
+  "TXN": [
+   "BLUE_CHIP",
+   "MEGA_CAP",
+   "SEMICONDUCTORS",
+   "TECH"
+  ],
+  "UBER": [
+   "GROWTH",
+   "INDUSTRIAL",
+   "LARGE_CAP",
+   "SOFTWARE___APPLICATION"
+  ],
+  "UNH": [
+   "BLUE_CHIP",
+   "HEALTH",
+   "MEDICAL___HEALTHCARE_PLANS",
+   "MEGA_CAP"
+  ],
+  "UNP": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP",
+   "RAILROADS"
+  ],
+  "UPS": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "INTEGRATED_FREIGHT_&_LOGISTICS",
+   "LARGE_CAP"
+  ],
+  "URI": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP",
+   "RENTAL_&_LEASING_SERVICES"
+  ],
+  "US10Y": [
+   "MACRO"
+  ],
+  "US2S10S": [
+   "MACRO"
+  ],
+  "US2Y": [
+   "MACRO"
+  ],
+  "US30Y": [
+   "MACRO"
+  ],
+  "US3M": [
+   "MACRO"
+  ],
+  "US5Y": [
+   "MACRO"
+  ],
+  "USAR": [
+   "INDUSTRIAL_MATERIALS",
+   "MATERIALS",
+   "MID_CAP",
+   "THEMATIC"
+  ],
+  "USB": [
+   "BANKS___DIVERSIFIED",
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "LARGE_CAP"
+  ],
+  "USO": [
+   "MACRO"
+  ],
+  "UUP": [
+   "MACRO"
+  ],
+  "V": [
+   "BLUE_CHIP",
+   "FINANCIAL___CREDIT_SERVICES",
+   "FINANCIALS",
+   "MEGA_CAP"
+  ],
+  "VICI": [
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___DIVERSIFIED"
+  ],
+  "VIX": [
+   "MACRO"
+  ],
+  "VLO": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_REFINING_&_MARKETING"
+  ],
+  "VMC": [
+   "CONSTRUCTION_MATERIALS",
+   "LARGE_CAP",
+   "MATERIALS"
+  ],
+  "VRT": [
+   "AI_HARDWARE",
+   "ELECTRICAL_EQUIPMENT_&_PARTS",
+   "INDUSTRIAL",
+   "LARGE_CAP"
+  ],
+  "VRTX": [
+   "BIOTECHNOLOGY",
+   "BLUE_CHIP",
+   "HEALTH",
+   "LARGE_CAP"
+  ],
+  "VST": [
+   "AI_POWERTRAIN",
+   "INDEPENDENT_POWER_PRODUCERS",
+   "LARGE_CAP",
+   "UTILITIES"
+  ],
+  "VTI": [
+   "INDEXES"
+  ],
+  "VTR": [
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___HEALTHCARE_FACILITIES"
+  ],
+  "VXX": [
+   "MACRO"
+  ],
+  "VZ": [
+   "COMMS",
+   "LARGE_CAP",
+   "TELECOMMUNICATIONS_SERVICES"
+  ],
+  "WBD": [
+   "COMMS",
+   "ENTERTAINMENT",
+   "LARGE_CAP"
+  ],
+  "WDC": [
+   "AI_HARDWARE",
+   "COMPUTER_HARDWARE",
+   "LARGE_CAP",
+   "TECH"
+  ],
+  "WEC": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "WELL": [
+   "LARGE_CAP",
+   "REAL_ESTATE",
+   "REIT___HEALTHCARE_FACILITIES"
+  ],
+  "WFC": [
+   "BANKS___DIVERSIFIED",
+   "BLUE_CHIP",
+   "FINANCIALS",
+   "MEGA_CAP"
+  ],
+  "WM": [
+   "BLUE_CHIP",
+   "INDUSTRIAL",
+   "LARGE_CAP",
+   "WASTE_MANAGEMENT"
+  ],
+  "WMB": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "LARGE_CAP",
+   "OIL_&_GAS_MIDSTREAM"
+  ],
+  "WMT": [
+   "BLUE_CHIP",
+   "DISCOUNT_STORES",
+   "MEGA_CAP",
+   "STAPLES"
+  ],
+  "WPM": [
+   "GOLD",
+   "LARGE_CAP",
+   "MATERIALS",
+   "METALS"
+  ],
+  "WULF": [
+   "AI_HARDWARE",
+   "MID_CAP",
+   "SOFTWARE___APPLICATION",
+   "TECH"
+  ],
+  "XEL": [
+   "LARGE_CAP",
+   "REGULATED_ELECTRIC",
+   "UTILITIES"
+  ],
+  "XLB": [
+   "MATERIALS"
+  ],
+  "XLC": [
+   "COMMS"
+  ],
+  "XLE": [
+   "ENERGY"
+  ],
+  "XLF": [
+   "FINANCIALS"
+  ],
+  "XLI": [
+   "INDUSTRIAL"
+  ],
+  "XLK": [
+   "TECH"
+  ],
+  "XLP": [
+   "STAPLES"
+  ],
+  "XLRE": [
+   "REAL_ESTATE"
+  ],
+  "XLU": [
+   "UTILITIES"
+  ],
+  "XLV": [
+   "HEALTH"
+  ],
+  "XLY": [
+   "DISCRET"
+  ],
+  "XOM": [
+   "BLUE_CHIP",
+   "ENERGY",
+   "MEGA_CAP",
+   "OIL_&_GAS_INTEGRATED"
+  ],
+  "XRPUSD": [
+   "CRYPTO"
+  ],
+  "ZETA": [
+   "AI_SOFTWARE",
+   "MID_CAP",
+   "SOFTWARE___APPLICATION",
+   "TECH"
+  ],
+  "ZS": [
+   "AI_SOFTWARE",
+   "LARGE_CAP",
+   "SOFTWARE___INFRASTRUCTURE",
+   "TECH"
+  ]
+ }
+}

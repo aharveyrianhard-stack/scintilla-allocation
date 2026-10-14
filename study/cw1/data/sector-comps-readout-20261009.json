@@ -1,0 +1,1034 @@
+{
+ "built": "2026-10-09T15:35:53.365Z",
+ "bowTakenAt": "2026-10-09T15:27:20.182Z",
+ "liveReadAt": [
+  "2026-10-09T15:27:13.003Z",
+  "2026-10-09T15:29:36.667Z"
+ ],
+ "favoured": [
+  {
+   "rank": 1,
+   "key": "NEOCLOUDS_MINERS",
+   "name": "Neoclouds & AI miners",
+   "score": 0.78,
+   "share": 5.6,
+   "why": "growth +84% · breaking down · opportunity −0.56 deeply washed out"
+  },
+  {
+   "rank": 2,
+   "key": "ROBOTICS_AUTOMATION",
+   "name": "Robotics & automation",
+   "score": 0.69,
+   "share": 5,
+   "why": "growth +29% · improving · opportunity +0.05 middling"
+  },
+  {
+   "rank": 3,
+   "key": "METALS",
+   "name": "Metals",
+   "score": 0.68,
+   "share": 4.9,
+   "why": "growth a metal has no sales · improving · opportunity −0.21 washed out"
+  },
+  {
+   "rank": 4,
+   "key": "MEMORY_STORAGE",
+   "name": "Memory & storage",
+   "score": 0.68,
+   "share": 4.9,
+   "why": "growth +51% · pulling back · opportunity −0.13 middling"
+  },
+  {
+   "rank": 5,
+   "key": "AI_SERVERS_DC_KIT",
+   "name": "AI servers & datacenter kit",
+   "score": 0.67,
+   "share": 4.8,
+   "why": "growth +71% · leading · opportunity +0.23 stretched"
+  },
+  {
+   "rank": 6,
+   "key": "DC_PROPERTY",
+   "name": "Datacenter property",
+   "score": 0.66,
+   "share": 4.8,
+   "why": "growth +10% · improving · opportunity −0.21 washed out"
+  }
+ ],
+ "rankingStale": true,
+ "times": {
+  "fundGeigers": "2026-10-09T15:26:13.591Z",
+  "servedSetBowTie": "2026-10-09T15:26:13.591Z",
+  "treeCloseTier": "2026-10-07T00:21:01.759Z",
+  "treeAsOf": "2026-10-06",
+  "sectorRanking": "2026-10-09T01:45:00.822126+00:00",
+  "sectorRankingDate": "2026-10-08"
+ },
+ "readout": [
+  {
+   "sleeve": "NEOCLOUDS_MINERS",
+   "name": "Neoclouds & AI miners",
+   "rank": 1,
+   "share": 5.6,
+   "parkedIn": "no fund tracks it — it is held through its names",
+   "cohort": "NEOCLOUDS & AI MINERS",
+   "standIn": false,
+   "names": [
+    "APLD",
+    "BTDR",
+    "CIFR",
+    "CORZ",
+    "CRWV",
+    "HIVE",
+    "HUT",
+    "IREN",
+    "MARA",
+    "NBIS",
+    "RIOT",
+    "WULF"
+   ],
+   "ranked": [
+    {
+     "rank": 1,
+     "T": "RIOT",
+     "price": 16.775,
+     "tight": {
+      "centre": 37,
+      "up": 122.1
+     },
+     "broad": {
+      "centre": 37,
+      "up": 122.1,
+      "same": true
+     },
+     "growth": null,
+     "fragile": false,
+     "wfragile": false,
+     "engine": {
+      "centre": 34.89,
+      "up": 84.3
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 2,
+     "T": "MARA",
+     "price": 9.675,
+     "tight": {
+      "centre": 18,
+      "up": 82
+     },
+     "broad": {
+      "centre": 8,
+      "up": -15,
+      "same": false
+     },
+     "growth": null,
+     "fragile": true,
+     "wfragile": true,
+     "engine": {
+      "centre": 37.97,
+      "up": 246.2
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 3,
+     "T": "APLD",
+     "price": 23.1772,
+     "tight": {
+      "centre": 42,
+      "up": 81.2
+     },
+     "broad": {
+      "centre": 20,
+      "up": -12.2,
+      "same": false
+     },
+     "growth": null,
+     "fragile": true,
+     "wfragile": true,
+     "engine": {
+      "centre": 17.33,
+      "up": -31.6
+     },
+     "preProfit": {
+      "score": 0.438,
+      "rank": 33
+     }
+    },
+    {
+     "rank": 4,
+     "T": "CRWV",
+     "price": 82.2147,
+     "tight": {
+      "centre": 122,
+      "up": 48.1
+     },
+     "broad": {
+      "centre": 96,
+      "up": 17.2,
+      "same": false
+     },
+     "growth": null,
+     "fragile": true,
+     "wfragile": true,
+     "engine": {
+      "centre": 180.27,
+      "up": 96.5
+     },
+     "preProfit": {
+      "score": 0.571,
+      "rank": 10
+     }
+    },
+    {
+     "rank": 5,
+     "T": "HIVE",
+     "price": 2.5105,
+     "tight": {
+      "centre": 3,
+      "up": 30.9
+     },
+     "broad": {
+      "centre": 6,
+      "up": 140.3,
+      "same": false
+     },
+     "growth": null,
+     "fragile": false,
+     "wfragile": false,
+     "engine": {
+      "centre": 3.03,
+      "up": 4.6
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 6,
+     "T": "BTDR",
+     "price": 9.635,
+     "tight": {
+      "centre": 12,
+      "up": 24.7
+     },
+     "broad": {
+      "centre": 12,
+      "up": 24.7,
+      "same": true
+     },
+     "growth": null,
+     "fragile": true,
+     "wfragile": false,
+     "engine": {
+      "centre": 17.24,
+      "up": 58
+     },
+     "preProfit": {
+      "score": 0.324,
+      "rank": 36
+     }
+    },
+    {
+     "rank": 7,
+     "T": "IREN",
+     "price": 35.025,
+     "tight": {
+      "centre": 20,
+      "up": -43.6
+     },
+     "broad": {
+      "centre": 20,
+      "up": -41.9,
+      "same": false
+     },
+     "growth": null,
+     "fragile": true,
+     "wfragile": true,
+     "engine": {
+      "centre": 9.37,
+      "up": -77.3
+     },
+     "preProfit": {
+      "score": 0.705,
+      "rank": 3
+     }
+    },
+    {
+     "rank": 8,
+     "T": "CORZ",
+     "price": 15.165,
+     "tight": {
+      "centre": 6,
+      "up": -58
+     },
+     "broad": {
+      "centre": 14,
+      "up": -7.8,
+      "same": false
+     },
+     "growth": 225,
+     "fragile": false,
+     "wfragile": true,
+     "engine": {
+      "centre": 8.38,
+      "up": -49.8
+     },
+     "preProfit": {
+      "score": 0.449,
+      "rank": 31
+     }
+    },
+    {
+     "rank": 9,
+     "T": "CIFR",
+     "price": 13.3447,
+     "tight": {
+      "centre": 4,
+      "up": -71
+     },
+     "broad": {
+      "centre": 4,
+      "up": -71,
+      "same": true
+     },
+     "growth": null,
+     "fragile": false,
+     "wfragile": false,
+     "engine": {
+      "centre": 5.81,
+      "up": -62.5
+     },
+     "preProfit": {
+      "score": 0.479,
+      "rank": 29
+     }
+    },
+    {
+     "rank": 10,
+     "T": "NBIS",
+     "price": 220.9182,
+     "tight": {
+      "centre": 46,
+      "up": -79.2
+     },
+     "broad": {
+      "centre": 33,
+      "up": -84.9,
+      "same": false
+     },
+     "growth": null,
+     "fragile": true,
+     "wfragile": true,
+     "engine": {
+      "centre": 88.56,
+      "up": -64.6
+     },
+     "preProfit": {
+      "score": 0.761,
+      "rank": 2
+     }
+    },
+    {
+     "rank": 11,
+     "T": "WULF",
+     "price": 13.65,
+     "tight": {
+      "centre": 2,
+      "up": -86.9
+     },
+     "broad": {
+      "centre": 1,
+      "up": -90.3,
+      "same": false
+     },
+     "growth": null,
+     "fragile": true,
+     "wfragile": true,
+     "engine": {
+      "centre": 1.29,
+      "up": -91.4
+     },
+     "preProfit": {
+      "score": 0.59,
+      "rank": 9
+     }
+    }
+   ],
+   "unranked": [
+    {
+     "T": "HUT",
+     "why": "no sound yardstick",
+     "preProfit": null
+    }
+   ]
+  },
+  {
+   "sleeve": "ROBOTICS_AUTOMATION",
+   "name": "Robotics & automation",
+   "rank": 2,
+   "share": 5,
+   "parkedIn": "parked in BOTZ",
+   "cohort": "ROBOTICS & AUTOMATION",
+   "standIn": false,
+   "names": [
+    "AUR",
+    "ISRG",
+    "OUST",
+    "SERV",
+    "SYM"
+   ],
+   "ranked": [
+    {
+     "rank": 1,
+     "T": "ISRG",
+     "price": 423.5282,
+     "tight": {
+      "centre": 244,
+      "up": -42.3
+     },
+     "broad": {
+      "centre": 244,
+      "up": -42.3,
+      "same": true
+     },
+     "growth": 9.8,
+     "fragile": true,
+     "wfragile": false,
+     "engine": {
+      "centre": 210.5,
+      "up": -48
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 2,
+     "T": "SYM",
+     "price": 42.36,
+     "tight": {
+      "centre": 9,
+      "up": -79.6
+     },
+     "broad": {
+      "centre": 10,
+      "up": -76,
+      "same": false
+     },
+     "growth": 159.7,
+     "fragile": true,
+     "wfragile": false,
+     "engine": {
+      "centre": 10.77,
+      "up": -75.6
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 3,
+     "T": "OUST",
+     "price": 39.995,
+     "tight": {
+      "centre": 6,
+      "up": -84.3
+     },
+     "broad": {
+      "centre": 6,
+      "up": -84.3,
+      "same": true
+     },
+     "growth": null,
+     "fragile": true,
+     "wfragile": false,
+     "engine": {
+      "centre": 5.6,
+      "up": -87.5
+     },
+     "preProfit": {
+      "score": 0.51,
+      "rank": 24
+     }
+    }
+   ],
+   "unranked": [
+    {
+     "T": "AUR",
+     "why": "withheld",
+     "preProfit": {
+      "score": 0.532,
+      "rank": 15
+     }
+    },
+    {
+     "T": "SERV",
+     "why": "withheld",
+     "preProfit": {
+      "score": 0.512,
+      "rank": 21
+     }
+    }
+   ]
+  },
+  {
+   "sleeve": "METALS",
+   "name": "Metals",
+   "rank": 3,
+   "share": 4.9,
+   "parkedIn": "parked in GLD · SLV",
+   "cohort": null,
+   "standIn": true,
+   "names": [
+    "AEM",
+    "AU",
+    "CDE",
+    "FNV",
+    "HL",
+    "KGC",
+    "NEM",
+    "PAAS",
+    "RGLD",
+    "WPM"
+   ],
+   "ranked": [
+    {
+     "rank": 1,
+     "T": "KGC",
+     "price": 23.8446,
+     "tight": {
+      "centre": 38,
+      "up": 60.3
+     },
+     "broad": {
+      "centre": 38,
+      "up": 58.5,
+      "same": false
+     },
+     "growth": 4.1,
+     "fragile": true,
+     "wfragile": false,
+     "engine": {
+      "centre": 36.08,
+      "up": 51.5
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 2,
+     "T": "AU",
+     "price": 94.6082,
+     "tight": {
+      "centre": 135,
+      "up": 42.7
+     },
+     "broad": {
+      "centre": 136,
+      "up": 43.8,
+      "same": false
+     },
+     "growth": -3.8,
+     "fragile": true,
+     "wfragile": false,
+     "engine": {
+      "centre": 166.13,
+      "up": 77.6
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 3,
+     "T": "NEM",
+     "price": 118.4,
+     "tight": {
+      "centre": 132,
+      "up": 11.2
+     },
+     "broad": {
+      "centre": 144,
+      "up": 21.4,
+      "same": false
+     },
+     "growth": 5.5,
+     "fragile": true,
+     "wfragile": false,
+     "engine": {
+      "centre": 126.57,
+      "up": 8.7
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 4,
+     "T": "CDE",
+     "price": 17.385,
+     "tight": {
+      "centre": 18,
+      "up": 1.1
+     },
+     "broad": {
+      "centre": 18,
+      "up": 4.3,
+      "same": false
+     },
+     "growth": 6.9,
+     "fragile": false,
+     "wfragile": true,
+     "engine": {
+      "centre": 18,
+      "up": 4.8
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 5,
+     "T": "PAAS",
+     "price": 46.408,
+     "tight": {
+      "centre": 46,
+      "up": 0
+     },
+     "broad": {
+      "centre": 48,
+      "up": 3.6,
+      "same": false
+     },
+     "growth": 0.9,
+     "fragile": false,
+     "wfragile": false,
+     "engine": {
+      "centre": 49.25,
+      "up": 7.2
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 6,
+     "T": "HL",
+     "price": 17.265,
+     "tight": {
+      "centre": 15,
+      "up": -12.7
+     },
+     "broad": {
+      "centre": 15,
+      "up": -12.7,
+      "same": true
+     },
+     "growth": 8.9,
+     "fragile": false,
+     "wfragile": false,
+     "engine": {
+      "centre": 15.09,
+      "up": -11.8
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 7,
+     "T": "AEM",
+     "price": 189.7296,
+     "tight": {
+      "centre": 163,
+      "up": -14.1
+     },
+     "broad": {
+      "centre": 172,
+      "up": -9.4,
+      "same": false
+     },
+     "growth": -1.5,
+     "fragile": true,
+     "wfragile": false,
+     "engine": {
+      "centre": 169.92,
+      "up": -8.7
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 8,
+     "T": "RGLD",
+     "price": 237.32,
+     "tight": {
+      "centre": 131,
+      "up": -45
+     },
+     "broad": {
+      "centre": 186,
+      "up": -21.8,
+      "same": false
+     },
+     "growth": 10.9,
+     "fragile": false,
+     "wfragile": true,
+     "engine": {
+      "centre": 138.72,
+      "up": -40.8
+     },
+     "preProfit": null
+    }
+   ],
+   "unranked": [
+    {
+     "T": "FNV",
+     "why": "withheld",
+     "preProfit": null
+    },
+    {
+     "T": "WPM",
+     "why": "withheld",
+     "preProfit": null
+    }
+   ]
+  },
+  {
+   "sleeve": "MEMORY_STORAGE",
+   "name": "Memory & storage",
+   "rank": 4,
+   "share": 4.9,
+   "parkedIn": "parked in DRAM",
+   "cohort": "MEMORY & STORAGE",
+   "standIn": false,
+   "names": [
+    "MU",
+    "NTAP",
+    "P",
+    "SNDK",
+    "STX",
+    "WDC"
+   ],
+   "ranked": [
+    {
+     "rank": 1,
+     "T": "MU",
+     "price": 1020.8627,
+     "tight": {
+      "centre": 1120,
+      "up": 9.7
+     },
+     "broad": {
+      "centre": 3225,
+      "up": 215.9,
+      "same": false
+     },
+     "growth": 22.3,
+     "fragile": true,
+     "wfragile": true,
+     "engine": {
+      "centre": 1618.99,
+      "up": 54.8
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 2,
+     "T": "NTAP",
+     "price": 233.83,
+     "tight": {
+      "centre": 212,
+      "up": -9.5
+     },
+     "broad": {
+      "centre": 295,
+      "up": 26.3,
+      "same": false
+     },
+     "growth": 16.5,
+     "fragile": true,
+     "wfragile": true,
+     "engine": {
+      "centre": 247.11,
+      "up": 8.2
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 3,
+     "T": "WDC",
+     "price": 391.125,
+     "tight": {
+      "centre": 286,
+      "up": -26.9
+     },
+     "broad": {
+      "centre": 496,
+      "up": 26.7,
+      "same": false
+     },
+     "growth": 57.5,
+     "fragile": true,
+     "wfragile": true,
+     "engine": {
+      "centre": 441.71,
+      "up": 7.5
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 4,
+     "T": "SNDK",
+     "price": 1596.4035,
+     "tight": {
+      "centre": 978,
+      "up": -38.7
+     },
+     "broad": {
+      "centre": 2566,
+      "up": 60.8,
+      "same": false
+     },
+     "growth": 16.3,
+     "fragile": false,
+     "wfragile": true,
+     "engine": {
+      "centre": 1366.83,
+      "up": -17.7
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 5,
+     "T": "STX",
+     "price": 776.81,
+     "tight": {
+      "centre": 397,
+      "up": -48.8
+     },
+     "broad": {
+      "centre": 699,
+      "up": -10,
+      "same": false
+     },
+     "growth": 58.4,
+     "fragile": true,
+     "wfragile": false,
+     "engine": {
+      "centre": 550.32,
+      "up": -31.7
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 6,
+     "T": "P",
+     "price": 150.865,
+     "tight": {
+      "centre": 50,
+      "up": -67
+     },
+     "broad": {
+      "centre": 96,
+      "up": -36.1,
+      "same": false
+     },
+     "growth": 47.6,
+     "fragile": true,
+     "wfragile": true,
+     "engine": {
+      "centre": 105.74,
+      "up": -28.2
+     },
+     "preProfit": null
+    }
+   ],
+   "unranked": []
+  },
+  {
+   "sleeve": "AI_SERVERS_DC_KIT",
+   "name": "AI servers & datacenter kit",
+   "rank": 5,
+   "share": 4.8,
+   "parkedIn": "parked in AGIX",
+   "cohort": "AI SERVERS & DATACENTER KIT",
+   "standIn": false,
+   "names": [
+    "DELL",
+    "SHAZ",
+    "SMCI",
+    "VRT"
+   ],
+   "ranked": [
+    {
+     "rank": 1,
+     "T": "SMCI",
+     "price": 41.45,
+     "tight": {
+      "centre": 149,
+      "up": 259.2
+     },
+     "broad": {
+      "centre": 172,
+      "up": 314,
+      "same": false
+     },
+     "growth": 28.9,
+     "fragile": true,
+     "wfragile": true,
+     "engine": {
+      "centre": 184.74,
+      "up": 325.1
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 2,
+     "T": "DELL",
+     "price": 576.622,
+     "tight": {
+      "centre": 669,
+      "up": 15.9
+     },
+     "broad": {
+      "centre": 934,
+      "up": 62,
+      "same": false
+     },
+     "growth": 18.7,
+     "fragile": true,
+     "wfragile": true,
+     "engine": {
+      "centre": 766.38,
+      "up": 33.5
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 3,
+     "T": "VRT",
+     "price": 246.81,
+     "tight": {
+      "centre": 188,
+      "up": -23.7
+     },
+     "broad": {
+      "centre": 194,
+      "up": -21.6,
+      "same": false
+     },
+     "growth": 34.6,
+     "fragile": false,
+     "wfragile": false,
+     "engine": {
+      "centre": 241.84,
+      "up": -4.5
+     },
+     "preProfit": null
+    }
+   ],
+   "unranked": [
+    {
+     "T": "SHAZ",
+     "why": "withheld",
+     "preProfit": {
+      "score": 0.521,
+      "rank": null
+     }
+    }
+   ]
+  },
+  {
+   "sleeve": "DC_PROPERTY",
+   "name": "Datacenter property",
+   "rank": 6,
+   "share": 4.8,
+   "parkedIn": "parked in XLRE",
+   "cohort": "DATACENTER PROPERTY",
+   "standIn": false,
+   "names": [
+    "DLR",
+    "EQIX",
+    "GDS",
+    "IRM"
+   ],
+   "ranked": [
+    {
+     "rank": 1,
+     "T": "IRM",
+     "price": 114.73,
+     "tight": {
+      "centre": 149,
+      "up": 30
+     },
+     "broad": {
+      "centre": 85,
+      "up": -25.9,
+      "same": false
+     },
+     "growth": -2.1,
+     "fragile": false,
+     "wfragile": true,
+     "engine": {
+      "centre": 92.76,
+      "up": -20.4
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 2,
+     "T": "DLR",
+     "price": 178.725,
+     "tight": {
+      "centre": 205,
+      "up": 14.5
+     },
+     "broad": {
+      "centre": 134,
+      "up": -25.2,
+      "same": false
+     },
+     "growth": 25.8,
+     "fragile": false,
+     "wfragile": false,
+     "engine": {
+      "centre": 178.51,
+      "up": -3.3
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 3,
+     "T": "EQIX",
+     "price": 1022.32,
+     "tight": {
+      "centre": 821,
+      "up": -19.7
+     },
+     "broad": {
+      "centre": 714,
+      "up": -30.2,
+      "same": false
+     },
+     "growth": 13.5,
+     "fragile": false,
+     "wfragile": false,
+     "engine": {
+      "centre": 746.23,
+      "up": -28.8
+     },
+     "preProfit": null
+    },
+    {
+     "rank": 4,
+     "T": "GDS",
+     "price": 31.075,
+     "tight": {
+      "centre": 19,
+      "up": -39.8
+     },
+     "broad": {
+      "centre": 19,
+      "up": -39.8,
+      "same": true
+     },
+     "growth": -85.4,
+     "fragile": true,
+     "wfragile": false,
+     "engine": {
+      "centre": 18.24,
+      "up": -41.2
+     },
+     "preProfit": null
+    }
+   ],
+   "unranked": []
+  }
+ ]
+}

@@ -1,0 +1,437 @@
+{
+ "what": "CS3 \u00b7 the Hub's pre-profit methodology (PP1, branch pp1-pre-profit-20261007 \u00b7 deliverables/20261007/pre-profit/data/pre-profit.json), the shelf rows for this page's names. Scores on the 6 Oct 2026 close.",
+ "today": "2026-10-06",
+ "built_utc": "2026-10-07T14:36:11.517287Z",
+ "price_is": "the 2026-10-06 regular-session close (chart API /quotes: today_session_close, state COMPLETED), captured 2026-10-07T03:57:17Z",
+ "weights": {
+  "growth": 30,
+  "price": 15,
+  "margin": 10,
+  "money": 15,
+  "dilution": 10,
+  "debt": 10,
+  "quality": 10
+ },
+ "counts": {
+  "companies_read": 451,
+  "on_shelf": 44,
+  "ranked": 36,
+  "compare": [
+   "BE"
+  ],
+  "tier": {
+   "V": 16,
+   "A": 28,
+   "null": 1
+  },
+  "off_shelf_lost_profits": 15,
+  "off_shelf_profit_expected": 16,
+  "off_shelf_slow": 17,
+  "cover_counts": 30,
+  "quarter_average_counts": 8,
+  "vendor_value": 3,
+  "value_gap_over_10pct": 33,
+  "with_overhang": 25,
+  "with_convertible": 15,
+  "with_announced_capex": 11,
+  "thin_estimates": 7,
+  "thin_not_ranked": 7,
+  "no_estimates": 1
+ },
+ "shelf": {
+  "NBIS": {
+   "name": "Nebius Group N.V.",
+   "line": "ai cloud & hosting",
+   "tier": "A",
+   "tier_words": "a loss over its last four quarters at the operating line (a paper gain lifted the bottom line), and none expected to end this fiscal year",
+   "why_not": null,
+   "score": 0.761,
+   "rank": 2,
+   "ranked": true,
+   "thin": false,
+   "parts": {
+    "growth": 1.0,
+    "price": 0.72,
+    "margin": 0.75,
+    "money": 0.4,
+    "dilution": 0.85,
+    "debt": 0.75,
+    "quality": 0.59
+   },
+   "knockout_verdict": "passes fundamentals; timing says wait",
+   "promise": 0.877,
+   "footing": 0.62
+  },
+  "IREN": {
+   "name": "IREN Limited",
+   "line": "bitcoin mining",
+   "tier": "A",
+   "tier_words": "a loss over its last four quarters at the operating line and the bottom line, and none expected to end this fiscal year",
+   "why_not": null,
+   "score": 0.705,
+   "rank": 3,
+   "ranked": true,
+   "thin": false,
+   "parts": {
+    "growth": 1.0,
+    "price": 0.98,
+    "margin": 1.0,
+    "money": 0.35,
+    "dilution": 0.02,
+    "debt": 0.65,
+    "quality": 0.4
+   },
+   "knockout_verdict": "passes both",
+   "promise": 0.994,
+   "footing": 0.352
+  },
+  "CRWV": {
+   "name": "CoreWeave, Inc. Class A Common Stock",
+   "line": "ai cloud & hosting",
+   "tier": "A",
+   "tier_words": "a loss over its last four quarters at the operating line and the bottom line, and none expected to end this fiscal year",
+   "why_not": null,
+   "score": 0.571,
+   "rank": 10,
+   "ranked": true,
+   "thin": false,
+   "parts": {
+    "growth": 0.61,
+    "price": 0.99,
+    "margin": 0.6,
+    "money": 0.24,
+    "dilution": 0.68,
+    "debt": 0.07,
+    "quality": 0.7
+   },
+   "knockout_verdict": "fails round 2 (fundamentals)",
+   "promise": 0.71,
+   "footing": 0.401
+  },
+  "XPEV": {
+   "name": "XPeng Inc.",
+   "line": "auto manufacturing",
+   "tier": "A",
+   "tier_words": "a loss over its last four quarters at the operating line and the bottom line, and none expected to end this fiscal year",
+   "why_not": null,
+   "score": 0.55,
+   "rank": 11,
+   "ranked": true,
+   "thin": false,
+   "parts": {
+    "growth": 0.0,
+    "price": 1.0,
+    "margin": 0.26,
+    "money": 1.0,
+    "dilution": null,
+    "debt": 0.75,
+    "quality": 0.99
+   },
+   "knockout_verdict": "passes both",
+   "promise": 0.321,
+   "footing": 0.831
+  },
+  "OKLO": {
+   "name": "Oklo Inc.",
+   "line": "power producers",
+   "tier": "V",
+   "tier_words": "next to no sales yet: under 1% of its market value",
+   "why_not": null,
+   "score": 0.537,
+   "rank": 14,
+   "ranked": true,
+   "thin": false,
+   "parts": {
+    "growth": 0.5,
+    "price": 0.0,
+    "margin": null,
+    "money": 0.85,
+    "dilution": 0.54,
+    "debt": 1.0,
+    "quality": 0.55
+   },
+   "knockout_verdict": "not judged: sales under 1% of its market value",
+   "promise": 0.364,
+   "footing": 0.748
+  },
+  "RIVN": {
+   "name": "Rivian Automotive, Inc.",
+   "line": "auto manufacturing",
+   "tier": "A",
+   "tier_words": "a loss over its last four quarters at the operating line and the bottom line, and none expected to end this fiscal year",
+   "why_not": null,
+   "score": 0.526,
+   "rank": 18,
+   "ranked": true,
+   "thin": false,
+   "parts": {
+    "growth": 0.1,
+    "price": 1.0,
+    "margin": 0.38,
+    "money": 0.61,
+    "dilution": 0.66,
+    "debt": 0.75,
+    "quality": 0.77
+   },
+   "knockout_verdict": "passes both",
+   "promise": 0.396,
+   "footing": 0.686
+  },
+  "SMR": {
+   "name": "NuScale Power Corporation",
+   "line": "electrical equipment",
+   "tier": "V",
+   "tier_words": "next to no sales yet: under 1% of its market value",
+   "why_not": null,
+   "score": 0.511,
+   "rank": 23,
+   "ranked": true,
+   "thin": false,
+   "parts": {
+    "growth": 0.54,
+    "price": 0.01,
+    "margin": null,
+    "money": 0.58,
+    "dilution": 0.65,
+    "debt": 1.0,
+    "quality": 0.47
+   },
+   "knockout_verdict": "not judged: sales under 1% of its market value",
+   "promise": 0.386,
+   "footing": 0.664
+  },
+  "ASTS": {
+   "name": "AST SpaceMobile, Inc.",
+   "line": "telecom",
+   "tier": "V",
+   "tier_words": "next to no sales yet: under 1% of its market value",
+   "why_not": null,
+   "score": 0.493,
+   "rank": 26,
+   "ranked": true,
+   "thin": false,
+   "parts": {
+    "growth": 0.86,
+    "price": 0.0,
+    "margin": 0.0,
+    "money": 0.53,
+    "dilution": 0.8,
+    "debt": 0.34,
+    "quality": 0.4
+   },
+   "knockout_verdict": "not judged: sales under 1% of its market value",
+   "promise": 0.471,
+   "footing": 0.52
+  },
+  "EOSE": {
+   "name": "Eos Energy Enterprises, Inc.",
+   "line": "electrical equipment",
+   "tier": "A",
+   "tier_words": "a loss over its last four quarters at the operating line and the bottom line, and none expected to end this fiscal year",
+   "why_not": null,
+   "score": 0.489,
+   "rank": 28,
+   "ranked": true,
+   "thin": false,
+   "parts": {
+    "growth": 0.53,
+    "price": 0.97,
+    "margin": 0.4,
+    "money": 0.4,
+    "dilution": 0.0,
+    "debt": 0.6,
+    "quality": 0.25
+   },
+   "knockout_verdict": "passes both",
+   "promise": 0.624,
+   "footing": 0.324
+  },
+  "CIFR": {
+   "name": "Cipher Mining Inc.",
+   "line": "bitcoin mining",
+   "tier": "A",
+   "tier_words": "a loss over its last four quarters at the operating line and the bottom line, and none expected to end this fiscal year",
+   "why_not": null,
+   "score": 0.479,
+   "rank": 29,
+   "ranked": true,
+   "thin": false,
+   "parts": {
+    "growth": 0.66,
+    "price": 0.46,
+    "margin": 0.0,
+    "money": 0.61,
+    "dilution": 0.5,
+    "debt": 0.0,
+    "quality": 0.71
+   },
+   "knockout_verdict": "passes both",
+   "promise": 0.484,
+   "footing": 0.473
+  },
+  "LCID": {
+   "name": "Lucid Group, Inc.",
+   "line": "auto manufacturing",
+   "tier": "A",
+   "tier_words": "a loss over its last four quarters at the operating line and the bottom line, and none expected to end this fiscal year",
+   "why_not": null,
+   "score": 0.445,
+   "rank": 32,
+   "ranked": true,
+   "thin": false,
+   "parts": {
+    "growth": 0.62,
+    "price": 1.0,
+    "margin": 0.16,
+    "money": 0.0,
+    "dilution": 0.28,
+    "debt": 0.48,
+    "quality": 0.15
+   },
+   "knockout_verdict": "passes fundamentals; timing says wait",
+   "promise": 0.643,
+   "footing": 0.204
+  },
+  "BE": {
+   "name": "Bloom Energy Corporation",
+   "line": "electrical equipment",
+   "tier": null,
+   "tier_words": null,
+   "why_not": "made a profit over its last four quarters, at the operating line and the bottom line",
+   "score": 0.524,
+   "rank": null,
+   "ranked": false,
+   "thin": false,
+   "parts": {
+    "growth": 0.32,
+    "price": 0.4,
+    "margin": 0.23,
+    "money": 1.0,
+    "dilution": 0.43,
+    "debt": 0.75,
+    "quality": 0.79
+   },
+   "knockout_verdict": "passes fundamentals; timing says wait",
+   "promise": 0.323,
+   "footing": 0.771
+  },
+  "QS": {
+   "name": "QuantumScape Corporation",
+   "line": "auto parts",
+   "tier": "V",
+   "tier_words": "next to no sales yet: under 1% of its market value",
+   "why_not": null,
+   "score": 0.617,
+   "rank": null,
+   "ranked": false,
+   "thin": true,
+   "parts": {
+    "growth": null,
+    "price": null,
+    "margin": null,
+    "money": 0.9,
+    "dilution": 1.0,
+    "debt": 1.0,
+    "quality": 0.08
+   },
+   "knockout_verdict": "not judged: sales under 1% of its market value",
+   "promise": 0.5,
+   "footing": 0.76
+  },
+  "UUUU": {
+   "name": "Energy Fuels Inc.",
+   "line": "uranium",
+   "tier": "A",
+   "tier_words": "a loss over its last four quarters at the operating line and the bottom line, and none expected to end this fiscal year",
+   "why_not": null,
+   "score": 0.692,
+   "rank": null,
+   "ranked": false,
+   "thin": true,
+   "parts": {
+    "growth": null,
+    "price": null,
+    "margin": 0.77,
+    "money": 1.0,
+    "dilution": 1.0,
+    "debt": 1.0,
+    "quality": 0.4
+   },
+   "knockout_verdict": "passes both",
+   "promise": 0.549,
+   "footing": 0.867
+  }
+ },
+ "off_shelf": {
+  "BIDU": {
+   "name": "Baidu, Inc.",
+   "why": "had steady profits and lost them: an operating profit in 5 of the 5 fiscal years before",
+   "reason": null,
+   "tier": null,
+   "class": null
+  },
+  "BYND": {
+   "name": "Beyond Meat, Inc.",
+   "why": "pre-profit, but its sales are expected to grow under 25% over the next twelve months: a loss-maker, not a high-growth play",
+   "reason": null,
+   "tier": null,
+   "class": null
+  },
+  "COIN": {
+   "name": "Coinbase Global, Inc.",
+   "why": "had steady profits and lost them: an operating profit in 3 of the 5 fiscal years before",
+   "reason": null,
+   "tier": null,
+   "class": null
+  },
+  "DKNG": {
+   "name": "DraftKings Inc.",
+   "why": "a loss on its filed figures, but the analysts expect a profit this fiscal year on their own footing: the knockout's comps can price it",
+   "reason": null,
+   "tier": null,
+   "class": null
+  },
+  "F": {
+   "name": "Ford Motor Company",
+   "why": "had steady profits and lost them: an operating profit in 4 of the 5 fiscal years before",
+   "reason": null,
+   "tier": null,
+   "class": null
+  },
+  "GPN": {
+   "name": "Global Payments Inc.",
+   "why": "had steady profits and lost them: an operating profit in 5 of the 5 fiscal years before",
+   "reason": null,
+   "tier": null,
+   "class": null
+  },
+  "LI": {
+   "name": "Li Auto Inc.",
+   "why": "pre-profit, but its sales are expected to grow under 25% over the next twelve months: a loss-maker, not a high-growth play",
+   "reason": null,
+   "tier": null,
+   "class": null
+  },
+  "NIO": {
+   "name": "NIO Inc.",
+   "why": "pre-profit, but its sales are expected to grow under 25% over the next twelve months: a loss-maker, not a high-growth play",
+   "reason": null,
+   "tier": null,
+   "class": null
+  },
+  "SFNC": {
+   "name": "Simmons First National Corporation",
+   "why": "had steady profits and lost them: an operating profit in 5 of the 5 fiscal years before",
+   "reason": null,
+   "tier": null,
+   "class": null
+  },
+  "TLN": {
+   "name": "Talen Energy Corporation",
+   "why": "a loss on its filed figures, but the analysts expect a profit this fiscal year on their own footing: the knockout's comps can price it",
+   "reason": null,
+   "tier": null,
+   "class": null
+  }
+ }
+}

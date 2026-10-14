@@ -1,0 +1,135 @@
+{
+ "taken": "2026-10-14T01:13:48.130Z",
+ "errors": 0,
+ "nonGet": 0,
+ "method": "THE BLENDED SECTOR BOW TIE · five readings, weights State Street fund 20 / Hub sector compare 20 / market bow tie 20 / tree close tier 20 / sector ranking 20",
+ "times": {
+  "fundGeigers": "2026-10-14T01:12:13.111Z",
+  "servedSetBowTie": "2026-10-14T01:12:13.111Z",
+  "treeCloseTier": "2026-10-07T00:21:01.759Z",
+  "treeAsOf": "2026-10-06",
+  "sectorRanking": "2026-10-13T21:15:00.811246+00:00",
+  "sectorRankingDate": "2026-10-13"
+ },
+ "spine": {
+  "cohort_tree": "LIVE ",
+  "sector_rankings": "STALE 2026-10-13T21:15:00.811246+00:00",
+  "comps_decisions": "LIVE ",
+  "ticker_cohorts": "LIVE ",
+  "geiger": "LIVE 2026-10-14T01:12:13.111Z",
+  "sector_members": "LIVE ",
+  "sector_compare": "LIVE 2026-10-14T01:12:13.111Z",
+  "tree_close_tier": "LIVE 2026-10-07T00:21:01.759Z",
+  "comps-feed": "LIVE "
+ },
+ "sectors": [
+  "1 ENERGY 0.54 LEADING DEEP OVERBOUGHT · missing none",
+  "2 HEALTH 0.27 LEADING OVERBOUGHT · missing none",
+  "3 UTILITIES 0.18 IMPROVING NEUTRAL · missing none",
+  "4 STAPLES 0.15 LEADING NEUTRAL · missing none",
+  "5 TECH 0.09 WEAKENING NEUTRAL · missing none",
+  "6 FINANCIALS -0.01 IMPROVING NEUTRAL · missing none",
+  "7 DISCRET -0.06 IMPROVING NEUTRAL · missing none",
+  "8 COMMS -0.07 IMPROVING NEUTRAL · missing none",
+  "9 MATERIALS -0.09 LAGGING NEUTRAL · missing none",
+  "10 REAL_ESTATE -0.09 IMPROVING NEUTRAL · missing none",
+  "11 CRYPTO -0.17 LAGGING NEUTRAL · missing HUBCMP,MKTBOW,TREE",
+  "12 INDUSTRIAL -0.20 LAGGING OVERSOLD · missing none",
+  "13 METALS -0.48 LAGGING OVERSOLD · missing none"
+ ],
+ "tree": [
+  "1 AI_SOFTWARE_DATA 0.44 LEADING",
+  "2 AI_SERVERS_DC_KIT 0.01 WEAKENING",
+  "3 AI_ACCELERATORS -0.08 WEAKENING",
+  "4 AI_NETWORKING_OPTICAL -0.11 WEAKENING",
+  "5 DC_PROPERTY -0.16 LAGGING",
+  "6 AI_POWERTRAIN -0.23 LAGGING",
+  "7 MEMORY_STORAGE -0.27 LAGGING",
+  "8 ROBOTICS_AUTOMATION -0.28 LAGGING",
+  "9 NEOCLOUDS_MINERS -0.56 LAGGING"
+ ],
+ "tally": {
+  "n": 11,
+  "leading": [
+   "ENERGY",
+   "HEALTH",
+   "STAPLES"
+  ],
+  "lagging": [
+   "MATERIALS",
+   "INDUSTRIAL"
+  ],
+  "turning": [
+   "UTILITIES",
+   "FINANCIALS",
+   "DISCRET",
+   "COMMS",
+   "REAL_ESTATE"
+  ],
+  "pulling": [
+   "TECH"
+  ],
+  "beside": [
+   "CRYPTO",
+   "METALS"
+  ],
+  "avg": 0.06646426229166146,
+  "bowAvg": -0.16888751425440762
+ },
+ "money": [
+  "1 NEOCLOUDS_MINERS 0.80 FUNDED 5.8% · no fund tracks it — it is held through its names",
+  "2 MEMORY_STORAGE 0.71 FUNDED 5.1% · parked in DRAM",
+  "3 AI_NETWORKING_OPTICAL 0.67 FUNDED 4.9% · parked in IYZ",
+  "4 AI_SERVERS_DC_KIT 0.67 FUNDED 4.8% · parked in AGIX",
+  "5 AI_ACCELERATORS 0.67 FUNDED 4.8% · parked in SMH",
+  "6 ROBOTICS_AUTOMATION 0.64 FUNDED 4.6% · parked in BOTZ",
+  "7 REAL_ESTATE 0.58 out · growth +9% — low among the candidates",
+  "8 AI_POWERTRAIN 0.54 out · breaking down",
+  "9 METALS 0.54 out · breaking down",
+  "10 TECH 0.53 out · not washed out: +0.09",
+  "11 DISCRET 0.51 out · growth +9% — low among the candidates",
+  "12 INDUSTRIAL 0.50 out · breaking down",
+  "13 AI_SOFTWARE_DATA 0.50 out · not washed out: +0.44",
+  "14 COMMS 0.49 out · growth +8% — low among the candidates",
+  "15 CRYPTO 0.48 out · breaking down",
+  "16 DC_PROPERTY 0.45 out · breaking down",
+  "17 FINANCIALS 0.41 out · growth +6% — low among the candidates",
+  "18 UTILITIES 0.34 out · not washed out: +0.18",
+  "19 HEALTH 0.33 out · not washed out: +0.27",
+  "20 STAPLES 0.25 out · growth +3% — low among the candidates",
+  "21 MATERIALS 0.23 out · growth +5% — low among the candidates",
+  "22 ENERGY 0.17 out · growth +1% — low among the candidates"
+ ],
+ "shares": {
+  "NEOCLOUDS_MINERS": 0.11507344632768361,
+  "MEMORY_STORAGE": 0.10232768361581922,
+  "AI_NETWORKING_OPTICAL": 0.09731073446327683,
+  "AI_SERVERS_DC_KIT": 0.09667796610169493,
+  "AI_ACCELERATORS": 0.095954802259887,
+  "ROBOTICS_AUTOMATION": 0.09265536723163842
+ },
+ "board": [
+  "ENERGY · ENERGY 15/6",
+  "HEALTH · HEALTH 22/14",
+  "UTILITIES · AI_POWERTRAIN 6/3",
+  "UTILITIES · UTILITIES 5/3",
+  "STAPLES · STAPLES 7/2",
+  "TECH · AI_HARDWARE 39/38",
+  "TECH · GROWTH 23/19",
+  "TECH · MEGACAP 12/12",
+  "TECH · AI_SOFTWARE 13/12",
+  "TECH · THEMATIC 23/12",
+  "TECH · TECH 69/61",
+  "FINANCIALS · FINANCIALS 32/23",
+  "DISCRET · INTL 3/1",
+  "DISCRET · DISCRET 27/15",
+  "COMMS · COMMS 9/9",
+  "MATERIALS · MATERIALS 5/2",
+  "REAL_ESTATE · REAL_ESTATE 2/2",
+  "CRYPTO · CRYPTO 11/2",
+  "INDUSTRIAL · BLUE_CHIP 128/80",
+  "INDUSTRIAL · INDUSTRIAL 46/33",
+  "METALS · METALS 2/0"
+ ]
+}
+bowtie exit 0
