@@ -45,10 +45,24 @@ export function hygWithPayouts(dates, price, payouts) { const known = new Map(pa
   const tr = []; let prev = null, cur = null; for (let i = 0; i < dates.length; i++) { const p = price[i]; if (p == null) { tr.push(null); continue; } if (prev == null) cur = p; else cur *= (p + (known.get(dates[i]) ?? proj.get(dates[i]) ?? 0)) / prev; prev = p; tr.push(cur); } return { tr, estimated }; }
 
 /* ---------- the chart API's answers → one aligned series ---------- */
-export function alignBars(candles) { const spy = (candles.SPY?.series || []).filter((b) => b && b.c != null), dates = spy.map((b) => iso(b.t)), bars = {}, absent = [];
-  for (const s of E.ALL_SYMBOLS) { const ser = (candles[s]?.series || []).filter((b) => b && b.c != null); if (!ser.length) { absent.push(s); bars[s] = null; continue; } const m = new Map(ser.map((b) => [iso(b.t), b])); let cur = null; const c = [], h = [], l = [];
-    for (const d of dates) { const b = m.get(d); if (b) { cur = b.c; c.push(b.c); h.push(Math.max(b.h ?? b.c, b.c)); l.push(Math.min(b.l ?? b.c, b.c)); } else { c.push(cur); h.push(cur); l.push(cur); } } bars[s] = { c, h, l }; }
-  return { dates, bars, absent }; }
+export function alignBars(candles) { const spy = (candles.SPY?.series || []).filter((b) => b && b.c != null), dates = spy.map((b) => iso(b.t)), bars = {}, absent = [], carried = [];
+  for (const s of E.ALL_SYMBOLS) { const ser = (candles[s]?.series || []).filter((b) => b && b.c != null); if (!ser.length) { absent.push(s); bars[s] = null; continue; } const m = new Map(ser.map((b) => [iso(b.t), b])); let cur = null, real = false; const c = [], h = [], l = [];
+    for (const d of dates) { const b = m.get(d); real = !!b; if (b) { cur = b.c; c.push(b.c); h.push(Math.max(b.h ?? b.c, b.c)); l.push(Math.min(b.l ?? b.c, b.c)); } else { c.push(cur); h.push(cur); l.push(cur); } } bars[s] = { c, h, l }; if (dates.length && !real) carried.push(s); }
+  return { dates, bars, absent, carried }; }   // carried: symbols whose LAST row is the previous close carried forward (no bar of their own on SPY's newest date)
+/* 16 Nov 2026 (coordinator) — AFTER THE CLOSE, A CARRIED LAST ROW TAKES ITS OWN SESSION'S QUOTE. From about 16:15 New York SPY's settled
+   daily bar is in the series, so withLive() adds no live bar; FMP's VIX daily bar can land hours later, so alignBars() carried Friday's
+   19.30 into Monday's row and the first screen read "the VIX at 19.3: under your 20, adds nothing" on a day that closed at 22.91 and
+   touched 24.52 (version 3's rule: +15 points). A carried symbol takes the provider's quote for that SAME session — the VIX from /macro
+   with its day high and low, anything else from /quotes with the session's 30-minute range — and stays carried when no such quote exists. */
+export function patchCarried(S0, quotes, macro, ranges = {}) { const k = S0.dates.length - 1, session = S0.dates[k], q = quotes || {}, patched = [];
+  if (k < 0 || !(S0.carried && S0.carried.length)) return { S: S0, patched };
+  const bars = { ...S0.bars };
+  for (const s of S0.carried) { const b = S0.bars[s]; if (!b) continue; let p = null, hi = null, lo = null;
+    if (s === "VIX") { const vq = macro?.VIX?.quote; if (vq && vq.price != null && vq.session_et === session) { p = vq.price; hi = vq.day_high; lo = vq.day_low; } }
+    else { const qq = q[s]; if (qq && qq.price_session_et === session) { p = quotePrice(qq); const r = ranges[s]; hi = r ? r.hi : null; lo = r ? r.lo : null; } }
+    if (p == null) continue;
+    const c = b.c.slice(), h = b.h.slice(), l = b.l.slice(); c[k] = p; h[k] = Math.max(hi ?? p, p); l[k] = Math.min(lo ?? p, p); bars[s] = { c, h, l }; patched.push(s); }
+  return { S: { ...S0, bars, carried: S0.carried.filter((s) => !patched.includes(s)) }, patched }; }
 /* a quote's price for the session: the session's own completed close once the provider has it, else the live price */
 export const quotePrice = (q) => (!q ? null : q.today_session_close != null && q.today_session_close_state && q.today_session_close_state !== "ABSENT" ? q.today_session_close : q.price ?? null);
 /* today's own high and low per symbol from the 30-minute bars of the regular session (09:30–16:00 New York) */
@@ -56,7 +70,8 @@ export function sessionRanges(intraday, session) { const out = {}; if (!intraday
   for (const [s, o] of Object.entries(intraday)) { let hi = -Infinity, lo = Infinity; for (const b of (o && o.series) || []) { if (!b || b.h == null || b.l == null) continue; const p = Object.fromEntries(f.formatToParts(new Date(b.t)).map((x) => [x.type, x.value])), min = +p.hour * 60 + +p.minute; if (`${p.year}-${p.month}-${p.day}` !== session || min < SESSION.open || min >= SESSION.close) continue; if (b.h > hi) hi = b.h; if (b.l < lo) lo = b.l; } if (isFinite(hi)) out[s] = { hi, lo }; } return out; }
 /* add today's live prices as one more bar when the session is newer than the last settled daily bar */
 export function withLive(S0, quotes, macro, ranges = {}) { const q = quotes || {}, session = q.SPY?.price_session_et, spy = quotePrice(q.SPY), lastBar = S0.dates[S0.dates.length - 1], k0 = S0.dates.length - 1;
-  if (!session || spy == null || session <= lastBar) return { S: S0, live: false, session: lastBar, missing: [], noRange: [], prices: Object.fromEntries(E.ALL_SYMBOLS.map((s) => [s, S0.bars[s] ? S0.bars[s].c[k0] : null])), prev: Object.fromEntries(E.ALL_SYMBOLS.map((s) => [s, S0.bars[s] ? S0.bars[s].c[k0 - 1] : null])) };
+  if (!session || spy == null || session <= lastBar) { const P = patchCarried(S0, q, macro, ranges), S1 = P.S;
+    return { S: S1, live: false, session: lastBar, missing: [], noRange: [], patched: P.patched, prices: Object.fromEntries(E.ALL_SYMBOLS.map((s) => [s, S1.bars[s] ? S1.bars[s].c[k0] : null])), prev: Object.fromEntries(E.ALL_SYMBOLS.map((s) => [s, S1.bars[s] ? S1.bars[s].c[k0 - 1] : null])) }; }
   const bars = {}, missing = [], noRange = [], prices = {}, prev = {}, vq = macro?.VIX?.quote;
   for (const s of E.ALL_SYMBOLS) { const b = S0.bars[s]; if (!b) { bars[s] = null; prices[s] = null; continue; } const last = b.c[k0]; let p, hi, lo;
     if (s === "VIX") { const ok = vq && vq.price != null && (!vq.session_et || vq.session_et === session); p = ok ? vq.price : null; hi = ok ? vq.day_high : null; lo = ok ? vq.day_low : null; } else { p = quotePrice(q[s]); const r = ranges[s]; hi = r ? r.hi : null; lo = r ? r.lo : null; }

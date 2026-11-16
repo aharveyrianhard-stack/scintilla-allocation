@@ -118,6 +118,16 @@ test("17 · the clock: every minute while New York is open, every five minutes a
   const pre = at("2026-10-07T12:00:00Z"); assert.equal(readDue(at("2026-10-07T12:04:00Z"), pre), false); assert.equal(readDue(at("2026-10-07T12:05:00Z"), pre), true); assert.equal(readDue(at("2026-10-07T20:10:10Z"), at("2026-10-07T20:09:00Z")), true, "once more from 16:10 for the settled bars"); assert.equal(readDue(at("2026-10-10T15:00:00Z"), open), false);
   assert.equal(SESSION.openEverySec, 60); assert.match(ageWords({ readAt: open }, open.ms + 37000), /37 s old/); assert.match(ageWords({ readAt: open }, open.ms + 600000), /10 min old/); assert.equal(ageWords({}), "no reading yet"); });
 
+test("18b · after the close, a symbol with no bar of its own on the newest date takes that session's quote (16 Nov: the VIX read 19.3 on a 22.91 close)", () => {
+  const day0 = Date.UTC(2026, 10, 13), mk = (c) => ({ series: [0, 3].map((d, i) => ({ t: day0 + d * 864e5, c: c + i, h: c + i + 1, l: c + i - 1 })) });
+  const candles = Object.fromEntries(E.ALL_SYMBOLS.map((s, i) => [s, mk(100 + i)])); candles.VIX = { series: [{ t: day0, c: 19.3, h: 21.2, l: 18.9 }] };
+  const S0 = alignBars(candles); assert.deepEqual(S0.dates, ["2026-11-13", "2026-11-16"]); assert.deepEqual(S0.carried, ["VIX"]); assert.equal(S0.bars.VIX.c[1], 19.3, "Friday's close carried into Monday's row");
+  const quotes = { SPY: { price: 740, price_session_et: "2026-11-16" } };
+  const L = withLive(S0, quotes, { VIX: { quote: { price: 22.91, day_high: 24.52, day_low: 19.84, session_et: "2026-11-16" } } });
+  assert.equal(L.live, false); assert.deepEqual(L.patched, ["VIX"]); assert.equal(L.prices.VIX, 22.91); assert.equal(L.S.bars.VIX.h[1], 24.52); assert.equal(L.S.bars.VIX.l[1], 19.84); assert.equal(L.prev.VIX, 19.3); assert.equal(S0.bars.VIX.c[1], 19.3, "the input series is not changed");
+  const stale = withLive(S0, quotes, { VIX: { quote: { price: 22.91, day_high: 24.52, day_low: 19.84, session_et: "2026-11-13" } } });
+  assert.deepEqual(stale.patched, []); assert.equal(stale.prices.VIX, 19.3, "no quote for that session: the carried close stays"); });
+
 test("18 · live prices to one more bar: a quote becomes today's bar, a missing quote keeps the last close and is named, the session's own high and low come from the 30-minute bars, HYG's payouts are added back", () => {
   const day0 = Date.UTC(2026, 9, 5), mk = (c) => ({ series: [0, 1].map((d) => ({ t: day0 + d * 864e5, c: c + d, h: c + d + 1, l: c + d - 1 })) }), candles = Object.fromEntries(E.ALL_SYMBOLS.map((s, i) => [s, mk(100 + i)])); delete candles.VST;
   const S0 = alignBars(candles); assert.deepEqual(S0.dates, ["2026-10-05", "2026-10-06"]); assert.deepEqual(S0.absent, ["VST"]); assert.equal(S0.bars.VST, null);
